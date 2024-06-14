@@ -1,0 +1,79 @@
+[project]
+name = "Apply for a Licence"
+description = "Apply for a Licence"
+version = "0.0.1"
+authors = [
+    "Chris Pettinga <chris.pettinga@digital.trade.gov.uk>",
+    "Jennifer Riordan <jennifer.riordan@digital.trade.gov.uk>",
+    "Morgan Rees <morgan.rees@digital.trade.gov.uk>",
+]
+readme = "README.md"
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+omit = [
+    '*/migrations/*',
+    '*/site-packages/*',
+    'manage.py',
+    '*/.pycharm_helpers/*',
+    '*/pycharm/*',
+]
+
+exclude_lines = [
+    # Don't complain about missing debug-only code:
+    'def __repr__',
+    'if self\.debug',
+
+    # Don't complain if tests don't hit defensive assertion code:
+    'raise AssertionError',
+    'raise NotImplementedError',
+
+    # Don't complain if non-runnable code isn't run:
+    'if 0:',
+    'if __name__ == .__main__.:',
+]
+
+[tool.flake8]
+max-line-length = 130
+exclude = """
+/(
+    */migrations/*
+    */question_content.py
+)/
+"""
+extend-ignore = ["F405"]
+
+[tool.black]
+line-length = 130
+target-version = ['py311']
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.mypy_cache
+  | \.venv
+  | _build
+  | .venv
+  | tests-reports
+  | venv
+  | .env
+)/
+'''
+
+[tool.isort]
+profile = "black"
+skip = [".gitignore", ".dockerignore", "migrations", "static", "templates", "manage.py"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "django_app.config.settings.test"
+testpaths = "tests"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+
+addopts = """
+    --reuse-db
+    --ds=config.settings.test
+"""
+django_find_project = false
+pythonpath = "django_app"
