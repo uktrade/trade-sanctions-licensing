@@ -8,10 +8,10 @@
 {% block extra_js %}
     {{ form.media.js }}
 {% endblock extra_js %}
-{% block title %}Give feedback on the Report a Suspected Breach of Trade Sanctions service{% endblock title %}
+{% block title %}Give feedback on the Apply for a Licence service{% endblock title %}
 {% block column_content %}
     <form method="post" enctype='multipart/form-data' novalidate>
-        <h1 class="govuk-heading-l">Give feedback on the Report a Suspected Breach of Trade Sanctions service</h1>
+        <h1 class="govuk-heading-l">Give feedback on the Apply for a Licence service</h1>
         {% csrf_token %}
         {% crispy form %}
     </form>
