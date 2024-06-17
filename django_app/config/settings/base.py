@@ -23,7 +23,7 @@ from sentry_sdk.integrations.django import DjangoIntegration
 is_dbt_platform = "COPILOT_ENVIRONMENT_NAME" in os.environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # django_app/
-ROOT_DIR = BASE_DIR.parent  # report-a-breach/
+ROOT_DIR = BASE_DIR.parent  # licencing/
 
 SECRET_KEY = env.django_secret_key
 
@@ -212,6 +212,7 @@ ENFORCE_STAFF_SSO = env.enforce_staff_sso
 
 if ENFORCE_STAFF_SSO:
     AUTHENTICATION_BACKENDS = [
+        # TODO: do we need to port this over and rename?
         "auth.breach_portal_auth.BreachPortalAuth",
     ]
     AUTHBROKER_URL = env.authbroker_url
@@ -223,6 +224,7 @@ if ENFORCE_STAFF_SSO:
     OAUTHLIB_INSECURE_TRANSPORT = env.oauthlib_insecure_transport
 
     LOGIN_URL = reverse_lazy("authbroker_client:login")
+    # TODO: update when viewing portal is created
     LOGIN_REDIRECT_URL = reverse_lazy("view_a_suspected_breach:landing")
 else:
     LOGIN_URL = "/admin/login"

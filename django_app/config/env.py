@@ -16,7 +16,7 @@ class BaseSettings(PydanticBaseSettings):
 
     debug: bool = False
     django_secret_key: str
-    rab_allowed_hosts: list[str] = ["*"]
+    licencing_allowed_hosts: list[str] = ["*"]
 
     clam_av_username: str = ""
     clam_av_password: str = ""
@@ -28,7 +28,6 @@ class BaseSettings(PydanticBaseSettings):
     email_verify_code_template_id: str = ""
     restrict_sending: bool = True
     email_verify_timeout_seconds: int = 3600
-    email_vasb_user_admin_template_id: str = ""
 
     sentry_dsn: str = ""
     sentry_environment: str = ""
@@ -69,7 +68,7 @@ class BaseSettings(PydanticBaseSettings):
     @computed_field
     @property
     def allowed_hosts(self) -> list[str]:
-        return self.rab_allowed_hosts
+        return self.licencing_allowed_hosts
 
     @computed_field
     @property
@@ -143,9 +142,9 @@ class DBTPlatformSettings(BaseSettings):
     @property
     def allowed_hosts(self) -> list[str]:
         if self.in_build_step:
-            return self.rab_allowed_hosts
+            return self.licencing_allowed_hosts
         else:
-            return setup_allowed_hosts(self.rab_allowed_hosts)
+            return setup_allowed_hosts(self.licencing_allowed_hosts)
 
     @computed_field
     @property

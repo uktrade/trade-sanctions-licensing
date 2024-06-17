@@ -32,12 +32,12 @@
             {% if request.resolver_match.url_name != "cookies_consent" %}
                 {% if request.COOKIES.cookie_preferences_set != "true" %}
                     <div class="govuk-cookie-banner hide-on-print" data-nosnippet role="region"
-                         aria-label="Cookies on Report a suspected trade sanctions breach">
+                         aria-label="Cookies on Apply for a Licence service">
                         <div class="govuk-cookie-banner__message govuk-width-container">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-two-thirds">
                                     <h2 class="govuk-cookie-banner__heading govuk-heading-m">
-                                        Cookies on Report a suspected breach of trade sanctions
+                                        Cookies on Apply for a Licence
                                     </h2>
                                     <div class="govuk-cookie-banner__content">
                                         <p class="govuk-body">We use some essential cookies to make this service
@@ -70,7 +70,7 @@
                         <form method="post" action="{% url 'hide_cookies' %}?banner=True">
                             {% csrf_token %}
                             <div class="govuk-cookie-banner" data-nosnippet role="region"
-                                 aria-label="Cookies on Report a Suspected Breach of Trade Sanctions">
+                                 aria-label="Cookies on Apply for a Licence">
                                 <div class="govuk-cookie-banner__message govuk-width-container">
                                     <div class="govuk-grid-row">
                                         <div class="govuk-grid-column-two-thirds">
@@ -104,7 +104,7 @@
         {% endblock cookie_banner %}
 
 
-        <title>{% block title %}{% endblock title %} - Report a suspected breach of trade sanctions - GOV.UK</title>
+        <title>{% block title %}{% endblock title %} - Apply for a Licence - GOV.UK</title>
 
         <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="{% static "core/assets/images/favicon.ico" %}"
               type="image/x-icon">
