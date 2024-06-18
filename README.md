@@ -58,7 +58,7 @@ Run the following command to apply migrations to the database:
 invoke migrate
 ```
 
-### 5. Run the web server
+### 7. Run the web server
 After following the setup, use the following to run the web app
 
 `invoke runserver --port-number <port_number>`
