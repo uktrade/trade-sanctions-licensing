@@ -72,6 +72,7 @@ AWS_DEFAULT_ACL = "private"
 TEMPORARY_S3_BUCKET_ACCESS_KEY_ID = env.temporary_s3_bucket_configuration["access_key_id"]
 TEMPORARY_S3_BUCKET_SECRET_ACCESS_KEY = env.temporary_s3_bucket_configuration["secret_access_key"]
 TEMPORARY_S3_BUCKET_NAME = env.temporary_s3_bucket_configuration["bucket_name"]
+AWS_ACCESS_KEY_ID = TEMPORARY_S3_BUCKET_ACCESS_KEY_ID
 
 # Permanent document bucket
 PERMANENT_S3_BUCKET_ACCESS_KEY_ID = env.permanent_s3_bucket_configuration["access_key_id"]
