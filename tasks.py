@@ -32,8 +32,8 @@ def migrate(context: Any) -> None:
 
 
 @task
-def runserver(context: Any) -> None:
-    context.run("pipenv run python django_app/manage.py runserver", hide=False, pty=True)
+def runserver(context: Any, port_number: int = 8000) -> None:
+    context.run(f"pipenv run python django_app/manage.py runserver {port_number}", hide=False, pty=True)
 
 
 @task

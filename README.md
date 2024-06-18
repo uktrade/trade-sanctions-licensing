@@ -45,12 +45,28 @@ Use docker-compose to run the backing services
 docker-compose up -d
 ```
 
+### 5. Add the sites to your hosts file
+Add the following to your etc/hosts file:
+```
+127.0.0.1 apply-for-a-licence
+127.0.0.1 view-a-licence
+```
+
+### 6. Apply migrations to the database
+Run the following command to apply migrations to the database:
+```
+invoke migrate
+```
+
 ### 5. Run the web server
 After following the setup, use the following to run the web app
 
-`invoke runserver`
+`invoke runserver --port-number <port_number>`
 
-Django will provide the local url which should be http://127.0.0.1:8000/, navigate to this in your browser to see through the prototype.
+e.g.
+`invoke runserver --port-number 28000`
+
+Navigate to either `apply-for-a-licence:<port_number>` or `view-a-licence:<port_number>` in your browser to see the application.
 
 ## Useful commands
 ### Django
