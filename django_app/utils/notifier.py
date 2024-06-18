@@ -1,7 +1,8 @@
 from typing import Any
 
 from django.conf import settings
-from django.contrib.sessions.models import Session
+
+# from django.contrib.sessions.models import Session
 from django.http import HttpRequest, HttpResponse
 from django.utils.crypto import get_random_string
 from notifications_python_client.errors import HTTPError
@@ -10,11 +11,12 @@ from notifications_python_client.notifications import NotificationsAPIClient
 
 def verify_email(reporter_email_address: str, request: HttpRequest) -> None:
     verify_code = get_random_string(6, allowed_chars="0123456789")
-    user_session = Session.objects.get(session_key=request.session.session_key)
-    ReporterEmailVerification.objects.create(
-        reporter_session=user_session,
-        email_verification_code=verify_code,
-    )
+    # user_session = Session.objects.get(session_key=request.session.session_key)
+    # TODO: update this model to match the correct licencing model
+    # ReporterEmailVerification.objects.create(
+    #     reporter_session=user_session,
+    #     email_verification_code=verify_code,
+    # )
     print(verify_code)
     send_email(
         email=reporter_email_address,
@@ -44,7 +46,7 @@ def send_email(email: str, context: dict[str, Any], template_id: str, reference:
 
 def get_context(extra_context: dict | None = None) -> dict[str, Any]:
     extra_context = extra_context or {}
-    footer = "Report a trade sanctions breach service"
+    footer = "Apply for a Licence service"
     context = {
         "footer": footer,
     }

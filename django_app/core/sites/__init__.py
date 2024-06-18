@@ -18,7 +18,7 @@ def require_apply_for_a_licence() -> Any:
         @functools.wraps(f)
         def _wrapped_view(request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
             if not is_apply_for_a_licence_site(request.site):
-                raise PermissionDenied("View a breach feature requires view a breach site.")
+                raise PermissionDenied("Apply for a licence feature requires apply for a licence site.")
 
             return f(request, *args, **kwargs)
 
@@ -34,7 +34,7 @@ def require_view_a_licence() -> Any:
         @functools.wraps(func)
         def _wrapped_view(request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
             if not is_view_a_licence_site(request.site):
-                raise PermissionDenied("Report a breach feature requires report a breach site.")
+                raise PermissionDenied("View a licence feature requires view a licence site.")
             return func(request, *args, **kwargs)
 
         return _wrapped_view

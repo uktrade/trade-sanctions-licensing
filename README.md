@@ -34,9 +34,9 @@ pre-commit autoupdate
 
 
 ### 3. Setup your local environment variables
-Copy and paste the `local.env.example` file and rename it to `.env`
+Copy and paste the `env.example` file and rename it to `.env`
 ```
-cp local.env.example .env
+cp .env.example .env
 ```
 
 ### 4. Run the backing services
@@ -48,7 +48,7 @@ docker-compose up -d
 ### 5. Run the web server
 After following the setup, use the following to run the web app
 
-`pipenv run python manage.py runserver`
+`invoke runserver`
 
 Django will provide the local url which should be http://127.0.0.1:8000/, navigate to this in your browser to see through the prototype.
 
@@ -56,8 +56,8 @@ Django will provide the local url which should be http://127.0.0.1:8000/, naviga
 ### Django
 Along with the above runserver command, while developing on the project, \
 the following will be handy when making changes to the db model:\
-`pipenv run python manage.py makemigrations`\
-`pipenv run python manage.py migrate`
+`invoke makemigrations`\
+`invoke migrate`
 
 ### Dependencies
 To add a new dependency to the project, use the following command:\
