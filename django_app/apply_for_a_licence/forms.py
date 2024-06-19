@@ -106,7 +106,7 @@ class EmailVerifyForm(BaseForm):
         self.helper["email_verification_code"].wrap(
             Field,
             HTMLTemplate(
-                "report_a_suspected_breach/form_steps/partials/not_received_code_help_text.html",
+                "apply_for_a_licence/form_steps/partials/not_received_code_help_text.html",
                 {"request_verify_code": request_verify_code},
             ),
         )

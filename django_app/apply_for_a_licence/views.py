@@ -33,6 +33,7 @@ class ThirdPartyView(BaseFormView):
 
 class WhatIsYouEmailAddressView(BaseFormView):
     form_class = forms.WhatIsYourEmailForm
+    success_url = reverse_lazy("email_verify")
 
 
 @method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
