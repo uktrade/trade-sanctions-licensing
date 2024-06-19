@@ -1,4 +1,6 @@
+from django.http import HttpRequest, HttpResponse
 from django.views.generic import FormView
+from django_ratelimit.exceptions import Ratelimited
 
 
 class BaseFormView(FormView):
@@ -21,3 +23,6 @@ class BaseFormView(FormView):
 
         return kwargs
 
+
+def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpResponse:
+    return HttpResponse("You have made too many", status=429)
