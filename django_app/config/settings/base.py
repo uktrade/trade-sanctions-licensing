@@ -98,7 +98,6 @@ STORAGES = {
 FILE_UPLOAD_HANDLERS = (
     "django_chunk_upload_handlers.clam_av.ClamAVFileUploadHandler",
     "core.custom_upload_handler.CustomFileUploadHandler",
-    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 )  # Order is important
 
 # CLAM AV
@@ -212,8 +211,7 @@ ENFORCE_STAFF_SSO = env.enforce_staff_sso
 
 if ENFORCE_STAFF_SSO:
     AUTHENTICATION_BACKENDS = [
-        # TODO: do we need to port this over and rename?
-        "auth.breach_portal_auth.BreachPortalAuth",
+        "auth.view_portal_auth.ViewPortalAuth",
     ]
     AUTHBROKER_URL = env.authbroker_url
     AUTHBROKER_CLIENT_ID = env.authbroker_client_id
