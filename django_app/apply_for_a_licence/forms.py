@@ -8,9 +8,7 @@ from crispy_forms_gds.layout import Field
 from django import forms
 from django.conf import settings
 from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
 from django.utils.timezone import now
-from django_ratelimit.decorators import ratelimit
 
 from . import choices
 from .choices import YES_NO_CHOICES
@@ -67,7 +65,6 @@ class WhatIsYourEmailForm(BaseForm):
     )
 
 
-@method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
 class EmailVerifyForm(BaseForm):
     bold_labels = False
     form_h1_header = "We've sent you an email"

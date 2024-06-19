@@ -237,5 +237,5 @@ APPLY_FOR_A_LICENCE_DOMAIN = env.apply_for_a_licence_domain
 VIEW_A_LICENCE_DOMAIN = env.view_a_licence_domain
 
 # Django Ratelimit
-RATELIMIT_VIEW = "core.views.rate_limited_view"
+RATELIMIT_VIEW = "core.views.base_views.rate_limited_view"
 RATELIMIT = "10/m"

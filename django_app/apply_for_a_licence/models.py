@@ -12,7 +12,10 @@ class Licence(BaseModel):
         blank=True,
         null=True,
     )
-    user_email_address = models.EmailField()
+    user_email_address = models.EmailField(
+        blank=True,
+        null=True,
+    )
     user_email_verification = models.ForeignKey("UserEmailVerification", on_delete=models.CASCADE, blank=True, null=True)
 
 
