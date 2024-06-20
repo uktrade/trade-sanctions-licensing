@@ -42,18 +42,11 @@ class CookiesConsentView(FormView):
     def form_valid(self, form: CookiesConsentForm) -> HttpResponse:
         # cookie consent lasts for 1 year
         cookie_max_age = 365 * 24 * 60 * 60
-        response = redirect("/")
 
-        self.request.session.pop("redirected_from_banner", None)
-
-        if self.request.GET.get("banner", ""):
-            self.request.session["cookies_set_in_banner"] = True
-            self.request.session.modified = True
+        if "came_from_cookies_page" in self.request.GET:
+            response = redirect(reverse("cookies_consent") + "?cookies_set=true")
         else:
-            # the user submitted the form on the cookies_consent page
-            # we want to keep them there after the post
-            self.request.session["submitted_on_cookies_page"] = True
-            response = redirect(reverse("cookies_consent"))
+            response = redirect(self.request.session.pop("redirect_back_to", "/") + "?cookies_set=true")
 
         # regardless of their choice, we set a cookie to say they've made a choice
         response.set_cookie("cookie_preferences_set", "true", max_age=cookie_max_age)
@@ -62,7 +55,6 @@ class CookiesConsentView(FormView):
             "true" if form.cleaned_data["do_you_want_to_accept_analytics_cookies"] else "false",
             max_age=cookie_max_age,
         )
-
         return response
 
 
@@ -71,7 +63,5 @@ class HideCookiesView(FormView):
     form_class = HideCookiesForm
 
     def form_valid(self, form: HideCookiesForm) -> HttpResponse:
-        self.request.session["hide_cookies_banner"] = True
-        self.request.session.modified = True
-        referrer_url = self.request.META.get("HTTP_REFERER", "/")
+        referrer_url = self.request.GET.get("redirect_back_to", "/")
         return redirect(referrer_url)
