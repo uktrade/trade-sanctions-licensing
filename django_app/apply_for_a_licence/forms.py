@@ -85,7 +85,7 @@ class EmailVerifyForm(BaseForm):
 
         verify_timeout_seconds = settings.EMAIL_VERIFY_TIMEOUT_SECONDS
 
-        verification_objects = UserEmailVerification.objects.filter(reporter_session=self.request.session.session_key).latest(
+        verification_objects = UserEmailVerification.objects.filter(user_session=self.request.session.session_key).latest(
             "date_created"
         )
         verify_code = verification_objects.email_verification_code
@@ -97,12 +97,14 @@ class EmailVerifyForm(BaseForm):
         if allowed_lapse < now():
             raise forms.ValidationError("The code you entered is no longer valid. Please verify your email again")
 
+        verification_objects.verified = True
+        verification_objects.save()
         return email_verification_code
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.request = kwargs.pop("request") if "request" in kwargs else None
-        request_verify_code = reverse_lazy("apply_for_a_licence:request_verify_code")
+        request_verify_code = reverse_lazy("request_verify_code")
         self.helper["email_verification_code"].wrap(
             Field,
             HTMLTemplate(

@@ -1,11 +1,10 @@
 from typing import Any
 
+from core.forms.cookie_forms import CookiesConsentForm, HideCookiesForm
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import FormView
-
-from core.forms.cookie_forms import CookiesConsentForm, HideCookiesForm
 
 
 class CookiesConsentView(FormView):
@@ -74,5 +73,5 @@ class HideCookiesView(FormView):
     def form_valid(self, form: HideCookiesForm) -> HttpResponse:
         self.request.session["hide_cookies_banner"] = True
         self.request.session.modified = True
-        referrer_url = self.request.GET.get("referrer_url", "/")
+        referrer_url = self.request.META.get("HTTP_REFERER", "/")
         return redirect(referrer_url)

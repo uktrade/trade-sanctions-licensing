@@ -35,6 +35,11 @@ class WhatIsYouEmailAddressView(BaseFormView):
     form_class = forms.WhatIsYourEmailForm
     success_url = reverse_lazy("email_verify")
 
+    def form_valid(self, form: forms.WhatIsYourEmailForm) -> HttpResponse:
+        user_email = form.cleaned_data["email"]
+        verify_email(user_email, self.request)
+        return super().form_valid(form)
+
 
 @method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
 class EmailVerifyView(BaseFormView):
@@ -52,15 +57,12 @@ class EmailVerifyView(BaseFormView):
             context["form_h1_header"] = form_h1_header
         return context
 
-    def get_success_url(self) -> str:
-        pass
-
 
 @method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
 class RequestVerifyCodeView(BaseFormView):
     form_class = forms.SummaryForm
     template_name = "apply_for_a_licence/form_steps/request_verify_code.html"
-    success_url = reverse_lazy("apply_for_a_licence:email_verify")
+    success_url = reverse_lazy("email_verify")
 
     def form_valid(self, form: forms.SummaryForm) -> HttpResponse:
         user_email_address = self.request.session["user_email_address"]
