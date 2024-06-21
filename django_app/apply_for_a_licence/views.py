@@ -1,6 +1,6 @@
+from core.views.base_views import BaseFormView
 from django.urls import reverse
 
-from core.views.base_views import BaseFormView
 from . import forms
 
 
@@ -22,3 +22,10 @@ class ThirdPartyView(BaseFormView):
 
 class WhatIsYouEmailAddressView(BaseFormView):
     form_class = forms.WhatIsYourEmailForm
+
+
+class PreviousLicenceView(BaseFormView):
+    form_class = forms.PreviousLicenceForm
+
+    def get_success_url(self):
+        return reverse("business_registered_with_companies_house")
