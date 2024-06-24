@@ -1,6 +1,6 @@
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Layout, Size, Submit, Field
+from crispy_forms_gds.layout import Field, Layout, Size, Submit
 from django import forms
 
 from .base_forms import BaseForm
@@ -23,13 +23,9 @@ class CookiesConsentForm(BaseForm):
         self.helper = FormHelper()
         self.helper.add_input(Submit("save cookie settings", "Save cookie settings", css_class="govuk-button"))
         self.helper.layout = Layout(
-            Field.radios("do_you_want_to_accept_analytics_cookies", legend_size=Size.MEDIUM, legend_tag="h2",
-                         inline=False)
+            Field.radios("do_you_want_to_accept_analytics_cookies", legend_size=Size.MEDIUM, legend_tag="h2", inline=False)
         )
-        # Allows us to display to the user their previously selected cookies choice in the radios
-        kwargs_initial = kwargs.get("initial")
-        if kwargs_initial:
-            self.fields["do_you_want_to_accept_analytics_cookies"].initial = str(kwargs_initial["accept_cookies"])
+        self.fields["do_you_want_to_accept_analytics_cookies"].initial = str(kwargs.get("initial", {}).get("accept_cookies"))
 
 
 class HideCookiesForm(BaseForm):

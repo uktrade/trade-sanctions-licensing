@@ -28,16 +28,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="theme-color" content="#0b0c0c">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
         {% block cookie_banner %}
             {% if request.resolver_match.url_name != "cookies_consent" %}
                 {% if request.COOKIES.cookie_preferences_set != "true" %}
                     <div class="govuk-cookie-banner hide-on-print" data-nosnippet role="region"
-                         aria-label="Cookies on Apply for a Licence service">
+                         aria-label="Cookies on Apply for a licence">
                         <div class="govuk-cookie-banner__message govuk-width-container">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-two-thirds">
                                     <h2 class="govuk-cookie-banner__heading govuk-heading-m">
-                                        Cookies on Apply for a Licence
+                                        Cookies on Apply for a licence
                                     </h2>
                                     <div class="govuk-cookie-banner__content">
                                         <p class="govuk-body">We use some essential cookies to make this service
@@ -48,7 +49,7 @@
                                 </div>
                             </div>
                             <div class="govuk-button-group">
-                                <form method="post" action="{% url 'cookies_consent' %}?banner=True">
+                                <form method="post" action="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">
                                     {% csrf_token %}
                                     <button type="submit" class="govuk-button" data-module="govuk-button"
                                             name="do_you_want_to_accept_analytics_cookies" value="True">
@@ -58,47 +59,37 @@
                                             name="do_you_want_to_accept_analytics_cookies" value="False">
                                         Reject analytics cookies
                                     </button>
-                                    <a class="govuk-link" href="{% url 'cookies_consent' %}">View
+                                    <a class="govuk-link" href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">View
                                         cookies</a>
                                 </form>
                             </div>
                         </div>
                     </div>
                 {% endif %}
-                {% if request.session.cookies_set_in_banner %}
-                    {% if not request.session.hide_cookies_banner %}
-                        <form method="post" action="{% url 'hide_cookies' %}?banner=True">
-                            {% csrf_token %}
-                            <div class="govuk-cookie-banner" data-nosnippet role="region"
-                                 aria-label="Cookies on Apply for a Licence">
-                                <div class="govuk-cookie-banner__message govuk-width-container">
-                                    <div class="govuk-grid-row">
-                                        <div class="govuk-grid-column-two-thirds">
-                                            <div class="govuk-cookie-banner__content">
-                                                {% if request.COOKIES.accepted_ga_cookies == "true" %}
-                                                    <p class="govuk-body">You’ve accepted analytics cookies. You can <a
-                                                        class="govuk-link"
-                                                        href="{% url 'cookies_consent' %}?redirect=Yes">change your
-                                                        cookie settings</a> at any time.</p>
-                                                {% elif request.COOKIES.accepted_ga_cookies == "false" %}
-                                                    <p class="govuk-body">You’ve rejected analytics cookies. You can <a
-                                                        class="govuk-link"
-                                                        href="{% url 'cookies_consent' %}?redirect=Yes">change your
-                                                        cookie settings</a> at any time.</p>
-                                                {% endif %}
-                                            </div>
+                {% if "cookies_set" in request.GET %}
+                    <form method="post" action="{% url 'hide_cookies' %}?banner=True">
+                        {% csrf_token %}
+                        <div class="govuk-cookie-banner" data-nosnippet role="region" aria-label="Cookies on Apply for a Licence">
+                            <div class="govuk-cookie-banner__message govuk-width-container">
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-two-thirds">
+                                        <div class="govuk-cookie-banner__content">
+                                            {% if request.COOKIES.accepted_ga_cookies == "true" %}
+                                                <p class="govuk-body">You’ve accepted analytics cookies. You can <a class="govuk-link" href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">change your cookie settings</a> at any time.</p>
+                                            {% elif request.COOKIES.accepted_ga_cookies == "false" %}
+                                                <p class="govuk-body">You’ve rejected analytics cookies. You can <a class="govuk-link" href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">change your cookie settings</a> at any time.</p>
+                                            {% endif %}
                                         </div>
                                     </div>
-                                    <div class="govuk-button-group">
-                                        <button type="submit" class="govuk-button" data-module="govuk-button"
-                                                name="hide_cookies" value="True">
-                                            Hide cookie message
-                                        </button>
-                                    </div>
+                                </div>
+                                <div class="govuk-button-group">
+                                    <button type="submit" class="govuk-button" data-module="govuk-button" name="hide_cookies" value="True">
+                                        Hide cookie message
+                                    </button>
                                 </div>
                             </div>
-                        </form>
-                    {% endif %}
+                        </div>
+                    </form>
                 {% endif %}
             {% endif %}
         {% endblock cookie_banner %}
