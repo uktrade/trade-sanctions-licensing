@@ -92,6 +92,7 @@ class BaseSettings(PydanticBaseSettings):
 class LocalSettings(BaseSettings):
     database_uri: str = Field(alias="DATABASE_URL")
     profiling_enabled: bool = False
+    localstack_port: int = 24566
 
 
 class GovPaasSettings(BaseSettings):
