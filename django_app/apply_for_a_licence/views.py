@@ -37,6 +37,8 @@ class WhatIsYouEmailAddressView(BaseFormView):
 
     def form_valid(self, form: forms.WhatIsYourEmailForm) -> HttpResponse:
         user_email = form.cleaned_data["email"]
+        self.request.session["user_email_address"] = user_email
+        self.request.session.modified = True
         verify_email(user_email, self.request)
         return super().form_valid(form)
 
@@ -73,6 +75,5 @@ class RequestVerifyCodeView(BaseFormView):
         return super().form_valid(form)
 
 
-# TODO create generic complete template
 class CompleteView(TemplateView):
     template_name = "apply_for_a_licence/complete.html"
