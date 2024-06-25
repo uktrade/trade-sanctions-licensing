@@ -192,7 +192,7 @@ class PreviousLicenceForm(BaseModelForm):
         )
         if self.request.session.get("StartView").get("who_do_you_want_the_licence_to_cover") == "myself":
             self.held_previous_licence_label = (
-                "Have you, or has anyone else you've added held a licence before to provide sanctioned services?"
+                "Have you, or has anyone else you've added, held a licence before to provide sanctioned services?"
             )
         elif self.request.session.get("StartView").get("who_do_you_want_the_licence_to_cover") == "individual":
             self.held_previous_licence_label = (
