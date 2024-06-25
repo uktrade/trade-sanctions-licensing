@@ -30,7 +30,6 @@ class StartForm(BaseModelForm):
                 choices.WhoDoYouWantTheLicenceToCoverChoices.business.value,
                 choices.WhoDoYouWantTheLicenceToCoverChoices.business.label,
                 hint="The licence will cover all employees, members, partners, consultants, officers and directors",
-                hint="The licence will cover all employees, members, partners, consultants, officers and directors",
             ),
             Choice(
                 choices.WhoDoYouWantTheLicenceToCoverChoices.individual.value,
@@ -40,7 +39,6 @@ class StartForm(BaseModelForm):
             Choice(
                 choices.WhoDoYouWantTheLicenceToCoverChoices.myself.value,
                 choices.WhoDoYouWantTheLicenceToCoverChoices.myself.label,
-                hint="You can add other named individuals if they will be providing the services with you",
                 hint="You can add other named individuals if they will be providing the services with you",
             ),
         )
@@ -53,7 +51,6 @@ class ThirdPartyForm(BaseForm):
         coerce=lambda x: x == "True",
         widget=forms.RadioSelect,
         label="Are you a third-party applying on behalf of a business you represent?",
-        error_messages={"required": "Select yes if you're a third party applying on behalf of a business you represent"},
         error_messages={"required": "Select yes if you're a third party applying on behalf of a business you represent"},
     )
 
