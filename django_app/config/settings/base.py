@@ -118,6 +118,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
     "core.middleware.CurrentSiteMiddleware",
+    "django_ratelimit.middleware.RatelimitMiddleware",
 ]
 
 ROOT_URLCONF = "core.urls"
@@ -234,3 +235,7 @@ en_formats.DATE_FORMAT = "d/m/Y"
 # Django sites
 APPLY_FOR_A_LICENCE_DOMAIN = env.apply_for_a_licence_domain
 VIEW_A_LICENCE_DOMAIN = env.view_a_licence_domain
+
+# Django Ratelimit
+RATELIMIT_VIEW = "core.views.base_views.rate_limited_view"
+RATELIMIT = "10/m"
