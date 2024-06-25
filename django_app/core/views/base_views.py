@@ -20,7 +20,6 @@ class BaseFormView(FormView):
         # restore the form data from the session, if it exists
         if self.request.method == "GET":
             kwargs["data"] = self.request.session.get(self.__class__.__name__, None)
-            kwargs["request"] = self.request
         return kwargs
 
 
