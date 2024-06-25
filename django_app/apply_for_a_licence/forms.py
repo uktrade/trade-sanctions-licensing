@@ -162,7 +162,6 @@ class PreviousLicenceForm(BaseModelForm):
         model = Licence
         fields = ("held_previous_licence", "previous_licences")
         labels = {
-            "held_previous_licence": "held a licence before to provide sanctioned services?",
             "previous_licences": "Enter all previous licence numbers",
         }
         error_messages = {
@@ -174,6 +173,7 @@ class PreviousLicenceForm(BaseModelForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
+        self.request = kwargs.pop("request") if "request" in kwargs else None
         self.fields["held_previous_licence"].empty_label = None
         # todo - abstract the following logic to apply to all ConditionalRadios forms
         self.helper.legend_tag = "h1"
@@ -190,6 +190,19 @@ class PreviousLicenceForm(BaseModelForm):
                 "No",
             )
         )
+        if self.request.session.get("StartView").get("who_do_you_want_the_licence_to_cover") == "myself":
+            self.held_previous_licence_label = (
+                "Have you, or has anyone else you've added held a licence before to provide sanctioned services?"
+            )
+        elif self.request.session.get("StartView").get("who_do_you_want_the_licence_to_cover") == "individual":
+            self.held_previous_licence_label = (
+                "Have any of the individuals you've added held a licence before to provide sanctioned services?"
+            )
+        else:
+            self.held_previous_licence_label = (
+                "Have any of the businesses you've added held a licence before to provide sanctioned services?"
+            )
+        self.fields["held_previous_licence"].label = self.held_previous_licence_label
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()

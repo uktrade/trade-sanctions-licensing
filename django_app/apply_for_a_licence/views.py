@@ -89,5 +89,15 @@ class YourDetailsView(BaseFormView):
 class PreviousLicenceView(BaseFormView):
     form_class = forms.PreviousLicenceForm
 
+    def get_form_kwargs(self) -> dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+        # if self.request.session.keys:
+        #     kwargs["held_previous_licence"] = "held a licence before to provide sanctioned services?"
+        # else:
+        #     kwargs["held_previous_licence"] = "held a licence before to provide sanctioned services?",
+        print(self.request)
+        print(self.request.session.keys)
+        return kwargs
+
     def get_success_url(self):
         return reverse("business_registered_with_companies_house")
