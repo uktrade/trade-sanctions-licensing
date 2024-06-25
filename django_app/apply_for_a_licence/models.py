@@ -1,6 +1,7 @@
+from core.models import BaseModel
+from django.contrib.sessions.models import Session
 from django.db import models
 
-from core.models import BaseModel
 from . import choices
 
 
@@ -11,3 +12,15 @@ class Licence(BaseModel):
         blank=True,
         null=True,
     )
+    user_email_address = models.EmailField(
+        blank=True,
+        null=True,
+    )
+    user_email_verification = models.ForeignKey("UserEmailVerification", on_delete=models.CASCADE, blank=True, null=True)
+
+
+class UserEmailVerification(BaseModel):
+    user_session = models.ForeignKey(Session, on_delete=models.CASCADE)
+    email_verification_code = models.CharField(max_length=6)
+    date_created = models.DateTimeField(auto_now_add=True)
+    verified = models.BooleanField(default=False)
