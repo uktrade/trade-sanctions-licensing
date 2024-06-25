@@ -4,7 +4,7 @@ from core.crispy_fields import HTMLTemplate
 from core.forms.base_forms import BaseForm, BaseModelForm
 from core.utils import is_request_ratelimited
 from crispy_forms_gds.choices import Choice
-from crispy_forms_gds.layout import Field
+from crispy_forms_gds.layout import Field, Fluid, Layout, Size
 from django import forms
 from django.conf import settings
 from django.urls import reverse_lazy
@@ -63,6 +63,35 @@ class WhatIsYourEmailForm(BaseForm):
             "invalid": "Enter a valid email address",
         },
     )
+
+
+class YourDetailsForm(BaseModelForm):
+    form_h1_header = "Your details"
+
+    class Meta:
+        model = Licence
+        fields = ["your_details_full_name", "your_details_name_of_business_you_work_for", "your_details_role"]
+        labels = {
+            "your_details_full_name": "Full name",
+            "your_details_name_of_business_you_work_for": "Business you work for",
+            "your_details_role": "Your role",
+        }
+        help_texts = {
+            "your_details_name_of_business_you_work_for": "If you're a third-party agent, this is the business that employs you, "
+            "not the business needing the licence",
+        }
+        error_messages = {
+            "your_details_full_name": {"required": "Enter your full name"},
+        }
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        self.helper.label_size = Size.MEDIUM
+        self.helper.layout = Layout(
+            Field.text("your_details_full_name", field_width=Fluid.TWO_THIRDS),
+            Field.text("your_details_name_of_business_you_work_for", field_width=Fluid.TWO_THIRDS),
+            Field.text("your_details_role", field_width=Fluid.TWO_THIRDS),
+        )
 
 
 class EmailVerifyForm(BaseForm):

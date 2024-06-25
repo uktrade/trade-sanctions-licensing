@@ -77,3 +77,10 @@ class RequestVerifyCodeView(BaseFormView):
 
 class CompleteView(TemplateView):
     template_name = "apply_for_a_licence/complete.html"
+
+
+class YourDetailsView(BaseFormView):
+    form_class = forms.YourDetailsForm
+
+    def get_success_url(self):
+        return reverse("previous_licence")
