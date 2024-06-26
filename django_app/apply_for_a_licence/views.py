@@ -100,11 +100,76 @@ class PreviousLicenceView(BaseFormView):
         return reverse("services")
 
 
-class AddABusinessView(BaseFormView):
+class AddABusinessView(FormView):
     form_class = forms.AddABusinessForm
+    template_name = "core/base_form_step.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        # restore the form data from the business_uuid, if it exists
+        if self.request.method == "GET":
+            if business_uuid := self.request.GET.get("business_uuid", None):
+                if businesses_dict := self.request.session.get("businesses", {}).get(business_uuid, None):
+                    kwargs["data"] = businesses_dict["dirty_data"]
+
+        return kwargs
+
+    def form_valid(self, form: forms.AddABusinessForm) -> HttpResponse:
+        current_businesses = self.request.session.get("businesses", {})
+        # get the business_uuid if it exists, otherwise create it
+        if business_uuid := self.request.GET.get("business_uuid", self.kwargs.get("business_uuid", str(uuid.uuid4()))):
+            # used to display the business_uuid data in business_added.html
+            current_businesses[business_uuid] = {
+                "cleaned_data": form.cleaned_data,
+                "dirty_data": form.data,
+            }
+        self.request.session["businesses"] = current_businesses
+        self.request.session.modified = True
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse("business_added")
+
+
+class BusinessAddedView(BaseFormView):
+    form_class = forms.BusinessAddedForm
+    template_name = "apply_for_a_licence/form_steps/business_added.html"
+
+    def get_success_url(self):
+        add_business = self.form.cleaned_data["do_you_want_to_add_another_business"]
+        if add_business:
+            return reverse("add_a_business")
+        else:
+            return reverse("previous_licence")
+
+
+class DeleteBusinessView(BaseFormView):
+    def post(self, *args: object, **kwargs: object) -> HttpResponse:
+        redirect_to = redirect(reverse_lazy("business_added"))
+        if business_uuid := self.request.POST.get("business_uuid"):
+            businesses = self.request.session.get("businesses", None)
+            businesses.pop(business_uuid, None)
+            self.request.session["businesses"] = businesses
+            self.request.session.modified = True
+            if len(businesses) == 0:
+                redirect_to = redirect(reverse_lazy("zero_businesses"))
+        return redirect_to
+
+
+class ZeroBusinessesView(BaseFormView):
+    form_class = forms.ZeroBusinessesForm
+
+    def form_valid(self, form):
+        self.form = form
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        add_business = self.form.cleaned_data["do_you_want_to_add_a_business"]
+        if add_business:
+            return reverse_lazy("add_a_business")
+        else:
+            return reverse_lazy("previous_licence")
 
 
 class AddAnIndividualView(FormView):
