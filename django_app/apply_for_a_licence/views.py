@@ -84,3 +84,15 @@ class YourDetailsView(BaseFormView):
 
     def get_success_url(self):
         return reverse("previous_licence")
+
+
+class PreviousLicenceView(BaseFormView):
+    form_class = forms.PreviousLicenceForm
+
+    def get_form_kwargs(self) -> dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"request": self.request})
+        return kwargs
+
+    def get_success_url(self):
+        return reverse("services")

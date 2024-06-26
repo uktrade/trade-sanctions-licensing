@@ -25,6 +25,10 @@
     display: none;
 }
 
+.js-disabled .govuk-radios__conditional--hidden {
+    display: block;
+}
+
 .text-centre {
     text-align: center;
 }
