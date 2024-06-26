@@ -3,7 +3,8 @@ from typing import Any
 
 from core.views.base_views import BaseFormView
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
@@ -84,3 +85,57 @@ class YourDetailsView(BaseFormView):
 
     def get_success_url(self):
         return reverse("previous_licence")
+
+
+class AddABusinessView(BaseFormView):
+    form_class = forms.AddABusinessForm
+
+    def get_success_url(self):
+        return reverse("business_added")
+
+
+class AddAnIndividualView(BaseFormView):
+    form_class = forms.AddAnIndividualForm
+
+    def get_success_url(self):
+        return reverse("individual_added")
+
+
+class IndividualAddedView(BaseFormView):
+    form_class = forms.IndividualAddedForm
+    template_name = "apply_for_a_licence/form_steps/individual_added.html"
+
+    def get_success_url(self):
+        add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
+        if add_individual:
+            return reverse("add_an_individual")
+        else:
+            return reverse("previous_licence")
+
+
+class DeleteIndividualView(BaseFormView):
+    def post(self, *args: object, **kwargs: object) -> HttpResponse:
+        redirect_to = redirect(reverse_lazy("apply_for_a_licence:individual_added_view"))
+        if individual_uuid := self.request.POST.get("individual_uuid"):
+            individuals = self.request.session.pop("indvidual_uuid", None)
+            individuals.pop(individual_uuid, None)
+            self.request.session["individuals"] = individuals
+            self.request.session.modified = True
+            if len(individuals) == 0:
+                redirect_to = redirect(reverse_lazy("apply_for_a_licence:zero_individuals"))
+        return redirect_to
+
+
+class ZeroIndividualsView(BaseFormView):
+    form_class = forms.ZeroIndividualsForm
+
+    def form_valid(self, form):
+        self.form = form
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        add_individual = self.form.cleaned_data["do_you_want_to_add_an_individual"]
+        if add_individual:
+            return reverse_lazy("apply_for_a_licence:add_an_individual")
+        else:
+            return reverse_lazy("apply_for_a_licence:previous_licence")
