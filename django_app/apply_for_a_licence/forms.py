@@ -1,10 +1,19 @@
 from datetime import timedelta
+from typing import Any
 
 from core.crispy_fields import HTMLTemplate
 from core.forms.base_forms import BaseBusinessDetailsForm, BaseForm, BaseModelForm
 from core.utils import is_request_ratelimited
 from crispy_forms_gds.choices import Choice
-from crispy_forms_gds.layout import Field, Fieldset, Fluid, Layout, Size
+from crispy_forms_gds.layout import (
+    ConditionalQuestion,
+    ConditionalRadios,
+    Field,
+    Fieldset,
+    Fluid,
+    Layout,
+    Size,
+)
 from django import forms
 from django.conf import settings
 from django.urls import reverse_lazy
@@ -145,6 +154,63 @@ class EmailVerifyForm(BaseForm):
 
 class SummaryForm(BaseForm):
     pass
+
+
+class PreviousLicenceForm(BaseModelForm):
+    hide_optional_label_fields = ["previous_licences"]
+
+    class Meta:
+        model = Licence
+        fields = ("held_previous_licence", "previous_licences")
+        labels = {
+            "previous_licences": "Enter all previous licence numbers",
+        }
+        error_messages = {
+            "held_previous_licence": {
+                "required": "Select yes if the business has held a licence before to provide these services"
+            },
+            "previous_licences": {"required": "Licence number cannot be blank"},
+        }
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        self.request = kwargs.pop("request") if "request" in kwargs else None
+        self.fields["held_previous_licence"].empty_label = None
+        # todo - abstract the following logic to apply to all ConditionalRadios forms
+        self.helper.legend_tag = "h1"
+        self.helper.legend_size = Size.LARGE
+        self.helper.label_tag = ""
+        self.helper.label_size = None
+        self.helper.layout = Layout(
+            ConditionalRadios(
+                "held_previous_licence",
+                ConditionalQuestion(
+                    "Yes",
+                    Field.text("previous_licences", field_width=Fluid.TWO_THIRDS),
+                ),
+                "No",
+            )
+        )
+        if start_view := self.request.session.get("StartView", False):
+            if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
+                self.held_previous_licence_label = (
+                    "Have you, or has anyone else you've added, held a licence before to provide sanctioned services?"
+                )
+            elif start_view.get("who_do_you_want_the_licence_to_cover") == "individual":
+                self.held_previous_licence_label = (
+                    "Have any of the individuals you've added held a licence before to provide sanctioned services?"
+                )
+        else:
+            self.held_previous_licence_label = (
+                "Have any of the businesses you've added held a licence before to provide sanctioned services?"
+            )
+        self.fields["held_previous_licence"].label = self.held_previous_licence_label
+
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean()
+        if cleaned_data.get("held_previous_licence") == "yes" and not cleaned_data["previous_licences"]:
+            self.add_error("previous_licences", self.Meta.error_messages["previous_licences"]["required"])
+        return cleaned_data
 
 
 class AddAnIndividualForm(BaseModelForm):

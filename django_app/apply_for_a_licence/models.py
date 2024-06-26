@@ -21,6 +21,12 @@ class Licence(BaseModel):
     your_details_full_name = models.CharField(max_length=255)
     your_details_name_of_business_you_work_for = models.CharField(max_length=300, verbose_name="Business you work for")
     your_details_role = models.CharField(max_length=255)
+    held_previous_licence = models.CharField(
+        choices=choices.YesNoChoices.choices,
+        max_length=11,
+        blank=False,
+    )
+    previous_licences = models.TextField(null=True, blank=True)
 
 
 class UserEmailVerification(BaseModel):
