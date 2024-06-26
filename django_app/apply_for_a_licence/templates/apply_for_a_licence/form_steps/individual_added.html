@@ -16,15 +16,15 @@
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
 
                         <a class="govuk-link" style="font-size: 19px; text-align:right"
-                           href="{% url 'apply_for_a_licence:add_an_individual' individual_uuid=id %}">Change<span
+                           href="{% url 'add_an_individual' %}?individual_uuid={{ id }}">Change<span
                             class="govuk-visually-hidden"> Individual {{forloop.counter}} details </span></a>
                     </dd>
                     <dd class="govuk-summary-list__action">
                         <form id="delete_individual_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                              action="{% url 'apply_for_a_licence:delete_individual' %}?individual_uuid={{ id }}">
+                              action="{% url 'delete_individual' %}?individual_uuid={{ id }}">
                             <input type="hidden" name="individual_uuid" value="{{ id }}">
                             {% csrf_token %}
-                            <button type="submit" class="govuk-link button-that-looks-like-link" form="delete_individual_form_{{ forloop.counter }}">
+                            <button type="submit" class="button-that-looks-like-link" form="delete_individual_form_{{ forloop.counter }}">
                                 Remove<span
                                     class="govuk-visually-hidden"> Individual {{forloop.counter}}</span>
                             </button>
@@ -39,8 +39,7 @@
                     Name
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ individual.cleaned_data.first_name }}
-                    {{ individual.cleaned_data.last_name }}
+                    {{ individual.cleaned_data.first_name }} {{individual.cleaned_data.last_name}}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">

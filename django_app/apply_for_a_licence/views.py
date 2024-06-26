@@ -1,4 +1,5 @@
 import logging
+import uuid
 from typing import Any
 
 from core.views.base_views import BaseFormView
@@ -7,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.views.generic import FormView, TemplateView
 from django_ratelimit.decorators import ratelimit
 from utils.notifier import verify_email
 
@@ -106,8 +107,37 @@ class AddABusinessView(BaseFormView):
         return reverse("business_added")
 
 
-class AddAnIndividualView(BaseFormView):
+class AddAnIndividualView(FormView):
     form_class = forms.AddAnIndividualForm
+    template_name = "core/base_form_step.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        # restore the form data from the individual_uuid, if it exists
+        if self.request.method == "GET":
+            if individual_uuid := self.request.GET.get("individual_uuid", None):
+                if individuals_dict := self.request.session.get("individuals", {}).get(individual_uuid, None):
+                    kwargs["data"] = individuals_dict["dirty_data"]
+
+        return kwargs
+
+    def form_valid(self, form: forms.AddAnIndividualForm) -> HttpResponse:
+        current_individuals = self.request.session.get("individuals", {})
+        # get the individual_uuid if it exists, otherwise create it
+        if individual_uuid := self.request.GET.get("individual_uuid", self.kwargs.get("individual_uuid", str(uuid.uuid4()))):
+            # used to display the individual_uuid data in individual_added.html
+            cleaned_data = form.cleaned_data
+            cleaned_data["nationality_and_location"] = dict(form.fields["nationality_and_location"].choices)[
+                form.cleaned_data["nationality_and_location"]
+            ]
+            current_individuals[individual_uuid] = {
+                "cleaned_data": form.cleaned_data,
+                "dirty_data": form.data,
+            }
+        self.request.session["individuals"] = current_individuals
+        self.request.session.modified = True
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse("individual_added")
@@ -127,14 +157,14 @@ class IndividualAddedView(BaseFormView):
 
 class DeleteIndividualView(BaseFormView):
     def post(self, *args: object, **kwargs: object) -> HttpResponse:
-        redirect_to = redirect(reverse_lazy("apply_for_a_licence:individual_added_view"))
+        redirect_to = redirect(reverse_lazy("individual_added"))
         if individual_uuid := self.request.POST.get("individual_uuid"):
-            individuals = self.request.session.pop("indvidual_uuid", None)
+            individuals = self.request.session.get("individuals", None)
             individuals.pop(individual_uuid, None)
             self.request.session["individuals"] = individuals
             self.request.session.modified = True
             if len(individuals) == 0:
-                redirect_to = redirect(reverse_lazy("apply_for_a_licence:zero_individuals"))
+                redirect_to = redirect(reverse_lazy("zero_individuals"))
         return redirect_to
 
 
@@ -148,6 +178,6 @@ class ZeroIndividualsView(BaseFormView):
     def get_success_url(self) -> str:
         add_individual = self.form.cleaned_data["do_you_want_to_add_an_individual"]
         if add_individual:
-            return reverse_lazy("apply_for_a_licence:add_an_individual")
+            return reverse_lazy("add_an_individual")
         else:
-            return reverse_lazy("apply_for_a_licence:previous_licence")
+            return reverse_lazy("previous_licence")
