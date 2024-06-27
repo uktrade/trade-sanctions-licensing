@@ -275,6 +275,17 @@ class AddYourselfView(BaseFormView):
 class AddYourselfAddressView(BaseFormView):
     form_class = forms.AddYourselfAddressForm
 
+    def get_form_kwargs(self) -> dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+        if add_yourself_view := self.request.session.get("AddYourselfView", False):
+            if add_yourself_view.get("nationality_and_location") in [
+                "uk_national_uk_location",
+                "dual_national_uk_location",
+                "non_uk_national_uk_location",
+            ]:
+                kwargs["is_uk_address"] = True
+        return kwargs
+
     def form_valid(self, form: forms.AddYourselfAddressForm) -> HttpResponse:
         your_address = {
             "cleaned_data": form.cleaned_data,
