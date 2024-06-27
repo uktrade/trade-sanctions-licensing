@@ -2,9 +2,9 @@ import base64
 from typing import Any
 
 import requests
+from apply_for_a_licence.exceptions import CompaniesHouseException
 from django.conf import settings
 from django_countries import countries
-from report_a_suspected_breach.exceptions import CompaniesHouseException
 
 COMPANIES_HOUSE_BASE_DOMAIN = "https://api.companieshouse.gov.uk"
 

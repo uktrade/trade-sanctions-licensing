@@ -139,6 +139,7 @@ class BusinessAddedView(BaseFormView):
     def get_success_url(self):
         add_business = self.form.cleaned_data["do_you_want_to_add_another_business"]
         if add_business:
+            # todo: this url should be is the company registered on companies house
             return reverse("add_a_business")
         else:
             return reverse("previous_licence")

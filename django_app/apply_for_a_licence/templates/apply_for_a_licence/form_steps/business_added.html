@@ -49,7 +49,7 @@
                     Address
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ business.cleaned_data.readable_address }}
+                    {{ business.cleaned_data.readable_address | linebreaksbr }}
                 </dd>
             </div>
         </dl>

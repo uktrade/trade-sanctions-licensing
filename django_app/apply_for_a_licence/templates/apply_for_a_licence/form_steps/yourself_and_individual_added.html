@@ -43,7 +43,7 @@
                 Address
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ request.session.your_address.cleaned_data.readable_address }}
+                {{ request.session.your_address.cleaned_data.readable_address | linebreaksbr }}
             </dd>
         </div>
     </dl>
