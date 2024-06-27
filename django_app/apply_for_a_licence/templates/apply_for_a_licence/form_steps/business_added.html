@@ -19,17 +19,19 @@
                            href="{% url 'add_a_business' %}?business_uuid={{ id }}">Change<span
                             class="govuk-visually-hidden"> Business {{forloop.counter}} details </span></a>
                     </dd>
-                    <dd class="govuk-summary-list__action">
-                        <form id="delete_business_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                              action="{% url 'delete_business' %}?business_uuid={{ id }}">
-                            <input type="hidden" name="business_uuid" value="{{ id }}">
-                            {% csrf_token %}
-                            <button type="submit" class="button-that-looks-like-link" form="delete_business_form_{{ forloop.counter }}">
-                                Remove<span
-                                    class="govuk-visually-hidden"> Business {{forloop.counter}}</span>
-                            </button>
-                        </form>
-                    </dd>
+                    {% if request.session.businesses.keys|length > 1 %}
+                        <dd class="govuk-summary-list__action">
+                            <form id="delete_business_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
+                                  action="{% url 'delete_business' %}?business_uuid={{ id }}">
+                                <input type="hidden" name="business_uuid" value="{{ id }}">
+                                {% csrf_token %}
+                                <button type="submit" class="button-that-looks-like-link" form="delete_business_form_{{ forloop.counter }}">
+                                    Remove<span
+                                        class="govuk-visually-hidden"> Business {{forloop.counter}}</span>
+                                </button>
+                            </form>
+                        </dd>
+                    {% endif %}
                 </ul>
             </div>
         </div>

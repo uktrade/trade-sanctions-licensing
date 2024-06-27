@@ -191,6 +191,9 @@ class PreviousLicenceForm(BaseModelForm):
                 "No",
             )
         )
+        self.held_previous_licence_label = (
+            "Have any of the businesses you've added held a licence before to provide sanctioned services?"
+        )
         if start_view := self.request.session.get("StartView", False):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
                 self.held_previous_licence_label = (
@@ -200,10 +203,6 @@ class PreviousLicenceForm(BaseModelForm):
                 self.held_previous_licence_label = (
                     "Have any of the individuals you've added held a licence before to provide sanctioned services?"
                 )
-        else:
-            self.held_previous_licence_label = (
-                "Have any of the businesses you've added held a licence before to provide sanctioned services?"
-            )
         self.fields["held_previous_licence"].label = self.held_previous_licence_label
 
     def clean(self) -> dict[str, Any]:
@@ -291,28 +290,6 @@ class BusinessAddedForm(BaseForm):
         self.helper.legend_tag = None
 
 
-class ZeroBusinessesForm(BaseForm):
-    revalidate_on_done = False
-    form_h1_header = "You've removed all businesses"
-
-    do_you_want_to_add_a_business = forms.TypedChoiceField(
-        choices=(
-            Choice(True, "Yes"),
-            Choice(False, "No"),
-        ),
-        coerce=lambda x: x == "True",
-        label="Do you want to add a business?",
-        error_messages={"required": "Select yes if you want to add a business"},
-        widget=forms.RadioSelect,
-        required=True,
-    )
-
-    def __init__(self, *args: object, **kwargs: object) -> None:
-        super().__init__(*args, **kwargs)
-        self.helper.legend_size = Size.MEDIUM
-        self.helper.legend_tag = None
-
-
 class AddAnIndividualForm(BaseModelForm):
     form_h1_header = "Add an individual"
 
@@ -354,28 +331,6 @@ class IndividualAddedForm(BaseForm):
         coerce=lambda x: x == "True",
         label="Do you want to add another individual?",
         error_messages={"required": "Select yes if you want to add another individual"},
-        widget=forms.RadioSelect,
-        required=True,
-    )
-
-    def __init__(self, *args: object, **kwargs: object) -> None:
-        super().__init__(*args, **kwargs)
-        self.helper.legend_size = Size.MEDIUM
-        self.helper.legend_tag = None
-
-
-class ZeroIndividualsForm(BaseForm):
-    revalidate_on_done = False
-    form_h1_header = "You've removed all individuals"
-
-    do_you_want_to_add_an_individual = forms.TypedChoiceField(
-        choices=(
-            Choice(True, "Yes"),
-            Choice(False, "No"),
-        ),
-        coerce=lambda x: x == "True",
-        label="Do you want to add an individual?",
-        error_messages={"required": "Select yes if you want to add an individual"},
         widget=forms.RadioSelect,
         required=True,
     )

@@ -4,7 +4,7 @@ from typing import Any
 
 from core.views.base_views import BaseFormView
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
@@ -146,30 +146,14 @@ class BusinessAddedView(BaseFormView):
 
 class DeleteBusinessView(BaseFormView):
     def post(self, *args: object, **kwargs: object) -> HttpResponse:
-        redirect_to = redirect(reverse_lazy("business_added"))
-        if business_uuid := self.request.POST.get("business_uuid"):
-            businesses = self.request.session.get("businesses", None)
-            businesses.pop(business_uuid, None)
-            self.request.session["businesses"] = businesses
-            self.request.session.modified = True
-            if len(businesses) == 0:
-                redirect_to = redirect(reverse_lazy("zero_businesses"))
-        return redirect_to
-
-
-class ZeroBusinessesView(BaseFormView):
-    form_class = forms.ZeroBusinessesForm
-
-    def form_valid(self, form):
-        self.form = form
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        add_business = self.form.cleaned_data["do_you_want_to_add_a_business"]
-        if add_business:
-            return reverse_lazy("add_a_business")
-        else:
-            return reverse_lazy("previous_licence")
+        businesses = self.request.session.get("businesses", None)
+        # at least one business must be added
+        if len(businesses) > 1:
+            if business_uuid := self.request.POST.get("business_uuid"):
+                businesses.pop(business_uuid, None)
+                self.request.session["businesses"] = businesses
+                self.request.session.modified = True
+        return redirect(reverse_lazy("business_added"))
 
 
 class AddAnIndividualView(FormView):
@@ -226,30 +210,14 @@ class IndividualAddedView(BaseFormView):
 
 class DeleteIndividualView(BaseFormView):
     def post(self, *args: object, **kwargs: object) -> HttpResponse:
-        redirect_to = redirect(reverse_lazy("individual_added"))
-        if individual_uuid := self.request.POST.get("individual_uuid"):
-            individuals = self.request.session.get("individuals", None)
-            individuals.pop(individual_uuid, None)
-            self.request.session["individuals"] = individuals
-            self.request.session.modified = True
-            if len(individuals) == 0:
-                redirect_to = redirect(reverse_lazy("zero_individuals"))
-        return redirect_to
-
-
-class ZeroIndividualsView(BaseFormView):
-    form_class = forms.ZeroIndividualsForm
-
-    def form_valid(self, form):
-        self.form = form
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        add_individual = self.form.cleaned_data["do_you_want_to_add_an_individual"]
-        if add_individual:
-            return reverse_lazy("add_an_individual")
-        else:
-            return reverse_lazy("previous_licence")
+        individuals = self.request.session.get("individuals", None)
+        # at least one individual must be added
+        if len(individuals) > 1:
+            if individual_uuid := self.request.POST.get("individual_uuid"):
+                individuals.pop(individual_uuid, None)
+                self.request.session["individuals"] = individuals
+                self.request.session.modified = True
+        return redirect(reverse_lazy("individual_added"))
 
 
 class AddYourselfView(BaseFormView):
