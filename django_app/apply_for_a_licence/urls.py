@@ -18,5 +18,13 @@ urlpatterns = [
     path("zero_individuals", views.ZeroIndividualsView.as_view(), name="zero_individuals"),
     path("delete_individual", views.DeleteIndividualView.as_view(), name="delete_individual"),
     path("individual_added", views.IndividualAddedView.as_view(), name="individual_added"),
+    path("add_yourself", views.AddYourselfView.as_view(), name="add_yourself"),
+    path("add_yourself_address", views.AddYourselfAddressView.as_view(), name="add_yourself_address"),
+    path("yourself_and_individual_added", views.YourselfAndIndividualAddedView.as_view(), name="yourself_and_individual_added"),
+    path(
+        "delete_individual_from_yourself",
+        views.DeleteIndividualFromYourselfView.as_view(),
+        name="delete_individual_from_yourself",
+    ),
     path("complete", views.CompleteView.as_view(), name="complete"),
 ]

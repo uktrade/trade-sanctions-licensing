@@ -205,7 +205,11 @@ class AddAnIndividualView(FormView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse("individual_added")
+        success_url = reverse("individual_added")
+        if start_view := self.request.session.get("StartView", False):
+            if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
+                success_url = reverse("yourself_and_individual_added")
+        return success_url
 
 
 class IndividualAddedView(BaseFormView):
@@ -246,3 +250,62 @@ class ZeroIndividualsView(BaseFormView):
             return reverse_lazy("add_an_individual")
         else:
             return reverse_lazy("previous_licence")
+
+
+class AddYourselfView(BaseFormView):
+    form_class = forms.AddYourselfForm
+
+    def form_valid(self, form: forms.AddYourselfAddressForm) -> HttpResponse:
+        cleaned_data = form.cleaned_data
+        cleaned_data["nationality_and_location"] = dict(form.fields["nationality_and_location"].choices)[
+            form.cleaned_data["nationality_and_location"]
+        ]
+        add_yourself = {
+            "cleaned_data": cleaned_data,
+            "dirty_data": form.data,
+        }
+        self.request.session["add_yourself"] = add_yourself
+        self.request.session.modified = True
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("add_yourself_address")
+
+
+class AddYourselfAddressView(BaseFormView):
+    form_class = forms.AddYourselfAddressForm
+
+    def form_valid(self, form: forms.AddYourselfAddressForm) -> HttpResponse:
+        your_address = {
+            "cleaned_data": form.cleaned_data,
+            "dirty_data": form.data,
+        }
+        self.request.session["your_address"] = your_address
+        self.request.session.modified = True
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("yourself_and_individual_added")
+
+
+class YourselfAndIndividualAddedView(BaseFormView):
+    form_class = forms.IndividualAddedForm
+    template_name = "apply_for_a_licence/form_steps/yourself_and_individual_added.html"
+
+    def get_success_url(self):
+        add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
+        if add_individual:
+            return reverse("add_an_individual")
+        else:
+            return reverse("previous_licence")
+
+
+class DeleteIndividualFromYourselfView(BaseFormView):
+    def post(self, *args: object, **kwargs: object) -> HttpResponse:
+        redirect_to = redirect(reverse_lazy("yourself_and_individual_added"))
+        if individual_uuid := self.request.POST.get("individual_uuid"):
+            individuals = self.request.session.get("individuals", None)
+            individuals.pop(individual_uuid, None)
+            self.request.session["individuals"] = individuals
+            self.request.session.modified = True
+        return redirect_to
