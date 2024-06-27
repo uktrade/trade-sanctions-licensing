@@ -58,17 +58,6 @@
                            href="{% url 'add_an_individual' %}?individual_uuid={{ id }}">Change<span
                             class="govuk-visually-hidden"> Individual {{forloop.counter}} details </span></a>
                     </dd>
-                    <dd class="govuk-summary-list__action">
-                        <form id="delete_individual_from_yourself_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                              action="{% url 'delete_individual_from_yourself' %}?individual_uuid={{ id }}">
-                            <input type="hidden" name="individual_uuid" value="{{ id }}">
-                            {% csrf_token %}
-                            <button type="submit" class="button-that-looks-like-link" form="delete_individual_from_yourself_form_{{ forloop.counter }}">
-                                Remove<span
-                                    class="govuk-visually-hidden"> Individual {{forloop.counter}}</span>
-                            </button>
-                        </form>
-                    </dd>
                 </ul>
             </div>
         </div>
@@ -89,6 +78,15 @@
                     {{ individual.cleaned_data.nationality_and_location }}
                 </dd>
             </div>
+            <form id="delete_individual_from_yourself_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
+                  action="{% url 'delete_individual_from_yourself' %}?individual_uuid={{ id }}">
+                <input type="hidden" name="individual_uuid" value="{{ id }}">
+                {% csrf_token %}
+                <button type="submit" class="button-that-looks-like-link" form="delete_individual_from_yourself_form_{{ forloop.counter }}">
+                    Remove Individual {{ forloop.counter }}<span
+                        class="govuk-visually-hidden"> Individual {{ forloop.counter }}</span>
+                </button>
+            </form>
         </dl>
     {% endfor %}
     {% error_summary form %}

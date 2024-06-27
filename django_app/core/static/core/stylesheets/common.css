@@ -53,4 +53,10 @@
     cursor: pointer;
     color: #003078;
     font-size: 19px;
+    margin-top: 10px;
+    text-decoration: underline;
+}
+
+.govuk-summary-list__key {
+    width: 50%;
 }

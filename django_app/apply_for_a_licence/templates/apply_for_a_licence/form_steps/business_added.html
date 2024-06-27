@@ -19,26 +19,13 @@
                            href="{% url 'add_a_business' %}?business_uuid={{ id }}">Change<span
                             class="govuk-visually-hidden"> Business {{forloop.counter}} details </span></a>
                     </dd>
-                    {% if request.session.businesses.keys|length > 1 %}
-                        <dd class="govuk-summary-list__action">
-                            <form id="delete_business_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                                  action="{% url 'delete_business' %}?business_uuid={{ id }}">
-                                <input type="hidden" name="business_uuid" value="{{ id }}">
-                                {% csrf_token %}
-                                <button type="submit" class="button-that-looks-like-link" form="delete_business_form_{{ forloop.counter }}">
-                                    Remove<span
-                                        class="govuk-visually-hidden"> Business {{forloop.counter}}</span>
-                                </button>
-                            </form>
-                        </dd>
-                    {% endif %}
                 </ul>
             </div>
         </div>
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
-                    Name
+                    Business name
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ business.cleaned_data.name }}
@@ -52,6 +39,17 @@
                     {{ business.cleaned_data.readable_address | linebreaksbr }}
                 </dd>
             </div>
+            {% if request.session.businesses.keys|length > 1 %}
+                <form id="delete_business_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
+                      action="{% url 'delete_business' %}?business_uuid={{ id }}">
+                    <input type="hidden" name="business_uuid" value="{{ id }}">
+                    {% csrf_token %}
+                    <button type="submit" class="button-that-looks-like-link" form="delete_business_form_{{ forloop.counter }}">
+                        Remove Business {{forloop.counter }} <span
+                            class="govuk-visually-hidden"> Business {{forloop.counter}}</span>
+                    </button>
+                </form>
+            {% endif %}
         </dl>
     {% endfor %}
     {% error_summary form %}
