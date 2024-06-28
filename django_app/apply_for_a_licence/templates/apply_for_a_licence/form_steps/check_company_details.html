@@ -1,0 +1,43 @@
+{% extends "core/base_form_step.html" %}
+{% load crispy_forms_tags crispy_forms_gds %}
+{% block title %}Check company details{% endblock title %}
+{% block form_content %}
+    <form method="post">
+        <div>
+            <h1 class="govuk-heading-l">
+                Check company details
+            </h1>
+        </div>
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Registered company number
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ request.session.DoYouKnowTheRegisteredCompanyNumberView.registered_company_number }}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="{% url 'do_you_know_the_registered_company_number' %}?business_uuid={{ id }}">Change<span class="govuk-visually-hidden">registered company number</span></a>
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Registered company name
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ request.session.DoYouKnowTheRegisteredCompanyNumberView.registered_company_name }}
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Registered office address
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ request.session.DoYouKnowTheRegisteredCompanyNumberView.registered_office_address }}
+                </dd>
+            </div>
+        </dl>
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
+{% endblock form_content %}

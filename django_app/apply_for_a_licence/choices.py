@@ -24,3 +24,9 @@ class NationalityAndLocation(models.TextChoices):
 class YesNoChoices(models.TextChoices):
     yes = "yes", "Yes"
     no = "no", "No"
+
+
+class YesNoDoNotKnowChoices(models.TextChoices):
+    yes = "yes", "Yes"
+    no = "no", "No"
+    do_not_know = "do_not_know", "I do not know"
