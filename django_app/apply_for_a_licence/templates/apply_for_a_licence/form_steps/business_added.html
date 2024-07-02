@@ -1,0 +1,60 @@
+{% extends "core/base_form_step.html" %}
+{% load crispy_forms_tags crispy_forms_gds %}
+
+
+{% block title %}You've added {{ request.session.businesses.keys|length }} business{% if request.session.businesses.keys|length > 1 %}s{% endif %}{% endblock title %}
+
+{% block column_content %}
+    <h1 class="govuk-heading-l">
+        You've added {{ request.session.businesses.keys|length }} business{% if request.session.businesses.keys|length > 1 %}s{% endif %}
+    </h1>
+    {% for id, business in request.session.businesses.items %}
+        <div class="action-wrapper">
+            <div>
+                <h3 class="govuk-heading-m" style="float:left;">Business {{ forloop.counter }} </h3>
+                <ul class="govuk-summary-card__actions">
+                    <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
+
+                        <a class="govuk-link" style="font-size: 19px; text-align:right"
+                           href="{% url 'add_a_business' %}?business_uuid={{ id }}">Change<span
+                            class="govuk-visually-hidden"> Business {{forloop.counter}} details </span></a>
+                    </dd>
+                </ul>
+            </div>
+        </div>
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Business name
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ business.cleaned_data.name }}
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Address
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ business.cleaned_data.readable_address | linebreaksbr }}
+                </dd>
+            </div>
+            {% if request.session.businesses.keys|length > 1 %}
+                <form id="delete_business_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
+                      action="{% url 'delete_business' %}?business_uuid={{ id }}">
+                    <input type="hidden" name="business_uuid" value="{{ id }}">
+                    {% csrf_token %}
+                    <button type="submit" class="button-that-looks-like-link" form="delete_business_form_{{ forloop.counter }}">
+                        Remove Business {{forloop.counter }} <span
+                            class="govuk-visually-hidden"> Business {{forloop.counter}}</span>
+                    </button>
+                </form>
+            {% endif %}
+        </dl>
+    {% endfor %}
+    {% error_summary form %}
+    <form method="post" enctype='multipart/form-data' novalidate>
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
+{% endblock column_content %}
