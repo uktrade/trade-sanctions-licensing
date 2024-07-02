@@ -136,6 +136,11 @@ class BusinessAddedView(BaseFormView):
     form_class = forms.BusinessAddedForm
     template_name = "apply_for_a_licence/form_steps/business_added.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        if len(request.session.get("businesses", [])) >= 1:
+            return super().dispatch(request, *args, **kwargs)
+        return redirect("add_a_business")
+
     def get_success_url(self):
         add_business = self.form.cleaned_data["do_you_want_to_add_another_business"]
         if add_business:
@@ -147,7 +152,7 @@ class BusinessAddedView(BaseFormView):
 
 class DeleteBusinessView(BaseFormView):
     def post(self, *args: object, **kwargs: object) -> HttpResponse:
-        businesses = self.request.session.get("businesses", None)
+        businesses = self.request.session.get("businesses", [])
         # at least one business must be added
         if len(businesses) > 1:
             if business_uuid := self.request.POST.get("business_uuid"):
@@ -201,6 +206,11 @@ class IndividualAddedView(BaseFormView):
     form_class = forms.IndividualAddedForm
     template_name = "apply_for_a_licence/form_steps/individual_added.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        if len(request.session.get("individuals", [])) >= 1:
+            return super().dispatch(request, *args, **kwargs)
+        return redirect("add_an_individual")
+
     def get_success_url(self):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
@@ -211,7 +221,7 @@ class IndividualAddedView(BaseFormView):
 
 class DeleteIndividualView(BaseFormView):
     def post(self, *args: object, **kwargs: object) -> HttpResponse:
-        individuals = self.request.session.get("individuals", None)
+        individuals = self.request.session.get("individuals", [])
         # at least one individual must be added
         if len(individuals) > 1:
             if individual_uuid := self.request.POST.get("individual_uuid"):
