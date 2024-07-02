@@ -199,9 +199,7 @@ class PreviousLicenceForm(BaseModelForm):
         self.held_previous_licence_label = (
             "Have any of the businesses you've added held a licence before to provide sanctioned services?"
         )
-        self.held_previous_licence_label = (
-            "Have any of the businesses you've added held a licence before to provide sanctioned services?"
-        )
+
         if start_view := self.request.session.get("StartView", False):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
                 self.held_previous_licence_label = (
@@ -226,7 +224,7 @@ class IsTheBusinessRegisteredWithCompaniesHouseForm(BaseModelForm):
         fields = ["business_registered_on_companies_house"]
         widgets = {"business_registered_on_companies_house": forms.RadioSelect}
         labels = {
-            "business_registered_on_companies_house": "Is the business you want the"
+            "business_registered_on_companies_house": "Is the business you want the "
             "licence to cover registered with UK Companies House?"
         }
         error_messages = {

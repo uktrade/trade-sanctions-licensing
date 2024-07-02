@@ -112,7 +112,9 @@ class AddABusinessView(FormView):
             if business_uuid := self.request.GET.get("business_uuid", None):
                 if businesses_dict := self.request.session.get("businesses", {}).get(business_uuid, None):
                     kwargs["data"] = businesses_dict["dirty_data"]
-
+            if where_is_the_business_located := self.request.session.get("WhereIsTheBusinessLocatedView", False):
+                if where_is_the_business_located.get("where_is_the_address") == "in_the_uk":
+                    kwargs["is_uk_address"] = True
         return kwargs
 
     def form_valid(self, form: forms.AddABusinessForm) -> HttpResponse:
@@ -139,13 +141,12 @@ class BusinessAddedView(BaseFormView):
     def dispatch(self, request, *args, **kwargs):
         if len(request.session.get("businesses", [])) >= 1:
             return super().dispatch(request, *args, **kwargs)
-        return redirect("add_a_business")
+        return redirect("is_the_business_registered_with_companies_house")
 
     def get_success_url(self):
         add_business = self.form.cleaned_data["do_you_want_to_add_another_business"]
         if add_business:
-            # todo: this url should be is the company registered on companies house
-            return reverse("add_a_business")
+            return reverse("is_the_business_registered_with_companies_house")
         else:
             return reverse("previous_licence")
 

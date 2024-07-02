@@ -16,7 +16,7 @@
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         {% if business.cleaned_data.companies_house %}
                             <a class="govuk-link" style="font-size: 19px; text-align:right"
-                               href="{% url 'do_you_know_the_registered_company_number' %}?business_uuid={{ id }}">Change<span
+                               href="{% url 'do_you_know_the_registered_company_number' %}?change=yes&business_uuid={{ id }}">Change<span
                                 class="govuk-visually-hidden"> Business {{forloop.counter}} details </span></a>
                         {% else %}
                             <a class="govuk-link" style="font-size: 19px; text-align:right"
