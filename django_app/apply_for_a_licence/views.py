@@ -326,11 +326,6 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
     def get_form_kwargs(self) -> dict[str, Any]:
         kwargs = super(DoYouKnowTheRegisteredCompanyNumberView, self).get_form_kwargs()
         kwargs.update({"request": self.request})
-        # restore the form data from the business_uuid, if it exists
-        # if self.request.method == "GET":
-        #     if business_uuid := self.request.GET.get("business_uuid", None):
-        #         if businesses_dict := self.request.session.get("businesses", {}).get(business_uuid, None):
-        #             kwargs["data"] = businesses_dict["dirty_data"]
         return kwargs
 
     def form_valid(self, form: forms.AddABusinessForm) -> HttpResponse:
@@ -370,7 +365,6 @@ class ManualCompaniesHouseInputView(BaseFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["manual_companies_house_input"]
-        print(location)
         return reverse("add_a_business", kwargs={"location": location})
 
 
