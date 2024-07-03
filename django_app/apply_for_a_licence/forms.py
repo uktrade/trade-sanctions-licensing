@@ -25,7 +25,7 @@ from utils.companies_house import (
 
 from . import choices
 from .choices import YES_NO_CHOICES
-from .exceptions import CompaniesHouseException
+from .exceptions import CompaniesHouse500Error, CompaniesHouseException
 from .models import Business, Individual, Licence, UserEmailVerification
 
 
@@ -269,6 +269,10 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
             self.is_bound = False
             self.data = {}
 
+        # remove companies house 500 error if it exists
+        self.request.session.pop("company_details_500", None)
+        self.request.session.modified = True
+
         # todo - abstract the following logic to apply to all ConditionalRadios forms
         self.helper.legend_tag = "h1"
         self.helper.legend_size = Size.LARGE
@@ -313,8 +317,30 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
                         code="invalid", message=self.Meta.error_messages["registered_company_number"]["invalid"]
                     ),
                 )
+            except CompaniesHouse500Error:
+                self.request.session["company_details_500"] = True
+                self.request.session.modified = True
 
         return cleaned_data
+
+
+class ManualCompaniesHouseInputForm(BaseForm):
+    form_h1_header = (
+        "We cannot check the registered company number with Companies House at present, "
+        "you will need to enter the address manually"
+    )
+    manual_companies_house_input = forms.ChoiceField(
+        label="Where is the business located?",
+        choices=(
+            ("in_the_uk", "In the UK"),
+            ("outside_the_uk", "Outside the UK"),
+        ),
+        widget=forms.RadioSelect,
+        error_messages={
+            "required": "Select if the address of the business suspected of "
+            "breaching sanctions is in the UK, or outside the UK"
+        },
+    )
 
 
 class WhereIsTheBusinessLocatedForm(BaseForm):
