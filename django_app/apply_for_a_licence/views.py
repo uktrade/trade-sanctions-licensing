@@ -317,6 +317,7 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
             return reverse("where_is_the_business_located")
 
 
+@method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
 class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
     form_class = forms.DoYouKnowTheRegisteredCompanyNumberForm
 

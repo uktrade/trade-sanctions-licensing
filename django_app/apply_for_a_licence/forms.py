@@ -291,6 +291,11 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
+        # first we check if the request is rate-limited
+        if is_request_ratelimited(self.request):
+            raise forms.ValidationError(
+                "You've tried to enter the registered company number too many times. Try again in 1 minute"
+            )
 
         do_you_know_the_registered_company_number = cleaned_data.get("do_you_know_the_registered_company_number")
         registered_company_number = cleaned_data.get("registered_company_number")
