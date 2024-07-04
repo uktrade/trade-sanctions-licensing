@@ -250,7 +250,7 @@ class Migration(migrations.Migration):
                 ("town_or_city", models.TextField()),
                 ("country", django_countries.fields.CountryField(max_length=2)),
                 ("county", models.TextField(blank=True, null=True)),
-                ("postal_code", models.TextField()),
+                ("postcode", models.TextField()),
                 ("history_id", models.AutoField(primary_key=True, serialize=False)),
                 ("history_date", models.DateTimeField(db_index=True)),
                 ("history_change_reason", models.CharField(max_length=100, null=True)),
@@ -295,7 +295,7 @@ class Migration(migrations.Migration):
                 ("town_or_city", models.TextField()),
                 ("country", django_countries.fields.CountryField(max_length=2)),
                 ("county", models.TextField(blank=True, null=True)),
-                ("postal_code", models.TextField()),
+                ("postcode", models.TextField()),
                 ("licence", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apply_for_a_licence.licence")),
             ],
             options={

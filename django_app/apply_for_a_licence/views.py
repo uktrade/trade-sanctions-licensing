@@ -89,7 +89,7 @@ class YourDetailsView(BaseFormView):
 
 
 class PreviousLicenceView(BaseFormView):
-    form_class = forms.PreviousLicenceForm
+    form_class = forms.ExistingLicencesForm
 
     def get_form_kwargs(self) -> dict[str, Any]:
         kwargs = super().get_form_kwargs()
