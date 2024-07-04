@@ -23,7 +23,7 @@ from sentry_sdk.integrations.django import DjangoIntegration
 is_dbt_platform = "COPILOT_ENVIRONMENT_NAME" in os.environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # django_app/
-ROOT_DIR = BASE_DIR.parent  # licencing/
+ROOT_DIR = BASE_DIR.parent  # licensing/
 
 SECRET_KEY = env.django_secret_key
 
