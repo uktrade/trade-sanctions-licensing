@@ -265,7 +265,7 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
         super().__init__(*args, **kwargs)
 
         # emptying the form if the user has requested to change the details
-        if self.request.GET.get("change") == "yes" and self.request.method == "GET":
+        if self.request.GET.get("change") == "yes":
             self.is_bound = False
             self.data = {}
 
@@ -330,6 +330,7 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
 
 
 class ManualCompaniesHouseInputForm(BaseForm):
+    # Todo: update the design / font once ticket DST-434 is complete.
     form_h1_header = (
         "We cannot check the registered company number with Companies House at present, "
         "you will need to enter the address manually"
