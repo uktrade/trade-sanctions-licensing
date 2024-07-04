@@ -32,6 +32,9 @@ class StartView(BaseFormView):
 class ThirdPartyView(BaseFormView):
     form_class = forms.ThirdPartyForm
 
+    def get_success_url(self) -> str:
+        return reverse("what_is_your_email")
+
 
 class WhatIsYouEmailAddressView(BaseFormView):
     form_class = forms.WhatIsYourEmailForm
@@ -48,7 +51,6 @@ class WhatIsYouEmailAddressView(BaseFormView):
 @method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
 class EmailVerifyView(BaseFormView):
     form_class = forms.EmailVerifyForm
-    success_url = reverse_lazy("complete")
 
     def get_form_kwargs(self) -> dict[str, Any]:
         kwargs = super(EmailVerifyView, self).get_form_kwargs()
@@ -60,6 +62,18 @@ class EmailVerifyView(BaseFormView):
         if form_h1_header := getattr(forms.WhatIsYourEmailForm, "form_h1_header"):
             context["form_h1_header"] = form_h1_header
         return context
+
+    def get_success_url(self) -> str:
+        if third_party := self.request.session.get("ThirdPartyView", False):
+            if third_party.get("are_you_applying_on_behalf_of_someone_else", False):
+                return reverse("your_details")
+        if start_view := self.request.session.get("StartView", False):
+            if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
+                return reverse("add_yourself")
+            elif start_view.get("who_do_you_want_the_licence_to_cover") == "business":
+                return reverse("is_the_business_registered_with_companies_house")
+            else:
+                return reverse("add_an_individual")
 
 
 @method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
@@ -85,7 +99,11 @@ class YourDetailsView(BaseFormView):
     form_class = forms.YourDetailsForm
 
     def get_success_url(self):
-        return reverse("previous_licence")
+        if start_view := self.request.session.get("StartView", False):
+            if start_view.get("who_do_you_want_the_licence_to_cover") == "business":
+                return reverse("is_the_business_registered_with_companies_house")
+            else:
+                return reverse("add_an_individual")
 
 
 class PreviousLicenceView(BaseFormView):
