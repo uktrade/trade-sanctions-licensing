@@ -2,7 +2,10 @@ import base64
 from typing import Any
 
 import requests
-from apply_for_a_licence.exceptions import CompaniesHouseException
+from apply_for_a_licence.exceptions import (
+    CompaniesHouse500Error,
+    CompaniesHouseException,
+)
 from django.conf import settings
 from django_countries import countries
 
@@ -29,8 +32,11 @@ def get_details_from_companies_house(registration_number: str) -> dict[str, Any]
     )
     if response.status_code == 200:
         return response.json()
-    else:
-        raise CompaniesHouseException(f"Companies House API request failed: {response.status_code}")
+
+    if response.status_code == 500:
+        raise CompaniesHouse500Error
+
+    raise CompaniesHouseException(f"Companies House API request failed: {response.status_code}")
 
 
 def get_formatted_address(address_dict: dict[str, Any]) -> str:
