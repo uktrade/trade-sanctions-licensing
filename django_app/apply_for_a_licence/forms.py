@@ -330,11 +330,6 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
 
 
 class ManualCompaniesHouseInputForm(BaseForm):
-    # Todo: update the design / font once ticket DST-434 is complete.
-    form_h1_header = (
-        "We cannot check the registered company number with Companies House at present, "
-        "you will need to enter the address manually"
-    )
     manual_companies_house_input = forms.ChoiceField(
         label="Where is the business located?",
         choices=(
@@ -347,6 +342,17 @@ class ManualCompaniesHouseInputForm(BaseForm):
             "breaching sanctions is in the UK, or outside the UK"
         },
     )
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            Fieldset(
+                Field.radios(
+                    "manual_companies_house_input",
+                    legend_size=Size.MEDIUM,
+                )
+            )
+        )
 
 
 class WhereIsTheBusinessLocatedForm(BaseForm):

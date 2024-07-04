@@ -363,6 +363,7 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
 
 class ManualCompaniesHouseInputView(BaseFormView):
     form_class = forms.ManualCompaniesHouseInputForm
+    template_name = "apply_for_a_licence/form_steps/manual_companies_house_input.html"
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["manual_companies_house_input"]
