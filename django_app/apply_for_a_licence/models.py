@@ -21,6 +21,11 @@ class Licence(BaseModel):
     your_details_full_name = models.CharField(max_length=255)
     your_details_name_of_business_you_work_for = models.CharField(max_length=300, verbose_name="Business you work for")
     your_details_role = models.CharField(max_length=255)
+    business_registered_on_companies_house = models.CharField(
+        choices=choices.YesNoDoNotKnowChoices.choices,
+        max_length=11,
+        blank=False,
+    )
     held_previous_licence = models.CharField(
         choices=choices.YesNoChoices.choices,
         max_length=11,
@@ -52,4 +57,11 @@ class Business(BaseModel):
     country = CountryField()
     county = models.TextField(null=True, blank=True)
     postal_code = models.TextField()
+    do_you_know_the_registered_company_number = models.CharField(
+        choices=choices.YesNoChoices.choices,
+        max_length=3,
+        blank=False,
+    )
+    registered_company_number = models.CharField(max_length=20, null=True, blank=True)
+    registered_office_address = models.CharField(null=True, blank=True)
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE)
