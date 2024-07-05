@@ -33,6 +33,7 @@ class ThirdPartyView(BaseFormView):
     form_class = forms.ThirdPartyForm
 
     def get_success_url(self) -> str:
+        print(self.form.cleaned_data)
         return reverse("what_is_your_email")
 
 
@@ -64,16 +65,16 @@ class EmailVerifyView(BaseFormView):
         return context
 
     def get_success_url(self) -> str:
-        if third_party := self.request.session.get("ThirdPartyView", False):
-            if third_party.get("are_you_applying_on_behalf_of_someone_else", False):
-                return reverse("your_details")
-        if start_view := self.request.session.get("StartView", False):
-            if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
-                return reverse("add_yourself")
-            elif start_view.get("who_do_you_want_the_licence_to_cover") == "business":
-                return reverse("is_the_business_registered_with_companies_house")
-            else:
-                return reverse("add_an_individual")
+        start_view = self.request.session.get("StartView", False)
+        third_party_view = self.request.session.get("ThirdPartyView", False)
+        if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
+            return reverse("add_yourself")
+        elif third_party_view.get("are_you_applying_on_behalf_of_someone_else") == "True":
+            return reverse("your_details")
+        elif start_view.get("who_do_you_want_the_licence_to_cover") == "business":
+            return reverse("is_the_business_registered_with_companies_house")
+        else:
+            return reverse("add_an_individual")
 
 
 @method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
