@@ -1,6 +1,6 @@
 import uuid
 
-from core.models import BaseModel
+from core.models import BaseModel, BaseModelID
 from django.contrib.sessions.models import Session
 from django.db import models
 from django_countries.fields import CountryField
@@ -8,7 +8,7 @@ from django_countries.fields import CountryField
 from . import choices
 
 
-class Address(BaseModel):
+class Address(BaseModelID):
     address_line_1 = models.CharField(max_length=200, blank=True, null=True)
     address_line_2 = models.CharField(max_length=200, blank=True, null=True)
     address_line_3 = models.CharField(max_length=200, blank=True, null=True)
@@ -19,7 +19,7 @@ class Address(BaseModel):
     county = models.CharField(max_length=250)
     start_date = models.DateField()
     end_date = models.DateField()
-    applicant = models.ForeignKey("Applicant", models.DO_NOTHING, blank=True, null=True)
+    applicant = models.ForeignKey("Applicant", models.SET_NULL, blank=True, null=True)
 
     class Meta:
         db_table = "address"
@@ -28,7 +28,7 @@ class Address(BaseModel):
         "Otherwise, it is unknown when companies had changed their addresses. It helps inferring the source of truth."
 
 
-class Applicant(BaseModel):
+class Applicant(BaseModelID):
     user_email_address = models.EmailField(
         blank=True,
         null=True,
@@ -46,7 +46,7 @@ class Applicant(BaseModel):
         "It is to be noted it may need extended at a later stage if a login is required. "
 
 
-class UserEmailVerification(BaseModel):
+class UserEmailVerification(BaseModelID):
     user_session = models.ForeignKey(Session, on_delete=models.CASCADE)
     email_verification_code = models.CharField(max_length=6)
     date_created = models.DateTimeField(auto_now_add=True)
@@ -75,24 +75,24 @@ class Organisation(Address):
         "If you feel you can use again the model from RaB, then fine. However, this one may be better suited for licences"
 
 
-class Individual(BaseModel):
+class Individual(BaseModelID):
     first_name = models.TextField(max_length=255)
     last_name = models.TextField(max_length=255)
     nationality_and_location = models.CharField(choices=choices.NationalityAndLocation.choices)
 
 
-class ApplicationApplicant(models.Model):
+class ApplicationApplicant(BaseModel):
     applicant = models.OneToOneField(
-        Applicant, models.DO_NOTHING, primary_key=True
+        Applicant, models.CASCADE, primary_key=True
     )  # The composite primary key (applicant_id, application_id) found, that is not supported. The first column is selected.
-    application = models.ForeignKey("BaseApplication", models.DO_NOTHING)
+    application = models.ForeignKey("BaseApplication", models.SET_NULL, null=True)
 
     class Meta:
         db_table = "application_applicant"
-        unique_together = (("applicant", "application"),)
+        constraints = [models.UniqueConstraint(fields=["applicant", "application"], name="applicant-application")]
 
 
-class ApplicationOrganisation(models.Model):
+class ApplicationOrganisation(BaseModel):
     application_id = models.UUIDField(
         primary_key=True, editable=False, default=uuid.uuid4
     )  # The composite primary key (application_id, organisation_id, start_date) found, that is not supported.
@@ -108,52 +108,55 @@ class ApplicationOrganisation(models.Model):
 
     class Meta:
         db_table = "application_organisation"
-        unique_together = (("application_id", "organisation_id", "start_date"),)
+        constraints = [
+            models.UniqueConstraint(
+                fields=["application_id", "organisation_id", "start_date"], name="application-organisation-start-date"
+            )
+        ]
 
 
-class ApplicationRussianSanction(models.Model):
-    application = models.ForeignKey("BaseApplication", models.DO_NOTHING)
+class ApplicationRussianSanction(BaseModel):
+    application = models.ForeignKey("BaseApplication", models.SET_NULL, null=True)
     prohibition = models.TextField(db_comment="how do your [services] fall under the definition of prohibited [legislation]?")
 
     class Meta:
-        managed = False
         db_table = "application_russian_sanction"
 
 
-class ApplicationServices(models.Model):
+class ApplicationServices(BaseModel):
     application = models.OneToOneField(
-        "BaseApplication", models.DO_NOTHING, primary_key=True
+        "BaseApplication", models.CASCADE, primary_key=True
     )  # The composite primary key (application_id, services_id) found, that is not supported. The first column is selected.
-    services = models.ForeignKey("Services", models.DO_NOTHING)
+    services = models.ForeignKey("Services", models.SET_NULL, null=True)
     direct_flag = models.BooleanField()
     unknown_flag = models.BooleanField()
     description_provision = models.TextField(blank=True, null=True)
     purpose_of_provision = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = "application_services"
-        unique_together = (("application", "services"),)
+        constraints = [models.UniqueConstraint(fields=["application", "services"], name="application-services")]
 
 
-class ApplicationStatus(models.Model):
+class ApplicationStatus(BaseModel):
     application = models.OneToOneField(
-        "BaseApplication", models.DO_NOTHING, primary_key=True
+        "BaseApplication", models.CASCADE, primary_key=True
     )  # The composite primary key (application_id, status_id, start_date) found,
     # that is not supported. The first column is selected.
-    status = models.ForeignKey("Status", models.DO_NOTHING)
+    status = models.ForeignKey("Status", models.SET_NULL, null=True)
     start_date = models.DateField()
     end_date = models.DateField()
 
     class Meta:
-        managed = False
         db_table = "application_status"
-        unique_together = (("application", "status", "start_date"),)
+        constraints = [
+            models.UniqueConstraint(fields=["application", "status", "start_date"], name="application-status-start-date")
+        ]
         db_table_comment = "This table can be used to compute the number of days each application is in a certain status. "
         "It can be used for measuring the performance of a trade-sanctions licencing services."
 
 
-class ApplicationType(BaseModel):
+class ApplicationType(BaseModelID):
     short_label = models.CharField()
     who_do_you_want_the_licence_to_cover = models.CharField(
         max_length=255,
@@ -166,16 +169,15 @@ class ApplicationType(BaseModel):
     end_date = models.DateField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = "application_type"
         db_table_comment = "This table is similar to the report_type in Rab. It helps with the first screen to support choice of "
         "type of licences.  The start and end date is important. It supports data analysis and it is automatically generated.  "
         "Some maintenance tasks will be to change the end date and the interaction should be updated.   "
 
 
-class BaseApplication(BaseModel):
+class BaseApplication(BaseModelID):
     creation_date = models.DateField()
-    regime = models.ForeignKey("Regime", models.DO_NOTHING)
+    regime = models.ForeignKey("Regime", models.SET_NULL, null=True)
     type_id = models.UUIDField(editable=False, default=uuid.uuid4)
     unique_ref = models.CharField(
         db_comment="This reference may need to match a wider data standard as applied in SIELS. I.E. "
@@ -185,7 +187,7 @@ class BaseApplication(BaseModel):
         "it is permanent (P) or temporary (T).  It is surmised it is T. \n"
     )
     uk_recipient_flag = models.BooleanField()
-    ground = models.ForeignKey("Ground", models.DO_NOTHING, blank=True, null=True)
+    ground = models.ForeignKey("Ground", models.SET_NULL, null=True, blank=True)
     business_registered_on_companies_house = models.CharField(
         choices=choices.YesNoDoNotKnowChoices.choices,
         max_length=11,
@@ -196,7 +198,7 @@ class BaseApplication(BaseModel):
         db_table = "base_application"
 
 
-class Document(models.Model):
+class Document(BaseModel):
     application_id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     # The composite primary key (application_id, ref, creation_time) found,
     # that is not supported. The first column is selected.
@@ -206,13 +208,15 @@ class Document(models.Model):
 
     class Meta:
         db_table = "document"
-        unique_together = (("application_id", "ref", "creation_time"),)
+        constraints = [
+            models.UniqueConstraint(fields=["application_id", "ref", "creation_time"], name="application-ref-creation-time")
+        ]
         db_table_comment = "this table is similar as report of breach."
 
 
-class ExistingLicences(BaseModel):
+class ExistingLicences(BaseModelID):
     # The composite primary key (id, application_id) found, that is not supported. The first column is selected.
-    application = models.ForeignKey(BaseApplication, models.DO_NOTHING)
+    application = models.ForeignKey(BaseApplication, models.SET_NULL, null=True)
     licences = models.TextField(null=True, blank=True)
     held_existing_licence = models.CharField(
         choices=choices.YesNoChoices.choices,
@@ -222,7 +226,7 @@ class ExistingLicences(BaseModel):
 
     class Meta:
         db_table = "existing_licences"
-        unique_together = (("id", "application"),)
+        constraints = [models.UniqueConstraint(fields=["id", "application"], name="application-id")]
         db_table_comment = (
             "Previous licences held by the applicant. " "The first interaction is a text box to capture more than one licence. "
         )
@@ -231,7 +235,7 @@ class ExistingLicences(BaseModel):
         "Also, it is better modelled to prevent empty fields. "
 
 
-class Ground(BaseModel):
+class Ground(BaseModelID):
     # ! This table is required as it is for data pipelines - speak with data architect before modifying
     label = models.CharField()
     start_date = models.DateField()
@@ -241,7 +245,7 @@ class Ground(BaseModel):
         db_table = "ground"
 
 
-class Industry(BaseModel):
+class Industry(BaseModelID):
     label = models.CharField()
     start_date = models.DateField()
     end_date = models.DateField()
@@ -251,19 +255,18 @@ class Industry(BaseModel):
         db_table_comment = "This table is new. It is not yet in RaB."
 
 
-class IndustryRegime(models.Model):
+class IndustryRegime(BaseModel):
     regime_id = models.UUIDField(
         primary_key=True, editable=False, default=uuid.uuid4
     )  # The composite primary key (regime_id, industry_id) found, that is not supported. The first column is selected.
     industry_id = models.UUIDField(editable=False, default=uuid.uuid4)
 
     class Meta:
-        managed = False
         db_table = "industry_regime"
-        unique_together = (("regime_id", "industry_id"),)
+        constraints = [models.UniqueConstraint(fields=["regime_id", "industry_id"], name="regime-id-industry-id")]
 
 
-class Regime(BaseModel):
+class Regime(BaseModelID):
     short_name = models.CharField()
     full_name = models.CharField()
     start_date = models.DateField()
@@ -278,7 +281,7 @@ class Regime(BaseModel):
         "Also the start and end date brings some flexibility as legislation changes fast. "
 
 
-class Services(BaseModel):
+class Services(BaseModelID):
     label = models.CharField(blank=True, null=True)
     cpc_group = models.CharField(blank=True, null=True)
     cpc_class = models.CharField(blank=True, null=True)
@@ -293,11 +296,10 @@ class Services(BaseModel):
         db_table_comment = "This table is not in RaB. It is part of professions."
 
 
-class Status(BaseModel):
-    status = models.CharField()
+class Status(BaseModelID):
+    status = models.CharField(null=True)
     start_date = models.DateField()
     end_date = models.DateField()
 
     class Meta:
-        managed = False
         db_table = "status"
