@@ -16,7 +16,7 @@ class BaseSettings(PydanticBaseSettings):
 
     debug: bool = False
     django_secret_key: str
-    licencing_allowed_hosts: list[str] = ["*"]
+    licensing_allowed_hosts: list[str] = ["*"]
 
     clam_av_username: str = ""
     clam_av_password: str = ""
@@ -68,7 +68,7 @@ class BaseSettings(PydanticBaseSettings):
     @computed_field
     @property
     def allowed_hosts(self) -> list[str]:
-        return self.licencing_allowed_hosts
+        return self.licensing_allowed_hosts
 
     @computed_field
     @property
@@ -143,9 +143,9 @@ class DBTPlatformSettings(BaseSettings):
     @property
     def allowed_hosts(self) -> list[str]:
         if self.in_build_step:
-            return self.licencing_allowed_hosts
+            return self.licensing_allowed_hosts
         else:
-            return setup_allowed_hosts(self.licencing_allowed_hosts)
+            return setup_allowed_hosts(self.licensing_allowed_hosts)
 
     @computed_field
     @property
