@@ -33,7 +33,6 @@ class ThirdPartyView(BaseFormView):
     form_class = forms.ThirdPartyForm
 
     def get_success_url(self) -> str:
-        print(self.form.cleaned_data)
         return reverse("what_is_your_email")
 
 
@@ -116,7 +115,18 @@ class PreviousLicenceView(BaseFormView):
         return kwargs
 
     def get_success_url(self):
-        return reverse("services")
+        success_url = reverse("type_of_service")
+        if start_view := self.request.session.get("StartView", False):
+            if start_view.get("who_do_you_want_the_licence_to_cover") == "individual":
+                success_url = reverse("business_employing_individual")
+        return success_url
+
+
+class BusinessEmployingIndividualView(BaseFormView):
+    form_class = forms.BusinessEmployingIndividualForm
+
+    def get_success_url(self):
+        return reverse("type_of_service")
 
 
 class AddABusinessView(FormView):

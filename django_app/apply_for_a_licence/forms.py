@@ -513,6 +513,56 @@ class IndividualAddedForm(BaseForm):
         self.helper.legend_tag = None
 
 
+class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
+    form_h1_header = "Details of the business employing the individual[s]"
+
+    class Meta(BaseBusinessDetailsForm.Meta):
+        model = Organisation
+        fields = (
+            "name",
+            "country",
+            "town_or_city",
+            "address_line_1",
+            "address_line_2",
+            "address_line_3",
+            "address_line_4",
+            "county",
+            "postcode",
+        )
+        widgets = BaseBusinessDetailsForm.Meta.widgets
+        labels = BaseBusinessDetailsForm.Meta.labels
+        error_messages = BaseBusinessDetailsForm.Meta.error_messages
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+
+        # all fields on this form are optional except country
+        for _, field in self.fields.items():
+            field.required = False
+
+        self.fields["country"].required = True
+
+        self.helper.layout = Layout(
+            Fieldset(
+                Field.text("name", field_width=Fluid.ONE_HALF),
+                legend="Name",
+                legend_size=Size.MEDIUM,
+                legend_tag="h2",
+            ),
+            Fieldset(
+                Field.text("country", field_width=Fluid.ONE_THIRD),
+                Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
+                Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
+                Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
+                Field.text("address_line_3", field_width=Fluid.ONE_THIRD),
+                Field.text("address_line_4", field_width=Fluid.ONE_THIRD),
+                legend="Address",
+                legend_size=Size.MEDIUM,
+                legend_tag="h2",
+            ),
+        )
+
+
 class AddYourselfForm(BaseModelForm):
     form_h1_header = "Your details"
 
