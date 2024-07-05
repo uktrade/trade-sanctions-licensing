@@ -33,6 +33,7 @@ from .models import (
     ExistingLicences,
     Individual,
     Organisation,
+    Services,
     UserEmailVerification,
 )
 
@@ -632,3 +633,27 @@ class AddYourselfAddressForm(BaseBusinessDetailsForm):
             Field.text("county", field_width=Fluid.ONE_THIRD),
             Field.text("postcode", field_width=Fluid.ONE_THIRD),
         )
+
+
+class TypeOfServiceForm(BaseModelForm):
+    form_h1_header = "What type of services do you want to provide?"
+
+    class Meta:
+        model = Services
+        fields = ["type_of_service"]
+        widgets = {
+            "type_of_service": forms.RadioSelect,
+        }
+
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            super().__init__(*args, **kwargs)
+            radio_choices = []
+            for i, item in enumerate(Services.objects.values("type_of_service")):
+                radio_choices.append(Choice(item["type_of_service"], item["type_of_service"]))
+
+            self.fields["type_of_service"].choices = radio_choices
+            self.fields["type_of_service"].label = False
+
+            self.helper.label_size = None
+            self.helper.label_tag = None
+            self.helper.layout = Layout(Field.radios("type_of_service", legend_size=Size.MEDIUM, legend_tag="h2", inline=False))

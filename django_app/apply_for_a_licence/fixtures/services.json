@@ -1,0 +1,42 @@
+[
+  {
+    "model": "apply_for_a_licence.Services",
+    "pk": "cf6b54c5-a46b-4b7d-a40d-9f2ed750eb6d",
+    "fields": {
+      "label": "The test 1 Services",
+      "industry_id": "cf6b54c5-a46b-4b7d-a40d-9f2ed750eb6d",
+      "created_at": "2021-01-01T00:00:00Z",
+      "modified_at": "2021-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "apply_for_a_licence.Services",
+    "pk": "708e45bf-838b-4efc-b302-6d31d5684e7b",
+    "fields": {
+      "label": "Automated Service",
+      "industry_id": "708e45bf-838b-4efc-b302-6d31d5684e7b",
+      "created_at": "2021-01-01T00:00:00Z",
+      "modified_at": "2021-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "apply_for_a_licence.Services",
+    "pk": "10cb44e9-fcdf-4fe5-89e8-798b5192b766",
+    "fields": {
+      "label": "Another Service",
+      "industry_id": "10cb44e9-fcdf-4fe5-89e8-798b5192b766",
+      "created_at": "2021-01-01T00:00:00Z",
+      "modified_at": "2021-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "apply_for_a_licence.Services",
+    "pk": "90ddb9da-cf9d-4306-a2b3-b8f7ea85e4f9",
+    "fields": {
+      "label": "The test 2 Service",
+      "industry_id": "90ddb9da-cf9d-4306-a2b3-b8f7ea85e4f9",
+      "created_at": "2021-01-01T00:00:00Z",
+      "modified_at": "2021-01-01T00:00:00Z"
+    }
+  }
+]

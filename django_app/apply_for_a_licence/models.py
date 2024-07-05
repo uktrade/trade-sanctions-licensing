@@ -279,6 +279,7 @@ class Regime(BaseModel):
 
 
 class Services(BaseModel):
+    type_of_service = models.CharField(blank=True, null=True)
     label = models.CharField(blank=True, null=True)
     cpc_group = models.CharField(blank=True, null=True)
     cpc_class = models.CharField(blank=True, null=True)

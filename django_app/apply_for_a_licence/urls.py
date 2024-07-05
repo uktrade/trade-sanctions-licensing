@@ -38,6 +38,6 @@ urlpatterns = [
         views.DeleteIndividualFromYourselfView.as_view(),
         name="delete_individual_from_yourself",
     ),
-    path("type_of_service", views.CompleteView.as_view(), name="type_of_service"),
+    path("type_of_service", views.TypeOfServiceView.as_view(), name="type_of_service"),
     path("complete", views.CompleteView.as_view(), name="complete"),
 ]

@@ -413,3 +413,8 @@ class WhereIsTheBusinessLocatedView(BaseFormView):
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
         return reverse("add_a_business", kwargs={"location": location})
+
+
+class TypeOfServiceView(BaseFormView):
+    form_class = forms.TypeOfServiceForm
+    success_url = reverse_lazy("complete")
