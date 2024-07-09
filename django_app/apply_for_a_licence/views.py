@@ -417,4 +417,20 @@ class WhereIsTheBusinessLocatedView(BaseFormView):
 
 class TypeOfServiceView(BaseFormView):
     form_class = forms.TypeOfServiceForm
+    success_url = reverse_lazy("which_sanctions_regime")
+
+
+class ProfessionalOrBusinessServices(BaseFormView):
+    form_class = forms.ProfessionalOrBusinessServicesForm
+    success_url = reverse_lazy("service_activities")
+
+
+class WhichSanctionsRegimeView(BaseFormView):
+    form_class = forms.WhichSanctionsRegimeForm
+    success_url = reverse_lazy("service_activities")
+
+
+class ServiceActivitiesView(BaseFormView):
+    form_class = forms.ServiceActivitiesForm
+    # todo: change success url to recipients flow
     success_url = reverse_lazy("complete")

@@ -266,10 +266,10 @@ class IndustryRegime(models.Model):
 class Regime(BaseModel):
     short_name = models.CharField()
     full_name = models.CharField()
-    start_date = models.DateField()
-    end_date = models.DateField()
-    shown_gui_flag = models.BooleanField()
-    licences_guid_flag = models.BooleanField()
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    shown_gui_flag = models.BooleanField(null=True, blank=True)
+    licences_guid_flag = models.BooleanField(null=True, blank=True)
 
     class Meta:
         db_table = "regime"
@@ -280,6 +280,7 @@ class Regime(BaseModel):
 
 class Services(BaseModel):
     type_of_service = models.CharField(blank=True, null=True)
+    service_activities = models.TextField()
     label = models.CharField(blank=True, null=True)
     cpc_group = models.CharField(blank=True, null=True)
     cpc_class = models.CharField(blank=True, null=True)

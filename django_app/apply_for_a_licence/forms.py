@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Any
 
-from core.crispy_fields import HTMLTemplate
+from core.crispy_fields import HTMLTemplate, get_field_with_label_id
 from core.forms.base_forms import BaseBusinessDetailsForm, BaseForm, BaseModelForm
 from core.utils import is_request_ratelimited
 from crispy_forms_gds.choices import Choice
@@ -33,6 +33,7 @@ from .models import (
     ExistingLicences,
     Individual,
     Organisation,
+    Regime,
     Services,
     UserEmailVerification,
 )
@@ -636,24 +637,122 @@ class AddYourselfAddressForm(BaseBusinessDetailsForm):
 
 
 class TypeOfServiceForm(BaseModelForm):
-    form_h1_header = "What type of services do you want to provide?"
-
     class Meta:
         model = Services
         fields = ["type_of_service"]
-        widgets = {
-            "type_of_service": forms.RadioSelect,
+
+    form_h1_header = "What type of service do you want to provide?"
+    type_of_service = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=(()),
+        required=True,
+        error_messages={
+            "required": "Select the type of service you want to provide",
+        },
+    )
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        checkbox_choices = []
+        for i, item in enumerate(Services.objects.values("type_of_service")):
+            checkbox_choices.append(Choice(item["type_of_service"], item["type_of_service"]))
+
+        self.fields["type_of_service"].choices = checkbox_choices
+        self.fields["type_of_service"].label = False
+        self.helper.label_size = None
+        self.helper.label_tag = None
+
+
+class WhichSanctionsRegimeForm(BaseForm):
+    form_h1_header = "Which sanctions regime is the licence for?"
+
+    which_sanctions_regime = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=(()),
+        required=True,
+        error_messages={
+            "required": "Select the sanctions regime the licence is for",
+        },
+    )
+
+    class Media:
+        js = ["report_a_suspected_breach/javascript/which_sanctions_regime.js"]
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        checkbox_choices = []
+        for i, item in enumerate(Regime.objects.values("full_name")):
+            checkbox_choices.append(Choice(item["full_name"], item["full_name"]))
+
+        self.fields["which_sanctions_regime"].choices = checkbox_choices
+        self.fields["which_sanctions_regime"].label = False
+        self.helper.label_size = None
+        self.helper.label_tag = None
+        self.helper.layout = Layout(
+            Fieldset(
+                get_field_with_label_id("which_sanctions_regime", field_method=Field.checkboxes, label_id="checkbox"),
+                aria_describedby="checkbox",
+            )
+        )
+
+
+class ProfessionalOrBusinessServicesForm(BaseModelForm):
+    form_h1_header = "What are the professional or business services you want to provide?"
+
+    class Meta:
+        model = Services
+        fields = ["cpc_subclass"]
+
+    cpc_subclass = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=(()),
+        required=True,
+        error_messages={
+            "required": "Select the professional or business services the licence is for",
+        },
+    )
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        checkbox_choices = []
+        for i, item in enumerate(Services.objects.values("cpc_subclass")):
+            checkbox_choices.append(Choice(item["cpc_subclass"], item["cpc_subclass"]))
+
+        self.fields["cpc_subclass"].choices = checkbox_choices
+        self.fields["cpc_subclass"].label = False
+        self.fields["cpc_subclass"].help_text = "Select all that apply"
+        self.helper.label_size = None
+        self.helper.label_tag = None
+        self.helper.layout = Layout(
+            Fieldset(
+                get_field_with_label_id("cpc_subclass", field_method=Field.checkboxes, label_id="checkbox"),
+                aria_describedby="checkbox",
+            )
+        )
+
+
+class ServiceActivitiesForm(BaseModelForm):
+    class Meta:
+        model = Services
+        fields = ["service_activities"]
+        labels = {
+            "service_activities": "Describe the specific activities within the services you want to provide",
+        }
+        help_texts = {
+            "service_activities": "Tell us about the services you want to provide. You will need to show how they "
+            "match to the specific meaning of services in the sanctions regime that applies to your intended activity",
+        }
+        error_messages = {
+            "service_activities": {"required": "Describe the service activities"},
         }
 
-        def __init__(self, *args: object, **kwargs: object) -> None:
-            super().__init__(*args, **kwargs)
-            radio_choices = []
-            for i, item in enumerate(Services.objects.values("type_of_service")):
-                radio_choices.append(Choice(item["type_of_service"], item["type_of_service"]))
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["service_activities"].widget.attrs = {"rows": 5}
 
-            self.fields["type_of_service"].choices = radio_choices
-            self.fields["type_of_service"].label = False
-
-            self.helper.label_size = None
-            self.helper.label_tag = None
-            self.helper.layout = Layout(Field.radios("type_of_service", legend_size=Size.MEDIUM, legend_tag="h2", inline=False))
+        self.helper["service_activities"].wrap(
+            Field,
+            HTMLTemplate(
+                "apply_for_a_licence/form_steps/partials/service_activities.html",
+            ),
+        )
