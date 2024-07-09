@@ -189,7 +189,6 @@ class ExistingLicencesForm(BaseModelForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.request = kwargs.pop("request") if "request" in kwargs else None
         self.fields["held_existing_licence"].empty_label = None
         # todo - abstract the following logic to apply to all ConditionalRadios forms
         self.helper.legend_tag = "h1"
