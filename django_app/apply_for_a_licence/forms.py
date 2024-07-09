@@ -24,14 +24,22 @@ from utils.companies_house import (
 )
 
 from . import choices
-from .choices import YES_NO_CHOICES
 from .exceptions import CompaniesHouse500Error, CompaniesHouseException
-from .models import Business, Individual, Licence, UserEmailVerification
+from .models import (
+    Address,
+    Applicant,
+    ApplicationType,
+    BaseApplication,
+    ExistingLicences,
+    Individual,
+    Organisation,
+    UserEmailVerification,
+)
 
 
 class StartForm(BaseModelForm):
     class Meta:
-        model = Licence
+        model = ApplicationType
         fields = ["who_do_you_want_the_licence_to_cover"]
         widgets = {
             "who_do_you_want_the_licence_to_cover": forms.RadioSelect,
@@ -61,7 +69,7 @@ class StartForm(BaseModelForm):
 
 class ThirdPartyForm(BaseForm):
     are_you_applying_on_behalf_of_someone_else = forms.TypedChoiceField(
-        choices=YES_NO_CHOICES,
+        choices=choices.YES_NO_CHOICES,
         coerce=lambda x: x == "True",
         widget=forms.RadioSelect,
         label="Are you a third-party applying on behalf of a business you represent?",
@@ -83,28 +91,28 @@ class YourDetailsForm(BaseModelForm):
     form_h1_header = "Your details"
 
     class Meta:
-        model = Licence
-        fields = ["your_details_full_name", "your_details_name_of_business_you_work_for", "your_details_role"]
+        model = Applicant
+        fields = ["full_name", "business", "role"]
         labels = {
-            "your_details_full_name": "Full name",
-            "your_details_name_of_business_you_work_for": "Business you work for",
-            "your_details_role": "Your role",
+            "full_name": "Full name",
+            "business": "Business you work for",
+            "role": "Your role",
         }
         help_texts = {
-            "your_details_name_of_business_you_work_for": "If you're a third-party agent, this is the business that employs you, "
+            "business": "If you're a third-party agent, this is the business that employs you, "
             "not the business needing the licence",
         }
         error_messages = {
-            "your_details_full_name": {"required": "Enter your full name"},
+            "full_name": {"required": "Enter your full name"},
         }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.helper.label_size = Size.MEDIUM
         self.helper.layout = Layout(
-            Field.text("your_details_full_name", field_width=Fluid.TWO_THIRDS),
-            Field.text("your_details_name_of_business_you_work_for", field_width=Fluid.TWO_THIRDS),
-            Field.text("your_details_role", field_width=Fluid.TWO_THIRDS),
+            Field.text("full_name", field_width=Fluid.TWO_THIRDS),
+            Field.text("business", field_width=Fluid.TWO_THIRDS),
+            Field.text("role", field_width=Fluid.TWO_THIRDS),
         )
 
 
@@ -161,26 +169,25 @@ class SummaryForm(BaseForm):
     pass
 
 
-class PreviousLicenceForm(BaseModelForm):
-    hide_optional_label_fields = ["previous_licences"]
+class ExistingLicencesForm(BaseModelForm):
+    hide_optional_label_fields = ["licences"]
 
     class Meta:
-        model = Licence
-        fields = ("held_previous_licence", "previous_licences")
+        model = ExistingLicences
+        fields = ("held_existing_licence", "licences")
         labels = {
-            "previous_licences": "Enter all previous licence numbers",
+            "licences": "Enter all previous licence numbers",
         }
         error_messages = {
-            "held_previous_licence": {
+            "held_existing_licence": {
                 "required": "Select yes if the business has held a licence before to provide these services"
             },
-            "previous_licences": {"required": "Licence number cannot be blank"},
+            "licences": {"required": "Licence number cannot be blank"},
         }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.request = kwargs.pop("request") if "request" in kwargs else None
-        self.fields["held_previous_licence"].empty_label = None
+        self.fields["held_existing_licence"].empty_label = None
         # todo - abstract the following logic to apply to all ConditionalRadios forms
         self.helper.legend_tag = "h1"
         self.helper.legend_size = Size.LARGE
@@ -188,39 +195,39 @@ class PreviousLicenceForm(BaseModelForm):
         self.helper.label_size = None
         self.helper.layout = Layout(
             ConditionalRadios(
-                "held_previous_licence",
+                "held_existing_licence",
                 ConditionalQuestion(
                     "Yes",
-                    Field.text("previous_licences", field_width=Fluid.TWO_THIRDS),
+                    Field.text("licences", field_width=Fluid.TWO_THIRDS),
                 ),
                 "No",
             )
         )
-        self.held_previous_licence_label = (
+        self.held_existing_licence_label = (
             "Have any of the businesses you've added held a licence before to provide sanctioned services?"
         )
 
         if start_view := self.request.session.get("StartView", False):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
-                self.held_previous_licence_label = (
+                self.held_existing_licence_label = (
                     "Have you, or has anyone else you've added, held a licence before to provide sanctioned services?"
                 )
             elif start_view.get("who_do_you_want_the_licence_to_cover") == "individual":
-                self.held_previous_licence_label = (
+                self.held_existing_licence_label = (
                     "Have any of the individuals you've added held a licence before to provide sanctioned services?"
                 )
-        self.fields["held_previous_licence"].label = self.held_previous_licence_label
+        self.fields["held_existing_licence"].label = self.held_existing_licence_label
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
-        if cleaned_data.get("held_previous_licence") == "yes" and not cleaned_data["previous_licences"]:
-            self.add_error("previous_licences", self.Meta.error_messages["previous_licences"]["required"])
+        if cleaned_data.get("held_existing_licence") == "yes" and not cleaned_data["licences"]:
+            self.add_error("licences", self.Meta.error_messages["licences"]["required"])
         return cleaned_data
 
 
 class IsTheBusinessRegisteredWithCompaniesHouseForm(BaseModelForm):
     class Meta:
-        model = Licence
+        model = BaseApplication
         fields = ["business_registered_on_companies_house"]
         widgets = {"business_registered_on_companies_house": forms.RadioSelect}
         labels = {
@@ -245,7 +252,7 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
     registered_office_address = forms.CharField(required=False)
 
     class Meta:
-        model = Business
+        model = Organisation
         fields = ["do_you_know_the_registered_company_number", "registered_company_number"]
         widgets = {"do_you_know_the_registered_company_number": forms.RadioSelect}
         labels = {
@@ -369,15 +376,11 @@ class WhereIsTheBusinessLocatedForm(BaseForm):
 
 class AddABusinessForm(BaseBusinessDetailsForm):
     form_h1_header = "Add a business"
-    labels = {
-        "name": "Name of business",
-    }
-
-    name = forms.CharField()
 
     class Meta(BaseBusinessDetailsForm.Meta):
-        model = Business
+        model = Organisation
         fields = (
+            "name",
             "town_or_city",
             "country",
             "address_line_1",
@@ -385,7 +388,7 @@ class AddABusinessForm(BaseBusinessDetailsForm):
             "address_line_3",
             "address_line_4",
             "county",
-            "postal_code",
+            "postcode",
         )
         widgets = BaseBusinessDetailsForm.Meta.widgets
         labels = BaseBusinessDetailsForm.Meta.labels
@@ -408,7 +411,7 @@ class AddABusinessForm(BaseBusinessDetailsForm):
                 Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
                 Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
                 Field.text("county", field_width=Fluid.ONE_THIRD),
-                Field.text("postal_code", field_width=Fluid.ONE_THIRD),
+                Field.text("postcode", field_width=Fluid.ONE_THIRD),
                 legend="Address",
                 legend_size=Size.MEDIUM,
                 legend_tag="h2",
@@ -509,6 +512,56 @@ class IndividualAddedForm(BaseForm):
         self.helper.legend_tag = None
 
 
+class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
+    form_h1_header = "Details of the business employing the individual[s]"
+
+    class Meta(BaseBusinessDetailsForm.Meta):
+        model = Organisation
+        fields = (
+            "name",
+            "country",
+            "town_or_city",
+            "address_line_1",
+            "address_line_2",
+            "address_line_3",
+            "address_line_4",
+            "county",
+            "postcode",
+        )
+        widgets = BaseBusinessDetailsForm.Meta.widgets
+        labels = BaseBusinessDetailsForm.Meta.labels
+        error_messages = BaseBusinessDetailsForm.Meta.error_messages
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+
+        # all fields on this form are optional except country
+        for _, field in self.fields.items():
+            field.required = False
+
+        self.fields["country"].required = True
+
+        self.helper.layout = Layout(
+            Fieldset(
+                Field.text("name", field_width=Fluid.ONE_HALF),
+                legend="Name",
+                legend_size=Size.MEDIUM,
+                legend_tag="h2",
+            ),
+            Fieldset(
+                Field.text("country", field_width=Fluid.ONE_THIRD),
+                Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
+                Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
+                Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
+                Field.text("address_line_3", field_width=Fluid.ONE_THIRD),
+                Field.text("address_line_4", field_width=Fluid.ONE_THIRD),
+                legend="Address",
+                legend_size=Size.MEDIUM,
+                legend_tag="h2",
+            ),
+        )
+
+
 class AddYourselfForm(BaseModelForm):
     form_h1_header = "Your details"
 
@@ -543,7 +596,7 @@ class AddYourselfAddressForm(BaseBusinessDetailsForm):
     form_h1_header = "What is your work address?"
 
     class Meta(BaseBusinessDetailsForm.Meta):
-        model = Business
+        model = Address
         fields = (
             "town_or_city",
             "country",
@@ -552,7 +605,7 @@ class AddYourselfAddressForm(BaseBusinessDetailsForm):
             "address_line_3",
             "address_line_4",
             "county",
-            "postal_code",
+            "postcode",
         )
         widgets = BaseBusinessDetailsForm.Meta.widgets
         labels = BaseBusinessDetailsForm.Meta.labels
@@ -576,5 +629,5 @@ class AddYourselfAddressForm(BaseBusinessDetailsForm):
             Field.text("address_line_3", field_width=Fluid.ONE_THIRD),
             Field.text("address_line_4", field_width=Fluid.ONE_THIRD),
             Field.text("county", field_width=Fluid.ONE_THIRD),
-            Field.text("postal_code", field_width=Fluid.ONE_THIRD),
+            Field.text("postcode", field_width=Fluid.ONE_THIRD),
         )

@@ -29,6 +29,7 @@ urlpatterns = [
     path("add_an_individual", views.AddAnIndividualView.as_view(), name="add_an_individual"),
     path("delete_individual", views.DeleteIndividualView.as_view(), name="delete_individual"),
     path("individual_added", views.IndividualAddedView.as_view(), name="individual_added"),
+    path("business_employing_individual", views.BusinessEmployingIndividualView.as_view(), name="business_employing_individual"),
     path("add_yourself", views.AddYourselfView.as_view(), name="add_yourself"),
     path("add_yourself_address", views.AddYourselfAddressView.as_view(), name="add_yourself_address"),
     path("yourself_and_individual_added", views.YourselfAndIndividualAddedView.as_view(), name="yourself_and_individual_added"),
@@ -37,5 +38,6 @@ urlpatterns = [
         views.DeleteIndividualFromYourselfView.as_view(),
         name="delete_individual_from_yourself",
     ),
+    path("type_of_service", views.CompleteView.as_view(), name="type_of_service"),
     path("complete", views.CompleteView.as_view(), name="complete"),
 ]

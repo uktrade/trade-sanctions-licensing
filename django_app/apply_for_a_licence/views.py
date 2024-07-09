@@ -31,6 +31,7 @@ class StartView(BaseFormView):
 
 class ThirdPartyView(BaseFormView):
     form_class = forms.ThirdPartyForm
+    success_url = reverse_lazy("what_is_your_email")
 
 
 class WhatIsYouEmailAddressView(BaseFormView):
@@ -48,7 +49,6 @@ class WhatIsYouEmailAddressView(BaseFormView):
 @method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
 class EmailVerifyView(BaseFormView):
     form_class = forms.EmailVerifyForm
-    success_url = reverse_lazy("complete")
 
     def get_form_kwargs(self) -> dict[str, Any]:
         kwargs = super(EmailVerifyView, self).get_form_kwargs()
@@ -60,6 +60,18 @@ class EmailVerifyView(BaseFormView):
         if form_h1_header := getattr(forms.WhatIsYourEmailForm, "form_h1_header"):
             context["form_h1_header"] = form_h1_header
         return context
+
+    def get_success_url(self) -> str:
+        start_view = self.request.session.get("StartView", False)
+        third_party_view = self.request.session.get("ThirdPartyView", False)
+        if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
+            return reverse("add_yourself")
+        elif third_party_view.get("are_you_applying_on_behalf_of_someone_else") == "True":
+            return reverse("your_details")
+        elif start_view.get("who_do_you_want_the_licence_to_cover") == "business":
+            return reverse("is_the_business_registered_with_companies_house")
+        else:
+            return reverse("add_an_individual")
 
 
 @method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
@@ -85,11 +97,15 @@ class YourDetailsView(BaseFormView):
     form_class = forms.YourDetailsForm
 
     def get_success_url(self):
-        return reverse("previous_licence")
+        if start_view := self.request.session.get("StartView", False):
+            if start_view.get("who_do_you_want_the_licence_to_cover") == "business":
+                return reverse("is_the_business_registered_with_companies_house")
+            else:
+                return reverse("add_an_individual")
 
 
 class PreviousLicenceView(BaseFormView):
-    form_class = forms.PreviousLicenceForm
+    form_class = forms.ExistingLicencesForm
 
     def get_form_kwargs(self) -> dict[str, Any]:
         kwargs = super().get_form_kwargs()
@@ -97,12 +113,22 @@ class PreviousLicenceView(BaseFormView):
         return kwargs
 
     def get_success_url(self):
-        return reverse("services")
+        success_url = reverse("type_of_service")
+        if start_view := self.request.session.get("StartView", False):
+            if start_view.get("who_do_you_want_the_licence_to_cover") == "individual":
+                success_url = reverse("business_employing_individual")
+        return success_url
+
+
+class BusinessEmployingIndividualView(BaseFormView):
+    form_class = forms.BusinessEmployingIndividualForm
+    success_url = reverse_lazy("type_of_service")
 
 
 class AddABusinessView(FormView):
     form_class = forms.AddABusinessForm
     template_name = "core/base_form_step.html"
+    success_url = reverse_lazy("business_added")
 
     def setup(self, request, *args, **kwargs):
         self.location = kwargs["location"]
@@ -132,9 +158,6 @@ class AddABusinessView(FormView):
         self.request.session["businesses"] = current_businesses
         self.request.session.modified = True
         return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse("business_added")
 
 
 class BusinessAddedView(BaseFormView):
@@ -237,6 +260,7 @@ class DeleteIndividualView(BaseFormView):
 
 class AddYourselfView(BaseFormView):
     form_class = forms.AddYourselfForm
+    success_url = reverse_lazy("add_yourself_address")
 
     def form_valid(self, form: forms.AddYourselfAddressForm) -> HttpResponse:
         cleaned_data = form.cleaned_data
@@ -251,12 +275,10 @@ class AddYourselfView(BaseFormView):
         self.request.session.modified = True
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse("add_yourself_address")
-
 
 class AddYourselfAddressView(BaseFormView):
     form_class = forms.AddYourselfAddressForm
+    success_url = reverse_lazy("yourself_and_individual_added")
 
     def get_form_kwargs(self) -> dict[str, Any]:
         kwargs = super().get_form_kwargs()
@@ -277,9 +299,6 @@ class AddYourselfAddressView(BaseFormView):
         self.request.session["your_address"] = your_address
         self.request.session.modified = True
         return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse("yourself_and_individual_added")
 
 
 class YourselfAndIndividualAddedView(BaseFormView):
@@ -373,9 +392,7 @@ class ManualCompaniesHouseInputView(BaseFormView):
 class CheckCompanyDetailsView(BaseFormView):
     template_name = "apply_for_a_licence/form_steps/check_company_details.html"
     form_class = forms.BaseForm
-
-    def get_success_url(self) -> str:
-        return reverse("business_added")
+    success_url = reverse_lazy("business_added")
 
 
 class WhereIsTheBusinessLocatedView(BaseFormView):
