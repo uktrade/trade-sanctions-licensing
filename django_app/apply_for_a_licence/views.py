@@ -408,7 +408,19 @@ class WhereIsTheBusinessLocatedView(BaseFormView):
 
 class TypeOfServiceView(BaseFormView):
     form_class = forms.TypeOfServiceForm
-    success_url = reverse_lazy("which_sanctions_regime")
+
+    def get_success_url(self) -> str:
+        answer = self.form.cleaned_data["type_of_service"]
+
+        if answer == "interception_or_monitoring":
+            success_url = reverse("which_sanctions_regime")
+        elif answer == "internet":
+            success_url = reverse("which_sanctions_regime")
+        elif answer == "professional_and_business":
+            success_url = reverse("professional_or_business_services")
+        else:
+            success_url = reverse("service_activities")
+        return success_url
 
 
 class ProfessionalOrBusinessServices(BaseFormView):

@@ -282,7 +282,8 @@ class Regime(BaseModelID):
 
 
 class Services(BaseModelID):
-    type_of_service = models.CharField(blank=True, null=True)
+    type_of_service = models.CharField(choices=choices.TypeOfServicesChoices.choices)
+    professional_or_business_service = models.CharField()
     service_activities = models.TextField()
     label = models.CharField(blank=True, null=True)
     cpc_group = models.CharField(blank=True, null=True)

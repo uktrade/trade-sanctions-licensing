@@ -639,27 +639,19 @@ class TypeOfServiceForm(BaseModelForm):
     class Meta:
         model = Services
         fields = ["type_of_service"]
-
-    form_h1_header = "What type of service do you want to provide?"
-    type_of_service = forms.ChoiceField(
-        widget=forms.RadioSelect,
-        choices=(()),
-        required=True,
-        error_messages={
-            "required": "Select the type of service you want to provide",
-        },
-    )
+        widgets = {"type_of_service": forms.RadioSelect}
+        error_messages = {
+            "type_of_service": {
+                "required": "Select the type of service you want to provide",
+            }
+        }
+        labels = {
+            "type_of_service": "What type of service do you want to provide?",
+        }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        checkbox_choices = []
-        for i, item in enumerate(Services.objects.values("type_of_service")):
-            checkbox_choices.append(Choice(item["type_of_service"], item["type_of_service"]))
-
-        self.fields["type_of_service"].choices = checkbox_choices
-        self.fields["type_of_service"].label = False
-        self.helper.label_size = None
-        self.helper.label_tag = None
+        self.fields["type_of_service"].choices.pop(0)
 
 
 class WhichSanctionsRegimeForm(BaseForm):
@@ -696,38 +688,60 @@ class WhichSanctionsRegimeForm(BaseForm):
 
 
 class ProfessionalOrBusinessServicesForm(BaseModelForm):
-    form_h1_header = "What are the professional or business services you want to provide?"
 
     class Meta:
         model = Services
-        fields = ["cpc_subclass"]
-
-    cpc_subclass = forms.MultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple,
-        choices=(()),
-        required=True,
-        error_messages={
-            "required": "Select the professional or business services the licence is for",
-        },
-    )
+        fields = ["professional_or_business_service"]
+        widgets = {"professional_or_business_service": forms.CheckboxSelectMultiple}
+        error_messages = {
+            "professional_or_business_service": {
+                "required": "Select the professional or business services the licence is for",
+            }
+        }
+        labels = {"professional_or_business_service": "What are the professional or business services you want to provide?"}
+        help_texts = {"professional_or_business_service": "Select all that apply"}
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        checkbox_choices = []
-        for i, item in enumerate(Services.objects.values("cpc_subclass")):
-            checkbox_choices.append(Choice(item["cpc_subclass"], item["cpc_subclass"]))
-
-        self.fields["cpc_subclass"].choices = checkbox_choices
-        self.fields["cpc_subclass"].label = False
-        self.fields["cpc_subclass"].help_text = "Select all that apply"
-        self.helper.label_size = None
-        self.helper.label_tag = None
-        self.helper.layout = Layout(
-            Fieldset(
-                get_field_with_label_id("cpc_subclass", field_method=Field.checkboxes, label_id="checkbox"),
-                aria_describedby="checkbox",
-            )
+        CHOICES = (
+            Choice(
+                choices.ProfessionalOrBusinessServicesChoices.accounting.value,
+                choices.ProfessionalOrBusinessServicesChoices.accounting.label,
+            ),
+            Choice(
+                choices.ProfessionalOrBusinessServicesChoices.advertising.value,
+                choices.ProfessionalOrBusinessServicesChoices.advertising.label,
+            ),
+            Choice(
+                choices.ProfessionalOrBusinessServicesChoices.architectural.value,
+                choices.ProfessionalOrBusinessServicesChoices.architectural.label,
+            ),
+            Choice(
+                choices.ProfessionalOrBusinessServicesChoices.auditing.value,
+                choices.ProfessionalOrBusinessServicesChoices.auditing.label,
+            ),
+            Choice(
+                choices.ProfessionalOrBusinessServicesChoices.business_and_management_consulting.value,
+                choices.ProfessionalOrBusinessServicesChoices.business_and_management_consulting.label,
+            ),
+            Choice(
+                choices.ProfessionalOrBusinessServicesChoices.engineering.value,
+                choices.ProfessionalOrBusinessServicesChoices.engineering.label,
+            ),
+            Choice(
+                choices.ProfessionalOrBusinessServicesChoices.it_consultancy_or_design.value,
+                choices.ProfessionalOrBusinessServicesChoices.it_consultancy_or_design.label,
+            ),
+            Choice(
+                choices.ProfessionalOrBusinessServicesChoices.legal_advisory.value,
+                choices.ProfessionalOrBusinessServicesChoices.legal_advisory.label,
+            ),
+            Choice(
+                choices.ProfessionalOrBusinessServicesChoices.public_relations.value,
+                choices.ProfessionalOrBusinessServicesChoices.public_relations.label,
+            ),
         )
+        self.fields["professional_or_business_service"].choices = CHOICES
 
 
 class ServiceActivitiesForm(BaseModelForm):
