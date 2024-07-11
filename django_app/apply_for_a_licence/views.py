@@ -411,15 +411,15 @@ class TypeOfServiceView(BaseFormView):
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["type_of_service"]
-
-        if answer == "interception_or_monitoring":
-            success_url = reverse("which_sanctions_regime")
-        elif answer == "internet":
-            success_url = reverse("which_sanctions_regime")
-        elif answer == "professional_and_business":
-            success_url = reverse("professional_or_business_services")
-        else:
-            success_url = reverse("service_activities")
+        match answer:
+            case "interception_or_monitoring":
+                success_url = reverse("which_sanctions_regime")
+            case "internet":
+                success_url = reverse("which_sanctions_regime")
+            case "professional_and_business":
+                success_url = reverse("professional_or_business_services")
+            case _:
+                success_url = reverse("service_activities")
         return success_url
 
 
