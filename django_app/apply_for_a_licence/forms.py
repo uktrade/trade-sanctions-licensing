@@ -709,8 +709,6 @@ class ProfessionalOrBusinessServicesForm(BaseModelForm):
     class Meta:
         model = Services
         fields = ["professional_or_business_service"]
-        widgets = {"professional_or_business_service": forms.CheckboxSelectMultiple}
-        help_texts = {"professional_or_business_service": "Select all that apply"}
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
