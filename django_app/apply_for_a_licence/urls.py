@@ -41,7 +41,7 @@ urlpatterns = [
     path("type_of_service", views.TypeOfServiceView.as_view(), name="type_of_service"),
     path(
         "professional_or_business_services",
-        views.ProfessionalOrBusinessServices.as_view(),
+        views.ProfessionalOrBusinessServicesView.as_view(),
         name="professional_or_business_services",
     ),
     path("service_activities", views.ServiceActivitiesView.as_view(), name="service_activities"),

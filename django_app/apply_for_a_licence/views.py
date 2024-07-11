@@ -423,7 +423,7 @@ class TypeOfServiceView(BaseFormView):
         return success_url
 
 
-class ProfessionalOrBusinessServices(BaseFormView):
+class ProfessionalOrBusinessServicesView(BaseFormView):
     form_class = forms.ProfessionalOrBusinessServicesForm
     success_url = reverse_lazy("service_activities")
 
@@ -432,8 +432,18 @@ class WhichSanctionsRegimeView(BaseFormView):
     form_class = forms.WhichSanctionsRegimeForm
     success_url = reverse_lazy("service_activities")
 
+    def get_form_kwargs(self) -> dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"request": self.request})
+        return kwargs
+
 
 class ServiceActivitiesView(BaseFormView):
     form_class = forms.ServiceActivitiesForm
     # todo: change success url to recipients flow
     success_url = reverse_lazy("complete")
+
+    def get_form_kwargs(self) -> dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"request": self.request})
+        return kwargs

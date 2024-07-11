@@ -16,6 +16,7 @@ from crispy_forms_gds.layout import (
 )
 from django import forms
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.timezone import now
 from utils.companies_house import (
@@ -658,6 +659,7 @@ class WhichSanctionsRegimeForm(BaseForm):
     form_h1_header = "Which sanctions regime is the licence for?"
 
     which_sanctions_regime = forms.MultipleChoiceField(
+        help_text=("Select all that apply"),
         widget=forms.CheckboxSelectMultiple,
         choices=(()),
         required=True,
@@ -672,7 +674,12 @@ class WhichSanctionsRegimeForm(BaseForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         checkbox_choices = []
-        for i, item in enumerate(Regime.objects.values("full_name")):
+        sanctions = Regime.objects.values("full_name")
+        if professional_or_business_services := self.request.session.get("TypeOfServiceView", False):
+            if professional_or_business_services.get("type_of_service", False) == "internet":
+                sanctions = Regime.objects.filter(short_name__in=["Russia", "Belarus"]).values("full_name")
+
+        for i, item in enumerate(sanctions):
             checkbox_choices.append(Choice(item["full_name"], item["full_name"]))
 
         self.fields["which_sanctions_regime"].choices = checkbox_choices
@@ -756,16 +763,15 @@ class ServiceActivitiesForm(BaseModelForm):
             "match to the specific meaning of services in the sanctions regime that applies to your intended activity",
         }
         error_messages = {
-            "service_activities": {"required": "Describe the service activities"},
+            "service_activities": {"required": "Enter the specific activities within the services you want to provide"},
         }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.fields["service_activities"].widget.attrs = {"rows": 5}
 
-        self.helper["service_activities"].wrap(
-            Field,
-            HTMLTemplate(
-                "apply_for_a_licence/form_steps/partials/service_activities.html",
-            ),
-        )
+        if professional_or_business_services := self.request.session.get("TypeOfServiceView", False):
+            if professional_or_business_services.get("type_of_service", False) == "professional_and_business":
+                self.fields["service_activities"].help_text = render_to_string(
+                    "apply_for_a_licence/form_steps/partials/professional_or_business_services.html"
+                )
