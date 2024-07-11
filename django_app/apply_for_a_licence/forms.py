@@ -695,60 +695,27 @@ class WhichSanctionsRegimeForm(BaseForm):
 
 
 class ProfessionalOrBusinessServicesForm(BaseModelForm):
+    form_h1_header = "What are the professional or business services you want to provide?"
+    professional_or_business_service = forms.MultipleChoiceField(
+        help_text=("Select all that apply"),
+        widget=forms.CheckboxSelectMultiple,
+        choices=choices.ProfessionalOrBusinessServicesChoices.choices,
+        required=True,
+        error_messages={
+            "required": "Select the professional or business services the licence is for",
+        },
+    )
 
     class Meta:
         model = Services
         fields = ["professional_or_business_service"]
         widgets = {"professional_or_business_service": forms.CheckboxSelectMultiple}
-        error_messages = {
-            "professional_or_business_service": {
-                "required": "Select the professional or business services the licence is for",
-            }
-        }
-        labels = {"professional_or_business_service": "What are the professional or business services you want to provide?"}
         help_texts = {"professional_or_business_service": "Select all that apply"}
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        CHOICES = (
-            Choice(
-                choices.ProfessionalOrBusinessServicesChoices.accounting.value,
-                choices.ProfessionalOrBusinessServicesChoices.accounting.label,
-            ),
-            Choice(
-                choices.ProfessionalOrBusinessServicesChoices.advertising.value,
-                choices.ProfessionalOrBusinessServicesChoices.advertising.label,
-            ),
-            Choice(
-                choices.ProfessionalOrBusinessServicesChoices.architectural.value,
-                choices.ProfessionalOrBusinessServicesChoices.architectural.label,
-            ),
-            Choice(
-                choices.ProfessionalOrBusinessServicesChoices.auditing.value,
-                choices.ProfessionalOrBusinessServicesChoices.auditing.label,
-            ),
-            Choice(
-                choices.ProfessionalOrBusinessServicesChoices.business_and_management_consulting.value,
-                choices.ProfessionalOrBusinessServicesChoices.business_and_management_consulting.label,
-            ),
-            Choice(
-                choices.ProfessionalOrBusinessServicesChoices.engineering.value,
-                choices.ProfessionalOrBusinessServicesChoices.engineering.label,
-            ),
-            Choice(
-                choices.ProfessionalOrBusinessServicesChoices.it_consultancy_or_design.value,
-                choices.ProfessionalOrBusinessServicesChoices.it_consultancy_or_design.label,
-            ),
-            Choice(
-                choices.ProfessionalOrBusinessServicesChoices.legal_advisory.value,
-                choices.ProfessionalOrBusinessServicesChoices.legal_advisory.label,
-            ),
-            Choice(
-                choices.ProfessionalOrBusinessServicesChoices.public_relations.value,
-                choices.ProfessionalOrBusinessServicesChoices.public_relations.label,
-            ),
-        )
-        self.fields["professional_or_business_service"].choices = CHOICES
+
+        self.fields["professional_or_business_service"].label = False
 
 
 class ServiceActivitiesForm(BaseModelForm):
