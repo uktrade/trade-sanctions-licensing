@@ -102,7 +102,7 @@ class ApplicationOrganisation(BaseModel):
     end_date = models.DateField()
     recipient_flag = models.BooleanField()
     trader_flag = models.BooleanField()
-    relationship = models.CharField(
+    relationship = models.TextField(
         blank=True, null=True, db_comment="what is the relationship between the provider and the recipient?"
     )
 

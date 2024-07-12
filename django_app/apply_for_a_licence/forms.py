@@ -760,7 +760,7 @@ class AddARecipientForm(BaseBusinessDetailsForm):
     labels = {
         "name_of_person": "Name of person (optional)",
         "email": "Email address (optional)",
-        "website": "Website (optional)",
+        "website": "Website address (optional)",
         "additional_contact_details": "Additional contact details (optional)",
     }
     additional_contact_details = forms.CharField(
@@ -793,48 +793,43 @@ class AddARecipientForm(BaseBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-
-        # all fields on this form are optional. Except if it's a non-UK user, then we need the country at least
-        for _, field in self.fields.items():
-            field.required = False
-
-        if not self.is_uk_address:
-            self.fields["additional_contact_details"].help_text = (
-                "This could be a phone number, or details of a jurisdiction instead of a country"
-            )
-            self.fields["country"].required = True
+        self.fields["additional_contact_details"].required = False
 
         if self.is_uk_address:
             address_layout = Fieldset(
-                Field.text("country", field_width=Fluid.ONE_THIRD),
-                Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
-                Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
-                Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
-                Field.text("county", field_width=Fluid.ONE_THIRD),
+                Field.text("country", field_width=Fluid.ONE_HALF),
+                Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
+                Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
+                Field.text("town_or_city", field_width=Fluid.ONE_HALF),
+                Field.text("county", field_width=Fluid.ONE_HALF),
                 Field.text("postcode", field_width=Fluid.ONE_THIRD),
                 legend="Address",
                 legend_size=Size.MEDIUM,
                 legend_tag="h2",
             )
+
         else:
             address_layout = Fieldset(
-                Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
-                Field.text("country", field_width=Fluid.ONE_THIRD),
-                Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
-                Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
-                Field.text("address_line_3", field_width=Fluid.ONE_THIRD),
-                Field.text("address_line_4", field_width=Fluid.ONE_THIRD),
+                Field.text("country", field_width=Fluid.TWO_THIRDS),
+                Field.text("town_or_city", field_width=Fluid.TWO_THIRDS),
+                Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
+                Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
+                Field.text("address_line_3", field_width=Fluid.TWO_THIRDS),
+                Field.text("address_line_4", field_width=Fluid.TWO_THIRDS),
                 legend="Address",
                 legend_size=Size.MEDIUM,
                 legend_tag="h2",
             )
+            self.fields["additional_contact_details"].help_text = (
+                "This could be a phone number, or details of a jurisdiction instead of a country"
+            )
 
         self.helper.layout = Layout(
             Fieldset(
-                Field.text("name_of_person", field_width=Fluid.ONE_HALF),
-                Field.text("name", field_width=Fluid.ONE_HALF),
-                Field.text("email", field_width=Fluid.ONE_HALF),
-                Field.text("website", field_width=Fluid.ONE_HALF),
+                Field.text("name_of_person", field_width=Fluid.TWO_THIRDS),
+                Field.text("name", field_width=Fluid.TWO_THIRDS),
+                Field.text("email", field_width=Fluid.TWO_THIRDS),
+                Field.text("website", field_width=Fluid.TWO_THIRDS),
                 legend="Name",
                 legend_size=Size.MEDIUM,
                 legend_tag="h2",
@@ -876,9 +871,12 @@ class RelationshipProviderRecipientForm(BaseModelForm):
             "relationship": "For example, the recipient is a subsidiary of the provider; " "or there is no relationship",
         }
         error_messages = {
-            "relationship": {"required": "Enter the relationship between the provider of the services and the recipient"},
+            "relationship": {
+                "required": "Relationship between the provider of the services and the recipient cannot be left blank"
+            },
         }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
+        self.fields["relationship"].required = True
         self.fields["relationship"].widget.attrs = {"rows": 5}
