@@ -145,8 +145,8 @@ class AddABusinessView(FormView):
             if business_uuid := self.request.GET.get("business_uuid", None):
                 if businesses_dict := self.request.session.get("businesses", {}).get(business_uuid, None):
                     kwargs["data"] = businesses_dict["dirty_data"]
-            if self.location == "in_the_uk":
-                kwargs["is_uk_address"] = True
+        if self.location == "in_the_uk":
+            kwargs["is_uk_address"] = True
         return kwargs
 
     def form_valid(self, form: forms.AddABusinessForm) -> HttpResponse:
@@ -474,8 +474,8 @@ class AddARecipientView(FormView):
             if recipient_uuid := self.request.GET.get("recipient_uuid", None):
                 if recipient_dict := self.request.session.get("recipients", {}).get(recipient_uuid, None):
                     kwargs["data"] = recipient_dict["dirty_data"]
-            if self.location == "in_the_uk":
-                kwargs["is_uk_address"] = True
+        if self.location == "in_the_uk":
+            kwargs["is_uk_address"] = True
         return kwargs
 
     def form_valid(self, form: forms.AddARecipientForm) -> HttpResponse:

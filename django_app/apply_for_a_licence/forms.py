@@ -401,13 +401,6 @@ class AddABusinessForm(BaseBusinessDetailsForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
 
-        # all fields on this form are optional. Except if it's a non-UK user, then we need the country at least
-        for _, field in self.fields.items():
-            field.required = False
-
-        if not self.is_uk_address:
-            self.fields["country"].required = True
-
         if self.is_uk_address:
             address_layout = Fieldset(
                 Field.text("country", field_width=Fluid.ONE_THIRD),
@@ -538,12 +531,6 @@ class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-
-        # all fields on this form are optional except country
-        for _, field in self.fields.items():
-            field.required = False
-
-        self.fields["country"].required = True
 
         self.helper.layout = Layout(
             Fieldset(
@@ -766,6 +753,7 @@ class AddARecipientForm(BaseBusinessDetailsForm):
     additional_contact_details = forms.CharField(
         widget=forms.Textarea,
         label="Additional contact details",
+        required=False,
     )
     help_texts = {
         "name": "If the recipient is a ship, enter the ship's name",
@@ -793,9 +781,9 @@ class AddARecipientForm(BaseBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.fields["additional_contact_details"].required = False
 
         if self.is_uk_address:
+            print("UK ADDRESS")
             address_layout = Fieldset(
                 Field.text("country", field_width=Fluid.ONE_HALF),
                 Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
