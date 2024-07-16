@@ -33,9 +33,6 @@ class ThirdPartyView(BaseFormView):
     form_class = forms.ThirdPartyForm
     success_url = reverse_lazy("what_is_your_email")
 
-    def get_success_url(self) -> str:
-        return reverse("what_is_your_email")
-
 
 class WhatIsYouEmailAddressView(BaseFormView):
     form_class = forms.WhatIsYourEmailForm
@@ -52,11 +49,6 @@ class WhatIsYouEmailAddressView(BaseFormView):
 @method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
 class EmailVerifyView(BaseFormView):
     form_class = forms.EmailVerifyForm
-
-    def get_form_kwargs(self) -> dict[str, Any]:
-        kwargs = super(EmailVerifyView, self).get_form_kwargs()
-        kwargs.update({"request": self.request})
-        return kwargs
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -432,18 +424,8 @@ class WhichSanctionsRegimeView(BaseFormView):
     form_class = forms.WhichSanctionsRegimeForm
     success_url = reverse_lazy("service_activities")
 
-    def get_form_kwargs(self) -> dict[str, Any]:
-        kwargs = super().get_form_kwargs()
-        kwargs.update({"request": self.request})
-        return kwargs
-
 
 class ServiceActivitiesView(BaseFormView):
     form_class = forms.ServiceActivitiesForm
     # todo: change success url to recipients flow
     success_url = reverse_lazy("complete")
-
-    def get_form_kwargs(self) -> dict[str, Any]:
-        kwargs = super().get_form_kwargs()
-        kwargs.update({"request": self.request})
-        return kwargs

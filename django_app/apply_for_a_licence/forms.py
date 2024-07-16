@@ -694,6 +694,7 @@ class WhichSanctionsRegimeForm(BaseForm):
 class ProfessionalOrBusinessServicesForm(BaseModelForm):
     form_h1_header = "What are the professional or business services you want to provide?"
     professional_or_business_service = forms.MultipleChoiceField(
+        label=False,
         help_text=("Select all that apply"),
         widget=forms.CheckboxSelectMultiple,
         choices=choices.ProfessionalOrBusinessServicesChoices.choices,
@@ -706,11 +707,6 @@ class ProfessionalOrBusinessServicesForm(BaseModelForm):
     class Meta:
         model = Services
         fields = ["professional_or_business_service"]
-
-    def __init__(self, *args: object, **kwargs: object) -> None:
-        super().__init__(*args, **kwargs)
-
-        self.fields["professional_or_business_service"].label = False
 
 
 class ServiceActivitiesForm(BaseModelForm):
