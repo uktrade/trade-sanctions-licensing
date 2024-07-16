@@ -656,9 +656,6 @@ class WhichSanctionsRegimeForm(BaseForm):
         },
     )
 
-    class Media:
-        js = ["report_a_suspected_breach/javascript/which_sanctions_regime.js"]
-
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         checkbox_choices = []
