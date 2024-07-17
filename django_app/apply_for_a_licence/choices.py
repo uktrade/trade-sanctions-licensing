@@ -64,3 +64,31 @@ class ProfessionalOrBusinessServicesChoices(models.TextChoices):
     it_consultancy_or_design = "it_consultancy_or_design", "IT consultancy or design"
     legal_advisory = "legal_advisory", "Legal advisory"
     public_relations = "public_relations", "Public relations"
+
+
+class LicensingGroundsChoices(models.TextChoices):
+    civil_society = (
+        "civil_society",
+        "Civil society activities that directly promote democracy, human rights or the rule of law in Russia",
+    )
+    energy = "energy", "Services necessary for ensuring critical energy supply to any country"
+    divest = (
+        "divest",
+        "Services necessary for non - Russian persons to divest from Russia, or to wind down business operations in Russia",
+    )
+    humanitarian = "humanitarian", "The delivery of humanitarian assistance activity"
+    parent_or_subsidiary_company = (
+        "parent_or_subsidiary_company",
+        "Services to a person connected with Russia by a UK parent company or UK subsidiary of that parent company",
+    )
+    medical_and_pharmaceutical = (
+        "medical_and_pharmaceutical",
+        "Medical and pharmaceutical purposes for the benefit of the civilian population",
+    )
+    safety = (
+        "safety",
+        "Services required to enable activities necessary for the urgent prevention or mitigation of an "
+        "event likely to have a serious and significant impact on human health or safety, including the "
+        "safety of existing infrastructure, or the environment",
+    )
+    food = "food", "Services in connection with the production or distribution of food for the benefit of the civilian population"

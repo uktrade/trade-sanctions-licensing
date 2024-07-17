@@ -29,6 +29,7 @@ from .exceptions import CompaniesHouse500Error, CompaniesHouseException
 from .models import (
     Address,
     Applicant,
+    ApplicationServices,
     ApplicationType,
     BaseApplication,
     ExistingLicences,
@@ -733,3 +734,75 @@ class ServiceActivitiesForm(BaseModelForm):
                 self.fields["service_activities"].help_text = render_to_string(
                     "apply_for_a_licence/form_steps/partials/professional_or_business_services.html"
                 )
+
+
+class LicensingGroundsForm(BaseForm):
+    form_h1_header = "Which of these licensing grounds describes your purpose for providing the sanctioned services?"
+    licensing_grounds = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=choices.LicensingGroundsChoices.choices,
+        required=True,
+        label="Select all that apply",
+        error_messages={
+            "required": "Select the licensing grounds",
+            "invalid": "Select the licensing grounds or select I do not know",
+        },
+    )
+
+    class Media:
+        js = ["apply_for_a_license/javascript/licensing_grounds.js"]
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        checkbox_choices = self.fields["licensing_grounds"].choices
+        # Create the 'or' divider
+        checkbox_choices[-1] = Choice(
+            value=checkbox_choices[-1][0],
+            label=checkbox_choices[-1][1],
+            divider="or",
+        )
+        checkbox_choices.append(Choice("Unknown grounds", "I do not know"))
+        checkbox_choices.append(Choice("None of these", "None of these"))
+        self.fields["licensing_grounds"].choices = checkbox_choices
+        self.helper.layout = Layout(
+            Fieldset(
+                get_field_with_label_id("licensing_grounds", field_method=Field.checkboxes, label_id="checkbox"),
+                aria_describedby="checkbox",
+            )
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if licensing_grounds := cleaned_data.get("licensing_grounds"):
+            if ("Unknown grounds" in licensing_grounds or "None of these" in licensing_grounds) and len(licensing_grounds) >= 2:
+                # the user has selected "I do not know" or 'None of these' and other grounds, this is an issue.
+                # note that the user can select both "I do not know" and "None of these"
+                self.add_error(
+                    "licensing_grounds",
+                    forms.ValidationError(code="invalid", message=self.fields["licensing_grounds"].error_messages["invalid"]),
+                )
+        return cleaned_data
+
+
+class PurposeOfProvisionForm(BaseModelForm):
+    class Meta:
+        model = ApplicationServices
+        fields = ["purpose_of_provision"]
+        labels = {
+            "purpose_of_provision": "What is your purpose for providing these services?",
+        }
+        help_texts = {
+            "purpose_of_provision": "Tell us how your reasons for providing these services are consistent with "
+            "the purposes of the sanctions and why providing them is both necessary and justified. If you've "
+            "selected any licensing considerations (licensing grounds), as laid out in the statutory guidance, "
+            "explain how your purpose aligns with those grounds"
+        }
+        error_messages = {
+            "purpose_of_provision": {
+                "required": "Select the purpose for providing these services",
+            }
+        }
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["purpose_of_provision"].required = True

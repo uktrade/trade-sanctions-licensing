@@ -46,5 +46,7 @@ urlpatterns = [
     ),
     path("service_activities", views.ServiceActivitiesView.as_view(), name="service_activities"),
     path("which_sanctions_regime", views.WhichSanctionsRegimeView.as_view(), name="which_sanctions_regime"),
+    path("licensing_grounds", views.LicensingGroundsView.as_view(), name="licensing_grounds"),
+    path("purpose_of_provision", views.PurposeOfProvisionView.as_view(), name="purpose_of_provision"),
     path("complete", views.CompleteView.as_view(), name="complete"),
 ]

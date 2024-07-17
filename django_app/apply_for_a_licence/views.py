@@ -429,3 +429,14 @@ class ServiceActivitiesView(BaseFormView):
     form_class = forms.ServiceActivitiesForm
     # todo: change success url to recipients flow
     success_url = reverse_lazy("complete")
+
+
+class LicensingGroundsView(BaseFormView):
+    form_class = forms.LicensingGroundsForm
+    success_url = reverse_lazy("purpose_of_provision")
+
+
+class PurposeOfProvisionView(BaseFormView):
+    form_class = forms.PurposeOfProvisionForm
+    # todo: change success url to upload documents
+    success_url = reverse_lazy("complete")
