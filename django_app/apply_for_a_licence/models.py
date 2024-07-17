@@ -10,14 +10,14 @@ from .choices import LicensingGroundsChoices
 
 
 class Address(BaseModelID):
-    address_line_1 = models.CharField(max_length=200, blank=True, null=True)
+    address_line_1 = models.CharField(max_length=200)
     address_line_2 = models.CharField(max_length=200, blank=True, null=True)
     address_line_3 = models.CharField(max_length=200, blank=True, null=True)
     address_line_4 = models.CharField(max_length=200, blank=True, null=True)
     postcode = models.CharField(max_length=20)
-    country = CountryField()
+    country = CountryField(blank_label="Select Country")
     town_or_city = models.CharField(max_length=250)
-    county = models.CharField(max_length=250)
+    county = models.CharField(max_length=250, null=True, blank=True)
     start_date = models.DateField()
     end_date = models.DateField()
     applicant = models.ForeignKey("Applicant", models.SET_NULL, blank=True, null=True)
@@ -27,6 +27,7 @@ class Address(BaseModelID):
         db_table_comment = "The address has a start and end date.  the constraint manages those. "
         "However, it is important for analytical purposes across DBT. "
         "Otherwise, it is unknown when companies had changed their addresses. It helps inferring the source of truth."
+        abstract = True
 
 
 class Applicant(BaseModelID):
@@ -103,7 +104,7 @@ class ApplicationOrganisation(BaseModel):
     end_date = models.DateField()
     recipient_flag = models.BooleanField()
     trader_flag = models.BooleanField()
-    relationship = models.CharField(
+    relationship = models.TextField(
         blank=True, null=True, db_comment="what is the relationship between the provider and the recipient?"
     )
 
