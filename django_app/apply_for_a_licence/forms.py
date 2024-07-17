@@ -881,6 +881,7 @@ class LicensingGroundsForm(BaseForm):
         js = ["apply_for_a_license/javascript/licensing_grounds.js"]
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.legal_advisory = kwargs.pop("legal_advisory", False)
         super().__init__(*args, **kwargs)
         checkbox_choices = self.fields["licensing_grounds"].choices
         # Create the 'or' divider
@@ -898,6 +899,26 @@ class LicensingGroundsForm(BaseForm):
                 aria_describedby="checkbox",
             )
         )
+
+        if self.legal_advisory:
+            self.form_h1_header = (
+                "Which of these licensing grounds describes your purpose for providing the "
+                "(non-legal advisory) sanctioned services?"
+            )
+
+        else:
+            if professional_or_business_service := self.request.session.get("ProfessionalOrBusinessServicesView", False):
+                if professional_or_business_service.get("professional_or_business_service") == "legal_advisory":
+                    self.form_h1_header = (
+                        "Which of the licensing grounds describes the purpose of the relevant activity for which "
+                        "the legal advice is being given?"
+                    )
+                    self.fields["licensing_grounds"].label = (
+                        "If your client is a non-UK national or business and is also outside the UK "
+                        "then UK sanctions do not apply to them. Instead you should select the licensing "
+                        "grounds that would apply if UK sanctions did apply to them."
+                    )
+                    self.fields["licensing_grounds"].help_text = "Select all that apply"
 
     def clean(self):
         cleaned_data = super().clean()
