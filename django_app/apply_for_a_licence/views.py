@@ -33,9 +33,6 @@ class ThirdPartyView(BaseFormView):
     form_class = forms.ThirdPartyForm
     success_url = reverse_lazy("what_is_your_email")
 
-    def get_success_url(self) -> str:
-        return reverse("what_is_your_email")
-
 
 class WhatIsYouEmailAddressView(BaseFormView):
     form_class = forms.WhatIsYourEmailForm
