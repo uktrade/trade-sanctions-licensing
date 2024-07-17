@@ -50,11 +50,6 @@ class WhatIsYouEmailAddressView(BaseFormView):
 class EmailVerifyView(BaseFormView):
     form_class = forms.EmailVerifyForm
 
-    def get_form_kwargs(self) -> dict[str, Any]:
-        kwargs = super(EmailVerifyView, self).get_form_kwargs()
-        kwargs.update({"request": self.request})
-        return kwargs
-
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         if form_h1_header := getattr(forms.WhatIsYourEmailForm, "form_h1_header"):
@@ -401,3 +396,36 @@ class WhereIsTheBusinessLocatedView(BaseFormView):
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
         return reverse("add_a_business", kwargs={"location": location})
+
+
+class TypeOfServiceView(BaseFormView):
+    form_class = forms.TypeOfServiceForm
+
+    def get_success_url(self) -> str:
+        answer = self.form.cleaned_data["type_of_service"]
+        match answer:
+            case "interception_or_monitoring":
+                success_url = reverse("which_sanctions_regime")
+            case "internet":
+                success_url = reverse("which_sanctions_regime")
+            case "professional_and_business":
+                success_url = reverse("professional_or_business_services")
+            case _:
+                success_url = reverse("service_activities")
+        return success_url
+
+
+class ProfessionalOrBusinessServicesView(BaseFormView):
+    form_class = forms.ProfessionalOrBusinessServicesForm
+    success_url = reverse_lazy("service_activities")
+
+
+class WhichSanctionsRegimeView(BaseFormView):
+    form_class = forms.WhichSanctionsRegimeForm
+    success_url = reverse_lazy("service_activities")
+
+
+class ServiceActivitiesView(BaseFormView):
+    form_class = forms.ServiceActivitiesForm
+    # todo: change success url to recipients flow
+    success_url = reverse_lazy("complete")

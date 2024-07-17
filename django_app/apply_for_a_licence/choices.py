@@ -30,3 +30,37 @@ class YesNoDoNotKnowChoices(models.TextChoices):
     yes = "yes", "Yes"
     no = "no", "No"
     do_not_know = "do_not_know", "I do not know"
+
+
+class TypeOfServicesChoices(models.TextChoices):
+    professional_and_business = "professional_and_business", "Professional and business services (Russia)"
+    energy_related = "energy_related", "Energy-related services (Russia)"
+    infrastructure_and_tourism_related = (
+        "infrastructure_and_tourism_related",
+        "Infrastructure and tourism-related services to non-government controlled Ukrainian territories (Russia)",
+    )
+    interception_or_monitoring = (
+        "interception_or_monitoring",
+        "Interception or monitoring services (Russia, Belarus, Iran, Myanmar, Syria and Venezuela)",
+    )
+    internet = "internet", "Internet services (Russia and Belarus)"
+    mining_manufacturing_or_computer = (
+        "mining_manufacturing_or_computer",
+        "Mining manufacturing or computer services (Democratic People's Republic of Korea",
+    )
+    ships_or_aircraft_related = (
+        "ships_or_aircraft_related",
+        "Ships or aircraft-related services (Democratic People's Republic of Korea)",
+    )
+
+
+class ProfessionalOrBusinessServicesChoices(models.TextChoices):
+    accounting = "accounting", "Accounting"
+    advertising = "advertising", "Advertising"
+    architectural = "architectural", "Architectural"
+    auditing = "auditing", "Auditing"
+    business_and_management_consulting = "business_and_management_consulting", "Business and management consulting"
+    engineering = "engineering", "Engineering"
+    it_consultancy_or_design = "it_consultancy_or_design", "IT consultancy or design"
+    legal_advisory = "legal_advisory", "Legal advisory"
+    public_relations = "public_relations", "Public relations"
