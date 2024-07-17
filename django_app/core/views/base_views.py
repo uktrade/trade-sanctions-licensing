@@ -17,6 +17,7 @@ class BaseFormView(FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
+        kwargs.update({"request": self.request})
         # restore the form data from the session, if it exists
         if self.request.method == "GET":
             kwargs["data"] = self.request.session.get(self.__class__.__name__, None)

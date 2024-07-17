@@ -53,11 +53,6 @@ class WhatIsYouEmailAddressView(BaseFormView):
 class EmailVerifyView(BaseFormView):
     form_class = forms.EmailVerifyForm
 
-    def get_form_kwargs(self) -> dict[str, Any]:
-        kwargs = super(EmailVerifyView, self).get_form_kwargs()
-        kwargs.update({"request": self.request})
-        return kwargs
-
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         if form_h1_header := getattr(forms.WhatIsYourEmailForm, "form_h1_header"):
@@ -432,21 +427,10 @@ class WhichSanctionsRegimeView(BaseFormView):
     form_class = forms.WhichSanctionsRegimeForm
     success_url = reverse_lazy("service_activities")
 
-    def get_form_kwargs(self) -> dict[str, Any]:
-        kwargs = super().get_form_kwargs()
-        kwargs.update({"request": self.request})
-        return kwargs
-
 
 class ServiceActivitiesView(BaseFormView):
     form_class = forms.ServiceActivitiesForm
-    # todo: change success url to recipients flow
     success_url = reverse_lazy("where_is_the_recipient_located")
-
-    def get_form_kwargs(self) -> dict[str, Any]:
-        kwargs = super().get_form_kwargs()
-        kwargs.update({"request": self.request})
-        return kwargs
 
 
 class WhereIsTheRecipientLocatedView(BaseFormView):
