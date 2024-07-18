@@ -66,8 +66,10 @@ class BaseBusinessDetailsForm(BaseModelForm):
     """A base form for capturing business details. Such as the AddABusiness Form"""
 
     class Meta:
+
         widgets = {
             "name": forms.TextInput,
+            "website": forms.TextInput,
             "country": forms.Select,
             "address_line_1": forms.TextInput,
             "address_line_2": forms.TextInput,
@@ -85,7 +87,7 @@ class BaseBusinessDetailsForm(BaseModelForm):
             "address_line_3": "Address line 3 (optional)",
             "address_line_4": "Address line 4 (optional)",
             "town_or_city": "Town or city",
-            "county": "County",
+            "county": "County (optional)",
             "postcode": "Postcode",
         }
         error_messages = {
@@ -102,6 +104,7 @@ class BaseBusinessDetailsForm(BaseModelForm):
         self.is_uk_address = kwargs.pop("is_uk_address", False)
         super().__init__(*args, **kwargs)
         if self.is_uk_address:
+            self.fields["postcode"].required = True
             self.fields["country"].initial = "GB"
             self.fields["country"].widget = forms.HiddenInput()
             del self.fields["address_line_3"]

@@ -46,5 +46,14 @@ urlpatterns = [
     ),
     path("service_activities", views.ServiceActivitiesView.as_view(), name="service_activities"),
     path("which_sanctions_regime", views.WhichSanctionsRegimeView.as_view(), name="which_sanctions_regime"),
+    path("where_is_the_recipient_located", views.WhereIsTheRecipientLocatedView.as_view(), name="where_is_the_recipient_located"),
+    path("add_a_recipient/(?P<location>)", views.AddARecipientView.as_view(), name="add_a_recipient"),
+    path("delete_recipient", views.DeleteRecipientView.as_view(), name="delete_recipient"),
+    path("recipient_added", views.RecipientAddedView.as_view(), name="recipient_added"),
+    path(
+        "relationship_provider_recipient",
+        views.RelationshipProviderRecipientView.as_view(),
+        name="relationship_provider_recipient",
+    ),
     path("complete", views.CompleteView.as_view(), name="complete"),
 ]
