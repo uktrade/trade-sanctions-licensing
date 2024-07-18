@@ -3,6 +3,7 @@ import uuid
 from core.models import BaseModel, BaseModelID
 from django.contrib.sessions.models import Session
 from django.db import models
+from django_chunk_upload_handlers.clam_av import validate_virus_check_result
 from django_countries.fields import CountryField
 
 from . import choices
@@ -204,6 +205,11 @@ class Document(BaseModel):
     application_id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     # The composite primary key (application_id, ref, creation_time) found,
     # that is not supported. The first column is selected.
+    file = models.FileField(
+        validators=[
+            validate_virus_check_result,
+        ],
+    )
     ref = models.IntegerField()
     creation_time = models.DateField()
     path = models.CharField()

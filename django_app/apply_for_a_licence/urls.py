@@ -62,5 +62,8 @@ urlpatterns = [
         name="licensing_grounds_legal_advisory",
     ),
     path("purpose_of_provision", views.PurposeOfProvisionView.as_view(), name="purpose_of_provision"),
+    path("upload_documents", views.UploadDocumentsView.as_view(), name="upload_documents"),
+    path("delete_documents", views.DeleteDocumentsView.as_view(), name="delete_documents"),
+    path("download_document/<str:file_name>", views.DownloadDocumentView.as_view(), name="download_document"),
     path("complete", views.CompleteView.as_view(), name="complete"),
 ]

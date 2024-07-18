@@ -79,6 +79,12 @@ PERMANENT_S3_BUCKET_ACCESS_KEY_ID = env.permanent_s3_bucket_configuration["acces
 PERMANENT_S3_BUCKET_SECRET_ACCESS_KEY = env.permanent_s3_bucket_configuration["secret_access_key"]
 PERMANENT_S3_BUCKET_NAME = env.permanent_s3_bucket_configuration["bucket_name"]
 
+# S3FileUploadHandler
+AWS_ACCESS_KEY_ID = TEMPORARY_S3_BUCKET_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY = TEMPORARY_S3_BUCKET_SECRET_ACCESS_KEY
+AWS_REGION = AWS_S3_REGION_NAME
+AWS_STORAGE_BUCKET_NAME = TEMPORARY_S3_BUCKET_NAME
+
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
 STATIC_ROOT = ROOT_DIR / "static"
@@ -239,3 +245,18 @@ VIEW_A_LICENCE_DOMAIN = env.view_a_licence_domain
 # Django Ratelimit
 RATELIMIT_VIEW = "core.views.base_views.rate_limited_view"
 RATELIMIT = "10/m"
+
+# Redis
+REDIS_URL = env.redis_url
+
+# Caches
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "TIMEOUT": 60 * 60 * 24,  # in seconds: 60 * 60 * 24 (24 hours)
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
