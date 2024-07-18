@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     $('.govuk-checkboxes__divider').prevAll().find('input[name$="licensing_grounds"]').on('change', function () {
         if ($(this).is(':checked')) {
-            // clear the unknown regime input
+            // clear the unknown grounds input or the none of these input
             $('input[name$="licensing_grounds"][value="Unknown grounds"]').prop('checked', false);
             $('input[name$="licensing_grounds"][value="None of these"]').prop('checked', false);
         }
