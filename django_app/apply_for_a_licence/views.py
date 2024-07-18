@@ -510,16 +510,3 @@ class LicensingGroundsLegalAdvisoryView(BaseFormView):
 class PurposeOfProvisionView(BaseFormView):
     form_class = forms.PurposeOfProvisionForm
     success_url = reverse_lazy("upload_documents")
-
-    def form_valid(self, form: forms.AddARecipientForm) -> HttpResponse:
-        current_recipients = self.request.session.get("recipients", {})
-        # get the recipient_uuid if it exists, otherwise create it
-        if recipient_uuid := self.request.GET.get("recipient_uuid", self.kwargs.get("recipient_uuid", str(uuid.uuid4()))):
-            # used to display the recipient_uuid data in recipient_added.html
-            current_recipients[recipient_uuid] = {
-                "cleaned_data": form.cleaned_data,
-                "dirty_data": form.data,
-            }
-        self.request.session["recipients"] = current_recipients
-        self.request.session.modified = True
-        return super().form_valid(form)

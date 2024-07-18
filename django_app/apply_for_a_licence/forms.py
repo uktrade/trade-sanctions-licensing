@@ -878,7 +878,7 @@ class LicensingGroundsForm(BaseForm):
     )
 
     class Media:
-        js = ["apply_for_a_license/javascript/licensing_grounds.js"]
+        js = ["apply_for_a_licence/javascript/licensing_grounds.js"]
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         self.legal_advisory = kwargs.pop("legal_advisory", False)
