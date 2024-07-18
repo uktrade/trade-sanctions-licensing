@@ -892,10 +892,12 @@ class LicensingGroundsForm(BaseForm):
         self.legal_advisory = kwargs.pop("legal_advisory", False)
         super().__init__(*args, **kwargs)
         checkbox_choices = self.fields["licensing_grounds"].choices
-        # Create the 'or' divider
+        # Create the 'or' divider between the last choice and I do not know
+        last_checkbox_value = checkbox_choices[-1][0]
+        last_checkbox_label = checkbox_choices[-1][1]
         checkbox_choices[-1] = Choice(
-            value=checkbox_choices[-1][0],
-            label=checkbox_choices[-1][1],
+            value=last_checkbox_value,
+            label=last_checkbox_label,
             divider="or",
         )
         checkbox_choices.append(Choice("Unknown grounds", "I do not know"))
