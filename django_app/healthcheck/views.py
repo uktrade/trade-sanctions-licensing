@@ -8,7 +8,7 @@ from healthcheck.checks import db_check, s3_check
 
 
 class HealthCheckView(View):
-    """Checks the status of the Report a Breach service itself, and all other backing services.
+    """Checks the status of the Licensing service itself, and all other backing services.
 
     Returns an XML file containing the response time and the results of these checks, used by Pingdom to monitor
     the health of the service."""

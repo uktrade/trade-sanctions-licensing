@@ -43,7 +43,7 @@ def get_all_session_files(s3_storage: S3Boto3Storage, session: SessionBase) -> d
 
 
 def get_licence_documents(s3_storage: S3Boto3Storage, licence_id: str) -> dict[str, Any]:
-    """Gets all files associated with a breach."""
+    """Gets all files associated with a licensing application."""
     s3_client = get_s3_client_from_storage(s3_storage=s3_storage)
     response = s3_client.list_objects_v2(Bucket=s3_storage.bucket.name, Prefix=licence_id)
     licence_files = {}

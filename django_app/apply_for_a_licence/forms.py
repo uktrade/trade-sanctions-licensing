@@ -358,8 +358,7 @@ class ManualCompaniesHouseInputForm(BaseForm):
         ),
         widget=forms.RadioSelect,
         error_messages={
-            "required": "Select if the address of the business suspected of "
-            "breaching sanctions is in the UK, or outside the UK"
+            "required": "Select if the address of the business you would like the " "license for is in the UK, or outside the UK"
         },
     )
 
