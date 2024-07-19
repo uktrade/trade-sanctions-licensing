@@ -38,7 +38,7 @@ def get_all_session_files(s3_storage: S3Boto3Storage, session: SessionBase) -> d
 
         # checking that a file with this name was uploaded in the session
         if file_name in user_uploaded_files:
-            session_files[file_name] = reverse("apply_for_a_licence:download_document", kwargs={"file_name": file_name})
+            session_files[file_name] = reverse("download_document", kwargs={"file_name": file_name})
     return session_files
 
 
