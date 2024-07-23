@@ -1,0 +1,317 @@
+{% extends "core/base_form_step.html" %}
+{% load crispy_forms_tags crispy_forms_gds %}
+{% load get_recipient_url %}
+{% load countries %}
+{% block title %}Check your answers{% endblock title %}
+{% block form_content %}
+    <div>
+        <h1 class="govuk-heading-l">
+            Check your answers
+        </h1>
+    </div>
+    <h2 class="govuk-heading-m">Your details</h2>
+    <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Full name
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ form_data.name.reporter_full_name }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="{% url 'your_details' %}?redirect=summary">Change<span
+                    class="govuk-visually-hidden">your full name</span></a>
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Business you work for
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ form_data.name_and_business_you_work_for.reporter_name_of_business_you_work_for }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link"
+                   href="{% url 'your_details' %}?redirect=summary">Change<span
+                    class="govuk-visually-hidden">business you work for</span></a>
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Your role
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ form_data.name_and_business_you_work_for.reporter_name_of_business_you_work_for }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link"
+                   href="{% url 'your_details' %}?redirect=summary">Change<span
+                    class="govuk-visually-hidden">business you work for</span></a>
+            </dd>
+        </div>
+    </dl>
+    <h2 class="govuk-heading-m">Existing Licence</h2>
+    <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Existing licence
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ form_data.do_you_know_the_registered_company_number.registered_company_name }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link"
+                   href="{% url 'previous_licence' %}?redirect=summary">Change<span
+                    class="govuk-visually-hidden">existing licence</span></a>
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Enter all previous licence numbers
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ form_data.business_or_person_details.readable_address | linebreaksbr }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link"
+                   href="{% url 'previous_licence' %}?redirect=summary">Change<span
+                    class="govuk-visually-hidden">all previous licence numbers</span></a>
+            </dd>
+        </div>
+    </dl>
+    <h2 class="govuk-heading-m"> Licensees</h2>
+    {% if form_data.licensees %}
+        {% for end_user, value in form_data.licensees.items %}
+            <h3 class="govuk-heading-s">End-user {{ forloop.counter }}</h3>
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ value.cleaned_data.country }}
+                    </dd><dd class="govuk-summary-list__actions">
+                        <a class="govuk-link"
+                           href="{% url 'about_the_business' end_user_uuid=end_user %}?redirect=summary">Change<span
+                            class="govuk-visually-hidden">name of licensee {{forloop.counter}}</span></a>
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Address
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=value.cleaned_data.readable_address|linebreaksbr %}
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link"
+                           href="{% url 'about_the_business' end_user_uuid=end_user %}?redirect=summary">Change<span
+                            class="govuk-visually-hidden">address of licensee {{forloop.counter}}</span></a>
+                    </dd>
+                </div>
+        {% endfor %}
+    {% endif %}
+    </dl>
+    <h2 class="govuk-heading-m">Overview of the services</h2>
+    <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                What type of services do you want to provide?
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ form_data.when_did_you_first_suspect.is_the_date_accurate | title}} date <br>
+                {{ form_data.when_did_you_first_suspect.when_did_you_first_suspect }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link"
+                   href="{% url 'type_of_service' %}?redirect=summary">Change<span
+                    class="govuk-visually-hidden">when you first suspected the breach</span></a>
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                What are the professional or business services you want to provide?
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {% for regime in form_data.which_sanctions_regime.which_sanctions_regime %}
+                    {{ regime }}
+                    <br>
+                {% endfor %}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link"
+                   href="{% url 'which_sanctions_regime' %}?redirect=summary">Change<span
+                    class="govuk-visually-hidden">sanctions regime breached</span></a>
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Describe the specific activities within the services you want to provide
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {% include "apply_for_a_licence/partials/truncated_text.html" with text=form_data.what_were_the_goods.what_were_the_goods|linebreaksbr %}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link"
+                   href="{% url 'service_activities' %}?redirect=summary">Change<span
+                    class="govuk-visually-hidden">service activities</span></a>
+            </dd>
+        </div>
+    </dl>
+    <h3 class="govuk-heading-m">Recipients of the services</h3>
+    {% if request.session.recipients %}
+        {% for id, recipient in request.session.recipients.items %}
+            <h2 class="govuk-heading-s">Recipient {{ forloop.counter }}</h2>
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Location of recipient {{ forloop.counter }}
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% if recipient.cleaned_data.country == "GB" %}
+                            The UK
+                        {% else %}
+                            Outside the UK
+                        {% endif %}
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link"
+                           href="{% url 'add_a_recipient' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
+                            class="govuk-visually-hidden">location of end-user {{forloop.counter}}</span></a>
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Name and address of recipient {{forloop.counter}}
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ value.cleaned_data.name_of_person }}
+                        <br><br>
+                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=value.cleaned_data.readable_address|linebreaksbr %}
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link"
+                           href="{% url 'add_a_recipient' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
+                            class="govuk-visually-hidden">name and address of end-user {{forloop.counter}}</span></a>
+                    </dd>
+                </div>
+                {% if value.cleaned_data.website %}
+
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            Website
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            <a class="govuk-link"
+                               href="{{ value.cleaned_data.website }}">{{ value.cleaned_data.website }}<span
+                                class="govuk-visually-hidden"></span></a>
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link"
+                               href="{% url 'add_a_recipient' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
+                                class="govuk-visually-hidden">website of end-user {{forloop.counter}}</span></a>
+                        </dd>
+                    </div>
+                {% endif %}
+                {% if value.cleaned_data.additional_contact_details %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            Additional contact information
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {% include "apply_for_a_licence/partials/truncated_text.html" with text=value.cleaned_data.additional_contact_details|linebreaksbr %}
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link"
+                               href="{% url 'add_a_recipient' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
+                                class="govuk-visually-hidden">additional contact information of end-user {{forloop.counter}}</span></a>
+                        </dd>
+                    </div>
+                {% endif %}
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        What is the relationship between the provider of the services and the recipient?
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <a class="govuk-link"
+                           href="{{ value.cleaned_data.website }}">{{ value.cleaned_data.website }}<span
+                            class="govuk-visually-hidden"></span></a>
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link"
+                           href="{% url 'add_a_recipient' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
+                            class="govuk-visually-hidden">website of end-user {{forloop.counter}}</span></a>
+                    </dd>
+                </div>
+            </dl>
+        {% endfor %}
+    {% endif %}
+    <h2 class="govuk-heading-m">Purpose of the services</h2>
+    <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Licensing grounds
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ licensing_grounds.cleaned_data}}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link"
+                   href="{% url 'licensing_grounds' %}?redirect=summary">Change<span
+                    class="govuk-visually-hidden">licensing grounds</span></a>
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Purpose of the service
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ purpose_of_provision.cleaned_data }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link"
+                   href="{% url 'purpose_of_provision' %}?redirect=summary">Change<span
+                    class="govuk-visually-hidden">purpose of the service</span></a>
+            </dd>
+        </div>
+        {% if form_data.session_files.items %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    Upload supporting documents
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {% for document, url in form_data.session_files.items %}
+
+                        <a href="{{url}}" download>{{document}}</a><br>
+                    {% endfor %}
+
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link"
+                       href="{% url 'upload_documents' %}?redirect=summary">Change<span
+                        class="govuk-visually-hidden">supporting documents</span></a>
+                </dd>
+            </div>
+        {% endif %}
+    </dl>
+    {% crispy form %}
+{% endblock form_content %}
+
+
+{% block extra_js %}
+    {{ block.super }}
+    <script type="text/javascript" nonce="{{ request.csp_nonce }}">
+        $(document).ready(function () {
+            $('body').on('click', '.read_more_button', function () {
+                $(this).closest('.text_truncator').find('.truncated_text').addClass('hidden');
+                $(this).closest('.text_truncator').find('.expanded_text').removeClass('hidden');
+            });
+            $('body').on('click', '.read_less_button', function () {
+                $(this).closest('.text_truncator').find('.truncated_text').removeClass('hidden');
+                $(this).closest('.text_truncator').find('.expanded_text').addClass('hidden');
+            })
+
+
+        })
+    </script>
+{% endblock extra_js %}

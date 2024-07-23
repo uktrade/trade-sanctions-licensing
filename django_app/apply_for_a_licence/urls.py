@@ -65,5 +65,6 @@ urlpatterns = [
     path("upload_documents", views.UploadDocumentsView.as_view(), name="upload_documents"),
     path("delete_documents", views.DeleteDocumentsView.as_view(), name="delete_documents"),
     path("download_document/<str:file_name>", views.DownloadDocumentView.as_view(), name="download_document"),
+    path("summary", views.SummaryView.as_view(), name="summary"),
     path("complete", views.CompleteView.as_view(), name="complete"),
 ]

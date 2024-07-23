@@ -608,3 +608,21 @@ class DownloadDocumentView(View):
             return redirect(file_url)
 
         raise Http404()
+
+
+class SummaryView(BaseFormView):
+    form_class = forms.SummaryForm
+    template_name = "apply_for_a_licence/form_steps/summary.html"
+    success_url = reverse_lazy("declaration")
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
+            context["session_files"] = session_files
+        if businesses := self.request.session.get("businesses", None):
+            context["businesses"] = businesses
+        if individuals := self.request.session.get("individuals", None):
+            context["individuals"] = individuals
+        if recipients := self.request.session.get("recipients", None):
+            context["recipients"] = recipients
+        return context

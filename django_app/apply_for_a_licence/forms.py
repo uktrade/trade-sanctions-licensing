@@ -784,7 +784,6 @@ class AddARecipientForm(BaseBusinessDetailsForm):
         super().__init__(*args, **kwargs)
 
         if self.is_uk_address:
-            print("UK ADDRESS")
             address_layout = Fieldset(
                 Field.text("country", field_width=Fluid.ONE_HALF),
                 Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
