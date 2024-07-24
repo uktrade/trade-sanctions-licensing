@@ -1,10 +1,13 @@
+import os
 from datetime import timedelta
 from typing import Any
 
 from core.crispy_fields import HTMLTemplate, get_field_with_label_id
+from core.document_storage import TemporaryDocumentStorage
 from core.forms.base_forms import BaseBusinessDetailsForm, BaseForm, BaseModelForm
-from core.utils import is_request_ratelimited
+from core.utils import get_mime_type, is_request_ratelimited
 from crispy_forms_gds.choices import Choice
+from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import (
     ConditionalQuestion,
     ConditionalRadios,
@@ -18,14 +21,18 @@ from django import forms
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.utils.html import escape
 from django.utils.timezone import now
+from django_chunk_upload_handlers.clam_av import VirusFoundInFileException
 from utils.companies_house import (
     get_details_from_companies_house,
     get_formatted_address,
 )
+from utils.s3 import get_all_session_files
 
 from . import choices
 from .exceptions import CompaniesHouse500Error, CompaniesHouseException
+from .fields import MultipleFileField
 from .models import (
     Address,
     Applicant,
@@ -33,6 +40,7 @@ from .models import (
     ApplicationServices,
     ApplicationType,
     BaseApplication,
+    Document,
     ExistingLicences,
     Individual,
     Organisation,
@@ -350,8 +358,7 @@ class ManualCompaniesHouseInputForm(BaseForm):
         ),
         widget=forms.RadioSelect,
         error_messages={
-            "required": "Select if the address of the business suspected of "
-            "breaching sanctions is in the UK, or outside the UK"
+            "required": "Select if the address of the business you would like the license for is in the UK, or outside the UK"
         },
     )
 
@@ -957,3 +964,105 @@ class PurposeOfProvisionForm(BaseModelForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.fields["purpose_of_provision"].required = True
+
+
+class UploadDocumentsForm(BaseForm):
+    revalidate_on_done = False
+    document = MultipleFileField(
+        label="Upload a file",
+        help_text="Maximum individual file size 100MB. Maximum number of uploads 10",
+        required=False,
+    )
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["document"].widget.attrs["class"] = "govuk-file-upload moj-multi-file-upload__input"
+        self.fields["document"].widget.attrs["name"] = "document"
+        # redefining this to remove the 'Continue' button from the helper
+        self.helper = FormHelper()
+        self.helper.layout = Layout("document")
+
+    def clean_document(self) -> list[Document]:
+        documents = self.cleaned_data.get("document")
+        for document in documents:
+
+            # does the document contain a virus?
+            try:
+                document.readline()
+            except VirusFoundInFileException:
+                documents.remove(document)
+                raise forms.ValidationError(
+                    "A virus was found in one of the files you uploaded.",
+                )
+
+            # is the document a valid file type?
+            mimetype = get_mime_type(document.file)
+            valid_mimetype = mimetype in [
+                # word documents
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
+                # spreadsheets
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.template",
+                "application/vnd.ms-excel",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                # powerpoints
+                "application/vnd.ms-powerpoint",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                # pdf
+                "application/pdf",
+                # other
+                "text/plain",
+                "text/csv",
+                "application/zip",
+                "text/html",
+                # images
+                "image/jpeg",
+                "image/png",
+            ]
+
+            _, file_extension = os.path.splitext(document.name)
+            valid_extension = file_extension in [
+                # word documents
+                ".doc",
+                ".docx",
+                ".odt",
+                ".fodt",
+                # spreadsheets
+                ".xls",
+                ".xlsx",
+                ".ods",
+                ".fods",
+                # powerpoints
+                ".ppt",
+                ".pptx",
+                ".odp",
+                ".fodp",
+                # pdf
+                ".pdf",
+                # other
+                ".txt",
+                ".csv",
+                ".zip",
+                ".html",
+                # images
+                ".jpeg",
+                ".jpg",
+                ".png",
+            ]
+
+            if not valid_mimetype or not valid_extension:
+                raise forms.ValidationError(
+                    f"{escape(document.name)} cannot be uploaded, it is not a valid file type", code="invalid_file_type"
+                )
+
+            # has the user already uploaded 10 files?
+            if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
+                if len(session_files) + 1 > 10:
+                    raise forms.ValidationError("You can only select up to 10 files at the same time", code="too_many")
+
+            # is the document too large?
+            if document.size > 104857600:
+                raise forms.ValidationError(f"{document.name} must be smaller than 100 MB", code="too_large")
+
+        return documents
