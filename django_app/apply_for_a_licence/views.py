@@ -101,11 +101,6 @@ class YourDetailsView(BaseFormView):
 class PreviousLicenceView(BaseFormView):
     form_class = forms.ExistingLicencesForm
 
-    def get_form_kwargs(self) -> dict[str, Any]:
-        kwargs = super().get_form_kwargs()
-        kwargs.update({"request": self.request})
-        return kwargs
-
     def get_success_url(self):
         success_url = reverse("type_of_service")
         if start_view := self.request.session.get("StartView", False):
@@ -472,8 +467,7 @@ class RecipientAddedView(BaseFormView):
         if add_recipient:
             return reverse("where_is_the_recipient_located")
         else:
-            # todo: change success url to licensing grounds flow
-            return reverse("complete")
+            return reverse("licensing_grounds")
 
 
 class DeleteRecipientView(BaseFormView):
@@ -490,3 +484,29 @@ class DeleteRecipientView(BaseFormView):
 class RelationshipProviderRecipientView(BaseFormView):
     form_class = forms.RelationshipProviderRecipientForm
     success_url = reverse_lazy("recipient_added")
+
+
+class LicensingGroundsView(BaseFormView):
+    form_class = forms.LicensingGroundsForm
+    success_url = reverse_lazy("purpose_of_provision")
+
+    def get_success_url(self) -> str:
+        if professional_or_business_service := self.request.session.get("ProfessionalOrBusinessServicesView", False):
+            if professional_or_business_service.get("professional_or_business_service") == "legal_advisory":
+                return reverse("licensing_grounds_legal_advisory")
+        return reverse("purpose_of_provision")
+
+
+class LicensingGroundsLegalAdvisoryView(BaseFormView):
+    form_class = forms.LicensingGroundsForm
+    success_url = reverse_lazy("upload_documents")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["legal_advisory"] = True
+        return kwargs
+
+
+class PurposeOfProvisionView(BaseFormView):
+    form_class = forms.PurposeOfProvisionForm
+    success_url = reverse_lazy("upload_documents")

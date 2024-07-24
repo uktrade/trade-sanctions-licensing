@@ -55,5 +55,12 @@ urlpatterns = [
         views.RelationshipProviderRecipientView.as_view(),
         name="relationship_provider_recipient",
     ),
+    path("licensing_grounds", views.LicensingGroundsView.as_view(), name="licensing_grounds"),
+    path(
+        "licensing_grounds_legal_advisory",
+        views.LicensingGroundsLegalAdvisoryView.as_view(),
+        name="licensing_grounds_legal_advisory",
+    ),
+    path("purpose_of_provision", views.PurposeOfProvisionView.as_view(), name="purpose_of_provision"),
     path("complete", views.CompleteView.as_view(), name="complete"),
 ]
