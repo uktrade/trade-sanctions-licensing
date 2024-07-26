@@ -2,6 +2,7 @@ import logging
 import uuid
 from typing import Any
 
+from apply_for_a_licence.utils import get_all_cleaned_data
 from core.document_storage import TemporaryDocumentStorage
 from core.utils import is_ajax
 from core.views.base_views import BaseFormView
@@ -582,8 +583,6 @@ class DeleteDocumentsView(View):
         if file_name := self.request.GET.get("file_name"):
             full_file_path = f"{self.request.session.session_key}/{file_name}"
             TemporaryDocumentStorage().delete(full_file_path)
-            print(file_name)
-            print(full_file_path)
             if is_ajax(self.request):
                 return JsonResponse({"success": True}, status=200)
             else:
@@ -610,13 +609,23 @@ class DownloadDocumentView(View):
         raise Http404()
 
 
-class SummaryView(BaseFormView):
-    form_class = forms.SummaryForm
-    template_name = "apply_for_a_licence/form_steps/summary.html"
+class CheckYourAnswersView(TemplateView):
+    """View for the 'Check your answers' page."""
+
+    template_name = "apply_for_a_licence/form_steps/check_your_answers.html"
     success_url = reverse_lazy("declaration")
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        """Collects all the nice form data and puts it into a dictionary for the summary page. We need to check if
+        a lot of this data is present, as the user may have skipped some steps, so we import the form_step_conditions
+        that are used to determine if a step should be shown, this is to avoid duplicating the logic here."""
+
         context = super().get_context_data(**kwargs)
+
+        all_cleaned_data = get_all_cleaned_data(self.request)
+
+        context["form_data"] = all_cleaned_data
+
         if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
             context["session_files"] = session_files
         if businesses := self.request.session.get("businesses", None):

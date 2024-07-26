@@ -65,6 +65,13 @@ urlpatterns = [
     path("upload_documents", views.UploadDocumentsView.as_view(), name="upload_documents"),
     path("delete_documents", views.DeleteDocumentsView.as_view(), name="delete_documents"),
     path("download_document/<str:file_name>", views.DownloadDocumentView.as_view(), name="download_document"),
-    path("summary", views.SummaryView.as_view(), name="summary"),
+    path("check_your_answers", views.CheckYourAnswersView.as_view(), name="check_your_answers"),
     path("complete", views.CompleteView.as_view(), name="complete"),
 ]
+
+step_to_view_dict = {}
+view_to_step_dict = {}
+
+for url in urlpatterns:
+    step_to_view_dict[url.name] = url.callback.view_class
+    view_to_step_dict[url.callback.view_class.__name__] = url.name

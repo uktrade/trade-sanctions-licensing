@@ -34,7 +34,6 @@ from . import choices
 from .exceptions import CompaniesHouse500Error, CompaniesHouseException
 from .fields import MultipleFileField
 from .models import (
-    Address,
     Applicant,
     ApplicationOrganisation,
     ApplicationServices,
@@ -595,7 +594,7 @@ class AddYourselfAddressForm(BaseBusinessDetailsForm):
     form_h1_header = "What is your work address?"
 
     class Meta(BaseBusinessDetailsForm.Meta):
-        model = Address
+        model = Organisation
         fields = (
             "town_or_city",
             "country",
