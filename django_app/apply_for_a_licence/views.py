@@ -629,9 +629,12 @@ class CheckYourAnswersView(TemplateView):
         if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
             context["session_files"] = session_files
         if businesses := self.request.session.get("businesses", None):
-            context["businesses"] = businesses
+            context["licensees"] = businesses
+            context["licensees_type"] = "Business"
         if individuals := self.request.session.get("individuals", None):
-            context["individuals"] = individuals
+            context["licensees"] = individuals
+            context["licensees_type"] = "Individual"
+
         if recipients := self.request.session.get("recipients", None):
             context["recipients"] = recipients
         return context

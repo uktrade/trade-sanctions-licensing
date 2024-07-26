@@ -80,20 +80,21 @@
         </div>
     </dl>
     <h2 class="govuk-heading-m"> Licensees</h2>
-    {% if form_data.licensees %}
-        {% for end_user, value in form_data.licensees.items %}
-            <h3 class="govuk-heading-s">End-user {{ forloop.counter }}</h3>
+    {% if licensees %}
+        {% for licensee, value in licensees.items %}
+            <h3 class="govuk-heading-s"> {{licensees_type}} {{ forloop.counter }}</h3>
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                         Name
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        {{ value.cleaned_data.country }}
-                    </dd><dd class="govuk-summary-list__actions">
+                        {{ value.cleaned_data.name }}
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                           href="{% url 'about_the_business' end_user_uuid=end_user %}?redirect=summary">Change<span
-                            class="govuk-visually-hidden">name of licensee {{forloop.counter}}</span></a>
+                           href="{% url 'add_a_business' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
+                            class="govuk-visually-hidden">location of {{licensees_type}} {{forloop.counter}}</span></a>
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -105,13 +106,13 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                           href="{% url 'about_the_business' end_user_uuid=end_user %}?redirect=summary">Change<span
-                            class="govuk-visually-hidden">address of licensee {{forloop.counter}}</span></a>
+                           href="{% url 'add_a_business' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
+                            class="govuk-visually-hidden">location of {{licensees_type}} {{forloop.counter}}</span></a>
                     </dd>
                 </div>
+            </dl>
         {% endfor %}
     {% endif %}
-    </dl>
     <h2 class="govuk-heading-m">Overview of the services</h2>
     <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
