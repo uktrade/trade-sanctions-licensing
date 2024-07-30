@@ -9,7 +9,15 @@
             Check your answers
         </h1>
     </div>
-    <h2 class="govuk-heading-m">Your details</h2>
+    <div class="action-wrapper">
+        <h2 class="govuk-heading-m" style="float:left">Your details</h2>
+        <dl class="govuk-summary-card__actions">
+            <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
+                <a class="govuk-link" href="{% url 'your_details' %}?redirect=summary">Change<span
+                    class="govuk-visually-hidden">your details</span></a>
+            </dd>
+        </dl>
+    </div>
     <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
@@ -18,10 +26,7 @@
             <dd class="govuk-summary-list__value">
                 {{ form_data.your_details.full_name }}
             </dd>
-            <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href="{% url 'your_details' %}?redirect=summary">Change<span
-                    class="govuk-visually-hidden">your full name</span></a>
-            </dd>
+
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
@@ -29,11 +34,6 @@
             </dt>
             <dd class="govuk-summary-list__value">
                 {{ form_data.your_details.business }}
-            </dd>
-            <dd class="govuk-summary-list__actions">
-                <a class="govuk-link"
-                   href="{% url 'your_details' %}?redirect=summary">Change<span
-                    class="govuk-visually-hidden">business you work for</span></a>
             </dd>
         </div>
         <div class="govuk-summary-list__row">
@@ -43,14 +43,20 @@
             <dd class="govuk-summary-list__value">
                 {{ form_data.your_details.role }}
             </dd>
-            <dd class="govuk-summary-list__actions">
-                <a class="govuk-link"
-                   href="{% url 'your_details' %}?redirect=summary">Change<span
-                    class="govuk-visually-hidden">business you work for</span></a>
-            </dd>
         </div>
     </dl>
-    <h2 class="govuk-heading-m">Existing Licence</h2>
+    <div class="action-wrapper">
+
+        <h2 class="govuk-heading-m" style="float:left">Existing Licence</h2>
+
+        <dl class="govuk-summary-card__actions">
+            <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
+                <a class="govuk-link"
+                   href="{% url 'previous_licence' %}?redirect=summary">Change<span
+                    class="govuk-visually-hidden">existing licence</span></a>
+            </dd>
+        </dl>
+    </div>
     <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
@@ -59,11 +65,7 @@
             <dd class="govuk-summary-list__value">
                 {{ form_data.previous_licence.held_existing_licence }}
             </dd>
-            <dd class="govuk-summary-list__actions">
-                <a class="govuk-link"
-                   href="{% url 'previous_licence' %}?redirect=summary">Change<span
-                    class="govuk-visually-hidden">existing licence</span></a>
-            </dd>
+
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
@@ -72,18 +74,32 @@
             <dd class="govuk-summary-list__value">
                 {{ form_data.previous_licence.licences }}
             </dd>
-            <dd class="govuk-summary-list__actions">
-                <a class="govuk-link"
-                   href="{% url 'previous_licence' %}?redirect=summary">Change<span
-                    class="govuk-visually-hidden">all previous licence numbers</span></a>
-            </dd>
         </div>
     </dl>
     <h2 class="govuk-heading-m"> Licensees</h2>
     {%  if form_data.start.who_do_you_want_the_licence_to_cover == "business"%}
         {% if businesses %}
-            {% for individual, value in individuals.items %}
-                <h3 class="govuk-heading-s"> Individual {{ forloop.counter }}</h3>
+            {% for id, value in businesses.items %}
+                <div class="action-wrapper">
+                    <h3 class="govuk-heading-s" style="float:left"> Business {{ forloop.counter }}</h3>
+                    <dl class="govuk-summary-card__actions">
+                        <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
+                            {% if value.cleaned_data.companies_house %}
+                                <a class="govuk-link" style="font-size: 19px; text-align:right"
+                                   href="{% url 'do_you_know_the_registered_company_number' %}?change=yes&business_uuid={{ id }}">Change<span
+                                    class="govuk-visually-hidden"> Business {{forloop.counter}} details </span></a>
+                            {% elif value.cleaned_data.country == "GB" %}
+                                <a class="govuk-link" style="font-size: 19px; text-align:right"
+                                   href="{% url 'add_a_business' location="in_the_uk" %}?business_uuid={{ id }} ">Change<span
+                                    class="govuk-visually-hidden">location of business {{forloop.counter}}</span></a>
+                            {%  else %}
+                                <a class="govuk-link" style="font-size: 19px; text-align:right"
+                                   href="{% url 'add_a_business' location="outside_the_uk" %}?business_uuid={{ id }} ">Change<span
+                                    class="govuk-visually-hidden">location of business {{forloop.counter}}</span></a>
+                            {%  endif %}
+                        </dd>
+                    </dl>
+                </div>
                 <dl class="govuk-summary-list">
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
@@ -92,11 +108,6 @@
                         <dd class="govuk-summary-list__value">
                             {{ value.cleaned_data.name }}
                         </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                               href="{% url 'add_a_business' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">location of {{individual}} {{forloop.counter}}</span></a>
-                        </dd>
                     </div>
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
@@ -104,11 +115,6 @@
                         </dt>
                         <dd class="govuk-summary-list__value">
                             {% include "apply_for_a_licence/partials/truncated_text.html" with text=value.cleaned_data.readable_address|linebreaksbr %}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                               href="{% url 'add_a_business' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">location of {{individual}} {{forloop.counter}}</span></a>
                         </dd>
                     </div>
                 </dl>
@@ -232,7 +238,17 @@
         {% endif %}
     {% endif %}
     {%  if form_data.start.who_do_you_want_the_licence_to_cover == "individual" %}
-        <h3 class="govuk-heading-s"> Business Details</h3>
+        <div class="action-wrapper">
+
+            <h3 class="govuk-heading-s" style="float:left"> Business detail</h3>
+            <dl class="govuk-summary-card__actions">
+                <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
+                    <a class="govuk-link"
+                       href="{% url 'business_employing_individual' %}?">Change<span
+                        class="govuk-visually-hidden">business name details</span></a>
+                </dd>
+            </dl>
+        </div>
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
@@ -241,11 +257,6 @@
                 <dd class="govuk-summary-list__value">
                     {{form_data.business_employing_individual.name}}
                 </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link"
-                       href="{% url 'business_employing_individual' %}?">Change<span
-                        class="govuk-visually-hidden">business name details</span></a>
-                </dd>
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
@@ -253,11 +264,6 @@
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {% include "apply_for_a_licence/partials/truncated_text.html" with text=form_data.business_employing_individual.readable_address|linebreaksbr %}
-                </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link"
-                       href="{% url 'business_employing_individual' %} ">Change<span
-                        class="govuk-visually-hidden">address of business employing individual</span></a>
                 </dd>
             </div>
         </dl>
