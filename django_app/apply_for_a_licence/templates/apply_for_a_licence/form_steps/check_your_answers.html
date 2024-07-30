@@ -1,6 +1,8 @@
 {% extends "core/base_form_step.html" %}
 {% load crispy_forms_tags crispy_forms_gds %}
 {% load get_recipient_url %}
+{% load nationality from split_nationality_and_location %}
+{% load location from split_nationality_and_location %}
 {% load countries %}
 {% block title %}Check your answers{% endblock title %}
 {% block form_content %}
@@ -133,8 +135,8 @@
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
-                       href="{% url 'add_a_business' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
-                        class="govuk-visually-hidden">location of {{individual}} {{forloop.counter}}</span></a>
+                       href="{% url 'add_yourself' %}">Change<span
+                        class="govuk-visually-hidden">your details </span></a>
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
@@ -142,7 +144,7 @@
                     Connection to the UK
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{yourself_details.cleaned_data.nationality_and_location }}
+                    {{yourself_details.dirty_data.nationality_and_location | nationality }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
@@ -155,7 +157,7 @@
                     Location of individual
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{yourself_details.cleaned_data.nationality_and_location }}
+                    {{yourself_details.dirty_data.nationality_and_location | location }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
@@ -199,7 +201,8 @@
                             Connection to the UK
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            {{value.cleaned_data.nationality_and_location }}
+                            {{value.dirty_data.nationality_and_location | nationality }}
+
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
@@ -212,7 +215,7 @@
                             Location of individual
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            {{value.cleaned_data.nationality_and_location }}
+                            {{value.dirty_data.nationality_and_location | location }}
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
@@ -289,7 +292,8 @@
                             Connection to the UK
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            {{value.cleaned_data.nationality_and_location }}
+                            {{value.dirty_data.nationality_and_location | nationality }}
+
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
@@ -302,7 +306,7 @@
                             Location of individual
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            {{value.cleaned_data.nationality_and_location }}
+                            {{  value.dirty_data.nationality_and_location | location }}
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
