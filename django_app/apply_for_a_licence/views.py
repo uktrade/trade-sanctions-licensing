@@ -32,7 +32,6 @@ class StartView(BaseFormView):
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["who_do_you_want_the_licence_to_cover"]
-
         if answer in ["business", "individual"]:
             return reverse("are_you_third_party")
         elif answer == "myself":
@@ -66,8 +65,8 @@ class EmailVerifyView(BaseFormView):
         return context
 
     def get_success_url(self) -> str:
-        start_view = self.request.session.get("StartView", False)
-        third_party_view = self.request.session.get("ThirdPartyView", False)
+        start_view = self.request.session.get("start", False)
+        third_party_view = self.request.session.get("third_party", False)
         if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
             return reverse("add_yourself")
         elif third_party_view.get("are_you_applying_on_behalf_of_someone_else") == "True":
@@ -101,7 +100,7 @@ class YourDetailsView(BaseFormView):
     form_class = forms.YourDetailsForm
 
     def get_success_url(self):
-        if start_view := self.request.session.get("StartView", False):
+        if start_view := self.request.session.get("start", False):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "business":
                 return reverse("is_the_business_registered_with_companies_house")
             else:
@@ -113,7 +112,7 @@ class PreviousLicenceView(BaseFormView):
 
     def get_success_url(self):
         success_url = reverse("type_of_service")
-        if start_view := self.request.session.get("StartView", False):
+        if start_view := self.request.session.get("start", False):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "individual":
                 success_url = reverse("business_employing_individual")
         return success_url
@@ -219,7 +218,7 @@ class AddAnIndividualView(FormView):
 
     def get_success_url(self):
         success_url = reverse("individual_added")
-        if start_view := self.request.session.get("StartView", False):
+        if start_view := self.request.session.get("start", False):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
                 success_url = reverse("yourself_and_individual_added")
         return success_url
@@ -262,11 +261,11 @@ class AddYourselfView(BaseFormView):
         cleaned_data["nationality_and_location"] = dict(form.fields["nationality_and_location"].choices)[
             form.cleaned_data["nationality_and_location"]
         ]
-        add_yourself = {
+        yourself_details = {
             "cleaned_data": cleaned_data,
             "dirty_data": form.data,
         }
-        self.request.session["add_yourself"] = add_yourself
+        self.request.session["yourself_details"] = yourself_details
         return super().form_valid(form)
 
 
@@ -276,7 +275,8 @@ class AddYourselfAddressView(BaseFormView):
 
     def get_form_kwargs(self) -> dict[str, Any]:
         kwargs = super().get_form_kwargs()
-        if add_yourself_view := self.request.session.get("AddYourselfView", False):
+
+        if add_yourself_view := self.request.session.get("add_yourself", False):
             if add_yourself_view.get("nationality_and_location") in [
                 "uk_national_uk_location",
                 "dual_national_uk_location",
@@ -625,15 +625,14 @@ class CheckYourAnswersView(TemplateView):
         all_cleaned_data = get_all_cleaned_data(self.request)
 
         context["form_data"] = all_cleaned_data
-
+        if yourself_details := self.request.session.get("yourself_details", None):
+            context["yourself_details"] = yourself_details
         if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
             context["session_files"] = session_files
         if businesses := self.request.session.get("businesses", None):
-            context["licensees"] = businesses
-            context["licensees_type"] = "Business"
+            context["businesses"] = businesses
         if individuals := self.request.session.get("individuals", None):
-            context["licensees"] = individuals
-            context["licensees_type"] = "Individual"
+            context["individuals"] = individuals
 
         if recipients := self.request.session.get("recipients", None):
             context["recipients"] = recipients
