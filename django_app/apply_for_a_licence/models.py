@@ -28,7 +28,6 @@ class Address(BaseModelID):
         db_table_comment = "The address has a start and end date.  the constraint manages those. "
         "However, it is important for analytical purposes across DBT. "
         "Otherwise, it is unknown when companies had changed their addresses. It helps inferring the source of truth."
-        abstract = True
 
 
 class Applicant(BaseModelID):
@@ -56,7 +55,7 @@ class UserEmailVerification(BaseModelID):
     verified = models.BooleanField(default=False)
 
 
-class Organisation(Address):
+class Organisation(BaseModelID):
     # two name fields required for the case of recipients
     name = models.CharField()
     name_of_person = models.CharField(null=True, blank=True)
@@ -71,6 +70,7 @@ class Organisation(Address):
     uk_flag = models.BooleanField(db_comment="the company is located in the UK")
     email = models.EmailField(blank=True, null=True)
     additional_contact_details = models.CharField(blank=True, null=True)
+    address = models.ForeignKey(Address, models.SET_NULL, blank=True, null=True)
 
     class Meta:
         db_table = "organisation"
