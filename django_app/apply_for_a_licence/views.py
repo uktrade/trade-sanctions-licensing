@@ -525,6 +525,7 @@ class UploadDocumentsView(BaseFormView):
     file_storage = TemporaryDocumentStorage()
 
     def get_form_kwargs(self) -> dict[str, Any]:
+        # forms = get_all_forms(self.request)
         kwargs = super().get_form_kwargs()
         kwargs["request"] = self.request
         return kwargs

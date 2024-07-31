@@ -11,16 +11,16 @@ from .choices import LicensingGroundsChoices
 
 
 class Address(BaseModelID):
-    address_line_1 = models.CharField(max_length=200)
+    address_line_1 = models.CharField(max_length=200, blank=True, null=True)
     address_line_2 = models.CharField(max_length=200, blank=True, null=True)
     address_line_3 = models.CharField(max_length=200, blank=True, null=True)
     address_line_4 = models.CharField(max_length=200, blank=True, null=True)
-    postcode = models.CharField(max_length=20)
-    country = CountryField(blank_label="Select Country")
-    town_or_city = models.CharField(max_length=250)
+    postcode = models.CharField(max_length=20, blank=True, null=True)
+    country = CountryField(blank_label="Select Country", blank=True, null=True)
+    town_or_city = models.CharField(max_length=250, blank=True, null=True)
     county = models.CharField(max_length=250, null=True, blank=True)
-    start_date = models.DateField()
-    end_date = models.DateField()
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
     applicant = models.ForeignKey("Applicant", models.SET_NULL, blank=True, null=True)
 
     class Meta:
@@ -209,6 +209,8 @@ class Document(BaseModel):
         validators=[
             validate_virus_check_result,
         ],
+        null=True,
+        blank=True,
     )
     ref = models.IntegerField()
     creation_time = models.DateField()
@@ -245,7 +247,7 @@ class ExistingLicences(BaseModelID):
 
 class Ground(BaseModelID):
     # ! This table is required as it is for data pipelines - speak with data architect before modifying
-    licensing_grounds = models.CharField(choices=LicensingGroundsChoices.choices)
+    licensing_grounds = models.CharField(choices=LicensingGroundsChoices.choices, null=True, blank=True)
     label = models.CharField()
     start_date = models.DateField()
     end_date = models.DateField()
