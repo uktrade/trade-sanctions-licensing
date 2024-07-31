@@ -2,7 +2,7 @@ import logging
 import uuid
 from typing import Any
 
-from apply_for_a_licence.utils import get_all_cleaned_data, get_all_forms
+from apply_for_a_licence.utils import get_all_cleaned_data, get_all_forms, get_form
 from core.document_storage import TemporaryDocumentStorage
 from core.utils import is_ajax
 from core.views.base_views import BaseFormView
@@ -256,18 +256,6 @@ class AddYourselfView(BaseFormView):
     form_class = forms.AddYourselfForm
     success_url = reverse_lazy("add_yourself_address")
 
-    def form_valid(self, form: forms.AddYourselfAddressForm) -> HttpResponse:
-        cleaned_data = form.cleaned_data
-        cleaned_data["nationality_and_location"] = dict(form.fields["nationality_and_location"].choices)[
-            form.cleaned_data["nationality_and_location"]
-        ]
-        yourself_details = {
-            "cleaned_data": cleaned_data,
-            "dirty_data": form.data,
-        }
-        self.request.session["yourself_details"] = yourself_details
-        return super().form_valid(form)
-
 
 class AddYourselfAddressView(BaseFormView):
     form_class = forms.AddYourselfAddressForm
@@ -297,6 +285,11 @@ class AddYourselfAddressView(BaseFormView):
 class YourselfAndIndividualAddedView(BaseFormView):
     form_class = forms.IndividualAddedForm
     template_name = "apply_for_a_licence/form_steps/yourself_and_individual_added.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["yourself_form"] = get_form(self.request, "add_yourself")
+        return context
 
     def get_success_url(self):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
@@ -626,8 +619,6 @@ class CheckYourAnswersView(TemplateView):
         # print(forms["licensing_grounds"].instance.get_licensing_grounds_display())
         context["form_data"] = all_cleaned_data
         context["forms"] = get_all_forms(self.request)
-        if yourself_details := self.request.session.get("yourself_details", None):
-            context["yourself_details"] = yourself_details
         if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
             context["session_files"] = session_files
         if businesses := self.request.session.get("businesses", None):
