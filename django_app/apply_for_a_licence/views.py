@@ -8,7 +8,7 @@ from core.utils import is_ajax
 from core.views.base_views import BaseFormView
 from django.conf import settings
 from django.core.cache import cache
-from django.forms import Form
+from django.forms import Form, ModelForm
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
@@ -23,6 +23,7 @@ from utils.s3 import (
 )
 
 from . import forms
+from .forms import DeclarationForm
 
 logger = logging.getLogger(__name__)
 
@@ -560,7 +561,7 @@ class UploadDocumentsView(BaseFormView):
             return JsonResponse({"success": True}, status=200)
         else:
             # todo redirect to summary
-            return redirect(("complete"))
+            return redirect(("declaration"))
 
     def form_invalid(self, form: Form) -> HttpResponse:
         if is_ajax(self.request):
@@ -629,3 +630,19 @@ class CheckYourAnswersView(TemplateView):
         if recipients := self.request.session.get("recipients", None):
             context["recipients"] = recipients
         return context
+
+
+class DeclarationView(BaseFormView):
+    form_class = forms.DeclarationForm
+    template_name = "apply_for_a_licence/form_steps/declaration.html"
+    success_url = reverse_lazy("complete")
+
+    def form_valid(self, form: DeclarationForm) -> HttpResponse:
+        all_forms = get_all_forms(self.request)
+        for form in all_forms.values():
+            if isinstance(form, ModelForm):
+                form.save()
+            elif isinstance(form, Form):
+                print(form)
+            else:
+                continue

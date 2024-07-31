@@ -33,7 +33,7 @@ from utils.s3 import get_all_session_files
 from . import choices
 from .exceptions import CompaniesHouse500Error, CompaniesHouseException
 from .fields import MultipleFileField
-from .models import (
+from .models import (  # Ground,
     Applicant,
     ApplicationOrganisation,
     ApplicationServices,
@@ -41,7 +41,6 @@ from .models import (
     BaseApplication,
     Document,
     ExistingLicences,
-    Ground,
     Individual,
     Organisation,
     Regime,
@@ -870,7 +869,7 @@ class RelationshipProviderRecipientForm(BaseModelForm):
         self.fields["relationship"].widget.attrs = {"rows": 5}
 
 
-class LicensingGroundsForm(BaseModelForm):
+class LicensingGroundsForm(BaseForm):
     form_h1_header = "Which of these licensing grounds describes your purpose for providing the sanctioned services?"
     licensing_grounds = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple,
@@ -883,9 +882,9 @@ class LicensingGroundsForm(BaseModelForm):
         },
     )
 
-    class Meta:
-        model = Ground
-        fields = ["licensing_grounds"]
+    # class Meta:
+    #     model = Ground
+    #     fields = ["licensing_grounds"]
 
     class Media:
         js = ["apply_for_a_licence/javascript/licensing_grounds.js"]
@@ -1078,3 +1077,9 @@ class UploadDocumentsForm(BaseForm):
                 raise forms.ValidationError(f"{document.name} must be smaller than 100 MB", code="too_large")
 
         return documents
+
+
+class DeclarationForm(BaseForm):
+    declaration = forms.BooleanField(
+        label="I agree and accept", required=True, error_messages={"required": "Confirm if you agree and accept the declaration"}
+    )
