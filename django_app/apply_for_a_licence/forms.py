@@ -469,6 +469,8 @@ class BusinessAddedForm(BaseForm):
 class AddAnIndividualForm(BaseModelForm):
     form_h1_header = "Add an individual"
 
+    nationality = forms.CharField(widget=forms.HiddenInput, required=False)
+
     class Meta:
         model = Individual
         fields = [
@@ -494,6 +496,14 @@ class AddAnIndividualForm(BaseModelForm):
             Field.text("last_name", field_width=Fluid.ONE_THIRD),
             Field.radios("nationality_and_location", legend_size=Size.MEDIUM, legend_tag="h2"),
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.cleaned_data.get("nationality_and_location", None):
+            cleaned_data["nationality"] = dict(self.fields["nationality_and_location"].choices)[
+                self.cleaned_data["nationality_and_location"]
+            ]
+        return cleaned_data
 
 
 class IndividualAddedForm(BaseForm):
@@ -563,6 +573,7 @@ class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
 
 class AddYourselfForm(BaseModelForm):
     form_h1_header = "Your details"
+    nationality = forms.CharField(widget=forms.HiddenInput, required=False)
 
     class Meta:
         model = Individual
@@ -589,6 +600,14 @@ class AddYourselfForm(BaseModelForm):
             Field.text("last_name", field_width=Fluid.ONE_THIRD),
             Field.radios("nationality_and_location", legend_size=Size.MEDIUM, legend_tag="h2"),
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.cleaned_data.get("nationality_and_location", None):
+            cleaned_data["nationality"] = dict(self.fields["nationality_and_location"].choices)[
+                self.cleaned_data["nationality_and_location"]
+            ]
+        return cleaned_data
 
 
 class AddYourselfAddressForm(BaseBusinessDetailsForm):
@@ -703,6 +722,13 @@ class ProfessionalOrBusinessServicesForm(BaseModelForm):
     class Meta:
         model = Services
         fields = ["professional_or_business_service"]
+
+    def get_professional_or_business_service_display(self):
+        display = []
+        for professional_or_business_service in self.cleaned_data["professional_or_business_service"]:
+            display += [dict(self.fields["professional_or_business_service"].choices)[professional_or_business_service]]
+        display = ",\n".join(display)
+        return display
 
 
 class ServiceActivitiesForm(BaseModelForm):
@@ -949,8 +975,7 @@ class LicensingGroundsForm(BaseForm):
         display = []
         for licensing_ground in self.cleaned_data["licensing_grounds"]:
             display += [dict(self.fields["licensing_grounds"].choices)[licensing_ground]]
-        display = "\n\n".join(display)
-        print(display)
+        display = ",\n\n".join(display)
         return display
 
 

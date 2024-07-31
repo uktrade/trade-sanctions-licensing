@@ -67,10 +67,10 @@ class EmailVerifyView(BaseFormView):
 
     def get_success_url(self) -> str:
         start_view = self.request.session.get("start", False)
-        third_party_view = self.request.session.get("third_party", False)
+        third_party_view = self.request.session.get("are_you_third_party", False)
         if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
             return reverse("add_yourself")
-        elif third_party_view.get("are_you_applying_on_behalf_of_someone_else") == "True":
+        elif third_party_view.get("are_you_applying_on_behalf_of_someone_else", False) == "True":
             return reverse("your_details")
         elif start_view.get("who_do_you_want_the_licence_to_cover") == "business":
             return reverse("is_the_business_registered_with_companies_house")
@@ -560,8 +560,7 @@ class UploadDocumentsView(BaseFormView):
         if is_ajax(self.request):
             return JsonResponse({"success": True}, status=200)
         else:
-            # todo redirect to summary
-            return redirect(("declaration"))
+            return redirect("check_your_answers")
 
     def form_invalid(self, form: Form) -> HttpResponse:
         if is_ajax(self.request):
@@ -608,16 +607,13 @@ class CheckYourAnswersView(TemplateView):
     """View for the 'Check your answers' page."""
 
     template_name = "apply_for_a_licence/form_steps/check_your_answers.html"
-    success_url = reverse_lazy("declaration")
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         """Collects all the nice form data and puts it into a dictionary for the summary page. We need to check if
         a lot of this data is present, as the user may have skipped some steps, so we import the form_step_conditions
         that are used to determine if a step should be shown, this is to avoid duplicating the logic here."""
-        forms = get_all_forms(self.request)
         context = super().get_context_data(**kwargs)
         all_cleaned_data = get_all_cleaned_data(self.request)
-        print(forms["licensing_grounds"].get_licensing_grounds_display())
         context["form_data"] = all_cleaned_data
         context["forms"] = get_all_forms(self.request)
         if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
