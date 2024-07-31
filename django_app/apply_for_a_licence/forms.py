@@ -33,7 +33,7 @@ from utils.s3 import get_all_session_files
 from . import choices
 from .exceptions import CompaniesHouse500Error, CompaniesHouseException
 from .fields import MultipleFileField
-from .models import (  # Ground,
+from .models import (
     Applicant,
     ApplicationOrganisation,
     ApplicationServices,
@@ -41,6 +41,7 @@ from .models import (  # Ground,
     BaseApplication,
     Document,
     ExistingLicences,
+    Ground,
     Individual,
     Organisation,
     Regime,
@@ -882,9 +883,9 @@ class LicensingGroundsForm(BaseForm):
         },
     )
 
-    # class Meta:
-    #     model = Ground
-    #     fields = ["licensing_grounds"]
+    class Meta:
+        model = Ground
+        fields = ["licensing_grounds"]
 
     class Media:
         js = ["apply_for_a_licence/javascript/licensing_grounds.js"]
