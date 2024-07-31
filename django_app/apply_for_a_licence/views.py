@@ -13,7 +13,7 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import FormView, TemplateView, View
+from django.views.generic import TemplateView, View
 from django_ratelimit.decorators import ratelimit
 from utils.notifier import verify_email
 from utils.s3 import (
@@ -124,7 +124,7 @@ class BusinessEmployingIndividualView(BaseFormView):
     success_url = reverse_lazy("type_of_service")
 
 
-class AddABusinessView(FormView):
+class AddABusinessView(BaseFormView):
     form_class = forms.AddABusinessForm
     template_name = "core/base_form_step.html"
     success_url = reverse_lazy("business_added")
@@ -187,7 +187,7 @@ class DeleteBusinessView(BaseFormView):
         return redirect(reverse_lazy("business_added"))
 
 
-class AddAnIndividualView(FormView):
+class AddAnIndividualView(BaseFormView):
     form_class = forms.AddAnIndividualForm
     template_name = "core/base_form_step.html"
     redirect_after_post = False
