@@ -1,4 +1,4 @@
-repository: trade-sanctions-licensing
+repository: tsl
 builder:
   name: paketobuildpacks/builder-jammy-full
   version: 0.3.339
