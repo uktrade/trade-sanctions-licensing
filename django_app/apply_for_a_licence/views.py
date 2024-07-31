@@ -613,10 +613,10 @@ class CheckYourAnswersView(TemplateView):
         """Collects all the nice form data and puts it into a dictionary for the summary page. We need to check if
         a lot of this data is present, as the user may have skipped some steps, so we import the form_step_conditions
         that are used to determine if a step should be shown, this is to avoid duplicating the logic here."""
-
+        forms = get_all_forms(self.request)
         context = super().get_context_data(**kwargs)
         all_cleaned_data = get_all_cleaned_data(self.request)
-        # print(forms["licensing_grounds"].instance.get_licensing_grounds_display())
+        print(forms["licensing_grounds"].get_licensing_grounds_display())
         context["form_data"] = all_cleaned_data
         context["forms"] = get_all_forms(self.request)
         if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):

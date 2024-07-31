@@ -1,13 +1,13 @@
 import uuid
 
 from core.models import BaseModel, BaseModelID
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.sessions.models import Session
 from django.db import models
 from django_chunk_upload_handlers.clam_av import validate_virus_check_result
 from django_countries.fields import CountryField
 
 from . import choices
-from .choices import LicensingGroundsChoices
 
 
 class Address(BaseModelID):
@@ -245,7 +245,7 @@ class ExistingLicences(BaseModelID):
 
 class Ground(BaseModelID):
     # ! This table is required as it is for data pipelines - speak with data architect before modifying
-    licensing_grounds = models.CharField(choices=LicensingGroundsChoices.choices)
+    licensing_grounds = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices))
     label = models.CharField()
     start_date = models.DateField()
     end_date = models.DateField()

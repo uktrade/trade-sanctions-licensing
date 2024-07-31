@@ -942,7 +942,16 @@ class LicensingGroundsForm(BaseModelForm):
                     "licensing_grounds",
                     forms.ValidationError(code="invalid", message=self.fields["licensing_grounds"].error_messages["invalid"]),
                 )
+
         return cleaned_data
+
+    def get_licensing_grounds_display(self):
+        display = []
+        for licensing_ground in self.cleaned_data["licensing_grounds"]:
+            display += [dict(self.fields["licensing_grounds"].choices)[licensing_ground]]
+        display = "\n\n".join(display)
+        print(display)
+        return display
 
 
 class PurposeOfProvisionForm(BaseModelForm):

@@ -466,7 +466,7 @@
                 Licensing grounds
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ forms.licensing_grounds }}
+                {{ forms.licensing_grounds.get_licensing_grounds_display | linebreaksbr }}
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"
