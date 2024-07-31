@@ -1103,9 +1103,3 @@ class UploadDocumentsForm(BaseForm):
                 raise forms.ValidationError(f"{document.name} must be smaller than 100 MB", code="too_large")
 
         return documents
-
-
-class DeclarationForm(BaseForm):
-    declaration = forms.BooleanField(
-        label="I agree and accept", required=True, error_messages={"required": "Confirm if you agree and accept the declaration"}
-    )

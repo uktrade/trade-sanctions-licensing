@@ -66,7 +66,6 @@ urlpatterns = [
     path("delete_documents", views.DeleteDocumentsView.as_view(), name="delete_documents"),
     path("download_document/<str:file_name>", views.DownloadDocumentView.as_view(), name="download_document"),
     path("check_your_answers", views.CheckYourAnswersView.as_view(), name="check_your_answers"),
-    path("declaration", views.DeclarationView.as_view(), name="declaration"),
     path("complete", views.CompleteView.as_view(), name="complete"),
 ]
 
