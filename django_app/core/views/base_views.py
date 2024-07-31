@@ -1,6 +1,7 @@
 from apply_for_a_licence.utils import get_dirty_form_data
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import FormView
 from django_ratelimit.exceptions import Ratelimited
 
@@ -23,7 +24,6 @@ class BaseFormView(FormView):
     def form_valid(self, form):
         # we want to assign the form to the view ,so we can access it in the get_success_url method
         self.form = form
-
         # we want to store the dirty form data in the session, so we can access it later on
         form_data = dict(form.data.copy())
 
@@ -39,9 +39,8 @@ class BaseFormView(FormView):
 
         # now keep it in the session
         self.request.session[self.step_name] = form_data
-
         redirect_to_url = self.request.GET.get("redirect_to_url", None) or self.request.session.pop("redirect_to_url", None)
-        if redirect_to_url:
+        if redirect_to_url and url_has_allowed_host_and_scheme(redirect_to_url, allowed_hosts=None):
             if self.redirect_after_post:
                 # we want to redirect the user to a specific page after the form is submitted
                 return redirect(redirect_to_url)

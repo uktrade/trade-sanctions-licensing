@@ -128,6 +128,7 @@ class AddABusinessView(FormView):
     form_class = forms.AddABusinessForm
     template_name = "core/base_form_step.html"
     success_url = reverse_lazy("business_added")
+    redirect_after_post = False
 
     def setup(self, request, *args, **kwargs):
         self.location = kwargs["location"]
@@ -189,6 +190,7 @@ class DeleteBusinessView(BaseFormView):
 class AddAnIndividualView(FormView):
     form_class = forms.AddAnIndividualForm
     template_name = "core/base_form_step.html"
+    redirect_after_post = False
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -312,6 +314,7 @@ class DeleteIndividualFromYourselfView(BaseFormView):
 
 class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
     form_class = forms.IsTheBusinessRegisteredWithCompaniesHouseForm
+    redirect_after_post = False
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["business_registered_on_companies_house"]
@@ -382,6 +385,7 @@ class CheckCompanyDetailsView(BaseFormView):
 
 class WhereIsTheBusinessLocatedView(BaseFormView):
     form_class = forms.WhereIsTheBusinessLocatedForm
+    redirect_after_post = False
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
@@ -390,6 +394,7 @@ class WhereIsTheBusinessLocatedView(BaseFormView):
 
 class TypeOfServiceView(BaseFormView):
     form_class = forms.TypeOfServiceForm
+    redirect_after_post = False
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["type_of_service"]
@@ -422,16 +427,18 @@ class ServiceActivitiesView(BaseFormView):
 
 class WhereIsTheRecipientLocatedView(BaseFormView):
     form_class = forms.WhereIsTheRecipientLocatedForm
+    redirect_after_post = False
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
         return reverse("add_a_recipient", kwargs={"location": location})
 
 
-class AddARecipientView(FormView):
+class AddARecipientView(BaseFormView):
     form_class = forms.AddARecipientForm
     template_name = "core/base_form_step.html"
     success_url = reverse_lazy("relationship_provider_recipient")
+    redirect_after_post = False
 
     def setup(self, request, *args, **kwargs):
         self.location = kwargs["location"]
@@ -459,6 +466,7 @@ class AddARecipientView(FormView):
                 "dirty_data": form.data,
             }
         self.request.session["recipients"] = current_recipients
+
         return super().form_valid(form)
 
 
@@ -488,6 +496,7 @@ class DeleteRecipientView(BaseFormView):
 class RelationshipProviderRecipientView(BaseFormView):
     form_class = forms.RelationshipProviderRecipientForm
     success_url = reverse_lazy("recipient_added")
+    redirect_after_post = False
 
 
 class LicensingGroundsView(BaseFormView):
@@ -614,8 +623,9 @@ class CheckYourAnswersView(TemplateView):
         that are used to determine if a step should be shown, this is to avoid duplicating the logic here."""
         context = super().get_context_data(**kwargs)
         all_cleaned_data = get_all_cleaned_data(self.request)
+        all_forms = get_all_forms(self.request)
         context["form_data"] = all_cleaned_data
-        context["forms"] = get_all_forms(self.request)
+        context["forms"] = all_forms
         if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
             context["session_files"] = session_files
         if businesses := self.request.session.get("businesses", None):
