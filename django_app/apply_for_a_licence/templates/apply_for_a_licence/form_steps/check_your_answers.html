@@ -131,7 +131,7 @@
                     Name
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{yourself_details.cleaned_data.first_name }} {{ yourself_details.cleaned_data.last_name }}
+                    {{ form_data.add_yourself.first_name }} {{ form_data.add_yourself.last_name }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
@@ -144,7 +144,7 @@
                     Connection to the UK
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{yourself_details.dirty_data.nationality_and_location | nationality }}
+                    {{form_data.add_yourself.nationality_and_location | nationality }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
@@ -157,7 +157,7 @@
                     Location of individual
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{yourself_details.dirty_data.nationality_and_location | location }}
+                    {{form_data.add_yourself.nationality_and_location | location }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
@@ -338,7 +338,7 @@
                 What type of services do you want to provide?
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ form_data.type_of_service.type_of_service }}
+                {{ forms.type_of_service.instance.get_type_of_service_display }}
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"
@@ -466,7 +466,7 @@
                 Licensing grounds
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ form_data.licensing_grounds.licensing_grounds}}
+                {{ forms.licensing_grounds }}
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"

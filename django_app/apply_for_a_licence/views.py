@@ -2,7 +2,7 @@ import logging
 import uuid
 from typing import Any
 
-from apply_for_a_licence.utils import get_all_cleaned_data
+from apply_for_a_licence.utils import get_all_cleaned_data, get_all_forms
 from core.document_storage import TemporaryDocumentStorage
 from core.utils import is_ajax
 from core.views.base_views import BaseFormView
@@ -501,6 +501,7 @@ class LicensingGroundsView(BaseFormView):
     success_url = reverse_lazy("purpose_of_provision")
 
     def get_success_url(self) -> str:
+
         if professional_or_business_service := self.request.session.get("ProfessionalOrBusinessServicesView", False):
             if professional_or_business_service.get("professional_or_business_service") == "legal_advisory":
                 return reverse("licensing_grounds_legal_advisory")
@@ -621,10 +622,10 @@ class CheckYourAnswersView(TemplateView):
         that are used to determine if a step should be shown, this is to avoid duplicating the logic here."""
 
         context = super().get_context_data(**kwargs)
-
         all_cleaned_data = get_all_cleaned_data(self.request)
-
+        # print(forms["licensing_grounds"].instance.get_licensing_grounds_display())
         context["form_data"] = all_cleaned_data
+        context["forms"] = get_all_forms(self.request)
         if yourself_details := self.request.session.get("yourself_details", None):
             context["yourself_details"] = yourself_details
         if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):

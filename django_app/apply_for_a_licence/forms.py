@@ -41,6 +41,7 @@ from .models import (
     BaseApplication,
     Document,
     ExistingLicences,
+    Ground,
     Individual,
     Organisation,
     Regime,
@@ -869,7 +870,7 @@ class RelationshipProviderRecipientForm(BaseModelForm):
         self.fields["relationship"].widget.attrs = {"rows": 5}
 
 
-class LicensingGroundsForm(BaseForm):
+class LicensingGroundsForm(BaseModelForm):
     form_h1_header = "Which of these licensing grounds describes your purpose for providing the sanctioned services?"
     licensing_grounds = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple,
@@ -881,6 +882,10 @@ class LicensingGroundsForm(BaseForm):
             "invalid": "Select the licensing grounds or select I do not know",
         },
     )
+
+    class Meta:
+        model = Ground
+        fields = ["licensing_grounds"]
 
     class Media:
         js = ["apply_for_a_licence/javascript/licensing_grounds.js"]
