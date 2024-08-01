@@ -34,7 +34,6 @@ from . import choices
 from .exceptions import CompaniesHouse500Error, CompaniesHouseException
 from .fields import MultipleFileField
 from .models import (
-    Address,
     Applicant,
     ApplicationOrganisation,
     ApplicationServices,
@@ -42,6 +41,7 @@ from .models import (
     BaseApplication,
     Document,
     ExistingLicences,
+    Ground,
     Individual,
     Organisation,
     Regime,
@@ -469,6 +469,8 @@ class BusinessAddedForm(BaseForm):
 class AddAnIndividualForm(BaseModelForm):
     form_h1_header = "Add an individual"
 
+    nationality = forms.CharField(widget=forms.HiddenInput, required=False)
+
     class Meta:
         model = Individual
         fields = [
@@ -494,6 +496,14 @@ class AddAnIndividualForm(BaseModelForm):
             Field.text("last_name", field_width=Fluid.ONE_THIRD),
             Field.radios("nationality_and_location", legend_size=Size.MEDIUM, legend_tag="h2"),
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.cleaned_data.get("nationality_and_location", None):
+            cleaned_data["nationality"] = dict(self.fields["nationality_and_location"].choices)[
+                self.cleaned_data["nationality_and_location"]
+            ]
+        return cleaned_data
 
 
 class IndividualAddedForm(BaseForm):
@@ -563,6 +573,7 @@ class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
 
 class AddYourselfForm(BaseModelForm):
     form_h1_header = "Your details"
+    nationality = forms.CharField(widget=forms.HiddenInput, required=False)
 
     class Meta:
         model = Individual
@@ -590,12 +601,20 @@ class AddYourselfForm(BaseModelForm):
             Field.radios("nationality_and_location", legend_size=Size.MEDIUM, legend_tag="h2"),
         )
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.cleaned_data.get("nationality_and_location", None):
+            cleaned_data["nationality"] = dict(self.fields["nationality_and_location"].choices)[
+                self.cleaned_data["nationality_and_location"]
+            ]
+        return cleaned_data
+
 
 class AddYourselfAddressForm(BaseBusinessDetailsForm):
     form_h1_header = "What is your work address?"
 
     class Meta(BaseBusinessDetailsForm.Meta):
-        model = Address
+        model = Organisation
         fields = (
             "town_or_city",
             "country",
@@ -704,6 +723,13 @@ class ProfessionalOrBusinessServicesForm(BaseModelForm):
         model = Services
         fields = ["professional_or_business_service"]
 
+    def get_professional_or_business_service_display(self):
+        display = []
+        for professional_or_business_service in self.cleaned_data["professional_or_business_service"]:
+            display += [dict(self.fields["professional_or_business_service"].choices)[professional_or_business_service]]
+        display = ",\n".join(display)
+        return display
+
 
 class ServiceActivitiesForm(BaseModelForm):
     class Meta:
@@ -784,7 +810,6 @@ class AddARecipientForm(BaseBusinessDetailsForm):
         super().__init__(*args, **kwargs)
 
         if self.is_uk_address:
-            print("UK ADDRESS")
             address_layout = Fieldset(
                 Field.text("country", field_width=Fluid.ONE_HALF),
                 Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
@@ -884,6 +909,10 @@ class LicensingGroundsForm(BaseForm):
         },
     )
 
+    class Meta:
+        model = Ground
+        fields = ["licensing_grounds"]
+
     class Media:
         js = ["apply_for_a_licence/javascript/licensing_grounds.js"]
 
@@ -939,7 +968,15 @@ class LicensingGroundsForm(BaseForm):
                     "licensing_grounds",
                     forms.ValidationError(code="invalid", message=self.fields["licensing_grounds"].error_messages["invalid"]),
                 )
+
         return cleaned_data
+
+    def get_licensing_grounds_display(self):
+        display = []
+        for licensing_ground in self.cleaned_data["licensing_grounds"]:
+            display += [dict(self.fields["licensing_grounds"].choices)[licensing_ground]]
+        display = ",\n\n".join(display)
+        return display
 
 
 class PurposeOfProvisionForm(BaseModelForm):

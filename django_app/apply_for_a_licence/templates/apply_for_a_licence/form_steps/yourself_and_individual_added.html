@@ -27,7 +27,7 @@
                 Name
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ request.session.add_yourself.cleaned_data.first_name }} {{ request.session.add_yourself.cleaned_data.last_name }}
+                {{ yourself_form.instance.first_name }} {{ yourself_form.instance.last_name }}
             </dd>
         </div>
         <div class="govuk-summary-list__row">
@@ -35,7 +35,7 @@
                 Nationality and Location
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ request.session.add_yourself.cleaned_data.nationality_and_location }}
+                {{ yourself_form.instance.get_nationality_and_location_display }}
             </dd>
         </div>
         <div class="govuk-summary-list__row">

@@ -2,6 +2,7 @@ import logging
 import uuid
 from typing import Any
 
+from apply_for_a_licence.utils import get_all_cleaned_data, get_all_forms, get_form
 from core.document_storage import TemporaryDocumentStorage
 from core.utils import is_ajax
 from core.views.base_views import BaseFormView
@@ -12,7 +13,7 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import FormView, TemplateView, View
+from django.views.generic import TemplateView, View
 from django_ratelimit.decorators import ratelimit
 from utils.notifier import verify_email
 from utils.s3 import (
@@ -31,7 +32,6 @@ class StartView(BaseFormView):
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["who_do_you_want_the_licence_to_cover"]
-
         if answer in ["business", "individual"]:
             return reverse("are_you_third_party")
         elif answer == "myself":
@@ -65,11 +65,11 @@ class EmailVerifyView(BaseFormView):
         return context
 
     def get_success_url(self) -> str:
-        start_view = self.request.session.get("StartView", False)
-        third_party_view = self.request.session.get("ThirdPartyView", False)
+        start_view = self.request.session.get("start", False)
+        third_party_view = self.request.session.get("are_you_third_party", False)
         if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
             return reverse("add_yourself")
-        elif third_party_view.get("are_you_applying_on_behalf_of_someone_else") == "True":
+        elif third_party_view.get("are_you_applying_on_behalf_of_someone_else", False) == "True":
             return reverse("your_details")
         elif start_view.get("who_do_you_want_the_licence_to_cover") == "business":
             return reverse("is_the_business_registered_with_companies_house")
@@ -100,7 +100,7 @@ class YourDetailsView(BaseFormView):
     form_class = forms.YourDetailsForm
 
     def get_success_url(self):
-        if start_view := self.request.session.get("StartView", False):
+        if start_view := self.request.session.get("start", False):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "business":
                 return reverse("is_the_business_registered_with_companies_house")
             else:
@@ -112,7 +112,7 @@ class PreviousLicenceView(BaseFormView):
 
     def get_success_url(self):
         success_url = reverse("type_of_service")
-        if start_view := self.request.session.get("StartView", False):
+        if start_view := self.request.session.get("start", False):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "individual":
                 success_url = reverse("business_employing_individual")
         return success_url
@@ -123,10 +123,11 @@ class BusinessEmployingIndividualView(BaseFormView):
     success_url = reverse_lazy("type_of_service")
 
 
-class AddABusinessView(FormView):
+class AddABusinessView(BaseFormView):
     form_class = forms.AddABusinessForm
     template_name = "core/base_form_step.html"
     success_url = reverse_lazy("business_added")
+    redirect_after_post = False
 
     def setup(self, request, *args, **kwargs):
         self.location = kwargs["location"]
@@ -185,9 +186,10 @@ class DeleteBusinessView(BaseFormView):
         return redirect(reverse_lazy("business_added"))
 
 
-class AddAnIndividualView(FormView):
+class AddAnIndividualView(BaseFormView):
     form_class = forms.AddAnIndividualForm
     template_name = "core/base_form_step.html"
+    redirect_after_post = False
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -218,7 +220,7 @@ class AddAnIndividualView(FormView):
 
     def get_success_url(self):
         success_url = reverse("individual_added")
-        if start_view := self.request.session.get("StartView", False):
+        if start_view := self.request.session.get("start", False):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
                 success_url = reverse("yourself_and_individual_added")
         return success_url
@@ -256,18 +258,6 @@ class AddYourselfView(BaseFormView):
     form_class = forms.AddYourselfForm
     success_url = reverse_lazy("add_yourself_address")
 
-    def form_valid(self, form: forms.AddYourselfAddressForm) -> HttpResponse:
-        cleaned_data = form.cleaned_data
-        cleaned_data["nationality_and_location"] = dict(form.fields["nationality_and_location"].choices)[
-            form.cleaned_data["nationality_and_location"]
-        ]
-        add_yourself = {
-            "cleaned_data": cleaned_data,
-            "dirty_data": form.data,
-        }
-        self.request.session["add_yourself"] = add_yourself
-        return super().form_valid(form)
-
 
 class AddYourselfAddressView(BaseFormView):
     form_class = forms.AddYourselfAddressForm
@@ -275,7 +265,8 @@ class AddYourselfAddressView(BaseFormView):
 
     def get_form_kwargs(self) -> dict[str, Any]:
         kwargs = super().get_form_kwargs()
-        if add_yourself_view := self.request.session.get("AddYourselfView", False):
+
+        if add_yourself_view := self.request.session.get("add_yourself", False):
             if add_yourself_view.get("nationality_and_location") in [
                 "uk_national_uk_location",
                 "dual_national_uk_location",
@@ -297,6 +288,11 @@ class YourselfAndIndividualAddedView(BaseFormView):
     form_class = forms.IndividualAddedForm
     template_name = "apply_for_a_licence/form_steps/yourself_and_individual_added.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["yourself_form"] = get_form(self.request, "add_yourself")
+        return context
+
     def get_success_url(self):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
@@ -317,6 +313,7 @@ class DeleteIndividualFromYourselfView(BaseFormView):
 
 class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
     form_class = forms.IsTheBusinessRegisteredWithCompaniesHouseForm
+    redirect_after_post = False
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["business_registered_on_companies_house"]
@@ -387,6 +384,7 @@ class CheckCompanyDetailsView(BaseFormView):
 
 class WhereIsTheBusinessLocatedView(BaseFormView):
     form_class = forms.WhereIsTheBusinessLocatedForm
+    redirect_after_post = False
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
@@ -395,6 +393,7 @@ class WhereIsTheBusinessLocatedView(BaseFormView):
 
 class TypeOfServiceView(BaseFormView):
     form_class = forms.TypeOfServiceForm
+    redirect_after_post = False
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["type_of_service"]
@@ -427,16 +426,18 @@ class ServiceActivitiesView(BaseFormView):
 
 class WhereIsTheRecipientLocatedView(BaseFormView):
     form_class = forms.WhereIsTheRecipientLocatedForm
+    redirect_after_post = False
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
         return reverse("add_a_recipient", kwargs={"location": location})
 
 
-class AddARecipientView(FormView):
+class AddARecipientView(BaseFormView):
     form_class = forms.AddARecipientForm
     template_name = "core/base_form_step.html"
     success_url = reverse_lazy("relationship_provider_recipient")
+    redirect_after_post = False
 
     def setup(self, request, *args, **kwargs):
         self.location = kwargs["location"]
@@ -464,6 +465,7 @@ class AddARecipientView(FormView):
                 "dirty_data": form.data,
             }
         self.request.session["recipients"] = current_recipients
+
         return super().form_valid(form)
 
 
@@ -493,6 +495,7 @@ class DeleteRecipientView(BaseFormView):
 class RelationshipProviderRecipientView(BaseFormView):
     form_class = forms.RelationshipProviderRecipientForm
     success_url = reverse_lazy("recipient_added")
+    redirect_after_post = False
 
 
 class LicensingGroundsView(BaseFormView):
@@ -500,6 +503,7 @@ class LicensingGroundsView(BaseFormView):
     success_url = reverse_lazy("purpose_of_provision")
 
     def get_success_url(self) -> str:
+
         if professional_or_business_service := self.request.session.get("ProfessionalOrBusinessServicesView", False):
             if professional_or_business_service.get("professional_or_business_service") == "legal_advisory":
                 return reverse("licensing_grounds_legal_advisory")
@@ -564,8 +568,7 @@ class UploadDocumentsView(BaseFormView):
         if is_ajax(self.request):
             return JsonResponse({"success": True}, status=200)
         else:
-            # todo redirect to summary
-            return redirect(("complete"))
+            return redirect("check_your_answers")
 
     def form_invalid(self, form: Form) -> HttpResponse:
         if is_ajax(self.request):
@@ -582,8 +585,6 @@ class DeleteDocumentsView(View):
         if file_name := self.request.GET.get("file_name"):
             full_file_path = f"{self.request.session.session_key}/{file_name}"
             TemporaryDocumentStorage().delete(full_file_path)
-            print(file_name)
-            print(full_file_path)
             if is_ajax(self.request):
                 return JsonResponse({"success": True}, status=200)
             else:
@@ -608,3 +609,29 @@ class DownloadDocumentView(View):
             return redirect(file_url)
 
         raise Http404()
+
+
+class CheckYourAnswersView(TemplateView):
+    """View for the 'Check your answers' page."""
+
+    template_name = "apply_for_a_licence/form_steps/check_your_answers.html"
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        """Collects all the nice form data and puts it into a dictionary for the summary page. We need to check if
+        a lot of this data is present, as the user may have skipped some steps, so we import the form_step_conditions
+        that are used to determine if a step should be shown, this is to avoid duplicating the logic here."""
+        context = super().get_context_data(**kwargs)
+        all_cleaned_data = get_all_cleaned_data(self.request)
+        all_forms = get_all_forms(self.request)
+        context["form_data"] = all_cleaned_data
+        context["forms"] = all_forms
+        if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
+            context["session_files"] = session_files
+        if businesses := self.request.session.get("businesses", None):
+            context["businesses"] = businesses
+        if individuals := self.request.session.get("individuals", None):
+            context["individuals"] = individuals
+
+        if recipients := self.request.session.get("recipients", None):
+            context["recipients"] = recipients
+        return context
