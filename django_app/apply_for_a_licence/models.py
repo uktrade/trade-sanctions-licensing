@@ -154,8 +154,8 @@ class ApplicationType(BaseModelID):
     who_do_you_want_the_licence_to_cover = models.CharField(
         max_length=255,
         choices=choices.WhoDoYouWantTheLicenceToCoverChoices.choices,
-        blank=True,
-        null=True,
+        blank=False,
+        null=False,
     )
     label = models.CharField()
     start_date = models.DateField(blank=True, null=True)
