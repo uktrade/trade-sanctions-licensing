@@ -231,7 +231,7 @@ if ENFORCE_STAFF_SSO:
 
     LOGIN_URL = reverse_lazy("authbroker_client:login")
     # TODO: update when viewing portal is created
-    LOGIN_REDIRECT_URL = reverse_lazy("view_a_suspected_breach:landing")
+    LOGIN_REDIRECT_URL = reverse_lazy("view_a_licence:landing")
 else:
     LOGIN_URL = "/admin/login"
 
