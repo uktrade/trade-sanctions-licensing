@@ -1,5 +1,5 @@
 # apply-for-a-licence
-Apply for a licence service
+Apply for a licence service :)
 
 ## Setup
 The project requires Python 3.12. Backing services are provided by Docker whilst the web app itself is ran as a normal process with Pipenv.
