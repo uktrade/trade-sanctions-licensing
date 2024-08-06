@@ -160,7 +160,10 @@ class DBTPlatformSettings(BaseSettings):
     @computed_field
     @property
     def allowed_hosts(self) -> list[str]:
-        return self.licensing_allowed_hosts
+        if self.in_build_step:
+            return self.licensing_allowed_hosts
+        else:
+            return setup_allowed_hosts(self.licensing_allowed_hosts)
 
     @computed_field
     @property
