@@ -5,3 +5,4 @@ builder:
 packages:
   - libpq-dev
   - libsqlite3-dev
+  - libmagic-dev

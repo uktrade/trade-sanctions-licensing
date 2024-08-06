@@ -2,8 +2,10 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from .views import cookie_views
+from .views.base_views import RedirectBaseDomainView
 
 urlpatterns = [
+    path("", RedirectBaseDomainView.as_view(), name="initial_redirect_view"),
     path("feedback/", include("feedback.urls")),
     path("pingdom/", include("healthcheck.urls")),
     path("throw_error/", lambda x: 1 / 0),
