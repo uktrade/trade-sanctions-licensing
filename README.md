@@ -22,10 +22,31 @@ Now we need to activate the virtual environment:
 pipenv shell
 ```
 
+### Installing direnv (optional)
+We use direnv to automatically load in certain environment variables into your shell. You can install it with homebrew:
+```
+brew install direnv
+```
+
+After installing direnv, you need to add the following to your shell profile:
+If using bash:
+```
+eval "$(direnv hook bash)"
+```
+If using zsh:
+```
+eval "$(direnv hook zsh)"
+```
+
+Then you need to allow direnv to load the .env file in the project directory:
+```
+direnv allow
+```
+
 ### 2. Installing pre-commit
 Install the repos pre commit hooks:
 ```
-pre-commit install
+    pre-commit install
 ```
 Set pre-commit to autoupdate:
 ```
