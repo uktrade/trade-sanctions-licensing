@@ -261,3 +261,5 @@ CACHES = {
         },
     }
 }
+
+OTSI_EMAIL = env.otsi_email
