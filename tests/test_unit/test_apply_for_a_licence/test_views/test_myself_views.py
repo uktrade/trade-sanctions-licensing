@@ -1,35 +1,3 @@
-# class AddYourselfView(BaseFormView):
-#     form_class = forms.AddYourselfForm
-#     success_url = reverse_lazy("add_yourself_address")
-#
-#
-# class AddYourselfAddressView(BaseFormView):
-#     form_class = forms.AddYourselfAddressForm
-#     success_url = reverse_lazy("yourself_and_individual_added")
-#
-#     def get_form_kwargs(self) -> dict[str, Any]:
-#         kwargs = super().get_form_kwargs()
-#
-#         if add_yourself_view := self.request.session.get("add_yourself", False):
-#             if add_yourself_view.get("nationality_and_location") in [
-#                 "uk_national_uk_location",
-#                 "dual_national_uk_location",
-#                 "non_uk_national_uk_location",
-#             ]:
-#                 kwargs["is_uk_address"] = True
-#         return kwargs
-#
-#     def form_valid(self, form: forms.AddYourselfAddressForm) -> HttpResponse:
-#         your_address = {
-#             "cleaned_data": form.cleaned_data,
-#             "dirty_data": form.data,
-#         }
-#         self.request.session["your_address"] = your_address
-#         return super().form_valid(form)
-#
-#
-
-
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -37,13 +5,47 @@ from . import data
 
 
 class TestYourselfAndIndividualAddedView:
-    def test_successful_post(self, afal_client):
+    def test_do_not_add_another_individual_successful_post(self, afal_client):
+        request = RequestFactory().get("/")
+        request.session = afal_client.session
+        request.session["individuals"] = data.individuals
+        request.session.save()
         response = afal_client.post(
             reverse("yourself_and_individual_added"),
-            data={"do_you_want_to_add_another_individual": "no"},
+            data={"do_you_want_to_add_another_individual": False},
         )
-        assert response.url == reverse("myself_and_individual_added")
-        assert response.status_code == 201
+        assert response.url == reverse("previous_licence")
+        assert response.status_code == 302
+
+    def test_add_another_individual_successful_post(self, afal_client):
+        request = RequestFactory().get("/")
+        request.session = afal_client.session
+        request.session["individuals"] = data.individuals
+        request.session.save()
+        response = afal_client.post(
+            reverse("yourself_and_individual_added"),
+            data={"do_you_want_to_add_another_individual": True},
+        )
+        assert response.url == reverse("add_an_individual")
+        assert response.status_code == 302
+
+
+class TestAddYourselfView:
+    def test_successful_post(self, afal_client):
+        response = afal_client.post(
+            reverse("add_yourself"),
+            data={"first_name": "John", "last_name": "Doe", "nationality_and_location": "uk_national_uk_location"},
+        )
+        assert response.url == reverse("add_yourself_address")
+
+
+class TestAddYourselfAddressView:
+    def test_successful_non_uk_address_post(self, afal_client):
+        response = afal_client.post(
+            reverse("add_yourself_address"),
+            data={"country": "DE", "town_or_city": "Berlin", "address_line_1": "Checkpoint Charlie"},
+        )
+        assert response.url == reverse("yourself_and_individual_added")
 
 
 class TestDeleteIndividualFromYourselfView:

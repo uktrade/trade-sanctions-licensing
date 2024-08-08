@@ -5,17 +5,29 @@ from . import data
 
 
 class TestIndividualAddedView:
-    def test_successful_post(self, afal_client):
-        request = RequestFactory().post("/")
+    def test_do_not_add_individual_successful_post(self, afal_client):
+        request = RequestFactory().get("/")
         request.session = afal_client.session
+        request.session["individuals"] = data.individuals
         request.session.save()
 
         response = afal_client.post(
             reverse("individual_added"),
-            data={},
+            data={"do_you_want_to_add_another_individual": False},
         )
         assert response.url == reverse("previous_licence")
-        assert response.status_code == 201
+
+    def test_add_another_individual_successful_post(self, afal_client):
+        request = RequestFactory().get("/")
+        request.session = afal_client.session
+        request.session["individuals"] = data.individuals
+        request.session.save()
+
+        response = afal_client.post(
+            reverse("individual_added"),
+            data={"do_you_want_to_add_another_individual": True},
+        )
+        assert response.url == reverse("add_an_individual")
 
 
 class TestDeleteIndividualView:

@@ -4,6 +4,32 @@ from django.urls import reverse
 from . import data
 
 
+class TestBusinessAddedView:
+    def test_do_not_add_business_successful_post(self, afal_client):
+        request = RequestFactory().get("/")
+        request.session = afal_client.session
+        request.session["businesses"] = data.businesses
+        request.session.save()
+
+        response = afal_client.post(
+            reverse("business_added"),
+            data={"do_you_want_to_add_another_business": False},
+        )
+        assert response.url == reverse("previous_licence")
+
+    def test_add_another_business_successful_post(self, afal_client):
+        request = RequestFactory().get("/")
+        request.session = afal_client.session
+        request.session["businesses"] = data.businesses
+        request.session.save()
+
+        response = afal_client.post(
+            reverse("business_added"),
+            data={"do_you_want_to_add_another_business": True},
+        )
+        assert response.url == reverse("is_the_business_registered_with_companies_house")
+
+
 class TestDeleteBusinessView:
     def test_successful_post(self, afal_client):
         request = RequestFactory().post("/")
