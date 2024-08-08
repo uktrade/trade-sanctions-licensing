@@ -30,6 +30,8 @@ python-magic = "~=0.4"
 whitenoise = "~=6.6.0"
 django-ratelimit = "~=4.1.0"
 dbt-platform-helper = "==10.4.0"
+gevent = "==24.2.1"
+psycopg2-binary = "*"
 
 [dev-packages]
 black = "~=24.3"
@@ -52,5 +54,5 @@ mypy = "~=1.9"
 freezegun = "*"
 
 [requires]
-python_version = "3.12"
-python_full_version = "3.12.2"
+python_version = "3.11"
+python_full_version = "3.11.5"

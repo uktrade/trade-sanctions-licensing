@@ -31,6 +31,7 @@ class BaseSettings(PydanticBaseSettings):
 
     sentry_dsn: str = ""
     sentry_environment: str = ""
+    sentry_enabled: bool = True
 
     gtm_enabled: bool = True
     gtm_id: str = ""
@@ -68,6 +69,9 @@ class BaseSettings(PydanticBaseSettings):
     # Redis
     redis_host: str = ""
     redis_port: int = 6379
+
+    # Application-specific settings
+    otsi_email: str = "email@example.com"
 
     @computed_field
     @property

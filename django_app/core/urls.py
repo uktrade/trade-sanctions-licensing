@@ -2,13 +2,15 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from .views import cookie_views
+from .views.base_views import RedirectBaseDomainView
 
 urlpatterns = [
+    path("", RedirectBaseDomainView.as_view(), name="initial_redirect_view"),
     path("feedback/", include("feedback.urls")),
     path("pingdom/", include("healthcheck.urls")),
     path("throw_error/", lambda x: 1 / 0),
     path("admin/", admin.site.urls),
-    path("apply-for-a-licence/", include("apply_for_a_licence.urls")),
+    path("apply-for-a-license/", include("apply_for_a_licence.urls")),
     path("cookies_consent", cookie_views.CookiesConsentView.as_view(), name="cookies_consent"),
     path("hide_cookies", cookie_views.HideCookiesView.as_view(), name="hide_cookies"),
 ]

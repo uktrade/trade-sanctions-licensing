@@ -197,12 +197,10 @@ EMAIL_VERIFY_CODE_TEMPLATE_ID = env.email_verify_code_template_id
 RESTRICT_SENDING = env.restrict_sending  # if True, only send to whitelisted domains
 
 # SENTRY
-SENTRY_DSN = env.sentry_dsn
-SENTRY_ENVIRONMENT = env.sentry_environment
-if SENTRY_DSN and SENTRY_ENVIRONMENT:
+if env.sentry_enabled:
     sentry_sdk.init(
-        dsn=SENTRY_DSN,
-        environment=SENTRY_ENVIRONMENT,
+        dsn=env.sentry_dsn,
+        environment=env.sentry_environment,
         integrations=[DjangoIntegration()],
         traces_sample_rate=0,
     )
@@ -261,3 +259,5 @@ CACHES = {
         },
     }
 }
+
+OTSI_EMAIL = env.otsi_email
