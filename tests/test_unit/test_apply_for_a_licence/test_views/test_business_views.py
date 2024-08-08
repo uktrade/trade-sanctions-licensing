@@ -4,6 +4,31 @@ from django.urls import reverse
 from . import data
 
 
+class TestIsTheBusinessRegisteredWithCompaniesHouse:
+    def test_business_not_registered_successful_post(self, afal_client):
+        response = afal_client.post(
+            reverse("is_the_business_registered_with_companies_house"), data={"business_registered_on_companies_house": "no"}
+        )
+        assert response.url == reverse("where_is_the_business_located")
+
+    def test_business_registered_successful_post(self, afal_client):
+        response = afal_client.post(
+            reverse("is_the_business_registered_with_companies_house"), data={"business_registered_on_companies_house": "yes"}
+        )
+        assert response.url == reverse("do_you_know_the_registered_company_number")
+
+
+class TestDoYouKnowTheRegisteredCompanyNumber:
+    def test_know_the_registered_company_number_successful_post(self, afal_client):
+        pass
+
+    def test_do_not_know_the_registered_company_number_successful_post(self, afal_client):
+        response = afal_client.post(
+            reverse("do_you_know_the_registered_company_number"), data={"do_you_know_the_registered_company_number": "no"}
+        )
+        assert response.url == reverse("where_is_the_business_located")
+
+
 class TestBusinessAddedView:
     def test_do_not_add_business_successful_post(self, afal_client):
         request = RequestFactory().get("/")
