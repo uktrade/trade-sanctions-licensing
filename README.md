@@ -28,7 +28,7 @@ brew install pipenv
 ```
 Once installed, we need to install the requirements for the project:
 ```
-pipenv install
+pipenv install --dev
 ```
 Now we need to activate the virtual environment:
 ```
@@ -119,4 +119,11 @@ invoke migrate
 To add a new dependency to the project, use the following command:
 ```
 pipenv install <package-name>
+```
+
+### Updating the list of sanctions regimes
+We store the list of Sanction regimes in a private git submodule located in `django_app/sanctions_regimes`. If this list
+has changed, you can update it from the latest version of the submodule by running the following command:
+```
+git submodule update --remote --merge
 ```

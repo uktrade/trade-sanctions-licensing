@@ -170,7 +170,7 @@ class ApplicationType(BaseModelID):
 
 class BaseApplication(BaseModelID):
     creation_date = models.DateField()
-    regime = models.ForeignKey("Regime", models.SET_NULL, null=True)
+    regimes = ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
     type_id = models.UUIDField(editable=False, default=uuid.uuid4)
     unique_ref = models.CharField(
         db_comment="This reference may need to match a wider data standard as applied in SIELS. I.E. "
@@ -265,21 +265,6 @@ class IndustryRegime(BaseModel):
     class Meta:
         db_table = "industry_regime"
         constraints = [models.UniqueConstraint(fields=["regime_id", "industry_id"], name="regime-id-industry-id")]
-
-
-class Regime(BaseModelID):
-    short_name = models.CharField()
-    full_name = models.CharField()
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
-    shown_gui_flag = models.BooleanField(null=True, blank=True)
-    licences_guid_flag = models.BooleanField(null=True, blank=True)
-
-    class Meta:
-        db_table = "regime"
-        db_table_comment = "this table is similar as RaB. Licensing_gui_flag has been added. "
-        "Not all the regimes shown in RaB are shown for trade sanctions licenses. "
-        "Also the start and end date brings some flexibility as legislation changes fast. "
 
 
 class Services(BaseModelID):
