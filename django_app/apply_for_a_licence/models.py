@@ -278,7 +278,7 @@ class Regime(BaseModelID):
     class Meta:
         db_table = "regime"
         db_table_comment = "this table is similar as RaB. Licensing_gui_flag has been added. "
-        "Not all the regimes shown in RaB are shown for trade sanctions licenses. "
+        "Not all the regimes shown in RaB are shown for trade sanctions licences. "
         "Also the start and end date brings some flexibility as legislation changes fast. "
 
 

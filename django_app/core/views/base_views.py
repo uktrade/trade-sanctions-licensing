@@ -1,13 +1,11 @@
-from django.urls import reverse
-
 from apply_for_a_licence.utils import get_dirty_form_data
-from django.http import HttpRequest, HttpResponse, Http404
+from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import FormView, RedirectView
 from django_ratelimit.exceptions import Ratelimited
-
-from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 
 
 class BaseFormView(FormView):
@@ -72,18 +70,17 @@ def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpRespo
 
 
 class RedirectBaseDomainView(RedirectView):
-    """Redirects base url visits to either apply-for-a-license or view-a-license default view"""
+    """Redirects base url visits to either apply-for-a-licence or view-a-licence default view"""
 
     @property
     def url(self) -> str:
         if is_apply_for_a_licence_site(self.request.site):
             return reverse("start")
         elif is_view_a_licence_site(self.request.site):
-            # if users are not accessing a specific page in view-a-license - raise a 404
+            # if users are not accessing a specific page in view-a-licence - raise a 404
             # unless they are staff, in which case take them to the manage users page
             if self.request.user.is_staff:
                 return "/"
             else:
                 raise Http404()
         return ""
-

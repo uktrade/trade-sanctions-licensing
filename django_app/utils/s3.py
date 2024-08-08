@@ -77,7 +77,7 @@ def get_user_uploaded_files(session: SessionBase) -> List[str]:
     return uploaded_files
 
 
-def store_documents_in_s3(request: HttpRequest, license_id: str) -> None:
+def store_documents_in_s3(request: HttpRequest, licence_id: str) -> None:
     """
     Copies documents from the default temporary storage to permanent storage on s3
     """
@@ -92,6 +92,6 @@ def store_documents_in_s3(request: HttpRequest, license_id: str) -> None:
                     "Key": f"{request.session.session_key}/{object_key}",
                 },
                 Bucket=settings.PERMANENT_S3_BUCKET_NAME,
-                Key=f"{license_id}/{object_key}",
+                Key=f"{licence_id}/{object_key}",
                 SourceClient=temporary_storage_bucket.bucket.meta.client,
             )
