@@ -8,7 +8,7 @@ from tests.helpers import get_test_client
 
 @pytest.fixture()
 def al_client(db) -> Client:
-    """Client used to access the apply-for-a-license site.
+    """Client used to access the apply-for-a-licence site.
 
     No user is logged in with this client.
     """
@@ -18,7 +18,7 @@ def al_client(db) -> Client:
 
 @pytest.fixture()
 def vl_client(db) -> Client:
-    """Client used to access the view-a-license site.
+    """Client used to access the view-a-licence site.
 
     No user is logged in with this client.
     """

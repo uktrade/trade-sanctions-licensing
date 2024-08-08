@@ -1,6 +1,6 @@
 import logging
 import uuid
-from typing import Any
+from typing import Any, Dict
 
 from apply_for_a_licence.utils import get_all_cleaned_data, get_all_forms, get_form
 from core.document_storage import TemporaryDocumentStorage
@@ -175,7 +175,7 @@ class BusinessAddedView(BaseFormView):
     def get_success_url(self):
         add_business = self.form.cleaned_data["do_you_want_to_add_another_business"]
         if add_business:
-            return reverse("is_the_business_registered_with_companies_house")
+            return reverse("is_the_business_registered_with_companies_house") + "?change=yes"
         else:
             return reverse("previous_licence")
 
@@ -333,19 +333,11 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
 class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
     form_class = forms.DoYouKnowTheRegisteredCompanyNumberForm
 
-    def __init__(self):
-        self.business_uuid = None
-
-    def get_form_kwargs(self) -> dict[str, Any]:
-        kwargs = super(DoYouKnowTheRegisteredCompanyNumberView, self).get_form_kwargs()
-        kwargs.update({"request": self.request})
-        return kwargs
-
-    def form_valid(self, form: forms.AddABusinessForm) -> HttpResponse:
+    def form_valid(self, form: forms.DoYouKnowTheRegisteredCompanyNumberForm) -> HttpResponse:
         # Want to add companies house businesses to the business list
         current_businesses = self.request.session.get("businesses", {})
         # get the business_uuid if it exists, otherwise create it
-        self.business_uuid = self.request.GET.get("business_uuid", self.kwargs.get("business_uuid", str(uuid.uuid4())))
+        self.business_uuid = self.request.GET.get("business_uuid", str(uuid.uuid4()))
         # used to display the business_uuid data in business_added.html
 
         current_businesses[self.business_uuid] = {
@@ -361,14 +353,17 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        success_url = reverse("where_is_the_business_located")
         do_you_know_the_registered_company_number = self.form.cleaned_data["do_you_know_the_registered_company_number"]
         registered_company_number = self.form.cleaned_data["registered_company_number"]
+
         if do_you_know_the_registered_company_number == "yes" and registered_company_number:
-            if self.request.session.get("company_details_500"):
+            if self.request.session.pop("company_details_500", None):
                 success_url = reverse("manual_companies_house_input")
             else:
                 success_url = reverse("check_company_details", kwargs={"business_uuid": self.business_uuid})
+        else:
+            success_url = reverse("where_is_the_business_located")
+
         return success_url
 
 
@@ -385,6 +380,12 @@ class CheckCompanyDetailsView(BaseFormView):
     template_name = "apply_for_a_licence/form_steps/check_company_details.html"
     form_class = forms.BaseForm
     success_url = reverse_lazy("business_added")
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["company_details"] = self.request.session["businesses"][self.kwargs["business_uuid"]]["cleaned_data"]
+        context["business_uuid"] = self.kwargs["business_uuid"]
+        return context
 
 
 class WhereIsTheBusinessLocatedView(BaseFormView):

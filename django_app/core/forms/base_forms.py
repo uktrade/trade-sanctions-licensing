@@ -1,9 +1,10 @@
 import re
-from typing import Any
+from typing import Any, Dict
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Layout, Size, Submit
 from django import forms
+from django.http import HttpRequest
 from utils.companies_house import get_formatted_address
 
 
@@ -30,8 +31,8 @@ class BaseForm(forms.Form):
             "all": ["form.css"],
         }
 
-    def __init__(self, *args: object, **kwargs: object) -> None:
-        self.request = kwargs.pop("request", None)
+    def __init__(self, *args: object, **kwargs: Dict[str, Any]) -> None:
+        self.request: HttpRequest = kwargs.pop("request", None)
         self.form_h1_header = kwargs.pop("form_h1_header", self.form_h1_header)
         super().__init__(*args, **kwargs)
 
@@ -54,6 +55,10 @@ class BaseForm(forms.Form):
 
         if self.bold_labels:
             self.helper.label_size = Size.LARGE
+
+        # clearing the form data if 'change' is passed as a query parameter, and it's a GET request
+        if self.request and self.request.method == "GET" and self.request.GET.get("change"):
+            self.is_bound = False
 
         self.helper.layout = Layout(*self.fields)
 
