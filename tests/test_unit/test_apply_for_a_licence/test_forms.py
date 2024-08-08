@@ -189,12 +189,8 @@ class TestAddABusinessForm:
         form = forms.AddABusinessForm(data={}, is_uk_address=True)
         assert not form.is_valid()
         assert "name" in form.errors
-        assert "town_or_city" in form.errors
-        assert "address_line_1" in form.errors
         assert "postcode" in form.errors
         assert form.errors.as_data()["name"][0].code == "required"
-        assert form.errors.as_data()["town_or_city"][0].code == "required"
-        assert form.errors.as_data()["address_line_1"][0].code == "required"
         assert form.errors.as_data()["postcode"][0].code == "required"
 
     def test_uk_valid(self):

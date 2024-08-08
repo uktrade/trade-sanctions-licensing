@@ -40,7 +40,7 @@ class TestDocumentUploadView:
         response = response.json()
         assert response["success"] is False
         assert "it is not a valid file type" in response["error"]
-        assert response["file_name"] == "bad.gif"
+        assert response["file_name"].split("/")[1] == "bad.gif"
         assert "file_uploads" not in afal_client.session
 
     def test_non_ajax_successful_post(self, afal_client):

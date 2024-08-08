@@ -4,6 +4,20 @@ from django.urls import reverse
 from . import data
 
 
+class TestIndividualAddedView:
+    def test_successful_post(self, afal_client):
+        request = RequestFactory().post("/")
+        request.session = afal_client.session
+        request.session.save()
+
+        response = afal_client.post(
+            reverse("individual_added"),
+            data={},
+        )
+        assert response.url == reverse("previous_licence")
+        assert response.status_code == 201
+
+
 class TestDeleteIndividualView:
     def test_successful_post(self, afal_client):
         request = RequestFactory().post("/")
