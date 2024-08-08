@@ -9,11 +9,11 @@ from django.urls import reverse
 
 
 class TestEmailVerifyCodeView:
-    def test_post(self, afal_client):
+    def test_post(self, al_client):
         request_object = RequestFactory().get("/")
 
-        request_object.session = afal_client.session
-        session = afal_client.session
+        request_object.session = al_client.session
+        session = al_client.session
         user_email_address = "test@testmail.com"
         session["user_email_address"] = user_email_address
         session.save()
@@ -36,13 +36,13 @@ class TestEmailVerifyCodeView:
 
     # TODO: to be updated
     @patch("django_ratelimit.decorators.is_ratelimited", return_value=True)
-    def test_ratelimit(self, mocked_is_ratelimited, afal_client):
+    def test_ratelimit(self, mocked_is_ratelimited, al_client):
         UserEmailVerification.objects.create(
-            user_session=afal_client.session._get_session_from_db(), email_verification_code="123456"
+            user_session=al_client.session._get_session_from_db(), email_verification_code="123456"
         )
 
         # rate limit response
-        response = afal_client.post(reverse("email_verify"), data={"email_verification_code": "123456"})
+        response = al_client.post(reverse("email_verify"), data={"email_verification_code": "123456"})
         assert response.status_code == 200
         assert response.wsgi_request.limited is True
         form = response.context["form"]
@@ -53,18 +53,18 @@ class TestEmailVerifyCodeView:
         )
 
     @patch("apply_for_a_licence.views.verify_email")
-    def test_form_invalid_resent_code(self, mocked_email_verify, afal_client):
-        session = afal_client.session
+    def test_form_invalid_resent_code(self, mocked_email_verify, al_client):
+        session = al_client.session
         session["user_email_address"] = "test@example.com"
         session.save()
 
         verification = UserEmailVerification.objects.create(
-            user_session=afal_client.session._get_session_from_db(), email_verification_code="123456"
+            user_session=al_client.session._get_session_from_db(), email_verification_code="123456"
         )
         verification.date_created = verification.date_created - timedelta(minutes=30)
         verification.save()
 
-        response = afal_client.post(reverse("email_verify"), data={"email_verification_code": "123456"})
+        response = al_client.post(reverse("email_verify"), data={"email_verification_code": "123456"})
         assert response.status_code == 200
         assert mocked_email_verify.called_once
         assert mocked_email_verify.called_with("test@example.com")

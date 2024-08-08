@@ -3,7 +3,6 @@ from core.sites import SiteName
 from django.contrib.sites.models import Site
 from django.test import Client, RequestFactory
 
-from tests.factories import RegimeFactory
 from tests.helpers import get_test_client
 
 
@@ -25,12 +24,6 @@ def vl_client(db) -> Client:
     """
     vl_site = Site.objects.get(name=SiteName.view_a_licence)
     return get_test_client(vl_site.domain)
-
-
-@pytest.fixture()
-def regime_object(db):
-    """Fixture to create a Regime object."""
-    return RegimeFactory()
 
 
 @pytest.fixture()
