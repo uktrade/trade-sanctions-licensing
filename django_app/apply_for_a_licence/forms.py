@@ -24,6 +24,7 @@ from django.urls import reverse_lazy
 from django.utils.html import escape
 from django.utils.timezone import now
 from django_chunk_upload_handlers.clam_av import VirusFoundInFileException
+from sanctions_regimes.licensing import active_regimes
 from utils.companies_house import (
     get_details_from_companies_house,
     get_formatted_address,
@@ -44,7 +45,6 @@ from .models import (
     Ground,
     Individual,
     Organisation,
-    Regime,
     Services,
     UserEmailVerification,
 )
@@ -173,6 +173,8 @@ class EmailVerifyForm(BaseForm):
             else:
                 raise forms.ValidationError(self.fields["email_verification_code"].error_messages["invalid"], code="invalid")
 
+        verification_objects.verified = True
+        verification_objects.save()
         return email_verification_code
 
     def __init__(self, *args: object, **kwargs: object) -> None:
@@ -696,13 +698,15 @@ class WhichSanctionsRegimeForm(BaseForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         checkbox_choices = []
-        sanctions = Regime.objects.values("full_name")
-        if professional_or_business_services := self.request.session.get("type_of_service", False):
-            if professional_or_business_services.get("type_of_service", False) == "internet":
-                sanctions = Regime.objects.filter(short_name__in=["Russia", "Belarus"]).values("full_name")
 
-        for i, item in enumerate(sanctions):
-            checkbox_choices.append(Choice(item["full_name"], item["full_name"]))
+        sanctions = active_regimes
+
+        if professional_or_business_services := self.request.session.get("TypeOfServiceView", False):
+            if professional_or_business_services.get("type_of_service", False) == "internet":
+                sanctions = [each for each in sanctions if "Russia" in each["name"] or "Belarus" in each["name"]]
+
+        for item in sanctions:
+            checkbox_choices.append(Choice(item["name"], item["name"]))
 
         self.fields["which_sanctions_regime"].choices = checkbox_choices
         self.fields["which_sanctions_regime"].label = False
