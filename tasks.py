@@ -9,7 +9,7 @@ def test(context: Any) -> None:
 
 
 @task
-def unit_tests(context: Any) -> None:
+def unittests(context: Any) -> None:
     context.run("pipenv run pytest tests/test_unit")
 
 
@@ -21,13 +21,13 @@ def frontend_tests(context: Any) -> None:
 @task
 def makemigrations(context: Any) -> None:
     print("Running manage.py makemigrations")
-    context.run(f"pipenv run python django_app/manage.py makemigrations")
+    context.run("pipenv run python django_app/manage.py makemigrations")
 
 
 @task
 def migrate(context: Any) -> None:
     print("Running manage.py migrate")
-    base_command = f"pipenv run python django_app/manage.py migrate"
+    base_command = "pipenv run python django_app/manage.py migrate"
     context.run(base_command)
 
 

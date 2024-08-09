@@ -57,6 +57,7 @@ class StartForm(BaseModelForm):
         widgets = {
             "who_do_you_want_the_licence_to_cover": forms.RadioSelect,
         }
+        error_messages = {"who_do_you_want_the_licence_to_cover": {"required": "Select who you want the licence to cover"}}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -136,7 +137,11 @@ class EmailVerifyForm(BaseForm):
 
     email_verification_code = forms.CharField(
         label="Enter the 6 digit security code",
-        error_messages={"required": "Enter the 6 digit security code we sent to your email"},
+        error_messages={
+            "required": "Enter the 6 digit security code we sent to your email",
+            "expired": "The code you entered is no longer valid. New code sent",
+            "invalid": "Code is incorrect. Enter the 6 digit security code we sent to your email",
+        },
     )
 
     def clean_email_verification_code(self) -> str:
@@ -159,7 +164,14 @@ class EmailVerifyForm(BaseForm):
         # check if the user has submitted the verify code within the specified timeframe
         allowed_lapse = verification_objects.date_created + timedelta(seconds=verify_timeout_seconds)
         if allowed_lapse < now():
-            raise forms.ValidationError("The code you entered is no longer valid. Please verify your email again")
+            time_code_sent = verification_objects.date_created
+
+            # 15 minutes ago, show a ‘code has expired’ error message and send the user a new code
+            # 2 hours ago, show an ‘incorrect security code’ message, even if the code was correct
+            if time_code_sent > (now() - timedelta(hours=2)):
+                raise forms.ValidationError(self.fields["email_verification_code"].error_messages["expired"], code="expired")
+            else:
+                raise forms.ValidationError(self.fields["email_verification_code"].error_messages["invalid"], code="invalid")
 
         verification_objects.verified = True
         verification_objects.save()
@@ -358,7 +370,7 @@ class ManualCompaniesHouseInputForm(BaseForm):
         ),
         widget=forms.RadioSelect,
         error_messages={
-            "required": "Select if the address of the business you would like the license for is in the UK, or outside the UK"
+            "required": "Select if the address of the business you would like the licence for is in the UK, or outside the UK"
         },
     )
 
@@ -485,7 +497,11 @@ class AddAnIndividualForm(BaseModelForm):
             "nationality_and_location": "What is the individual's nationality and location?",
         }
         help_texts = {"nationality_and_location": "Hint text"}
-        error_messages = {"first_name": {"required": "Enter your first name"}, "last_name": {"required": "Enter your last name"}}
+        error_messages = {
+            "first_name": {"required": "Enter your first name"},
+            "last_name": {"required": "Enter your last name"},
+            "nationality_and_location": {"required": "Enter your nationality and location"},
+        }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
@@ -632,12 +648,8 @@ class AddYourselfAddressForm(BaseBusinessDetailsForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
 
-        # all fields on this form are optional. Except if it's a non-UK user, then we need the country at least
-        for _, field in self.fields.items():
-            field.required = False
-
-        if not self.is_uk_address:
-            self.fields["country"].required = True
+        self.fields["town_or_city"].required = True
+        self.fields["address_line_1"].required = True
 
         self.helper.layout = Layout(
             Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
@@ -810,6 +822,9 @@ class AddARecipientForm(BaseBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
+
+        self.fields["town_or_city"].required = True
+        self.fields["address_line_1"].required = True
 
         if self.is_uk_address:
             address_layout = Fieldset(
