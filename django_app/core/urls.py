@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
-from .views import cookie_views
+from .views import cookie_views, generic_views
 from .views.base_views import RedirectBaseDomainView
 
 urlpatterns = [
@@ -14,6 +14,7 @@ urlpatterns = [
     path("apply-for-a-licence/", include("apply_for_a_licence.urls")),
     path("cookies_consent", cookie_views.CookiesConsentView.as_view(), name="cookies_consent"),
     path("hide_cookies", cookie_views.HideCookiesView.as_view(), name="hide_cookies"),
+    path("reset_session", generic_views.ResetSessionView.as_view(), name="reset_session"),
 ]
 
 if settings.ENFORCE_STAFF_SSO:
