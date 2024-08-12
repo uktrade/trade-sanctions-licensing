@@ -213,9 +213,11 @@
                             <li class="govuk-footer__inline-list-item hide-on-print">
                                 <a class="govuk-footer__link" href="{% url 'cookies_consent' %}">Cookies</a>
                             </li>
-                            <li class="govuk-footer__inline-list-item hide-on-print">
-                                <a class="govuk-footer__link" href="{{ request.site.domain }}?reset=yes">Reset session</a>
-                            </li>
+                            {% if is_debug_mode %}
+                                <li class="govuk-footer__inline-list-item hide-on-print">
+                                    <a class="govuk-footer__link" href="{% url 'reset_session' %}">Reset session</a>
+                                </li>
+                            {% endif %}
                         </ul>
                         <svg
                             aria-hidden="true"
