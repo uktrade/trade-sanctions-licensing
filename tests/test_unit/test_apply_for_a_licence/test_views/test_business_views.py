@@ -52,7 +52,7 @@ class TestBusinessAddedView:
             reverse("business_added"),
             data={"do_you_want_to_add_another_business": True},
         )
-        assert response.url == reverse("is_the_business_registered_with_companies_house")
+        assert response.url == reverse("is_the_business_registered_with_companies_house") + "?change=yes"
 
 
 class TestDeleteBusinessView:

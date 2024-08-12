@@ -10,7 +10,7 @@ from django.core.cache import cache
 from django.forms import Form
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import View
 from utils.s3 import (
     generate_presigned_url,
@@ -28,6 +28,7 @@ class UploadDocumentsView(BaseFormView):
     form_class = forms.UploadDocumentsForm
     template_name = "apply_for_a_licence/form_steps/upload_documents.html"
     file_storage = TemporaryDocumentStorage()
+    success_url = reverse_lazy("check_your_answers")
 
     def get_form_kwargs(self) -> dict[str, Any]:
         kwargs = super().get_form_kwargs()
@@ -64,7 +65,7 @@ class UploadDocumentsView(BaseFormView):
         if is_ajax(self.request):
             return JsonResponse({"success": True}, status=200)
         else:
-            return redirect("check_your_answers")
+            return super().form_valid(form)
 
     def form_invalid(self, form: Form) -> HttpResponse:
         if is_ajax(self.request):
