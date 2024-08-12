@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "63f9e592b31512e3455387265a18283704249911024d4e4d38c296f0b48f36e2"
+            "sha256": "ab625cfdc962f4ee52f644b03a5ba24b051dac4b0de916fa0f5892dc58428d6f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -2837,6 +2837,13 @@
             "markers": "python_full_version >= '3.7.2'",
             "version": "==2.15.8"
         },
+        "awscli-local": {
+            "hashes": [
+                "sha256:3807cf2ee4bbdd4df4dfc8bef027f25bde523dcaf8119720f677ed95ebba66a4"
+            ],
+            "index": "pypi",
+            "version": "==0.22.0"
+        },
         "black": {
             "hashes": [
                 "sha256:09cdeb74d494ec023ded657f7092ba518e8cf78fa8386155e4a03fdcc44679e6",
@@ -3217,7 +3224,7 @@
                 "sha256:a07ffd2351b8c678dfc4a856a3005f8067aea51d6ba6c700796a4d9e280f39f0",
                 "sha256:e5db55f3687856d8fbdab002ed78544e1c4559a130302693d839dfe8f93f2373"
             ],
-            "markers": "python_version >= '3.11'",
+            "markers": "python_version >= '3.7'",
             "version": "==0.3.6"
         },
         "distlib": {
@@ -3488,6 +3495,12 @@
             ],
             "index": "pypi",
             "version": "==3.6.0"
+        },
+        "localstack-client": {
+            "hashes": [
+                "sha256:8b8b2ee6013265a55d3e312a4513efccd222131bed79395545a4f643704f9213"
+            ],
+            "version": "==2.5"
         },
         "localstack-core": {
             "hashes": [
