@@ -38,7 +38,7 @@ jobs:
             DATABASE_URL: ""
         steps:
           - checkout
-          
+
           - restore_dependency_cache
           - install_dependencies
           - save_dependency_cache
