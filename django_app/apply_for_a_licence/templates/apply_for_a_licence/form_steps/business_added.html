@@ -2,11 +2,11 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 
 
-{% block title %}You've added {{ request.session.businesses.keys|length }} business{% if request.session.businesses.keys|length > 1 %}s{% endif %}{% endblock title %}
+{% block title %}You've added {{ request.session.businesses.keys|length }} business{% if request.session.businesses.keys|length > 1 %}es{% endif %}{% endblock title %}
 
 {% block column_content %}
     <h1 class="govuk-heading-l">
-        You've added {{ request.session.businesses.keys|length }} business{% if request.session.businesses.keys|length > 1 %}s{% endif %}
+        You've added {{ request.session.businesses.keys|length }} business{% if request.session.businesses.keys|length > 1 %}es{% endif %}
     </h1>
     {% for id, business in request.session.businesses.items %}
         <div class="action-wrapper">
@@ -53,8 +53,8 @@
                       action="{% url 'delete_business' %}?business_uuid={{ id }}">
                     <input type="hidden" name="business_uuid" value="{{ id }}">
                     {% csrf_token %}
-                    <button type="submit" class="button-that-looks-like-link" form="delete_business_form_{{ forloop.counter }}">
-                        Remove Business {{forloop.counter }} <span
+                    <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_business_form_{{ forloop.counter }}">
+                        Remove Business {{ forloop.counter }} <span
                             class="govuk-visually-hidden"> Business {{forloop.counter}}</span>
                     </button>
                 </form>

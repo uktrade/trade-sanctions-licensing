@@ -12,38 +12,35 @@
             </h1>
         </div>
         <dl class="govuk-summary-list">
-            {% with business_uuid=view.kwargs.business_uuid %}
-
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Registered company number
-                    </dt>
-
-                    <dd class="govuk-summary-list__value">
-                        {{ request.session.businesses | get_item:business_uuid | get_item:"cleaned_data" | get_item:"company_number"}}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="{% url 'do_you_know_the_registered_company_number' %}?change=yes&business_uuid={{ business_uuid }}">Change<span class="govuk-visually-hidden">registered company number</span></a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Registered company name
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ request.session.businesses | get_item:business_uuid | get_item:"cleaned_data" | get_item:"name"}}
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Registered office address
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ request.session.businesses | get_item:business_uuid | get_item:"cleaned_data" | get_item:"readable_address"}}
-                    </dd>
-                </div>
-            {% endwith %}
-
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Registered company number
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ company_details.company_number }}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link"
+                       href="{% url 'do_you_know_the_registered_company_number' %}?change=yes&business_uuid={{ business_uuid }}">Change<span
+                        class="govuk-visually-hidden">registered company number</span></a>
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Registered company name
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ company_details.name }}
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Registered office address
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ company_details.readable_address }}
+                </dd>
+            </div>
         </dl>
         {% csrf_token %}
         {% crispy form %}
