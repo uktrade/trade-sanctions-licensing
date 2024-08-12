@@ -21,4 +21,5 @@ application = get_wsgi_application()
 
 if "COPILOT_ENVIRONMENT_NAME" in os.environ:
     from opentelemetry.instrumentation.wsgi import OpenTelemetryMiddleware
+
     application = OpenTelemetryMiddleware(application)
