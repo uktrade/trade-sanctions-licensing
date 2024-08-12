@@ -75,7 +75,7 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
         super().__init__(*args, **kwargs)
 
         # emptying the form if the user has requested to change the details
-        if self.request.method == "GET" and self.request.GET.get("change") == "yes":
+        if self.request.method == "GET" and self.request.GET.get("change", None) == "yes":
             self.is_bound = False
             self.data = {}
 
