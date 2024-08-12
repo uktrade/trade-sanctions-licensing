@@ -1,4 +1,6 @@
-from django.contrib.sites.middleware import CurrentSiteMiddleware as DjangoCurrentSiteMiddleware
+from django.contrib.sites.middleware import (
+    CurrentSiteMiddleware as DjangoCurrentSiteMiddleware,
+)
 from django.http import HttpRequest
 from django.urls import resolve
 
