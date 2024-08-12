@@ -10,7 +10,7 @@ commands:
       - run:
          name: Install Python dependencies
          command: |
-             pip install pipenv && pipenv install --dev
+             pip install --upgrade pip && pip install pipenv && pipenv install --dev
 
   restore_dependency_cache:
     description: "Restore dependency cache."
