@@ -38,6 +38,7 @@ jobs:
             DATABASE_URL: ""
         steps:
           - checkout
+          
           - restore_dependency_cache
           - install_dependencies
           - save_dependency_cache
@@ -101,7 +102,8 @@ jobs:
               pipenv run awslocal s3 mb s3://permanent-document-bucket
               pipenv run awslocal s3api put-bucket-cors --bucket temporary-document-bucket --cors-configuration file://./aws/cors.json
               pipenv run awslocal s3api put-bucket-cors --bucket permanent-document-bucket --cors-configuration file://./aws/cors.json
-
+        - run: git submodule sync
+        - run: git submodule update --init
         - run:
             name: Check missing migrations (changes to models that haven't been added to migrations)
             command: pipenv run python django_app/manage.py makemigrations --check --dry-run --settings=config.settings.local
