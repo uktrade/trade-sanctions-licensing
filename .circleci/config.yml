@@ -29,7 +29,7 @@ commands:
 jobs:
     code_hygiene:
         docker:
-            - image: cimg/python:3.11.7
+            - image: cimg/python:3.11.5
         environment:
             DJANGO_SETTINGS_MODULE: config.settings.test
             DJANGO_DEBUG: "True"
