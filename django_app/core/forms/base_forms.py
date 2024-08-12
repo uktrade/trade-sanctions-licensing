@@ -134,3 +134,9 @@ class BaseBusinessDetailsForm(BaseModelForm):
             if not pattern.match(postcode):
                 raise forms.ValidationError(code="invalid", message=self.fields["postcode"].error_messages["invalid"])
         return postcode
+
+
+class GenericForm(BaseForm):
+    """Generic form when we're using a FormView which doesn't actually require a form"""
+
+    pass

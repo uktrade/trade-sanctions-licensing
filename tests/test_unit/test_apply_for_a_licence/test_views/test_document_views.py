@@ -9,8 +9,8 @@ from utils.s3 import get_user_uploaded_files
 logger = logging.getLogger(__name__)
 
 
-@patch("apply_for_a_licence.forms.get_all_session_files", new=lambda x, y: [])
-@patch("apply_for_a_licence.views.get_all_session_files", new=lambda x, y: [])
+@patch("apply_for_a_licence.forms.forms_documents.get_all_session_files", new=lambda x, y: [])
+@patch("apply_for_a_licence.views.views_documents.get_all_session_files", new=lambda x, y: [])
 class TestDocumentUploadView:
     def test_successful_post(self, al_client):
         response = al_client.post(
@@ -65,7 +65,7 @@ class TestDocumentUploadView:
         assert "it is not a valid file type" in response.content.decode()
 
 
-@patch("apply_for_a_licence.views.TemporaryDocumentStorage.delete")
+@patch("apply_for_a_licence.views.views_documents.TemporaryDocumentStorage.delete")
 class TestDeleteDocumentsView:
     def test_successful_post(self, mocked_temporary_document_storage, al_client):
         response = al_client.post(
@@ -89,8 +89,8 @@ class TestDeleteDocumentsView:
 
 class TestDownloadDocumentMiddleman:
 
-    @patch("apply_for_a_licence.views.get_user_uploaded_files", return_value=["test.png"])
-    @patch("apply_for_a_licence.views.generate_presigned_url", return_value="www.example.com")
+    @patch("apply_for_a_licence.views.views_documents.get_user_uploaded_files", return_value=["test.png"])
+    @patch("apply_for_a_licence.views.views_documents.generate_presigned_url", return_value="www.example.com")
     def test_download_document_middleman(self, mocked_uploaded_files, mocked_url, caplog, al_client):
         with caplog.at_level(logging.INFO, logger="apply_for_a_licence.views"):
             response = al_client.get(reverse("download_document", kwargs={"file_name": "test.png"}))
@@ -98,7 +98,7 @@ class TestDownloadDocumentMiddleman:
         assert response.status_code == 302
         assert response.url == "www.example.com"
 
-    @patch("apply_for_a_licence.views.get_user_uploaded_files", return_value=["hello.png"])
+    @patch("apply_for_a_licence.views.views_documents.get_user_uploaded_files", return_value=["hello.png"])
     def test_download_document_middleman_not_in_cache(self, mocked_uploaded_files, al_client):
         response = al_client.get(reverse("download_document", kwargs={"file_name": "test.png"}))
         assert response.status_code == 404

@@ -2,7 +2,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 from apply_for_a_licence.models import Session, UserEmailVerification
-from apply_for_a_licence.views import EmailVerifyView
+from apply_for_a_licence.views.views_start import EmailVerifyView
 from django.http import HttpResponse
 from django.test import RequestFactory
 from django.urls import reverse
@@ -52,7 +52,7 @@ class TestEmailVerifyCodeView:
             == "You've tried to verify your email too many times. Try again in 1 minute"
         )
 
-    @patch("apply_for_a_licence.views.verify_email")
+    @patch("apply_for_a_licence.views.views_start.verify_email")
     def test_form_invalid_resent_code(self, mocked_email_verify, al_client):
         session = al_client.session
         session["user_email_address"] = "test@example.com"
