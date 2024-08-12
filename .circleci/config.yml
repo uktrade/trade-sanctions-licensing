@@ -12,12 +12,6 @@ commands:
          command: |
              pip install --upgrade pip && pip install pipenv && pipenv install --dev
 
-  restore_dependency_cache:
-    description: "Restore dependency cache."
-    steps:
-      - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
   save_dependency_cache:
     description: "Save dependency cache."
     steps:
@@ -67,7 +61,7 @@ jobs:
                 - ~/.cache/pre-commit
     run_tests:
       docker:
-        - image: cimg/python:3.11.7
+        - image: cimg/python:3.11.5
           environment:
             DJANGO_SETTINGS_MODULE: config.settings.test
             DJANGO_DEBUG: "True"
