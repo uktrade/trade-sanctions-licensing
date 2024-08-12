@@ -42,6 +42,9 @@ class StartForm(BaseModelForm):
             ),
         )
         self.fields["who_do_you_want_the_licence_to_cover"].choices = CHOICES
+        self.helper.layout = Layout(
+            *self.fields, HTMLTemplate(html_template_path="apply_for_a_licence/form_steps/partials/uk_nexus_details.html")
+        )
 
 
 class ThirdPartyForm(BaseForm):

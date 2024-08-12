@@ -49,7 +49,7 @@
                       action="{% url 'delete_recipient' %}?recipient_uuid={{ id }}">
                     <input type="hidden" name="recipient_uuid" value="{{ id }}">
                     {% csrf_token %}
-                    <button type="submit" class="button-that-looks-like-link" form="delete_recipient_form_{{ forloop.counter }}">
+                    <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_recipient_form_{{ forloop.counter }}">
                         Remove recipient {{forloop.counter }} <span
                             class="govuk-visually-hidden"> recipient {{forloop.counter}}</span>
                     </button>

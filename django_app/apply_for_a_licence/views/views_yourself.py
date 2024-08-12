@@ -54,7 +54,7 @@ class YourselfAndIndividualAddedView(BaseFormView):
     def get_success_url(self):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
-            return reverse("add_an_individual")
+            return reverse("add_an_individual") + "?change=yes"
         else:
             return reverse("previous_licence")
 
