@@ -38,14 +38,16 @@ views_business_urls = [
         name="where_is_the_business_located",
     ),
     path(
-        "check_company_details(?P<business_uuid>)", views_business.CheckCompanyDetailsView.as_view(), name="check_company_details"
+        "check_company_details/<str:business_uuid>",
+        views_business.CheckCompanyDetailsView.as_view(),
+        name="check_company_details",
     ),
     path(
         "manual_companies_house_input",
         views_business.ManualCompaniesHouseInputView.as_view(),
         name="manual_companies_house_input",
     ),
-    path("add_a_business/(?P<location>)", views_business.AddABusinessView.as_view(), name="add_a_business"),
+    path("add_a_business/<str:location>", views_business.AddABusinessView.as_view(), name="add_a_business"),
     path("delete_business", views_business.DeleteBusinessView.as_view(), name="delete_business"),
     path("business_added", views_business.BusinessAddedView.as_view(), name="business_added"),
 ]
@@ -97,7 +99,7 @@ views_recipients_urls = [
         views_recipients.WhereIsTheRecipientLocatedView.as_view(),
         name="where_is_the_recipient_located",
     ),
-    path("add_a_recipient/(?P<location>)", views_recipients.AddARecipientView.as_view(), name="add_a_recipient"),
+    path("add_a_recipient/<str:location>", views_recipients.AddARecipientView.as_view(), name="add_a_recipient"),
     path("delete_recipient", views_recipients.DeleteRecipientView.as_view(), name="delete_recipient"),
     path("recipient_added", views_recipients.RecipientAddedView.as_view(), name="recipient_added"),
     path(

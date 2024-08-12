@@ -43,6 +43,10 @@ class IsTheBusinessRegisteredWithCompaniesHouseForm(BaseModelForm):
         super().__init__(*args, **kwargs)
         self.fields["business_registered_on_companies_house"].choices.pop(0)
 
+        if self.request.method == "GET" and self.request.GET.get("change", None) == "yes":
+            # removing the 'I do not know' option
+            self.fields["business_registered_on_companies_house"].choices.pop(-1)
+
 
 class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
     hide_optional_label_fields = ["registered_company_number"]
@@ -71,7 +75,7 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
         super().__init__(*args, **kwargs)
 
         # emptying the form if the user has requested to change the details
-        if self.request.GET.get("change") == "yes":
+        if self.request.method == "GET" and self.request.GET.get("change", None) == "yes":
             self.is_bound = False
             self.data = {}
 
@@ -250,3 +254,7 @@ class BusinessAddedForm(BaseForm):
         super().__init__(*args, **kwargs)
         self.helper.legend_size = Size.MEDIUM
         self.helper.legend_tag = None
+
+        if self.request.method == "GET":
+            # we never want to bind/pre-fill this form, always fresh for the user
+            self.is_bound = False

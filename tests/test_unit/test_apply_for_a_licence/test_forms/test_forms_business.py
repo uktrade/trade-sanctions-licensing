@@ -133,8 +133,12 @@ class TestAddABusinessForm:
 
 
 class TestBusinessAddedForm:
-    def test_required(self, request_object):
-        form = forms.BusinessAddedForm(data={"do_you_want_to_add_another_business": None}, request=request_object)
+    def test_required(self, post_request_object):
+        form = forms.BusinessAddedForm(data={"do_you_want_to_add_another_business": None}, request=post_request_object)
         assert not form.is_valid()
         assert "do_you_want_to_add_another_business" in form.errors
         assert form.errors.as_data()["do_you_want_to_add_another_business"][0].code == "required"
+
+    def test_never_bound(self, request_object):
+        form = forms.BusinessAddedForm(data={"do_you_want_to_add_another_business": "Yes"}, request=request_object)
+        assert not form.is_bound
