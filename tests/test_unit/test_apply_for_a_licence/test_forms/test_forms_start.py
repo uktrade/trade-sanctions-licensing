@@ -50,7 +50,7 @@ class TestEmailVerifyForm:
             user_session=al_client.session._get_session_from_db(),
             email_verification_code=self.verify_code,
         )
-        user_request_object = RequestFactory()
+        user_request_object = RequestFactory().get("/")
         user_request_object.session = al_client.session._get_session_from_db()
         self.request_object = user_request_object
 
