@@ -1,3 +1,4 @@
+from apply_for_a_licence.choices import TypeOfServicesChoices
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -54,3 +55,28 @@ class TestDeleteRecipientView:
         assert al_client.session["recipients"] == data.recipients
         assert response.url == "/apply-for-a-licence/recipient_added"
         assert response.status_code == 302
+
+
+class TestRecipientAddedView:
+    def test_success_url(self, al_client):
+        response = al_client.post(
+            reverse("recipient_added"),
+            data={"do_you_want_to_add_another_recipient": "False"},
+        )
+        assert response.url == reverse("purpose_of_provision")
+
+        response = al_client.post(
+            reverse("recipient_added"),
+            data={"do_you_want_to_add_another_recipient": "True"},
+        )
+        assert response.url == reverse("where_is_the_recipient_located") + "?change=yes"
+
+        session = al_client.session
+        session["type_of_service"] = {"type_of_service": TypeOfServicesChoices.professional_and_business.value}
+        session.save()
+
+        response = al_client.post(
+            reverse("recipient_added"),
+            data={"do_you_want_to_add_another_recipient": "False"},
+        )
+        assert response.url == reverse("licensing_grounds")

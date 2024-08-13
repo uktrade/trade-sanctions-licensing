@@ -28,8 +28,7 @@ class LicensingGroundsForm(BaseForm):
         js = ["apply_for_a_licence/javascript/licensing_grounds.js"]
 
     def __init__(self, *args: object, **kwargs: object) -> None:
-        self.legal_advisory = kwargs.pop("legal_advisory", False)
-        audit_service_selected = kwargs.pop("audit_service_selected", False)
+        self.audit_service_selected = kwargs.pop("audit_service_selected", False)
         super().__init__(*args, **kwargs)
         checkbox_choices = self.fields["licensing_grounds"].choices
         # Create the 'or' divider between the last choice and I do not know
@@ -44,7 +43,7 @@ class LicensingGroundsForm(BaseForm):
         checkbox_choices.append(Choice("None of these", "None of these"))
 
         # now we cut the choices down depending on the user's answer to the professional_or_business_services question
-        if audit_service_selected:
+        if self.audit_service_selected:
             checkbox_choices.remove(
                 (
                     LicensingGroundsChoices.parent_or_subsidiary_company.value,
