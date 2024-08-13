@@ -16,8 +16,8 @@ class TestAddAnIndividualForm:
 
 
 class TestIndividualAddedForm:
-    def test_required(self, request_object):
-        form = forms.IndividualAddedForm(data={"do_you_want_to_add_another_individual": None}, request=request_object)
+    def test_required(self, post_request_object):
+        form = forms.IndividualAddedForm({}, request=post_request_object)
         assert not form.is_valid()
         assert "do_you_want_to_add_another_individual" in form.errors
         assert form.errors.as_data()["do_you_want_to_add_another_individual"][0].code == "required"

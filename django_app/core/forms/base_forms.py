@@ -34,6 +34,7 @@ class BaseForm(forms.Form):
     def __init__(self, *args: object, **kwargs: Dict[str, Any]) -> None:
         self.request: HttpRequest | None = kwargs.pop("request", None)
         self.form_h1_header = kwargs.pop("form_h1_header", self.form_h1_header)
+        self.should_be_bound: bool = kwargs.pop("should_be_bound", False)
         super().__init__(*args, **kwargs)
 
         if len(self.fields) == 1:
@@ -71,7 +72,6 @@ class BaseBusinessDetailsForm(BaseModelForm):
     """A base form for capturing business details. Such as the AddABusiness Form"""
 
     class Meta:
-
         widgets = {
             "name": forms.TextInput,
             "website": forms.TextInput,
@@ -129,6 +129,8 @@ class BaseBusinessDetailsForm(BaseModelForm):
         if self.is_uk_address:
             cleaned_data["country"] = "GB"
         cleaned_data["readable_address"] = get_formatted_address(cleaned_data)
+
+        cleaned_data["url_location"] = "in_the_uk" if self.is_uk_address else "outside_the_uk"
         return cleaned_data
 
     def clean_postcode(self) -> dict[str, Any]:

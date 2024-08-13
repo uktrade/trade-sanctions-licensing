@@ -107,6 +107,7 @@ class TestAddABusinessForm:
             is_uk_address=True,
         )
         assert form.is_valid()
+        assert form.cleaned_data["url_location"] == "in_the_uk"
 
     def test_non_uk_required(self):
         form = forms.AddABusinessForm(data={}, is_uk_address=False)

@@ -27,6 +27,7 @@ class ExistingLicencesForm(BaseModelForm):
             },
             "licences": {"required": "Licence number cannot be blank"},
         }
+        help_texts = {"held_existing_licence": "Your application may be delayed if you do not give all previous licence numbers"}
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)

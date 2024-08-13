@@ -72,6 +72,14 @@ class Individual(BaseModelID):
     first_name = models.TextField(max_length=255)
     last_name = models.TextField(max_length=255)
     nationality_and_location = models.CharField(choices=choices.NationalityAndLocation.choices)
+    address_line_1 = models.CharField(max_length=200, blank=True, null=True)
+    address_line_2 = models.CharField(max_length=200, blank=True, null=True)
+    address_line_3 = models.CharField(max_length=200, blank=True, null=True)
+    address_line_4 = models.CharField(max_length=200, blank=True, null=True)
+    postcode = models.CharField(max_length=20, blank=True, null=True)
+    country = CountryField(blank_label="Select Country", blank=True, null=True)
+    town_or_city = models.CharField(max_length=250, blank=True, null=True)
+    county = models.CharField(max_length=250, null=True, blank=True)
 
 
 class ApplicationApplicant(BaseModel):
@@ -155,7 +163,7 @@ class ApplicationType(BaseModelID):
         max_length=255,
         choices=choices.WhoDoYouWantTheLicenceToCoverChoices.choices,
         blank=False,
-        null=False,
+        null=True,
     )
     label = models.CharField()
     start_date = models.DateField(blank=True, null=True)

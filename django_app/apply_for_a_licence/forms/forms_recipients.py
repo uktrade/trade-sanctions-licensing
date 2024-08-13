@@ -124,6 +124,10 @@ class RecipientAddedForm(BaseForm):
         self.helper.legend_size = Size.MEDIUM
         self.helper.legend_tag = None
 
+        if self.request.method == "GET":
+            # we never want to pre-fill this form
+            self.is_bound = False
+
 
 class RelationshipProviderRecipientForm(BaseModelForm):
     class Meta:

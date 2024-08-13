@@ -1,4 +1,5 @@
 from apply_for_a_licence import choices
+from apply_for_a_licence.choices import LicensingGroundsChoices
 from apply_for_a_licence.models import ApplicationServices, Ground
 from core.crispy_fields import get_field_with_label_id
 from core.forms.base_forms import BaseForm, BaseModelForm
@@ -8,7 +9,6 @@ from django import forms
 
 
 class LicensingGroundsForm(BaseForm):
-    form_h1_header = "Which of these licensing grounds describes your purpose for providing the sanctioned services?"
     licensing_grounds = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple,
         choices=choices.LicensingGroundsChoices.choices,
@@ -28,7 +28,7 @@ class LicensingGroundsForm(BaseForm):
         js = ["apply_for_a_licence/javascript/licensing_grounds.js"]
 
     def __init__(self, *args: object, **kwargs: object) -> None:
-        self.legal_advisory = kwargs.pop("legal_advisory", False)
+        self.audit_service_selected = kwargs.pop("audit_service_selected", False)
         super().__init__(*args, **kwargs)
         checkbox_choices = self.fields["licensing_grounds"].choices
         # Create the 'or' divider between the last choice and I do not know
@@ -41,6 +41,16 @@ class LicensingGroundsForm(BaseForm):
         )
         checkbox_choices.append(Choice("Unknown grounds", "I do not know"))
         checkbox_choices.append(Choice("None of these", "None of these"))
+
+        # now we cut the choices down depending on the user's answer to the professional_or_business_services question
+        if self.audit_service_selected:
+            checkbox_choices.remove(
+                (
+                    LicensingGroundsChoices.parent_or_subsidiary_company.value,
+                    LicensingGroundsChoices.parent_or_subsidiary_company.label,
+                )
+            )
+
         self.fields["licensing_grounds"].choices = checkbox_choices
         self.helper.layout = Layout(
             Fieldset(
@@ -48,26 +58,6 @@ class LicensingGroundsForm(BaseForm):
                 aria_describedby="checkbox",
             )
         )
-
-        if self.legal_advisory:
-            self.form_h1_header = (
-                "Which of these licensing grounds describes your purpose for providing the "
-                "(non-legal advisory) sanctioned services?"
-            )
-
-        else:
-            if professional_or_business_service := self.request.session.get("ProfessionalOrBusinessServicesView", False):
-                if professional_or_business_service.get("professional_or_business_service") == "legal_advisory":
-                    self.form_h1_header = (
-                        "Which of the licensing grounds describes the purpose of the relevant activity for which "
-                        "the legal advice is being given?"
-                    )
-                    self.fields["licensing_grounds"].label = (
-                        "If your client is a non-UK national or business and is also outside the UK "
-                        "then UK sanctions do not apply to them. Instead you should select the licensing "
-                        "grounds that would apply if UK sanctions did apply to them."
-                    )
-                    self.fields["licensing_grounds"].help_text = "Select all that apply"
 
     def clean(self):
         cleaned_data = super().clean()

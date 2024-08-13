@@ -58,11 +58,15 @@ class TestAddARecipientForm:
 
 
 class TestRecipientAddedForm:
-    def test_required(self, request_object):
-        form = forms.RecipientAddedForm(data={"do_you_want_to_add_another_recipient": None}, request=request_object)
+    def test_required(self, post_request_object):
+        form = forms.RecipientAddedForm(data={"do_you_want_to_add_another_recipient": None}, request=post_request_object)
         assert not form.is_valid()
         assert "do_you_want_to_add_another_recipient" in form.errors
         assert form.errors.as_data()["do_you_want_to_add_another_recipient"][0].code == "required"
+
+    def test_never_bound_on_get(self, request_object):
+        form = forms.RecipientAddedForm(request=request_object, data={"do_you_want_to_add_another_recipient": "True"})
+        assert not form.is_bound
 
 
 class TestRelationshipProviderRecipientForm:

@@ -1,3 +1,4 @@
+from apply_for_a_licence.choices import TypeOfServicesChoices
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -54,3 +55,61 @@ class TestDeleteRecipientView:
         assert al_client.session["recipients"] == data.recipients
         assert response.url == "/apply-for-a-licence/recipient_added"
         assert response.status_code == 302
+
+
+class TestRecipientAddedView:
+    def test_success_url(self, al_client):
+        response = al_client.post(
+            reverse("recipient_added"),
+            data={"do_you_want_to_add_another_recipient": "False"},
+        )
+        assert response.url == reverse("purpose_of_provision")
+
+        response = al_client.post(
+            reverse("recipient_added"),
+            data={"do_you_want_to_add_another_recipient": "True"},
+        )
+        assert response.url == reverse("where_is_the_recipient_located") + "?change=yes"
+
+        session = al_client.session
+        session["type_of_service"] = {"type_of_service": TypeOfServicesChoices.professional_and_business.value}
+        session.save()
+
+        response = al_client.post(
+            reverse("recipient_added"),
+            data={"do_you_want_to_add_another_recipient": "False"},
+        )
+        assert response.url == reverse("licensing_grounds")
+
+
+class TestRelationshipProviderRecipientView:
+    def test_successful_post(self, al_client):
+        session = al_client.session
+        session["recipients"] = data.recipients
+        session.save()
+
+        al_client.post(
+            reverse("relationship_provider_recipient", kwargs={"recipient_uuid": "recipient1"}),
+            data={"relationship": "this is a relationship"},
+        )
+
+        assert al_client.session["recipients"]["recipient1"]["relationship"] == "this is a relationship"
+        assert "relationship" not in al_client.session["recipients"]["recipient2"].keys()
+
+    def test_get(self, al_client):
+        recipient1 = data.recipients["recipient1"].copy()
+        recipient1["relationship"] = "this is a relationship"
+        session = al_client.session
+        session["recipients"] = {"recipient1": recipient1}
+        session.save()
+
+        response = al_client.get(
+            reverse("relationship_provider_recipient", kwargs={"recipient_uuid": "recipient1"}),
+        )
+        assert response.context["form"].data["relationship"] == "this is a relationship"
+
+    def test_get_not_bound(self, al_client):
+        response = al_client.get(
+            reverse("relationship_provider_recipient", kwargs={"recipient_uuid": "recipientNA"}),
+        )
+        assert not response.context["form"].is_bound
