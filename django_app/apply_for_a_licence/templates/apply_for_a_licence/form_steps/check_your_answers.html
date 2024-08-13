@@ -515,6 +515,21 @@
                     class="govuk-visually-hidden">licensing grounds</span></a>
             </dd>
         </div>
+        {% if form_data.licensing_grounds_legal_advisory %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    Licensing grounds (excluding legal advisory)
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {% include "apply_for_a_licence/partials/truncated_text.html" with text=forms.licensing_grounds_legal_advisory.get_licensing_grounds_display|linebreaksbr %}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link"
+                       href="{% url 'licensing_grounds_legal_advisory' %}?redirect_to_url=check_your_answers">Change<span
+                        class="govuk-visually-hidden">licensing grounds</span></a>
+                </dd>
+            </div>
+        {% endif %}
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                 Purpose of the service

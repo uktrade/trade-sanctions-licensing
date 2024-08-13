@@ -2,7 +2,9 @@ import logging
 import urllib.parse
 import uuid
 
+from apply_for_a_licence.choices import TypeOfServicesChoices
 from apply_for_a_licence.forms import forms_recipients as forms
+from apply_for_a_licence.utils import get_cleaned_data_for_step
 from core.views.base_views import BaseFormView
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -78,7 +80,11 @@ class RecipientAddedView(BaseFormView):
         if add_recipient:
             return reverse("where_is_the_recipient_located") + "?change=yes"
         else:
-            return reverse("licensing_grounds")
+            type_of_service_data = get_cleaned_data_for_step(self.request, "type_of_service")
+            if type_of_service_data.get("type_of_service") == TypeOfServicesChoices.professional_and_business.value:
+                return reverse("licensing_grounds")
+            else:
+                return reverse("purpose_of_provision")
 
 
 class DeleteRecipientView(BaseFormView):
