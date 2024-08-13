@@ -75,7 +75,8 @@ class TestDeleteDocumentsView:
         assert response.status_code == 200
         assert response.json() == {"success": True}
         assert mocked_temporary_document_storage.call_count == 1
-        assert mocked_temporary_document_storage.assert_called_once_with("test.png")
+        args, kwargs = mocked_temporary_document_storage.call_args
+        assert "None/test.png" in args
 
     def test_unsuccessful_post(self, mocked_temporary_document_storage, al_client):
         response = al_client.post(

@@ -92,7 +92,8 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
         else:
             success_url = reverse("where_is_the_business_located")
 
-        success_url += "?" + urllib.parse.urlencode(self.request.GET)
+        if get_parameters := urllib.parse.urlencode(self.request.GET):
+            success_url += "?" + get_parameters
         return success_url
 
 
@@ -130,7 +131,9 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
         else:
             success_url = reverse("where_is_the_business_located")
 
-        success_url += "?" + urllib.parse.urlencode(self.request.GET)
+        if get_parameters := urllib.parse.urlencode(self.request.GET):
+            success_url += "?" + get_parameters
+
         return success_url
 
 
@@ -161,4 +164,9 @@ class WhereIsTheBusinessLocatedView(BaseFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
-        return reverse("add_a_business", kwargs={"location": location}) + "?" + urllib.parse.urlencode(self.request.GET)
+        success_url = reverse("add_a_business", kwargs={"location": location})
+
+        if get_parameters := urllib.parse.urlencode(self.request.GET):
+            success_url += "?" + get_parameters
+
+        return success_url

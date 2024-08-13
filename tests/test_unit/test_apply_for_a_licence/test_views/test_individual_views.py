@@ -1,3 +1,7 @@
+from apply_for_a_licence.choices import (
+    NationalityAndLocation,
+    WhoDoYouWantTheLicenceToCoverChoices,
+)
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -27,7 +31,7 @@ class TestIndividualAddedView:
             reverse("individual_added"),
             data={"do_you_want_to_add_another_individual": True},
         )
-        assert response.url == reverse("add_an_individual")
+        assert response.url == reverse("add_an_individual") + "?change=yes"
 
 
 class TestDeleteIndividualView:
@@ -80,3 +84,144 @@ class TestDeleteIndividualView:
         assert al_client.session["individuals"] == data.individuals
         assert response.url == "/apply-for-a-licence/individual_added"
         assert response.status_code == 302
+
+
+class TestAddAnIndividualView:
+    def test_redirect_after_post(self, al_client):
+        response = al_client.post(
+            reverse("add_an_individual") + "?redirect_to_url=check_your_answers&new=yes",
+            data={
+                "first_name": "test",
+                "last_name": "test last",
+                "nationality_and_location": NationalityAndLocation.uk_national_uk_location.value,
+            },
+            follow=True,
+        )
+        assert (
+            reverse(
+                "what_is_individuals_address",
+                kwargs={
+                    "location": response.resolver_match.kwargs["location"],
+                    "individual_uuid": response.resolver_match.kwargs["individual_uuid"],
+                },
+            )
+            in response.redirect_chain[0][0]
+        )
+
+        # check that the query parameters are passed to the redirect
+        assert "redirect_to_url=check_your_answers&new=yes" in response.redirect_chain[0][0]
+
+    def test_successful_post(self, al_client):
+        assert al_client.session.get("individuals") is None
+        response = al_client.post(
+            reverse("add_an_individual"),
+            data={
+                "first_name": "test",
+                "last_name": "test last",
+                "nationality_and_location": NationalityAndLocation.uk_national_uk_location.value,
+            },
+            follow=True,
+        )
+
+        individual_uuid = response.resolver_match.kwargs["individual_uuid"]
+        individuals = al_client.session.get("individuals")
+        assert len(individuals) == 1
+
+        assert individuals[individual_uuid]["name_data"]["cleaned_data"]["first_name"] == "test"
+        assert individuals[individual_uuid]["name_data"]["cleaned_data"]["last_name"] == "test last"
+        assert (
+            individuals[individual_uuid]["name_data"]["cleaned_data"]["nationality_and_location"]
+            == NationalityAndLocation.uk_national_uk_location.value
+        )
+        assert (
+            individuals[individual_uuid]["name_data"]["cleaned_data"]["nationality"]
+            == NationalityAndLocation.uk_national_uk_location.label
+        )
+
+        assert individuals[individual_uuid].get("address_data") is None
+
+    def test_get(self, al_client):
+        session = al_client.session
+        session["individuals"] = data.individuals
+        session.save()
+
+        response = al_client.get(reverse("add_an_individual") + "?individual_uuid=individual1")
+        form = response.context["form"]
+
+        assert form.data["first_name"] == "Recipient"
+        assert form.data["last_name"] == "1"
+        assert form.data["nationality_and_location"] == NationalityAndLocation.uk_national_uk_location.value
+
+
+class TestWhatIsIndividualsAddressView:
+    def test_successful_post(self, al_client):
+        session = al_client.session
+        session["individuals"] = data.individuals
+        session.save()
+
+        response = al_client.post(
+            reverse(
+                "what_is_individuals_address",
+                kwargs={
+                    "location": "in_the_uk",
+                    "individual_uuid": "individual1",
+                },
+            ),
+            data={
+                "country": "GB",
+                "address_line_1": "new address 1",
+                "address_line_2": "new address 2",
+                "county": "Greater London",
+                "town_or_city": "City",
+                "postcode": "SW1A 1AA",
+            },
+        )
+
+        assert response.url == reverse("individual_added")
+
+        individuals = al_client.session.get("individuals")
+        assert len(individuals) == 3
+
+        assert individuals["individual1"]["address_data"]["cleaned_data"]["country"] == "GB"
+        assert individuals["individual1"]["address_data"]["cleaned_data"]["address_line_1"] == "new address 1"
+        assert individuals["individual1"]["address_data"]["cleaned_data"]["county"] == "Greater London"
+        assert individuals["individual1"]["address_data"]["cleaned_data"]["town_or_city"] == "City"
+        assert individuals["individual1"]["address_data"]["cleaned_data"]["postcode"] == "SW1A 1AA"
+
+    def test_get_form_data(self, al_client):
+        response = al_client.get(
+            reverse(
+                "what_is_individuals_address",
+                kwargs={
+                    "location": "in_the_uk",
+                    "individual_uuid": "individualNA",
+                },
+            )
+        )
+        assert not response.context["form"].is_bound
+
+    def test_get_success_url(self, al_client):
+        session = al_client.session
+        session["start"] = {"who_do_you_want_the_licence_to_cover": WhoDoYouWantTheLicenceToCoverChoices.myself.value}
+        session["individuals"] = data.individuals
+        session.save()
+
+        response = al_client.post(
+            reverse(
+                "what_is_individuals_address",
+                kwargs={
+                    "location": "in_the_uk",
+                    "individual_uuid": "individual1",
+                },
+            ),
+            data={
+                "country": "GB",
+                "address_line_1": "new address 1",
+                "address_line_2": "new address 2",
+                "county": "Greater London",
+                "town_or_city": "City",
+                "postcode": "SW1A 1AA",
+            },
+        )
+
+        assert response.url == reverse("yourself_and_individual_added")

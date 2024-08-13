@@ -80,3 +80,36 @@ class TestRecipientAddedView:
             data={"do_you_want_to_add_another_recipient": "False"},
         )
         assert response.url == reverse("licensing_grounds")
+
+        
+class TestRelationshipProviderRecipientView:
+    def test_successful_post(self, al_client):
+        session = al_client.session
+        session["recipients"] = data.recipients
+        session.save()
+
+        al_client.post(
+            reverse("relationship_provider_recipient", kwargs={"recipient_uuid": "recipient1"}),
+            data={"relationship": "this is a relationship"},
+        )
+
+        assert al_client.session["recipients"]["recipient1"]["relationship"] == "this is a relationship"
+        assert "relationship" not in al_client.session["recipients"]["recipient2"].keys()
+
+    def test_get(self, al_client):
+        recipient1 = data.recipients["recipient1"].copy()
+        recipient1["relationship"] = "this is a relationship"
+        session = al_client.session
+        session["recipients"] = {"recipient1": recipient1}
+        session.save()
+
+        response = al_client.get(
+            reverse("relationship_provider_recipient", kwargs={"recipient_uuid": "recipient1"}),
+        )
+        assert response.context["form"].data["relationship"] == "this is a relationship"
+
+    def test_get_not_bound(self, al_client):
+        response = al_client.get(
+            reverse("relationship_provider_recipient", kwargs={"recipient_uuid": "recipientNA"}),
+        )
+        assert not response.context["form"].is_bound
