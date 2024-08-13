@@ -134,7 +134,6 @@ class IndividualAddressForm(BaseBusinessDetailsForm):
         widgets = {"country": forms.Select}
 
     def __init__(self, *args, **kwargs):
-        self.is_uk_address = kwargs.pop("is_uk_address", False)
         super().__init__(*args, **kwargs)
 
         if self.is_uk_address:

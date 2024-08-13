@@ -17,7 +17,11 @@ class WhereIsTheRecipientLocatedView(BaseFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
-        return reverse("add_a_recipient", kwargs={"location": location}) + "?" + urllib.parse.urlencode(self.request.GET)
+        success_url = reverse("add_a_recipient", kwargs={"location": location})
+        if get_parameters := urllib.parse.urlencode(self.request.GET):
+            success_url += "?" + get_parameters
+
+        return success_url
 
 
 class AddARecipientView(BaseFormView):
@@ -62,11 +66,11 @@ class AddARecipientView(BaseFormView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return (
-            reverse("relationship_provider_recipient", kwargs={"recipient_uuid": self.recipient_uuid})
-            + "?"
-            + urllib.parse.urlencode(self.request.GET)
-        )
+        success_url = reverse("relationship_provider_recipient", kwargs={"recipient_uuid": self.recipient_uuid})
+        if get_parameters := urllib.parse.urlencode(self.request.GET):
+            success_url += "?" + get_parameters
+
+        return success_url
 
 
 class RecipientAddedView(BaseFormView):
@@ -108,7 +112,7 @@ class RelationshipProviderRecipientView(BaseFormView):
         kwargs = super().get_form_kwargs()
         recipient_uuid = self.kwargs["recipient_uuid"]
         # pre-filling the correct relationship for this recipient
-        if relationship := self.request.session.get("recipients", {}).get(recipient_uuid, None).get("relationship"):
+        if relationship := self.request.session.get("recipients", {}).get(recipient_uuid, {}).get("relationship"):
             kwargs["data"] = {"relationship": relationship}
             self.existing_relationship = True
         else:
