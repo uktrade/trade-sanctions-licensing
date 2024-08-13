@@ -163,7 +163,7 @@ class ApplicationType(BaseModelID):
         max_length=255,
         choices=choices.WhoDoYouWantTheLicenceToCoverChoices.choices,
         blank=False,
-        null=False,
+        null=True,
     )
     label = models.CharField()
     start_date = models.DateField(blank=True, null=True)
