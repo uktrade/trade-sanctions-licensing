@@ -52,6 +52,7 @@ class TestEmailVerifyCodeView:
             == "You've tried to verify your email too many times. Try again in 1 minute"
         )
 
+    # TODO: uncomment and fix test
     # @patch("apply_for_a_licence.views.views_start.verify_email")
     # def test_form_invalid_resent_code(self, mocked_email_verify, al_client):
     #     session = al_client.session
