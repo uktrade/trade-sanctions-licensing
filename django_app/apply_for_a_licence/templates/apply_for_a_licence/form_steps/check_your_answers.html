@@ -1,6 +1,6 @@
 {% extends "core/base_form_step.html" %}
 {% load crispy_forms_tags crispy_forms_gds %}
-{% load location from split_nationality_and_location %}
+{% load readable_location from split_nationality_and_location %}
 {% load countries %}
 {% block title %}Check your answers{% endblock title %}
 {% block form_content %}
@@ -46,57 +46,51 @@
         </div>
     </dl>
     <h2 class="govuk-heading-m"> Licensees</h2>
-    {%  if form_data.start.who_do_you_want_the_licence_to_cover == "business"%}
-        {% if businesses %}
-            {% for id, value in businesses.items %}
-                <div class="action-wrapper">
-                    <h3 class="govuk-heading-s" style="float:left"> Business {{ forloop.counter }}</h3>
-                    <dl class="govuk-summary-card__actions">
-                        <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
-                            {% if value.cleaned_data.companies_house %}
-                                <a class="govuk-link" style="font-size: 19px; text-align:right"
-                                   href="{% url 'do_you_know_the_registered_company_number' %}?change=yes&business_uuid={{ id }}">Change<span
-                                    class="govuk-visually-hidden">business {{forloop.counter}} details </span></a>
-                            {% elif value.cleaned_data.country == "GB" %}
-                                <a class="govuk-link" style="font-size: 19px; text-align:right"
-                                   href="{% url 'add_a_business' location="in_the_uk" %}?business_uuid={{ id }} ">Change<span
-                                    class="govuk-visually-hidden">business {{forloop.counter}} details</span></a>
-                            {%  else %}
-                                <a class="govuk-link" style="font-size: 19px; text-align:right"
-                                   href="{% url 'add_a_business' location="outside_the_uk" %}?business_uuid={{ id }} ">Change<span
-                                    class="govuk-visually-hidden">business {{forloop.counter}} details</span></a>
-                            {%  endif %}
-                        </dd>
-                    </dl>
-                </div>
-                <dl class="govuk-summary-list">
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            Name
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {{ value.cleaned_data.name }}
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            Address
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {% include "apply_for_a_licence/partials/truncated_text.html" with text=value.cleaned_data.readable_address|linebreaksbr %}
-                        </dd>
-                    </div>
+    {% if form_data.start.who_do_you_want_the_licence_to_cover == "business" %}
+        {% for id, business in businesses.items %}
+            <div class="action-wrapper">
+                <h3 class="govuk-heading-s" style="float:left"> Business {{ forloop.counter }}</h3>
+                <dl class="govuk-summary-card__actions">
+                    <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
+                        {% if business.cleaned_data.companies_house %}
+                            <a class="govuk-link" style="font-size: 19px; text-align:right"
+                               href="{% url 'do_you_know_the_registered_company_number' %}?change=yes&business_uuid={{ id }}">Change<span
+                                class="govuk-visually-hidden">business {{ forloop.counter }} details </span></a>
+                        {% else %}
+                            <a class="govuk-link" style="font-size: 19px; text-align:right"
+                               href="{% url 'add_a_business' location=business.cleaned_data.url_location %}?business_uuid={{ id }}">Change<span
+                                class="govuk-visually-hidden">business {{ forloop.counter }} details</span></a>
+                        {% endif %}
+                    </dd>
                 </dl>
-            {% endfor %}
+            </div>
             <dl class="govuk-summary-list">
-                <a class="govuk-link"
-                   href="{% url 'is_the_business_registered_with_companies_house' %}?redirect_to_url=check_your_answers">Add another
-                    licensee<span
-                        class="govuk-visually-hidden">licensee</span></a>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ business.cleaned_data.name }}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Address
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=business.cleaned_data.readable_address|linebreaksbr %}
+                    </dd>
+                </div>
             </dl>
-        {% endif %}
+        {% endfor %}
+        <dl class="govuk-summary-list">
+            <a class="govuk-link"
+               href="{% url 'is_the_business_registered_with_companies_house' %}?redirect_to_url=check_your_answers">
+                Add another licensee
+            </a>
+        </dl>
     {% endif %}
-    {%  if form_data.start.who_do_you_want_the_licence_to_cover == "myself"%}
+    {% if form_data.start.who_do_you_want_the_licence_to_cover == "myself" %}
         <h3 class="govuk-heading-s"> Your Details</h3>
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
@@ -117,7 +111,7 @@
                     Connection to the UK
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{form_data.add_yourself.nationality  }}
+                    {{ form_data.add_yourself.nationality }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
@@ -130,7 +124,7 @@
                     Location of individual
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{form_data.add_yourself.nationality_and_location | location }}
+                    {{ form_data.add_yourself.nationality_and_location | readable_location }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
@@ -152,76 +146,73 @@
                 </dd>
             </div>
         </dl>
-        {% if individuals %}
-            {% for individual, value in individuals.items %}
-                <h3 class="govuk-heading-s"> Individual {{ forloop.counter }}</h3>
-                <dl class="govuk-summary-list">
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            Name
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {{ value.cleaned_data.first_name }} {{ value.cleaned_data.last_name }}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">name of individual {{forloop.counter}}</span></a>
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            Connection to the UK
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {{value.cleaned_data.nationality }}
-
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">connection to the UK of individual {{forloop.counter}}</span></a>
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            Location of individual
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {{value.dirty_data.nationality_and_location | location }}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                               href="{% url 'add_an_individual'%}?individual_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">location of individual {{forloop.counter}}</span></a>
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            Address
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {% include "apply_for_a_licence/partials/truncated_text.html" with text=form_data.add_yourself_address.readable_address|linebreaksbr %}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                               href="{% url 'add_yourself_address' %}">Change<span
-                                class="govuk-visually-hidden">address of individual {{forloop.counter}}</span></a>
-                        </dd>
-                    </div>
-                </dl>
-            {% endfor %}
+        {% for id, individual in individuals.items %}
+            <h3 class="govuk-heading-s"> Individual {{ forloop.counter }}</h3>
             <dl class="govuk-summary-list">
-                <a class="govuk-link"
-                   href="{% url 'add_an_individual' %}?redirect_to_url=check_your_answers">Add another
-                    licensee<span
-                        class="govuk-visually-hidden">licesee</span></a>
-            </dl>
-        {% endif %}
-    {% endif %}
-    {%  if form_data.start.who_do_you_want_the_licence_to_cover == "individual" %}
-        <div class="action-wrapper">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ individual.name_data.cleaned_data.first_name }} {{ individual.name_data.cleaned_data.last_name }}
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link"
+                           href="{% url 'add_an_individual' %}?individual_uuid={{ id }}">Change<span
+                            class="govuk-visually-hidden">name of individual {{ forloop.counter }}</span></a>
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Connection to the UK
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ individual.name_data.cleaned_data.nationality }}
 
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link"
+                           href="{% url 'add_an_individual' %}?individual_uuid={{ id }}">Change<span
+                            class="govuk-visually-hidden">connection to the UK of individual {{ forloop.counter }}</span></a>
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Location of individual
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ individual.dirty_data.nationality_and_location | readable_location }}
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link"
+                           href="{% url 'add_an_individual' %}?individual_uuid={{ id }}">Change<span
+                            class="govuk-visually-hidden">location of individual {{ forloop.counter }}</span></a>
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Address
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=form_data.add_yourself_address.readable_address|linebreaksbr %}
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link"
+                           href="{% url 'add_yourself_address' %}">Change<span
+                            class="govuk-visually-hidden">address of individual {{ forloop.counter }}</span></a>
+                    </dd>
+                </div>
+            </dl>
+        {% endfor %}
+        <dl class="govuk-summary-list">
+            <a class="govuk-link"
+               href="{% url 'add_an_individual' %}?redirect_to_url=check_your_answers">
+                Add another licensee
+            </a>
+        </dl>
+    {% endif %}
+    {% if form_data.start.who_do_you_want_the_licence_to_cover == "individual" %}
+        <div class="action-wrapper">
             <h3 class="govuk-heading-s" style="float:left"> Business detail</h3>
             <dl class="govuk-summary-card__actions">
                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
@@ -237,7 +228,7 @@
                     Business name
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{form_data.business_employing_individual.name}}
+                    {{ form_data.business_employing_individual.name }}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
@@ -250,72 +241,74 @@
             </div>
         </dl>
         {% if individuals %}
-            {% for id, value in individuals.items %}
-                <h3 class="govuk-heading-s"> Individual {{ forloop.counter }}</h3>
-                <dl class="govuk-summary-list">
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            Name
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {{ value.cleaned_data.first_name }} {{ value.cleaned_data.last_name }}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">location of individual {{forloop.counter}}</span></a>
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            Connection to the UK
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {{value.cleaned_data.nationality }}
-
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">location of individual {{forloop.counter}}</span></a>
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            Location of individual
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {{  value.dirty_data.nationality_and_location | location }}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">location of individual {{forloop.counter}}</span></a>
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            Address
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {% include "apply_for_a_licence/partials/truncated_text.html" with text=form_data.add_yourself_address.readable_address|linebreaksbr %}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">address of individual {{forloop.counter}}</span></a>
-                        </dd>
-                    </div>
-                </dl>
+            {% for id, individual in individuals.items %}
+                {% if individual.address_data %}
+					{# we want to make sure that the object has been fully completed, name + address data is necessary #}
+                    <h3 class="govuk-heading-s"> Individual {{ forloop.counter }}</h3>
+                    <dl class="govuk-summary-list">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                                Name
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ individual.name_data.cleaned_data.first_name }} {{ individual.name_data.cleaned_data.last_name }}
+                            </dd>
+                            <dd class="govuk-summary-list__actions">
+                                <a class="govuk-link"
+                                   href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
+                                    class="govuk-visually-hidden">location of individual {{ forloop.counter }}</span></a>
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                                Connection to the UK
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ individual.name_data.cleaned_data.nationality }}
+                            </dd>
+                            <dd class="govuk-summary-list__actions">
+                                <a class="govuk-link"
+                                   href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
+                                    class="govuk-visually-hidden">location of individual {{ forloop.counter }}</span></a>
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                                Location of individual
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ individual.name_data.dirty_data.nationality_and_location | readable_location }}
+                            </dd>
+                            <dd class="govuk-summary-list__actions">
+                                <a class="govuk-link"
+                                   href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
+                                    class="govuk-visually-hidden">location of individual {{ forloop.counter }}</span></a>
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                                Address
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% include "apply_for_a_licence/partials/truncated_text.html" with text=individual.address_data.cleaned_data.readable_address|linebreaksbr %}
+                            </dd>
+                            <dd class="govuk-summary-list__actions">
+                                <a class="govuk-link"
+                                   href="{% url 'what_is_individuals_address' individual_uuid=id location=individual.address_data.cleaned_data.url_location %}?redirect_to_url=check_your_answers">Change<span
+                                    class="govuk-visually-hidden">address of individual {{ forloop.counter }}</span></a>
+                            </dd>
+                        </div>
+                    </dl>
+                {% endif %}
             {% endfor %}
             <dl class="govuk-summary-list">
                 <a class="govuk-link"
-                   href="{% url 'add_an_individual' %}?redirect_to_url=check_your_answers">Add another
-                    licensee<span
-                        class="govuk-visually-hidden">licensee</span></a>
+                   href="{% url 'add_an_individual' %}?redirect_to_url=check_your_answers&change=yes&new=yes">
+                    Add another licensee
+                </a>
             </dl>
         {% endif %}
-    {%  endif %}
+    {% endif %}
     <div class="action-wrapper">
 
         <h2 class="govuk-heading-m" style="float:left">Existing Licence</h2>
@@ -406,8 +399,8 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
-                               href="{% url 'add_a_recipient' location='in_the_uk' %}?recipient_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">location of recipient {{forloop.counter}}</span></a>
+                               href="{% url 'add_a_recipient' location='in_the_uk' %}?recipient_uuid={{ id }}">Change<span
+                                class="govuk-visually-hidden">location of recipient {{ forloop.counter }}</span></a>
                         </dd>
                     {% else %}
                         <dd class="govuk-summary-list__value">
@@ -416,13 +409,13 @@
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
                                href="{% url 'add_a_recipient' location='outside_the_uk' %}?recipient_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
-                                class="govuk-visually-hidden">location of recipient {{forloop.counter}}</span></a>
+                                class="govuk-visually-hidden">location of recipient {{ forloop.counter }}</span></a>
                         </dd>
                     {% endif %}
                 </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        Name and address of recipient {{forloop.counter}}
+                        Name and address of recipient {{ forloop.counter }}
                     </dt>
                     <dd class="govuk-summary-list__value">
                         {{ recipient.cleaned_data.name_of_person }}
@@ -432,17 +425,16 @@
                     <dd class="govuk-summary-list__actions">
                         {% if recipient.cleaned_data.country == "GB" %}
                             <a class="govuk-link"
-                               href="{% url 'add_a_recipient' location='in_the_uk' %}?recipient_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">name and address of recipient {{forloop.counter}}</span></a>
+                               href="{% url 'add_a_recipient' location='in_the_uk' %}?recipient_uuid={{ id }}">Change<span
+                                class="govuk-visually-hidden">name and address of recipient {{ forloop.counter }}</span></a>
                         {% else %}
                             <a class="govuk-link"
-                               href="{% url 'add_a_recipient' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">name and address of recipient {{forloop.counter}}</span></a>
+                               href="{% url 'add_a_recipient' location='outside_the_uk' %}?recipient_uuid={{ id }}">Change<span
+                                class="govuk-visually-hidden">name and address of recipient {{ forloop.counter }}</span></a>
                         {% endif %}
                     </dd>
                 </div>
                 {% if recipient.cleaned_data.website %}
-
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                             Website
@@ -452,15 +444,17 @@
                                href="{{ recipient.cleaned_data.website }}">{{ recipient.cleaned_data.website }}<span
                                 class="govuk-visually-hidden"></span></a>
                         </dd>
-                        {% if recipient.cleaned_data.country == "GB" %}
-                            <a class="govuk-link"
-                               href="{% url 'add_a_recipient' location='in_the_uk' %}?recipient_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">website of recipient {{forloop.counter}}</span></a>
-                        {% else %}
-                            <a class="govuk-link"
-                               href="{% url 'add_a_recipient' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">website of recipient {{forloop.counter}}</span></a>
-                        {% endif %}
+                        <dd class="govuk-summary-list__actions">
+                            {% if recipient.cleaned_data.country == "GB" %}
+                                <a class="govuk-link"
+                                   href="{% url 'add_a_recipient' location='in_the_uk' %}?recipient_uuid={{ id }}">Change<span
+                                    class="govuk-visually-hidden">website of recipient {{ forloop.counter }}</span></a>
+                            {% else %}
+                                <a class="govuk-link"
+                                   href="{% url 'add_a_recipient' location='outside_the_uk' %}?recipient_uuid={{ id }}">Change<span
+                                    class="govuk-visually-hidden">website of recipient {{ forloop.counter }}</span></a>
+                            {% endif %}
+                        </dd>
                     </div>
                 {% endif %}
                 {% if recipient.cleaned_data.additional_contact_details %}
@@ -471,15 +465,17 @@
                         <dd class="govuk-summary-list__value">
                             {% include "apply_for_a_licence/partials/truncated_text.html" with text=recipient.cleaned_data.additional_contact_details|linebreaksbr %}
                         </dd>
-                        {% if recipient.cleaned_data.country == "GB" %}
-                            <a class="govuk-link"
-                               href="{% url 'add_a_recipient' location='in_the_uk' %}?recipient_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">additional contact information of recipient {{forloop.counter}}</span></a>
-                        {% else %}
-                            <a class="govuk-link"
-                               href="{% url 'add_a_recipient' location='outside_the_uk' %}?recipient_uuid={{ id }} ">Change<span
-                                class="govuk-visually-hidden">additional contact information of recipient {{forloop.counter}}</span></a>
-                        {% endif %}
+                        <dd class="govuk-summary-list__actions">
+                            {% if recipient.cleaned_data.country == "GB" %}
+                                <a class="govuk-link"
+                                   href="{% url 'add_a_recipient' location='in_the_uk' %}?recipient_uuid={{ id }}">Change<span
+                                    class="govuk-visually-hidden">additional contact information of recipient {{ forloop.counter }}</span></a>
+                            {% else %}
+                                <a class="govuk-link"
+                                   href="{% url 'add_a_recipient' location='outside_the_uk' %}?recipient_uuid={{ id }}">Change<span
+                                    class="govuk-visually-hidden">additional contact information of recipient {{ forloop.counter }}</span></a>
+                            {% endif %}
+                        </dd>
                     </div>
                 {% endif %}
                 <div class="govuk-summary-list__row">
@@ -487,21 +483,21 @@
                         What is the relationship between the provider of the services and the recipient?
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        {{ form_data.relationship_provider_recipient.relationship }}
+                        {{ recipient.relationship }}
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                           href="{% url 'relationship_provider_recipient' %}?recipient_uuid={{ id }} ">Change<span
-                            class="govuk-visually-hidden">relationship between provider and recipient {{forloop.counter}}</span></a>
+                           href="{% url 'relationship_provider_recipient' recipient_uuid=id %}">Change<span
+                            class="govuk-visually-hidden">relationship between provider and recipient {{ forloop.counter }}</span></a>
                     </dd>
                 </div>
             </dl>
         {% endfor %}
         <dl class="govuk-summary-list">
             <a class="govuk-link"
-               href="{% url 'where_is_the_recipient_located' %}?redirect_to_url=check_your_answers">Add another
-                recipient<span
-                    class="govuk-visually-hidden">recipient</span></a>
+               href="{% url 'where_is_the_recipient_located' %}?redirect_to_url=check_your_answers&change=yes">
+                Add another recipient
+            </a>
         </dl>
     {% endif %}
     <h2 class="govuk-heading-m">Purpose of the services</h2>
@@ -511,7 +507,7 @@
                 Licensing grounds
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ forms.licensing_grounds.get_licensing_grounds_display | linebreaksbr }}
+                {% include "apply_for_a_licence/partials/truncated_text.html" with text=forms.licensing_grounds.get_licensing_grounds_display|linebreaksbr %}
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"
@@ -519,12 +515,27 @@
                     class="govuk-visually-hidden">licensing grounds</span></a>
             </dd>
         </div>
+        {% if form_data.licensing_grounds_legal_advisory %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    Licensing grounds (excluding legal advisory)
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {% include "apply_for_a_licence/partials/truncated_text.html" with text=forms.licensing_grounds_legal_advisory.get_licensing_grounds_display|linebreaksbr %}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link"
+                       href="{% url 'licensing_grounds_legal_advisory' %}?redirect_to_url=check_your_answers">Change<span
+                        class="govuk-visually-hidden">licensing grounds</span></a>
+                </dd>
+            </div>
+        {% endif %}
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                 Purpose of the service
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ form_data.purpose_of_provision.purpose_of_provision }}
+                {% include "apply_for_a_licence/partials/truncated_text.html" with text=form_data.purpose_of_provision.purpose_of_provision|linebreaksbr %}
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"
@@ -539,10 +550,8 @@
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {% for document, url in session_files.items %}
-
-                        <a href="{{url}}" download>{{document}}</a><br>
+                        <a href="{{ url }}" download>{{ document }}</a><br>
                     {% endfor %}
-
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"

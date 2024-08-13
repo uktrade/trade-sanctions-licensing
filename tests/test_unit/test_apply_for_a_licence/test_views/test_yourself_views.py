@@ -26,7 +26,7 @@ class TestYourselfAndIndividualAddedView:
             reverse("yourself_and_individual_added"),
             data={"do_you_want_to_add_another_individual": True},
         )
-        assert response.url == reverse("add_an_individual")
+        assert response.url == reverse("add_an_individual") + "?change=yes"
         assert response.status_code == 302
 
 

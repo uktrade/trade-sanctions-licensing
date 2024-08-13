@@ -56,7 +56,7 @@
 
                         <a class="govuk-link" style="font-size: 19px; text-align:right"
                            href="{% url 'add_an_individual' %}?individual_uuid={{ id }}">Change<span
-                            class="govuk-visually-hidden"> Individual {{forloop.counter}} details </span></a>
+                            class="govuk-visually-hidden"> Individual {{ forloop.counter }} details </span></a>
                     </dd>
                 </ul>
             </div>
@@ -67,7 +67,7 @@
                     Name
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ individual.cleaned_data.first_name }} {{individual.cleaned_data.last_name}}
+                    {{ individual.name_data.cleaned_data.first_name }} {{individual.name_data..cleaned_data.last_name}}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
@@ -75,14 +75,14 @@
                     Nationality and Location
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ individual.cleaned_data.nationality_and_location }}
+                    {{ individual.name_data.cleaned_data.nationality }}
                 </dd>
             </div>
             <form id="delete_individual_from_yourself_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
                   action="{% url 'delete_individual_from_yourself' %}?individual_uuid={{ id }}">
                 <input type="hidden" name="individual_uuid" value="{{ id }}">
                 {% csrf_token %}
-                <button type="submit" class="button-that-looks-like-link" form="delete_individual_from_yourself_form_{{ forloop.counter }}">
+                <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_individual_from_yourself_form_{{ forloop.counter }}">
                     Remove Individual {{ forloop.counter }}<span
                         class="govuk-visually-hidden"> Individual {{ forloop.counter }}</span>
                 </button>

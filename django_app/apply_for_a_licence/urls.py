@@ -54,6 +54,11 @@ views_business_urls = [
 
 views_individual_urls = [
     path("add_an_individual", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
+    path(
+        "what_is_individuals_address/<str:location>/<str:individual_uuid>",
+        views_individual.WhatIsIndividualsAddressView.as_view(),
+        name="what_is_individuals_address",
+    ),
     path("delete_individual", views_individual.DeleteIndividualView.as_view(), name="delete_individual"),
     path("individual_added", views_individual.IndividualAddedView.as_view(), name="individual_added"),
     path(
@@ -103,7 +108,7 @@ views_recipients_urls = [
     path("delete_recipient", views_recipients.DeleteRecipientView.as_view(), name="delete_recipient"),
     path("recipient_added", views_recipients.RecipientAddedView.as_view(), name="recipient_added"),
     path(
-        "relationship_provider_recipient",
+        "relationship_provider_recipient/<str:recipient_uuid>",
         views_recipients.RelationshipProviderRecipientView.as_view(),
         name="relationship_provider_recipient",
     ),
