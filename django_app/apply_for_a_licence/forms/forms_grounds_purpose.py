@@ -1,6 +1,5 @@
 from apply_for_a_licence import choices
-from apply_for_a_licence.choices import LicensingGroundsChoices
-from apply_for_a_licence.models import ApplicationServices, Ground
+from apply_for_a_licence.models import Ground, Licence
 from core.crispy_fields import get_field_with_label_id
 from core.forms.base_forms import BaseForm, BaseModelForm
 from crispy_forms_gds.choices import Choice
@@ -46,8 +45,8 @@ class LicensingGroundsForm(BaseForm):
         if self.audit_service_selected:
             checkbox_choices.remove(
                 (
-                    LicensingGroundsChoices.parent_or_subsidiary_company.value,
-                    LicensingGroundsChoices.parent_or_subsidiary_company.label,
+                    choices.LicensingGroundsChoices.parent_or_subsidiary_company.value,
+                    choices.LicensingGroundsChoices.parent_or_subsidiary_company.label,
                 )
             )
 
@@ -82,7 +81,7 @@ class LicensingGroundsForm(BaseForm):
 
 class PurposeOfProvisionForm(BaseModelForm):
     class Meta:
-        model = ApplicationServices
+        model = Licence
         fields = ["purpose_of_provision"]
         labels = {
             "purpose_of_provision": "What is your purpose for providing these services?",

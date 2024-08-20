@@ -1,5 +1,5 @@
 from apply_for_a_licence.models import Individual, Organisation
-from core.forms.base_forms import BaseBusinessDetailsForm, BaseModelForm
+from core.forms.base_forms import BaseBusinessDetailsForm, BaseForm, BaseModelForm
 from crispy_forms_gds.layout import Field, Fluid, Layout, Size
 from django import forms
 
@@ -78,3 +78,9 @@ class AddYourselfAddressForm(BaseBusinessDetailsForm):
             Field.text("county", field_width=Fluid.ONE_THIRD),
             Field.text("postcode", field_width=Fluid.ONE_THIRD),
         )
+
+
+class DeclarationForm(BaseForm):
+    declaration = forms.BooleanField(
+        label="I agree and accept", required=True, error_messages={"required": "Confirm if you agree and accept the declaration"}
+    )

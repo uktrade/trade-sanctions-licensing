@@ -92,3 +92,10 @@ class LicensingGroundsChoices(models.TextChoices):
         "safety of existing infrastructure, or the environment",
     )
     food = "food", "Services in connection with the production or distribution of food for the benefit of the civilian population"
+
+
+class TypeOfRelationshipChoices(models.TextChoices):
+    recipient = "recipient", "Recipient"
+    business = "business", "Business"
+    named_individuals = "named_individuals", "Named Individuals"
+    sole_individual = "sole_individual", "Sole Individual"

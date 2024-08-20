@@ -4,7 +4,7 @@ from apply_for_a_licence.exceptions import (
     CompaniesHouse500Error,
     CompaniesHouseException,
 )
-from apply_for_a_licence.models import BaseApplication, Organisation
+from apply_for_a_licence.models import Licence, Organisation
 from core.forms.base_forms import BaseBusinessDetailsForm, BaseForm, BaseModelForm
 from core.utils import is_request_ratelimited
 from crispy_forms_gds.choices import Choice
@@ -26,7 +26,7 @@ from utils.companies_house import (
 
 class IsTheBusinessRegisteredWithCompaniesHouseForm(BaseModelForm):
     class Meta:
-        model = BaseApplication
+        model = Licence
         fields = ["business_registered_on_companies_house"]
         widgets = {"business_registered_on_companies_house": forms.RadioSelect}
         labels = {
