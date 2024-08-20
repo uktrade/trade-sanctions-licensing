@@ -108,6 +108,7 @@ class EmailVerifyForm(BaseForm):
             "expired": "The code you entered is no longer valid. New code sent",
             "invalid": "Code is incorrect. Enter the 6 digit security code we sent to your email",
         },
+        widget=forms.TextInput(attrs={"style": "max-width: 5em"}),
     )
 
     def clean_email_verification_code(self) -> str:

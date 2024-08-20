@@ -131,6 +131,7 @@ views_documents_urls = [
 ]
 views_end_urls = [
     path("check_your_answers", views_end.CheckYourAnswersView.as_view(), name="check_your_answers"),
+    path("declaration", views_end.DeclarationView.as_view(), name="declaration"),
     path("complete", views_end.CompleteView.as_view(), name="complete"),
 ]
 urlpatterns = (

@@ -1,5 +1,5 @@
-from apply_for_a_licence.models import ApplicationOrganisation, Organisation
-from core.forms.base_forms import BaseBusinessDetailsForm, BaseForm, BaseModelForm
+from apply_for_a_licence.models import Organisation
+from core.forms.base_forms import BaseBusinessDetailsForm, BaseForm
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.layout import Field, Fieldset, Fluid, Layout, Size
 from django import forms
@@ -129,23 +129,18 @@ class RecipientAddedForm(BaseForm):
             self.is_bound = False
 
 
-class RelationshipProviderRecipientForm(BaseModelForm):
-    class Meta:
-        model = ApplicationOrganisation
-        fields = ["relationship"]
-        labels = {
-            "relationship": "What is the relationship between the provider of the services and the recipient?",
-        }
-        help_texts = {
-            "relationship": "For example, the recipient is a subsidiary of the provider; " "or there is no relationship",
-        }
-        error_messages = {
+class RelationshipProviderRecipientForm(BaseForm):
+    relationship = forms.CharField(
+        label="What is the relationship between the provider of the services and the recipient?",
+        help_text="For example, the recipient is a subsidiary of the provider; " "or there is no relationship",
+        required=True,
+        error_messages={
             "relationship": {
                 "required": "Relationship between the provider of the services and the recipient cannot be left blank"
-            },
-        }
+            }
+        },
+    )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.fields["relationship"].required = True
         self.fields["relationship"].widget.attrs = {"rows": 5}

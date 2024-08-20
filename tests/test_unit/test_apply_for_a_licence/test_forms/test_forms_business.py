@@ -19,9 +19,9 @@ class TestIsTheBusinessRegisteredWithCompaniesHouseForm:
 
 
 class TestDoYouKnowTheRegisteredCompanyNumberForm:
-    def test_do_you_know_the_registered_company_number_required(self, request_object):
+    def test_do_you_know_the_registered_company_number_required(self, post_request_object):
         form = forms.DoYouKnowTheRegisteredCompanyNumberForm(
-            data={"do_you_know_the_registered_company_number": None}, request=request_object
+            data={"do_you_know_the_registered_company_number": None}, request=post_request_object
         )
         assert not form.is_valid()
         assert "do_you_know_the_registered_company_number" in form.errors

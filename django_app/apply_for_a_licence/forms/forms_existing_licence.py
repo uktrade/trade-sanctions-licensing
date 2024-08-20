@@ -1,6 +1,6 @@
 from typing import Any
 
-from apply_for_a_licence.models import ExistingLicences
+from apply_for_a_licence.models import Applicant
 from core.forms.base_forms import BaseModelForm
 from crispy_forms_gds.layout import (
     ConditionalQuestion,
@@ -13,19 +13,19 @@ from crispy_forms_gds.layout import (
 
 
 class ExistingLicencesForm(BaseModelForm):
-    hide_optional_label_fields = ["licences"]
+    hide_optional_label_fields = ["existing_licences"]
 
     class Meta:
-        model = ExistingLicences
-        fields = ("held_existing_licence", "licences")
+        model = Applicant
+        fields = ("held_existing_licence", "existing_licences")
         labels = {
-            "licences": "Enter all previous licence numbers",
+            "existing_licences": "Enter all previous licence numbers",
         }
         error_messages = {
             "held_existing_licence": {
                 "required": "Select yes if the business has held a licence before to provide these services"
             },
-            "licences": {"required": "Licence number cannot be blank"},
+            "existing_licences": {"required": "Licence number cannot be blank"},
         }
         help_texts = {"held_existing_licence": "Your application may be delayed if you do not give all previous licence numbers"}
 
@@ -42,7 +42,7 @@ class ExistingLicencesForm(BaseModelForm):
                 "held_existing_licence",
                 ConditionalQuestion(
                     "Yes",
-                    Field.text("licences", field_width=Fluid.TWO_THIRDS),
+                    Field.text("existing_licences", field_width=Fluid.TWO_THIRDS),
                 ),
                 "No",
             )
@@ -64,6 +64,6 @@ class ExistingLicencesForm(BaseModelForm):
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
-        if cleaned_data.get("held_existing_licence") == "yes" and not cleaned_data["licences"]:
-            self.add_error("licences", self.Meta.error_messages["licences"]["required"])
+        if cleaned_data.get("held_existing_licence") == "yes" and not cleaned_data["existing_licences"]:
+            self.add_error("existing_licences", self.Meta.error_messages["existing_licences"]["required"])
         return cleaned_data
