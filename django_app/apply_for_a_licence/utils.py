@@ -13,6 +13,12 @@ def get_cleaned_data_for_step(request: HttpRequest, step_name: str) -> dict:
     view_class = step_to_view_dict[step_name]
     form_class = view_class.form_class
     form = form_class(get_dirty_form_data(request, step_name), request=request)
+
+    if step_name in ["add_a_business", "add_a_recipient", "individual_address"]:
+        # When we get the dirty data, we need to check if address form is a UK address, otherwise postcode gets deleted
+        if get_dirty_form_data(request, step_name)["country"] == "GB":
+            form = form_class(get_dirty_form_data(request, step_name), is_uk_address=True, request=request)
+
     if form.is_valid():
         return form.cleaned_data
     else:
@@ -27,7 +33,6 @@ def get_all_cleaned_data(request: HttpRequest) -> dict:
     form_views = [step for step, view in step_to_view_dict.items() if getattr(view, "form_class", None)]
     for step_name in form_views:
         all_cleaned_data[step_name] = get_cleaned_data_for_step(request, step_name)
-
     return all_cleaned_data
 
 
