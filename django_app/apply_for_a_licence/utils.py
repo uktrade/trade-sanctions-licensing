@@ -16,7 +16,7 @@ def get_cleaned_data_for_step(request: HttpRequest, step_name: str) -> dict:
 
     if step_name in ["add_a_business", "add_a_recipient", "individual_address"]:
         # When we get the dirty data, we need to check if address form is a UK address, otherwise postcode gets deleted
-        if get_dirty_form_data(request, step_name)["country"] == "GB":
+        if get_dirty_form_data(request, step_name).get("country") == "GB":
             form = form_class(get_dirty_form_data(request, step_name), is_uk_address=True, request=request)
 
     if form.is_valid():
