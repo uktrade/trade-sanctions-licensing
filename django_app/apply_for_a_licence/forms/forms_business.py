@@ -5,7 +5,12 @@ from apply_for_a_licence.exceptions import (
     CompaniesHouseException,
 )
 from apply_for_a_licence.models import Licence, Organisation
-from core.forms.base_forms import BaseBusinessDetailsForm, BaseForm, BaseModelForm
+from core.forms.base_forms import (
+    BaseForm,
+    BaseModelForm,
+    BaseNonUKBusinessDetailsForm,
+    BaseUKBusinessDetailsForm,
+)
 from core.utils import is_request_ratelimited
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.layout import (
@@ -176,10 +181,53 @@ class WhereIsTheBusinessLocatedForm(BaseForm):
     )
 
 
-class AddABusinessForm(BaseBusinessDetailsForm):
+class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
     form_h1_header = "Add a business"
 
-    class Meta(BaseBusinessDetailsForm.Meta):
+    class Meta(BaseUKBusinessDetailsForm.Meta):
+        model = Organisation
+        fields = (
+            "name",
+            "town_or_city",
+            "address_line_1",
+            "address_line_2",
+            "county",
+            "postcode",
+            "country",
+        )
+        widgets = BaseUKBusinessDetailsForm.Meta.widgets
+        labels = BaseUKBusinessDetailsForm.Meta.labels
+        error_messages = BaseUKBusinessDetailsForm.Meta.error_messages
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+
+        address_layout = Fieldset(
+            Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
+            Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
+            Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
+            Field.text("county", field_width=Fluid.ONE_THIRD),
+            Field.text("postcode", field_width=Fluid.ONE_THIRD),
+            legend="Address",
+            legend_size=Size.MEDIUM,
+            legend_tag="h2",
+        )
+
+        self.helper.layout = Layout(
+            Fieldset(
+                Field.text("name", field_width=Fluid.ONE_HALF),
+                legend="Name",
+                legend_size=Size.MEDIUM,
+                legend_tag="h2",
+            ),
+            address_layout,
+        )
+
+
+class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
+    form_h1_header = "Add a business"
+
+    class Meta(BaseNonUKBusinessDetailsForm.Meta):
         model = Organisation
         fields = (
             "name",
@@ -189,40 +237,25 @@ class AddABusinessForm(BaseBusinessDetailsForm):
             "address_line_2",
             "address_line_3",
             "address_line_4",
-            "county",
-            "postcode",
         )
-        widgets = BaseBusinessDetailsForm.Meta.widgets
-        labels = BaseBusinessDetailsForm.Meta.labels
-        error_messages = BaseBusinessDetailsForm.Meta.error_messages
+        widgets = BaseNonUKBusinessDetailsForm.Meta.widgets
+        labels = BaseNonUKBusinessDetailsForm.Meta.labels
+        error_messages = BaseNonUKBusinessDetailsForm.Meta.error_messages
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
 
-        if self.is_uk_address:
-            address_layout = Fieldset(
-                Field.text("country", field_width=Fluid.ONE_THIRD),
-                Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
-                Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
-                Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
-                Field.text("county", field_width=Fluid.ONE_THIRD),
-                Field.text("postcode", field_width=Fluid.ONE_THIRD),
-                legend="Address",
-                legend_size=Size.MEDIUM,
-                legend_tag="h2",
-            )
-        else:
-            address_layout = Fieldset(
-                Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
-                Field.text("country", field_width=Fluid.ONE_THIRD),
-                Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
-                Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
-                Field.text("address_line_3", field_width=Fluid.ONE_THIRD),
-                Field.text("address_line_4", field_width=Fluid.ONE_THIRD),
-                legend="Address",
-                legend_size=Size.MEDIUM,
-                legend_tag="h2",
-            )
+        address_layout = Fieldset(
+            Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
+            Field.text("country", field_width=Fluid.ONE_THIRD),
+            Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
+            Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
+            Field.text("address_line_3", field_width=Fluid.ONE_THIRD),
+            Field.text("address_line_4", field_width=Fluid.ONE_THIRD),
+            legend="Address",
+            legend_size=Size.MEDIUM,
+            legend_tag="h2",
+        )
 
         self.helper.layout = Layout(
             Fieldset(

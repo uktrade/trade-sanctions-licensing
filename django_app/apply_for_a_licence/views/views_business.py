@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 
 
 class AddABusinessView(BaseFormView):
-    form_class = forms.AddABusinessForm
     template_name = "core/base_form_step.html"
     success_url = reverse_lazy("business_added")
     redirect_after_post = False
@@ -33,11 +32,16 @@ class AddABusinessView(BaseFormView):
             if business_uuid := self.request.GET.get("business_uuid", None):
                 if businesses_dict := self.request.session.get("businesses", {}).get(business_uuid, None):
                     kwargs["data"] = businesses_dict["dirty_data"]
-        if self.location == "in_the_uk":
-            kwargs["is_uk_address"] = True
         return kwargs
 
-    def form_valid(self, form: forms.AddABusinessForm) -> HttpResponse:
+    def get_form_class(self):
+        if self.location == "in_the_uk":
+            form_class = forms.AddAUKBusinessForm
+        else:
+            form_class = forms.AddANonUKBusinessForm
+        return form_class
+
+    def form_valid(self, form: forms.AddAUKBusinessForm | forms.AddANonUKBusinessForm) -> HttpResponse:
         current_businesses = self.request.session.get("businesses", {})
         # get the business_uuid if it exists, otherwise create it
         if business_uuid := self.request.GET.get("business_uuid", self.kwargs.get("business_uuid", str(uuid.uuid4()))):
@@ -101,7 +105,7 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
 class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
     form_class = forms.DoYouKnowTheRegisteredCompanyNumberForm
 
-    def form_valid(self, form: forms.AddABusinessForm) -> HttpResponse:
+    def form_valid(self, form: forms.DoYouKnowTheRegisteredCompanyNumberForm) -> HttpResponse:
         # Want to add companies house businesses to the business list
         current_businesses = self.request.session.get("businesses", {})
         # get the business_uuid if it exists, otherwise create it

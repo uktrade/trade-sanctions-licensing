@@ -1,5 +1,11 @@
 from apply_for_a_licence.models import Individual, Organisation
-from core.forms.base_forms import BaseBusinessDetailsForm, BaseForm, BaseModelForm
+from core.forms.base_forms import (
+    BaseBusinessDetailsForm,
+    BaseForm,
+    BaseModelForm,
+    BaseNonUKBusinessDetailsForm,
+    BaseUKBusinessDetailsForm,
+)
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.layout import Field, Fieldset, Fluid, Layout, Size
 from django import forms
@@ -116,10 +122,41 @@ class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
         )
 
 
-class IndividualAddressForm(BaseBusinessDetailsForm):
+class IndividualUKAddressForm(BaseUKBusinessDetailsForm):
     form_h1_header = "What is the individual's address?"
 
-    class Meta:
+    class Meta(BaseUKBusinessDetailsForm.Meta):
+        model = Individual
+        fields = (
+            "town_or_city",
+            "country",
+            "address_line_1",
+            "address_line_2",
+            "county",
+            "postcode",
+        )
+        widgets = BaseUKBusinessDetailsForm.Meta.widgets
+        labels = BaseUKBusinessDetailsForm.Meta.labels
+        error_messages = BaseUKBusinessDetailsForm.Meta.error_messages
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper.layout = Layout(
+            Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
+            Field.text("town_or_city", field_width=Fluid.ONE_HALF),
+            Field.text("county", field_width=Fluid.ONE_HALF),
+            Field.text("postcode", field_width=Fluid.ONE_THIRD),
+        )
+
+        self.helper.label_size = None
+
+
+class IndividualNonUKAddressForm(BaseNonUKBusinessDetailsForm):
+    form_h1_header = "What is the individual's address?"
+
+    class Meta(BaseNonUKBusinessDetailsForm.Meta):
         model = Individual
         fields = (
             "town_or_city",
@@ -128,30 +165,21 @@ class IndividualAddressForm(BaseBusinessDetailsForm):
             "address_line_2",
             "address_line_3",
             "address_line_4",
-            "county",
-            "postcode",
         )
-        widgets = {"country": forms.Select}
+        widgets = BaseUKBusinessDetailsForm.Meta.widgets
+        labels = BaseUKBusinessDetailsForm.Meta.labels
+        error_messages = BaseUKBusinessDetailsForm.Meta.error_messages
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if self.is_uk_address:
-            self.helper.layout = Layout(
-                Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
-                Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
-                Field.text("town_or_city", field_width=Fluid.ONE_HALF),
-                Field.text("county", field_width=Fluid.ONE_HALF),
-                Field.text("postcode", field_width=Fluid.ONE_THIRD),
-            )
-        else:
-            self.helper.layout = Layout(
-                Field.text("country", field_width=Fluid.TWO_THIRDS),
-                Field.text("town_or_city", field_width=Fluid.TWO_THIRDS),
-                Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
-                Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
-                Field.text("address_line_3", field_width=Fluid.TWO_THIRDS),
-                Field.text("address_line_4", field_width=Fluid.TWO_THIRDS),
-            )
+        self.helper.layout = Layout(
+            Field.text("country", field_width=Fluid.TWO_THIRDS),
+            Field.text("town_or_city", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_3", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_4", field_width=Fluid.TWO_THIRDS),
+        )
 
         self.helper.label_size = None

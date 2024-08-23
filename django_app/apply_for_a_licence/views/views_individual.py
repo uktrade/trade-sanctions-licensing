@@ -72,14 +72,13 @@ class AddAnIndividualView(BaseFormView):
 
 
 class WhatIsIndividualsAddressView(BaseFormView):
-    form_class = forms.IndividualAddressForm
+
+    def setup(self, request, *args, **kwargs):
+        self.location = kwargs["location"]
+        return super().setup(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        if self.kwargs["location"] == "in_the_uk":
-            kwargs["is_uk_address"] = True
-        else:
-            kwargs["is_uk_address"] = False
 
         self.has_address_data = False
         if self.request.method == "GET":
@@ -89,6 +88,13 @@ class WhatIsIndividualsAddressView(BaseFormView):
                 kwargs["data"] = address_data["dirty_data"]
                 self.has_address_data = True
         return kwargs
+
+    def get_form_class(self) -> [forms.IndividualUKAddressForm | forms.IndividualNonUKAddressForm]:
+        if self.location == "in_the_uk":
+            form_class = forms.IndividualUKAddressForm
+        else:
+            form_class = forms.IndividualNonUKAddressForm
+        return form_class
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)

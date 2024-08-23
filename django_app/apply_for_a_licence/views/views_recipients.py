@@ -27,7 +27,6 @@ class WhereIsTheRecipientLocatedView(BaseFormView):
 
 
 class AddARecipientView(BaseFormView):
-    form_class = forms.AddARecipientForm
     template_name = "core/base_form_step.html"
     redirect_after_post = False
 
@@ -43,11 +42,16 @@ class AddARecipientView(BaseFormView):
             if recipient_uuid := self.request.GET.get("recipient_uuid", None):
                 if recipient_dict := self.request.session.get("recipients", {}).get(recipient_uuid, None):
                     kwargs["data"] = recipient_dict["dirty_data"]
-        if self.location == "in_the_uk":
-            kwargs["is_uk_address"] = True
         return kwargs
 
-    def form_valid(self, form: forms.AddARecipientForm) -> HttpResponse:
+    def get_form_class(self) -> [forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm]:
+        if self.location == "in_the_uk":
+            form_class = forms.AddAUKRecipientForm
+        else:
+            form_class = forms.AddANonUKRecipientForm
+        return form_class
+
+    def form_valid(self, form: forms.AddAUKRecipientForm) -> HttpResponse:
         current_recipients = self.request.session.get("recipients", {})
         # get the recipient_uuid if it exists, otherwise create it
         if recipient_uuid := self.request.GET.get("recipient_uuid", self.kwargs.get("recipient_uuid", str(uuid.uuid4()))):
