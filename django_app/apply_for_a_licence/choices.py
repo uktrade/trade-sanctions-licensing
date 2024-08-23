@@ -43,7 +43,6 @@ class TypeOfServicesChoices(models.TextChoices):
         "interception_or_monitoring",
         "Interception or monitoring services (Russia, Belarus, Iran, Myanmar, Syria and Venezuela)",
     )
-    internet = "internet", "Internet services (Russia and Belarus)"
     mining_manufacturing_or_computer = (
         "mining_manufacturing_or_computer",
         "Mining manufacturing or computer services (Democratic People's Republic of Korea",
