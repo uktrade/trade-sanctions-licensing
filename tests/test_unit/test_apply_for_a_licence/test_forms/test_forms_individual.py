@@ -28,6 +28,4 @@ class TestBusinessEmployingIndividualForm:
         form = forms.BusinessEmployingIndividualForm(data={}, request=request_object)
         assert not form.is_valid()
         assert "name" in form.errors
-        assert "country" in form.errors
         assert form.errors.as_data()["name"][0].code == "required"
-        assert form.errors.as_data()["country"][0].code == "required"

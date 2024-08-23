@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 from apply_for_a_licence.forms import forms_individual as individual_forms
 from apply_for_a_licence.forms import forms_yourself as forms
@@ -18,11 +17,10 @@ class AddYourselfView(BaseFormView):
 
 
 class AddYourselfAddressView(BaseFormView):
-    form_class = forms.AddYourselfAddressForm
     success_url = reverse_lazy("yourself_and_individual_added")
 
-    def get_form_kwargs(self) -> dict[str, Any]:
-        kwargs = super().get_form_kwargs()
+    def get_form_class(self) -> [forms.AddYourselfUKAddressForm | forms.AddYourselfNonUKAddressForm]:
+        form_class = forms.AddYourselfNonUKAddressForm
 
         if add_yourself_view := self.request.session.get("add_yourself", False):
             if add_yourself_view.get("nationality_and_location") in [
@@ -30,10 +28,10 @@ class AddYourselfAddressView(BaseFormView):
                 "dual_national_uk_location",
                 "non_uk_national_uk_location",
             ]:
-                kwargs["is_uk_address"] = True
-        return kwargs
+                form_class = forms.AddYourselfUKAddressForm
+        return form_class
 
-    def form_valid(self, form: forms.AddYourselfAddressForm) -> HttpResponse:
+    def form_valid(self, form: forms.AddYourselfUKAddressForm | forms.AddYourselfNonUKAddressForm) -> HttpResponse:
         your_address = {
             "cleaned_data": form.cleaned_data,
             "dirty_data": form.data,
