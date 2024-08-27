@@ -47,7 +47,8 @@ views_business_urls = [
         views_business.ManualCompaniesHouseInputView.as_view(),
         name="manual_companies_house_input",
     ),
-    path("add_a_business/<str:location>", views_business.AddABusinessView.as_view(), name="add_a_business"),
+    path("add_a_business/uk", views_business.AddAUKBusinessView.as_view(), name="add_a_business_uk"),
+    path("add_a_business/non_uk", views_business.AddANonUKBusinessView.as_view(), name="add_a_business_non_uk"),
     path("delete_business", views_business.DeleteBusinessView.as_view(), name="delete_business"),
     path("business_added", views_business.BusinessAddedView.as_view(), name="business_added"),
 ]
@@ -55,9 +56,14 @@ views_business_urls = [
 views_individual_urls = [
     path("add_an_individual", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
     path(
-        "what_is_individuals_address/<str:location>/<str:individual_uuid>",
-        views_individual.WhatIsIndividualsAddressView.as_view(),
-        name="what_is_individuals_address",
+        "what_is_individuals_address/uk/<str:individual_uuid>",
+        views_individual.WhatIsIndividualsUKAddressView.as_view(),
+        name="what_is_individuals_address_uk",
+    ),
+    path(
+        "what_is_individuals_address/non_uk/<str:individual_uuid>",
+        views_individual.WhatIsIndividualsNonUKAddressView.as_view(),
+        name="what_is_individuals_address_non_uk",
     ),
     path("delete_individual", views_individual.DeleteIndividualView.as_view(), name="delete_individual"),
     path("individual_added", views_individual.IndividualAddedView.as_view(), name="individual_added"),
@@ -70,7 +76,10 @@ views_individual_urls = [
 
 views_yourself_urls = [
     path("add_yourself", views_yourself.AddYourselfView.as_view(), name="add_yourself"),
-    path("add_yourself_address", views_yourself.AddYourselfAddressView.as_view(), name="add_yourself_address"),
+    path("add_yourself_address/uk/", views_yourself.AddYourselfUKAddressView.as_view(), name="add_yourself_address_uk"),
+    path(
+        "add_yourself_address/non_uk/", views_yourself.AddYourselfNonUKAddressView.as_view(), name="add_yourself_address_non_uk"
+    ),
     path(
         "yourself_and_individual_added",
         views_yourself.YourselfAndIndividualAddedView.as_view(),
@@ -104,7 +113,8 @@ views_recipients_urls = [
         views_recipients.WhereIsTheRecipientLocatedView.as_view(),
         name="where_is_the_recipient_located",
     ),
-    path("add_a_recipient/<str:location>", views_recipients.AddARecipientView.as_view(), name="add_a_recipient"),
+    path("add_a_recipient/uk", views_recipients.AddAUKRecipientView.as_view(), name="add_a_recipient_uk"),
+    path("add_a_recipient/non_uk", views_recipients.AddANonUKRecipientView.as_view(), name="add_a_recipient_non_uk"),
     path("delete_recipient", views_recipients.DeleteRecipientView.as_view(), name="delete_recipient"),
     path("recipient_added", views_recipients.RecipientAddedView.as_view(), name="recipient_added"),
     path(

@@ -108,10 +108,14 @@ class SaveToDB:
                 existing_licences=self.data["previous_licence"]["existing_licences"],
             )
         else:
+            if self.data["add_a_business_uk"]:
+                business_name = self.data["add_a_business_uk"]["name"]
+            else:
+                business_name = self.data["add_a_business_non_uk"]["name"]
             return self.applicant.create(
                 user_email_address=self.data["what_is_your_email"],
                 user_email_verification=self.email_verification,
-                full_name=self.data["add_a_business"]["name"],
+                full_name=business_name,
                 type_of_relationship=TypeOfRelationshipChoices.business,
                 held_existing_licence=self.data["previous_licence"]["held_existing_licence"],
                 existing_licences=self.data["previous_licence"]["existing_licences"],
@@ -151,41 +155,66 @@ class SaveToDB:
 
     def save_individual(self, individual: Individual) -> None:
         if self.data["start"]["who_do_you_want_the_licence_to_cover"] == "myself":
-            individual.create(
-                licence=self.licence,
-                first_name=self.data["add_yourself"]["first_name"],
-                last_name=self.data["add_yourself"]["last_name"],
-                nationality_and_location=self.data["add_yourself"]["nationality_and_location"],
-                address_line_1=self.data["add_yourself_address"]["address_line_1"],
-                address_line_2=self.data["add_yourself_address"]["address_line_2"],
-                address_line_3=self.data["add_yourself_address"]["address_line_3"],
-                address_line_4=self.data["add_yourself_address"]["address_line_4"],
-                # TODO: remove when postcodes are fixed
-                postcode="ex123rd",  # self.data["add_yourself_address"]["postcode"],
-                country=self.data["add_yourself_address"]["country"],
-                town_or_city=self.data["add_yourself_address"]["town_or_city"],
-                relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
-            )
+            if self.data["add_yourself_address_uk"]:
+                individual.create(
+                    licence=self.licence,
+                    first_name=self.data["add_yourself"]["first_name"],
+                    last_name=self.data["add_yourself"]["last_name"],
+                    nationality_and_location=self.data["add_yourself"]["nationality_and_location"],
+                    address_line_1=self.data["add_yourself_address_uk"]["address_line_1"],
+                    address_line_2=self.data["add_yourself_address_uk"]["address_line_2"],
+                    postcode=self.data["add_yourself_address_uk"]["postcode"],
+                    country=self.data["add_yourself_address_uk"]["country"],
+                    town_or_city=self.data["add_yourself_address_uk"]["town_or_city"],
+                    county=self.data["add_yourself_address/uk"]["country"],
+                    relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
+                )
+            elif self.data["add_yourself_address_non_uk"]:
+                individual.create(
+                    licence=self.licence,
+                    first_name=self.data["add_yourself"]["first_name"],
+                    last_name=self.data["add_yourself"]["last_name"],
+                    nationality_and_location=self.data["add_yourself"]["nationality_and_location"],
+                    address_line_1=self.data["add_yourself_address_non_uk"]["address_line_1"],
+                    address_line_2=self.data["add_yourself_address_non_uk"]["address_line_2"],
+                    address_line_3=self.data["add_yourself_address_non_uk"]["address_line_3"],
+                    address_line_4=self.data["add_yourself_address_non_uk"]["address_line_4"],
+                    country=self.data["add_yourself_address_non_uk"]["country"],
+                    town_or_city=self.data["add_yourself_address_non_uk"]["town_or_city"],
+                    relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
+                )
         else:
-            # named individual journey
-            individual.create(
-                licence=self.licence,
-                first_name=self.data["add_an_individual"]["first_name"],
-                last_name=self.data["add_an_individual"]["last_name"],
-                nationality_and_location=self.data["add_an_individual"]["nationality_and_location"],
-                # TODO: to be fixed in DST-587
-                # address_line_1=self.data["add_an_individual_address"]["address_line_1"],
-                # address_line_2=self.data["add_an_individual_address"]["address_line_2"],
-                # address_line_3=self.data["add_an_individual_address"]["address_line_3"],
-                # address_line_4=self.data["add_an_individual_address"]["address_line_4"],
-                # country=self.data["add_an_individual_address"]["country"],
-                # town_or_city=self.data["add_an_individual_address"]["town_or_city"],
-                # TODO: remove when postcodes are fixed
-                # postcode="ex123rd",  # self.data["add_yourself_address"]["postcode"],
-                relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
-            )
+            if "what_is_individuals_address_uk" in self.data:
+                # named individual journey
+                individual.create(
+                    licence=self.licence,
+                    first_name=self.data["add_an_individual"]["first_name"],
+                    last_name=self.data["add_an_individual"]["last_name"],
+                    nationality_and_location=self.data["add_an_individual"]["nationality_and_location"],
+                    address_line_1=self.data["what_is_individuals_address_uk"]["address_line_1"],
+                    address_line_2=self.data["what_is_individuals_address_uk"]["address_line_2"],
+                    country=self.data["what_is_individuals_address_uk"]["country"],
+                    town_or_city=self.data["what_is_individuals_address_uk"]["town_or_city"],
+                    postcode=self.data["what_is_individuals_address_uk"]["postcode"],
+                    county=self.data["what_is_individuals_address_uk"]["county"],
+                    relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
+                )
+            else:
+                individual.create(
+                    licence=self.licence,
+                    first_name=self.data["add_an_individual"]["first_name"],
+                    last_name=self.data["add_an_individual"]["last_name"],
+                    nationality_and_location=self.data["add_an_individual"]["nationality_and_location"],
+                    address_line_1=self.data["what_is_individuals_address_non_uk"]["address_line_1"],
+                    address_line_2=self.data["what_is_individuals_address_non_uk"]["address_line_2"],
+                    address_line_3=self.data["what_is_individuals_address_non_uk"]["address_line_3"],
+                    address_line_4=self.data["what_is_individuals_address_non_uk"]["address_line_4"],
+                    country=self.data["what_is_individuals_address_non_uk"]["country"],
+                    town_or_city=self.data["what_is_individuals_address_non_uk"]["town_or_city"],
+                    relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
+                )
 
-    def save_business(self, business: Organisation) -> None:
+    def save_business(self, business: Organisation, location="") -> None:
         # named individuals employment details
         if self.is_individual:
             business.create(
@@ -213,38 +242,69 @@ class SaveToDB:
                 relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
             )
         else:
-            business.create(
-                licence=self.licence,
-                do_you_know_the_registered_company_number="No",
-                name=self.data["add_a_business"]["name"],
-                address_line_1=self.data["add_a_business"]["address_line_1"],
-                address_line_2=self.data["add_a_business"]["address_line_2"],
-                address_line_3=self.data["add_a_business"]["address_line_3"],
-                address_line_4=self.data["add_a_business"]["address_line_4"],
-                country=self.data["add_a_business"]["country"],
-                type_of_relationship=TypeOfRelationshipChoices.business,
-                relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
-            )
+            if self.data["add_a_business_uk"]:
+                business.create(
+                    licence=self.licence,
+                    do_you_know_the_registered_company_number="No",
+                    name=self.data["add_a_business_uk"]["name"],
+                    address_line_1=self.data["add_a_business_uk"]["address_line_1"],
+                    address_line_2=self.data["add_a_business_uk"]["address_line_2"],
+                    country=self.data["add_a_business_uk"]["country"],
+                    postcode=self.data["add_a_business_uk"]["postcode"],
+                    county=self.data["add_a_business_uk"]["county"],
+                    town_or_city=self.data["add_a_business_uk"]["town_or_city"],
+                    type_of_relationship=TypeOfRelationshipChoices.business,
+                    relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
+                )
+            elif self.data["add_a_business_non_uk"]:
+                business.create(
+                    licence=self.licence,
+                    do_you_know_the_registered_company_number="No",
+                    name=self.data["add_a_business_non_uk"]["name"],
+                    address_line_1=self.data["add_a_business_non_uk"]["address_line_1"],
+                    address_line_2=self.data["add_a_business_non_uk"]["address_line_2"],
+                    address_line_3=self.data["add_a_business_non_uk"]["address_line_3"],
+                    address_line_4=self.data["add_a_business_non_uk"]["address_line_4"],
+                    country=self.data["add_a_business_non_uk"]["country"],
+                    type_of_relationship=TypeOfRelationshipChoices.business,
+                    relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
+                )
 
     def save_recipient(self, recipient: Organisation) -> None:
-        recipient.create(
-            licence=self.licence,
-            name=self.data["add_a_recipient"]["name"],
-            name_of_person=self.data["add_a_recipient"]["name_of_person"],
-            website=self.data["add_a_recipient"]["website"],
-            email=self.data["add_a_recipient"]["email"],
-            additional_contact_details=self.data["add_a_recipient"]["additional_contact_details"],
-            address_line_1=self.data["add_a_recipient"]["address_line_1"],
-            address_line_2=self.data["add_a_recipient"]["address_line_2"],
-            address_line_3=self.data["add_a_recipient"]["address_line_3"],
-            address_line_4=self.data["add_a_recipient"]["address_line_4"],
-            # TODO: remove when postcodes are fixed
-            postcode="ex123rd",
-            country=self.data["add_a_recipient"]["country"],
-            town_or_city=self.data["add_a_recipient"]["town_or_city"],
-            type_of_relationship=TypeOfRelationshipChoices.recipient,
-            relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
-        )
+        if self.data["add_a_recipient_uk"]:
+            recipient.create(
+                licence=self.licence,
+                name=self.data["add_a_recipient_uk"]["name"],
+                name_of_person=self.data["add_a_recipient_uk"]["name_of_person"],
+                website=self.data["add_a_recipient_uk"]["website"],
+                email=self.data["add_a_recipient_uk"]["email"],
+                additional_contact_details=self.data["add_a_recipient_uk"]["additional_contact_details"],
+                address_line_1=self.data["add_a_recipient_uk"]["address_line_1"],
+                address_line_2=self.data["add_a_recipient_uk"]["address_line_2"],
+                postcode=self.data["add_a_recipient_uk"]["postcode"],
+                country=self.data["add_a_recipient_uk"]["country"],
+                town_or_city=self.data["add_a_recipient_uk"]["town_or_city"],
+                county=self.data["add_a_recipient_uk"]["county"],
+                type_of_relationship=TypeOfRelationshipChoices.recipient,
+                relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
+            )
+        elif self.data["add_a_recipient_non_uk"]:
+            recipient.create(
+                licence=self.licence,
+                name=self.data["add_a_recipient_non_uk"]["name"],
+                name_of_person=self.data["add_a_recipient_non_uk"]["name_of_person"],
+                website=self.data["add_a_recipient_non_uk"]["website"],
+                email=self.data["add_a_recipient_non_uk"]["email"],
+                additional_contact_details=self.data["add_a_recipient_non_uk"]["additional_contact_details"],
+                address_line_1=self.data["add_a_recipient_non_uk"]["address_line_1"],
+                address_line_2=self.data["add_a_recipient_non_uk"]["address_line_2"],
+                address_line_3=self.data["add_a_recipient_non_uk"]["address_line_3"],
+                address_line_4=self.data["add_a_recipient_non_uk"]["address_line_4"],
+                country=self.data["add_a_recipient_non_uk"]["country"],
+                town_or_city=self.data["add_a_recipient_non_uk"]["town_or_city"],
+                type_of_relationship=TypeOfRelationshipChoices.recipient,
+                relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
+            )
 
     def save_document(self, document_obj: Document) -> None:
         # TODO: need to update this to include the permanent bucket path, see DST-529

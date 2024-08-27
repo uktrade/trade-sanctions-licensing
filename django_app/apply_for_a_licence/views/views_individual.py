@@ -59,24 +59,17 @@ class AddAnIndividualView(BaseFormView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        success_url = reverse(
-            "what_is_individuals_address",
-            kwargs={
-                "location": "in_the_uk" if self.is_uk_individual else "outside_the_uk",
-                "individual_uuid": self.individual_uuid,
-            },
-        )
+        if self.is_uk_individual:
+            success_url = reverse("what_is_individuals_address_uk", kwargs={"individual_uuid": self.individual_uuid})
+        else:
+            success_url = reverse("what_is_individuals_address_non_uk", kwargs={"individual_uuid": self.individual_uuid})
+
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
         return success_url
 
 
 class WhatIsIndividualsAddressView(BaseFormView):
-
-    def setup(self, request, *args, **kwargs):
-        self.location = kwargs["location"]
-        return super().setup(request, *args, **kwargs)
-
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
@@ -88,13 +81,6 @@ class WhatIsIndividualsAddressView(BaseFormView):
                 kwargs["data"] = address_data["dirty_data"]
                 self.has_address_data = True
         return kwargs
-
-    def get_form_class(self) -> [forms.IndividualUKAddressForm | forms.IndividualNonUKAddressForm]:
-        if self.location == "in_the_uk":
-            form_class = forms.IndividualUKAddressForm
-        else:
-            form_class = forms.IndividualNonUKAddressForm
-        return form_class
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
@@ -117,6 +103,14 @@ class WhatIsIndividualsAddressView(BaseFormView):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
                 success_url = reverse("yourself_and_individual_added")
         return success_url
+
+
+class WhatIsIndividualsUKAddressView(WhatIsIndividualsAddressView):
+    form_class = forms.IndividualUKAddressForm
+
+
+class WhatIsIndividualsNonUKAddressView(WhatIsIndividualsAddressView):
+    form_class = forms.IndividualNonUKAddressForm
 
 
 class IndividualAddedView(BaseFormView):

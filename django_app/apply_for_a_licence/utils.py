@@ -24,7 +24,8 @@ def get_all_cleaned_data(request: HttpRequest) -> dict:
     from apply_for_a_licence.urls import step_to_view_dict
 
     all_cleaned_data = {}
-    form_views = [step for step, view in step_to_view_dict.items() if getattr(view, "form_class", None)]
+    form_views = [step for step, view in step_to_view_dict.items() if (getattr(view, "form_class", None))]
+
     for step_name in form_views:
         all_cleaned_data[step_name] = get_cleaned_data_for_step(request, step_name)
 

@@ -19,7 +19,10 @@ class WhereIsTheRecipientLocatedView(BaseFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
-        success_url = reverse("add_a_recipient", kwargs={"location": location})
+        if location == "in_the_uk":
+            success_url = reverse("add_a_recipient_uk")
+        else:
+            success_url = reverse("add_a_recipient_non_uk")
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
 
@@ -30,10 +33,6 @@ class AddARecipientView(BaseFormView):
     template_name = "core/base_form_step.html"
     redirect_after_post = False
 
-    def setup(self, request, *args, **kwargs):
-        self.location = kwargs["location"]
-        return super().setup(request, *args, **kwargs)
-
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
@@ -43,13 +42,6 @@ class AddARecipientView(BaseFormView):
                 if recipient_dict := self.request.session.get("recipients", {}).get(recipient_uuid, None):
                     kwargs["data"] = recipient_dict["dirty_data"]
         return kwargs
-
-    def get_form_class(self) -> [forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm]:
-        if self.location == "in_the_uk":
-            form_class = forms.AddAUKRecipientForm
-        else:
-            form_class = forms.AddANonUKRecipientForm
-        return form_class
 
     def form_valid(self, form: forms.AddAUKRecipientForm) -> HttpResponse:
         current_recipients = self.request.session.get("recipients", {})
@@ -77,6 +69,14 @@ class AddARecipientView(BaseFormView):
             success_url += "?" + get_parameters
 
         return success_url
+
+
+class AddAUKRecipientView(AddARecipientView):
+    form_class = forms.AddAUKRecipientForm
+
+
+class AddANonUKRecipientView(AddARecipientView):
+    form_class = forms.AddANonUKRecipientForm
 
 
 class RecipientAddedView(BaseFormView):

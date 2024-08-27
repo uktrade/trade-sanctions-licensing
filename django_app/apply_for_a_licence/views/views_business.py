@@ -20,10 +20,6 @@ class AddABusinessView(BaseFormView):
     success_url = reverse_lazy("business_added")
     redirect_after_post = False
 
-    def setup(self, request, *args, **kwargs):
-        self.location = kwargs["location"]
-        return super().setup(request, *args, **kwargs)
-
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
@@ -33,13 +29,6 @@ class AddABusinessView(BaseFormView):
                 if businesses_dict := self.request.session.get("businesses", {}).get(business_uuid, None):
                     kwargs["data"] = businesses_dict["dirty_data"]
         return kwargs
-
-    def get_form_class(self):
-        if self.location == "in_the_uk":
-            form_class = forms.AddAUKBusinessForm
-        else:
-            form_class = forms.AddANonUKBusinessForm
-        return form_class
 
     def form_valid(self, form: forms.AddAUKBusinessForm | forms.AddANonUKBusinessForm) -> HttpResponse:
         current_businesses = self.request.session.get("businesses", {})
@@ -52,6 +41,14 @@ class AddABusinessView(BaseFormView):
             }
         self.request.session["businesses"] = current_businesses
         return super().form_valid(form)
+
+
+class AddAUKBusinessView(AddABusinessView):
+    form_class = forms.AddAUKBusinessForm
+
+
+class AddANonUKBusinessView(BaseFormView):
+    form_class = forms.AddANonUKBusinessForm
 
 
 class BusinessAddedView(BaseFormView):
@@ -147,7 +144,11 @@ class ManualCompaniesHouseInputView(BaseFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["manual_companies_house_input"]
-        return reverse("add_a_business", kwargs={"location": location})
+        if location == "in_the_uk":
+            success_url = reverse("add_a_business_uk")
+        else:
+            success_url = reverse("add_a_business_non_uk")
+        return success_url
 
 
 class CheckCompanyDetailsView(BaseFormView):
@@ -168,7 +169,11 @@ class WhereIsTheBusinessLocatedView(BaseFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
-        success_url = reverse("add_a_business", kwargs={"location": location})
+        if location == "in_the_uk":
+            success_url = reverse("add_a_business_uk")
+        else:
+            success_url = reverse("add_a_business_non_uk")
+        return success_url
 
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
