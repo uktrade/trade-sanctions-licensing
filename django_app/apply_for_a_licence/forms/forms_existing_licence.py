@@ -48,17 +48,20 @@ class ExistingLicencesForm(BaseModelForm):
             )
         )
         self.held_existing_licence_label = (
-            "Have any of the businesses you've added held a licence before to provide sanctioned services?"
+            "Have any of the businesses you've added held a licence before to provide "
+            "any sanctioned services or export any sanctioned goods?"
         )
 
         if start_view := self.request.session.get("StartView", False):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
                 self.held_existing_licence_label = (
-                    "Have you, or has anyone else you've added, held a licence before to provide sanctioned services?"
+                    "Have you, or has anyone else you've added, held a licence before "
+                    "to provide any sanctioned services or export any sanctioned goods?"
                 )
             elif start_view.get("who_do_you_want_the_licence_to_cover") == "individual":
                 self.held_existing_licence_label = (
-                    "Have any of the individuals you've added held a licence before to provide sanctioned services?"
+                    "Have any of the individuals you've added held a licence before to "
+                    "provide any sanctioned services or export any sanctioned goods?"
                 )
         self.fields["held_existing_licence"].label = self.held_existing_licence_label
 
