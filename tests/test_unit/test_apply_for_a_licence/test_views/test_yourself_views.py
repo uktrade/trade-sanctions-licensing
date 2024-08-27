@@ -31,18 +31,34 @@ class TestYourselfAndIndividualAddedView:
 
 
 class TestAddYourselfView:
-    def test_successful_post(self, al_client):
+    def test_successful_uk_post(self, al_client):
         response = al_client.post(
             reverse("add_yourself"),
             data={"first_name": "John", "last_name": "Doe", "nationality_and_location": "uk_national_uk_location"},
         )
-        assert response.url == reverse("add_yourself_address")
+        assert response.url == reverse("add_yourself_address_uk")
+
+    def test_successful_non_uk_post(self, al_client):
+        response = al_client.post(
+            reverse("add_yourself"),
+            data={"first_name": "John", "last_name": "Doe", "nationality_and_location": "uk_national_non_uk_location"},
+        )
+        assert response.url == reverse("add_yourself_address_non_uk")
 
 
-class TestAddYourselfAddressView:
+class TestAddYourselfUKAddressView:
     def test_successful_non_uk_address_post(self, al_client):
         response = al_client.post(
-            reverse("add_yourself_address"),
+            reverse("add_yourself_address_uk"),
+            data={"country": "GB", "town_or_city": "London", "address_line_1": "Buck Pal", "postcode": "AA1 1AA"},
+        )
+        assert response.url == reverse("yourself_and_individual_added")
+
+
+class TestAddYourselfNonUKAddressView:
+    def test_successful_non_uk_address_post(self, al_client):
+        response = al_client.post(
+            reverse("add_yourself_address_non_uk"),
             data={"country": "DE", "town_or_city": "Berlin", "address_line_1": "Checkpoint Charlie"},
         )
         assert response.url == reverse("yourself_and_individual_added")
