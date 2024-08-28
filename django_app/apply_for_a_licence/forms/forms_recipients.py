@@ -1,5 +1,10 @@
 from apply_for_a_licence.models import Organisation
-from core.forms.base_forms import BaseBusinessDetailsForm, BaseForm
+from core.forms.base_forms import (
+    BaseBusinessDetailsForm,
+    BaseForm,
+    BaseNonUKBusinessDetailsForm,
+    BaseUKBusinessDetailsForm,
+)
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.layout import Field, Fieldset, Fluid, Layout, Size
 from django import forms
@@ -17,7 +22,7 @@ class WhereIsTheRecipientLocatedForm(BaseForm):
     )
 
 
-class AddARecipientForm(BaseBusinessDetailsForm):
+class AddAUKRecipientForm(BaseUKBusinessDetailsForm):
     form_h1_header = "About the recipient"
     labels = {
         "name": "Name of recipient",
@@ -34,7 +39,71 @@ class AddARecipientForm(BaseBusinessDetailsForm):
         "name": "This could be a business, an individual or a ship",
     }
 
-    class Meta(BaseBusinessDetailsForm.Meta):
+    class Meta(BaseUKBusinessDetailsForm.Meta):
+        model = Organisation
+        fields = (
+            "name",
+            "name_of_person",
+            "website",
+            "email",
+            "town_or_city",
+            "country",
+            "address_line_1",
+            "address_line_2",
+            "county",
+            "postcode",
+        )
+        widgets = BaseBusinessDetailsForm.Meta.widgets
+        labels = BaseBusinessDetailsForm.Meta.labels
+        error_messages = BaseBusinessDetailsForm.Meta.error_messages
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+
+        address_layout = Fieldset(
+            Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
+            Field.text("town_or_city", field_width=Fluid.ONE_HALF),
+            Field.text("county", field_width=Fluid.ONE_HALF),
+            Field.text("postcode", field_width=Fluid.ONE_THIRD),
+            legend="Address",
+            legend_size=Size.MEDIUM,
+            legend_tag="h2",
+        )
+
+        self.helper.layout = Layout(
+            Fieldset(
+                Field.text("name_of_person", field_width=Fluid.TWO_THIRDS),
+                Field.text("name", field_width=Fluid.TWO_THIRDS),
+                Field.text("email", field_width=Fluid.TWO_THIRDS),
+                Field.text("website", field_width=Fluid.TWO_THIRDS),
+                legend="Name",
+                legend_size=Size.MEDIUM,
+                legend_tag="h2",
+            ),
+            address_layout,
+            Field.textarea("additional_contact_details", field_width=Fluid.FULL, rows=5, label_tag="h2", label_size=Size.MEDIUM),
+        )
+
+
+class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
+    form_h1_header = "About the recipient"
+    labels = {
+        "name_of_person": "Name of person (optional)",
+        "email": "Email address (optional)",
+        "website": "Website address (optional)",
+        "additional_contact_details": "Additional contact details (optional)",
+    }
+    additional_contact_details = forms.CharField(
+        widget=forms.Textarea,
+        label="Additional contact details",
+        required=False,
+    )
+    help_texts = {
+        "name": "If the recipient is a ship, enter the ship's name",
+    }
+
+    class Meta(BaseNonUKBusinessDetailsForm.Meta):
         model = Organisation
         fields = (
             "name",
@@ -46,8 +115,6 @@ class AddARecipientForm(BaseBusinessDetailsForm):
             "address_line_2",
             "address_line_3",
             "address_line_4",
-            "county",
-            "postcode",
         )
         widgets = BaseBusinessDetailsForm.Meta.widgets
         labels = BaseBusinessDetailsForm.Meta.labels
@@ -56,37 +123,20 @@ class AddARecipientForm(BaseBusinessDetailsForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
 
-        self.fields["town_or_city"].required = True
-        self.fields["address_line_1"].required = True
-
-        if self.is_uk_address:
-            address_layout = Fieldset(
-                Field.text("country", field_width=Fluid.ONE_HALF),
-                Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
-                Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
-                Field.text("town_or_city", field_width=Fluid.ONE_HALF),
-                Field.text("county", field_width=Fluid.ONE_HALF),
-                Field.text("postcode", field_width=Fluid.ONE_THIRD),
-                legend="Address",
-                legend_size=Size.MEDIUM,
-                legend_tag="h2",
-            )
-
-        else:
-            address_layout = Fieldset(
-                Field.text("country", field_width=Fluid.TWO_THIRDS),
-                Field.text("town_or_city", field_width=Fluid.TWO_THIRDS),
-                Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
-                Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
-                Field.text("address_line_3", field_width=Fluid.TWO_THIRDS),
-                Field.text("address_line_4", field_width=Fluid.TWO_THIRDS),
-                legend="Address",
-                legend_size=Size.MEDIUM,
-                legend_tag="h2",
-            )
-            self.fields["additional_contact_details"].help_text = (
-                "This could be a phone number, or details of a jurisdiction instead of a country"
-            )
+        address_layout = Fieldset(
+            Field.text("country", field_width=Fluid.TWO_THIRDS),
+            Field.text("town_or_city", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_3", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_4", field_width=Fluid.TWO_THIRDS),
+            legend="Address",
+            legend_size=Size.MEDIUM,
+            legend_tag="h2",
+        )
+        self.fields["additional_contact_details"].help_text = (
+            "This could be a phone number, or details of a jurisdiction instead of a country"
+        )
 
         self.helper.layout = Layout(
             Fieldset(

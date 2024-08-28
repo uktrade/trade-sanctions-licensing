@@ -106,41 +106,93 @@ class BaseBusinessDetailsForm(BaseModelForm):
     readable_address = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args: object, **kwargs: object) -> None:
-        self.is_uk_address = kwargs.pop("is_uk_address", False)
         super().__init__(*args, **kwargs)
-        if self.is_uk_address:
-            self.fields["postcode"].required = True
-            self.fields["country"].initial = "GB"
-            self.fields["country"].widget = forms.HiddenInput()
-            del self.fields["address_line_3"]
-            del self.fields["address_line_4"]
-        else:
-            del self.fields["postcode"]
-            del self.fields["county"]
-            self.fields["town_or_city"].required = False
-            self.fields["address_line_1"].required = False
-            self.fields["country"].required = True
-            self.fields["country"].empty_label = "Select country"
+        self.helper.label_size = None
+        self.fields["town_or_city"].required = True
+        self.fields["address_line_1"].required = True
+
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean()
+        cleaned_data["readable_address"] = get_formatted_address(cleaned_data)
+        return cleaned_data
+
+
+class BaseUKBusinessDetailsForm(BaseBusinessDetailsForm):
+    """A base form for capturing UK business details. Such as the AddAUKBusiness Form"""
+
+    class Meta(BaseBusinessDetailsForm.Meta):
+        widgets = BaseBusinessDetailsForm.Meta.widgets
+        labels = BaseBusinessDetailsForm.Meta.labels
+        error_messages = BaseBusinessDetailsForm.Meta.error_messages
+        fields = (
+            "name",
+            "name_of_person",
+            "website",
+            "email",
+            "town_or_city",
+            "country",
+            "address_line_1",
+            "address_line_2",
+            "county",
+            "postcode",
+        )
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["postcode"].required = True
+        self.fields["country"].initial = "GB"
+        self.fields["country"].widget = forms.HiddenInput()
 
         self.helper.label_size = None
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
-        if self.is_uk_address:
-            cleaned_data["country"] = "GB"
-        cleaned_data["readable_address"] = get_formatted_address(cleaned_data)
-
-        cleaned_data["url_location"] = "in_the_uk" if self.is_uk_address else "outside_the_uk"
+        cleaned_data["country"] = "GB"
+        cleaned_data["url_location"] = "in_the_uk"
         return cleaned_data
 
     def clean_postcode(self) -> dict[str, Any]:
         postcode = self.cleaned_data.get("postcode")
-        if self.is_uk_address and postcode:
+        if postcode:
             # we want to validate a UK postcode
             pattern = re.compile(r"^[A-Za-z]{1,2}\d[A-Za-z\d]? ?\d[A-Za-z]{2}$")
             if not pattern.match(postcode):
                 raise forms.ValidationError(code="invalid", message=self.fields["postcode"].error_messages["invalid"])
         return postcode
+
+
+class BaseNonUKBusinessDetailsForm(BaseBusinessDetailsForm):
+    """A base form for capturing non-UK business details. Such as the AddANonUKBusiness Form"""
+
+    class Meta(BaseBusinessDetailsForm.Meta):
+        widgets = BaseBusinessDetailsForm.Meta.widgets
+        labels = BaseBusinessDetailsForm.Meta.labels
+        error_messages = BaseBusinessDetailsForm.Meta.error_messages
+        fields = (
+            "name",
+            "name_of_person",
+            "website",
+            "email",
+            "town_or_city",
+            "country",
+            "address_line_1",
+            "address_line_2",
+            "address_line_3",
+            "address_line_4",
+        )
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.fields["country"].required = True
+        self.fields["country"].empty_label = "Select country"
+
+        self.helper.label_size = None
+
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean()
+        cleaned_data["url_location"] = "outside_the_uk"
+        return cleaned_data
 
 
 class GenericForm(BaseForm):

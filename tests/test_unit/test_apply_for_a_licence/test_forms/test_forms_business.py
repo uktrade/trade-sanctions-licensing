@@ -92,47 +92,44 @@ class TestWhereIsTheBusinessLocatedForm:
         assert form.errors.as_data()["where_is_the_address"][0].code == "required"
 
 
-class TestAddABusinessForm:
-    def test_uk_required(self):
-        form = forms.AddABusinessForm(data={}, is_uk_address=True)
+class TestAddAUKBusinessForm:
+    def test_required(self):
+        form = forms.AddAUKBusinessForm(data={})
         assert not form.is_valid()
         assert "name" in form.errors
         assert "postcode" in form.errors
         assert form.errors.as_data()["name"][0].code == "required"
         assert form.errors.as_data()["postcode"][0].code == "required"
 
-    def test_uk_valid(self):
-        form = forms.AddABusinessForm(
+    def test_valid(self):
+        form = forms.AddAUKBusinessForm(
             data={"name": "Business", "town_or_city": "London", "address_line_1": "40 Hollyhead", "postcode": "SW1A 1AA"},
-            is_uk_address=True,
         )
         assert form.is_valid()
         assert form.cleaned_data["url_location"] == "in_the_uk"
 
-    def test_non_uk_required(self):
-        form = forms.AddABusinessForm(data={}, is_uk_address=False)
+    def test_incorrect_postcode_validation(self):
+
+        form = forms.AddAUKBusinessForm(data={"postcode": "123"})
+        assert not form.is_valid()
+        assert "postcode" in form.errors
+        assert form.errors.as_data()["postcode"][0].code == "invalid"
+
+
+class TestAddANonUKBusinessForm:
+    def test_required(self):
+        form = forms.AddANonUKBusinessForm(data={})
         assert not form.is_valid()
         assert "name" in form.errors
         assert "country" in form.errors
         assert form.errors.as_data()["name"][0].code == "required"
         assert form.errors.as_data()["country"][0].code == "required"
 
-    def test_non_uk_valid(self):
-        form = forms.AddABusinessForm(
-            data={
-                "name": "Business",
-                "country": "BE",
-            },
-            is_uk_address=False,
+    def test_valid(self):
+        form = forms.AddANonUKBusinessForm(
+            data={"name": "Business", "country": "BE", "address_line_1": "40 Hollyhead", "town_or_city": "Brussels"},
         )
         assert form.is_valid()
-
-    def test_incorrect_postcode_validation(self):
-
-        form = forms.AddABusinessForm(data={"postcode": "123"}, is_uk_address=True)
-        assert not form.is_valid()
-        assert "postcode" in form.errors
-        assert form.errors.as_data()["postcode"][0].code == "invalid"
 
 
 class TestBusinessAddedForm:
