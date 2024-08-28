@@ -64,6 +64,7 @@ class WhatIsYourEmailForm(BaseForm):
             "required": "Enter your email address",
             "invalid": "Enter a valid email address",
         },
+        help_text="We need to send you an email to verify your email address.",
     )
 
 
