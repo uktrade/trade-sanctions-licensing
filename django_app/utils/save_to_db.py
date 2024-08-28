@@ -230,7 +230,6 @@ class SaveToDB:
         recipient.create(
             licence=self.licence,
             name=self.data["add_a_recipient"]["name"],
-            name_of_person=self.data["add_a_recipient"]["name_of_person"],
             website=self.data["add_a_recipient"]["website"],
             email=self.data["add_a_recipient"]["email"],
             additional_contact_details=self.data["add_a_recipient"]["additional_contact_details"],
