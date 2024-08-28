@@ -27,8 +27,10 @@ class BaseFormView(FormView):
     def form_valid(self, form):
         # we want to assign the form to the view ,so we can access it in the get_success_url method
         self.form = form
+
         # we want to store the dirty form data in the session, so we can access it later on
         form_data = dict(form.data.copy())
+
         # first get rid of some useless cruft
         form_data.pop("csrfmiddlewaretoken", None)
         form_data.pop("encoding", None)
