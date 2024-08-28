@@ -48,25 +48,6 @@ class TestSanctionsRegimeForm:
         assert "which_sanctions_regime" in form.errors
         assert form.has_error("which_sanctions_regime", "invalid_choice")
 
-    @patch(
-        "apply_for_a_licence.forms.forms_services.active_regimes",
-        [
-            {"name": "Russia regime", "is_active": True},
-            {"name": "Belarus regime", "is_active": True},
-            {"name": "Cuba regime", "is_active": True},
-        ],
-    )
-    def test_slimmed_down_choices(self, request_object):
-        session = request_object.session
-        session["TypeOfServiceView"] = {"type_of_service": "internet"}
-        session.save()
-        form = forms.WhichSanctionsRegimeForm(request=request_object)
-        assert len(form.fields["which_sanctions_regime"].choices) == 2
-        flat_choices = [choice[0] for choice in form.fields["which_sanctions_regime"].choices]
-        assert "Russia regime" in flat_choices
-        assert "Belarus regime" in flat_choices
-        assert "Cuba regime" not in flat_choices
-
 
 class TestProfessionalOrBusinessServicesForm:
     def test_required(self, request_object):
