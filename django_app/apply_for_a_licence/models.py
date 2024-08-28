@@ -43,7 +43,6 @@ class Organisation(BaseModel):
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False)
     # two name fields required for the case of recipients
     name = models.CharField()
-    name_of_person = models.CharField(null=True, blank=True)
     website = models.URLField(null=True, blank=True)
     do_you_know_the_registered_company_number = models.CharField(
         choices=choices.YesNoChoices.choices,

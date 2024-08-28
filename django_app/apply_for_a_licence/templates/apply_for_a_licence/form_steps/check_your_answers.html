@@ -418,7 +418,7 @@
                         Name and address of recipient {{ forloop.counter }}
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        {{ recipient.cleaned_data.name_of_person }}
+                        {{ recipient.cleaned_data.name }}
                         <br><br>
                         {% include "apply_for_a_licence/partials/truncated_text.html" with text=recipient.cleaned_data.readable_address|linebreaksbr %}
                     </dd>

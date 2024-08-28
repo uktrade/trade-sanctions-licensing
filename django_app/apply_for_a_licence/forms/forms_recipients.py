@@ -20,7 +20,7 @@ class WhereIsTheRecipientLocatedForm(BaseForm):
 class AddARecipientForm(BaseBusinessDetailsForm):
     form_h1_header = "About the recipient"
     labels = {
-        "name_of_person": "Name of person (optional)",
+        "name": "Name of recipient",
         "email": "Email address (optional)",
         "website": "Website address (optional)",
         "additional_contact_details": "Additional contact details (optional)",
@@ -31,14 +31,13 @@ class AddARecipientForm(BaseBusinessDetailsForm):
         required=False,
     )
     help_texts = {
-        "name": "If the recipient is a ship, enter the ship's name",
+        "name": "This could be a business, an individual or a ship",
     }
 
     class Meta(BaseBusinessDetailsForm.Meta):
         model = Organisation
         fields = (
             "name",
-            "name_of_person",
             "website",
             "email",
             "town_or_city",
@@ -91,7 +90,6 @@ class AddARecipientForm(BaseBusinessDetailsForm):
 
         self.helper.layout = Layout(
             Fieldset(
-                Field.text("name_of_person", field_width=Fluid.TWO_THIRDS),
                 Field.text("name", field_width=Fluid.TWO_THIRDS),
                 Field.text("email", field_width=Fluid.TWO_THIRDS),
                 Field.text("website", field_width=Fluid.TWO_THIRDS),
