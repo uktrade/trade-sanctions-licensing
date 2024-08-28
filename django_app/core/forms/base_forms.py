@@ -126,7 +126,6 @@ class BaseUKBusinessDetailsForm(BaseBusinessDetailsForm):
         error_messages = BaseBusinessDetailsForm.Meta.error_messages
         fields = (
             "name",
-            "name_of_person",
             "website",
             "email",
             "town_or_city",
@@ -170,7 +169,6 @@ class BaseNonUKBusinessDetailsForm(BaseBusinessDetailsForm):
         error_messages = BaseBusinessDetailsForm.Meta.error_messages
         fields = (
             "name",
-            "name_of_person",
             "website",
             "email",
             "town_or_city",
