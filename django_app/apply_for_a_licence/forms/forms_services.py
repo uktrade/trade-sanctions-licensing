@@ -110,7 +110,7 @@ class ServiceActivitiesForm(BaseModelForm):
         super().__init__(*args, **kwargs)
         self.fields["service_activities"].widget.attrs = {"rows": 5}
 
-        if professional_or_business_services := self.request.session.get("TypeOfServiceView", False):
+        if professional_or_business_services := self.request.session.get("type_of_service", False):
             if professional_or_business_services.get("type_of_service", False) == "professional_and_business":
                 self.fields["service_activities"].help_text = render_to_string(
                     "apply_for_a_licence/form_steps/partials/professional_or_business_services.html"
