@@ -99,8 +99,9 @@ class TestAddAnIndividualView:
         )
         assert (
             reverse(
-                "what_is_individuals_address_uk",
+                "what_is_individuals_address",
                 kwargs={
+                    "location": response.resolver_match.kwargs["location"],
                     "individual_uuid": response.resolver_match.kwargs["individual_uuid"],
                 },
             )
@@ -160,8 +161,9 @@ class TestWhatIsIndividualsAddressView:
 
         response = al_client.post(
             reverse(
-                "what_is_individuals_address_uk",
+                "what_is_individuals_address",
                 kwargs={
+                    "location": "in_the_uk",
                     "individual_uuid": "individual1",
                 },
             ),
@@ -189,8 +191,9 @@ class TestWhatIsIndividualsAddressView:
     def test_get_form_data(self, al_client):
         response = al_client.get(
             reverse(
-                "what_is_individuals_address_uk",
+                "what_is_individuals_address",
                 kwargs={
+                    "location": "in_the_uk",
                     "individual_uuid": "individualNA",
                 },
             )
@@ -205,8 +208,9 @@ class TestWhatIsIndividualsAddressView:
 
         response = al_client.post(
             reverse(
-                "what_is_individuals_address_uk",
+                "what_is_individuals_address",
                 kwargs={
+                    "location": "in_the_uk",
                     "individual_uuid": "individual1",
                 },
             ),
