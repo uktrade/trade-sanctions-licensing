@@ -34,6 +34,7 @@ class BaseFormView(FormView):
         # first get rid of some useless cruft
         form_data.pop("csrfmiddlewaretoken", None)
         form_data.pop("encoding", None)
+
         # Django QueryDict is a weird beast, we need to check if the key maps to a list of values (as it does with a
         # multi-select field) and if it does, we need to convert it to a list. If not, we can just keep the value as is.
         # We also need to keep the value as it is if the form is an ArrayField.
