@@ -182,8 +182,11 @@ class BaseNonUKBusinessDetailsForm(BaseBusinessDetailsForm):
         )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.is_uk_address = kwargs.pop("is_uk_address", False)
         super().__init__(*args, **kwargs)
 
+        self.fields["town_or_city"].required = False
+        self.fields["address_line_1"].required = False
         self.fields["country"].required = True
         self.fields["country"].empty_label = "Select country"
 

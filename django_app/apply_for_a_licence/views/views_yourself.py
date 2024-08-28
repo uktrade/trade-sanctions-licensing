@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from apply_for_a_licence.forms import forms_individual as individual_forms
 from apply_for_a_licence.forms import forms_yourself as forms
@@ -13,37 +14,32 @@ logger = logging.getLogger(__name__)
 
 class AddYourselfView(BaseFormView):
     form_class = forms.AddYourselfForm
-
-    def get_success_url(self):
-        if self.form.cleaned_data["nationality_and_location"] in [
-            "uk_national_uk_location",
-            "dual_national_uk_location",
-            "non_uk_national_uk_location",
-        ]:
-            success_url = reverse_lazy("add_yourself_address_uk")
-        else:
-            success_url = reverse_lazy("add_yourself_address_non_uk")
-        return success_url
+    success_url = reverse_lazy("add_yourself_address")
 
 
 class AddYourselfAddressView(BaseFormView):
+    form_class = forms.AddYourselfAddressForm
     success_url = reverse_lazy("yourself_and_individual_added")
 
-    def form_valid(self, form: forms.AddYourselfUKAddressForm) -> HttpResponse:
+    def get_form_kwargs(self) -> dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+
+        if add_yourself_view := self.request.session.get("add_yourself", False):
+            if add_yourself_view.get("nationality_and_location") in [
+                "uk_national_uk_location",
+                "dual_national_uk_location",
+                "non_uk_national_uk_location",
+            ]:
+                kwargs["is_uk_address"] = True
+        return kwargs
+
+    def form_valid(self, form: forms.AddYourselfAddressForm) -> HttpResponse:
         your_address = {
             "cleaned_data": form.cleaned_data,
             "dirty_data": form.data,
         }
         self.request.session["your_address"] = your_address
         return super().form_valid(form)
-
-
-class AddYourselfUKAddressView(AddYourselfAddressView):
-    form_class = forms.AddYourselfUKAddressForm
-
-
-class AddYourselfNonUKAddressView(AddYourselfUKAddressView):
-    form_class = forms.AddYourselfNonUKAddressForm
 
 
 class YourselfAndIndividualAddedView(BaseFormView):

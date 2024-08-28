@@ -1,10 +1,5 @@
 from apply_for_a_licence.models import Individual, Organisation
-from core.forms.base_forms import (
-    BaseForm,
-    BaseModelForm,
-    BaseNonUKBusinessDetailsForm,
-    BaseUKBusinessDetailsForm,
-)
+from core.forms.base_forms import BaseBusinessDetailsForm, BaseForm, BaseModelForm
 from crispy_forms_gds.layout import Field, Fluid, Layout, Size
 from django import forms
 
@@ -48,42 +43,10 @@ class AddYourselfForm(BaseModelForm):
         return cleaned_data
 
 
-class AddYourselfUKAddressForm(BaseUKBusinessDetailsForm):
+class AddYourselfAddressForm(BaseBusinessDetailsForm):
     form_h1_header = "What is your work address?"
 
-    class Meta(BaseUKBusinessDetailsForm.Meta):
-        model = Organisation
-        fields = (
-            "town_or_city",
-            "country",
-            "address_line_1",
-            "address_line_2",
-            "county",
-            "postcode",
-        )
-        widgets = BaseUKBusinessDetailsForm.Meta.widgets
-        labels = BaseUKBusinessDetailsForm.Meta.labels
-        error_messages = BaseUKBusinessDetailsForm.Meta.error_messages
-
-    def __init__(self, *args: object, **kwargs: object) -> None:
-        super().__init__(*args, **kwargs)
-
-        self.helper.layout = Layout(
-            Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
-            Field.text("country", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_3", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_4", field_width=Fluid.ONE_THIRD),
-            Field.text("county", field_width=Fluid.ONE_THIRD),
-            Field.text("postcode", field_width=Fluid.ONE_THIRD),
-        )
-
-
-class AddYourselfNonUKAddressForm(BaseNonUKBusinessDetailsForm):
-    form_h1_header = "What is your work address?"
-
-    class Meta(BaseNonUKBusinessDetailsForm.Meta):
+    class Meta(BaseBusinessDetailsForm.Meta):
         model = Organisation
         fields = (
             "town_or_city",
@@ -95,12 +58,15 @@ class AddYourselfNonUKAddressForm(BaseNonUKBusinessDetailsForm):
             "county",
             "postcode",
         )
-        widgets = BaseNonUKBusinessDetailsForm.Meta.widgets
-        labels = BaseNonUKBusinessDetailsForm.Meta.labels
-        error_messages = BaseNonUKBusinessDetailsForm.Meta.error_messages
+        widgets = BaseBusinessDetailsForm.Meta.widgets
+        labels = BaseBusinessDetailsForm.Meta.labels
+        error_messages = BaseBusinessDetailsForm.Meta.error_messages
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
+
+        self.fields["town_or_city"].required = True
+        self.fields["address_line_1"].required = True
 
         self.helper.layout = Layout(
             Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
@@ -109,6 +75,8 @@ class AddYourselfNonUKAddressForm(BaseNonUKBusinessDetailsForm):
             Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
             Field.text("address_line_3", field_width=Fluid.ONE_THIRD),
             Field.text("address_line_4", field_width=Fluid.ONE_THIRD),
+            Field.text("county", field_width=Fluid.ONE_THIRD),
+            Field.text("postcode", field_width=Fluid.ONE_THIRD),
         )
 
 

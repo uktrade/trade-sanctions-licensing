@@ -118,7 +118,7 @@ class TestAddAUKBusinessForm:
 
 class TestAddANonUKBusinessForm:
     def test_required(self):
-        form = forms.AddANonUKBusinessForm(data={})
+        form = forms.AddANonUKBusinessForm(data={}, is_uk_address=False)
         assert not form.is_valid()
         assert "name" in form.errors
         assert "country" in form.errors
@@ -127,7 +127,11 @@ class TestAddANonUKBusinessForm:
 
     def test_valid(self):
         form = forms.AddANonUKBusinessForm(
-            data={"name": "Business", "country": "BE", "address_line_1": "40 Hollyhead", "town_or_city": "Brussels"},
+            data={
+                "name": "Business",
+                "country": "BE",
+            },
+            is_uk_address=False,
         )
         assert form.is_valid()
 

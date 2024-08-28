@@ -9,9 +9,9 @@ class TestWhereIsTheRecipientLocatedForm:
         assert form.errors.as_data()["where_is_the_address"][0].code == "required"
 
 
-class TestAddAUKRecipientForm:
-    def test_required(self):
-        form = forms.AddAUKRecipientForm(data={})
+class TestAddARecipientForm:
+    def test_uk_required(self):
+        form = forms.AddARecipientForm(data={}, is_uk_address=True)
         assert not form.is_valid()
         assert "name" in form.errors
         assert "town_or_city" in form.errors
@@ -22,39 +22,39 @@ class TestAddAUKRecipientForm:
         assert form.errors.as_data()["address_line_1"][0].code == "required"
         assert form.errors.as_data()["postcode"][0].code == "required"
 
-    def test_valid(self):
-        form = forms.AddAUKRecipientForm(
+    def test_uk_valid(self):
+        form = forms.AddARecipientForm(
             data={"name": "Business", "town_or_city": "London", "address_line_1": "40 Hollyhead", "postcode": "SW1A 1AA"},
+            is_uk_address=True,
         )
         assert form.is_valid()
 
-    def test_incorrect_postcode_validation(self):
-
-        form = forms.AddAUKRecipientForm(data={"postcode": "123"})
-        assert not form.is_valid()
-        assert "postcode" in form.errors
-        assert form.errors.as_data()["postcode"][0].code == "invalid"
-
-
-class TestAddNonUKRecipientForm:
-    def test_required(self):
-        form = forms.AddANonUKRecipientForm(data={})
+    def test_non_uk_required(self):
+        form = forms.AddARecipientForm(data={}, is_uk_address=False)
         assert not form.is_valid()
         assert "name" in form.errors
         assert "country" in form.errors
         assert form.errors.as_data()["name"][0].code == "required"
         assert form.errors.as_data()["country"][0].code == "required"
 
-    def test_valid(self):
-        form = forms.AddANonUKRecipientForm(
+    def test_non_uk_valid(self):
+        form = forms.AddARecipientForm(
             data={
                 "name": "Business",
                 "country": "BE",
                 "town_or_city": "Leuven",
                 "address_line_1": "Sesteenweg",
             },
+            is_uk_address=False,
         )
         assert form.is_valid()
+
+    def test_incorrect_postcode_validation(self):
+
+        form = forms.AddARecipientForm(data={"postcode": "123"}, is_uk_address=True)
+        assert not form.is_valid()
+        assert "postcode" in form.errors
+        assert form.errors.as_data()["postcode"][0].code == "invalid"
 
 
 class TestRecipientAddedForm:
