@@ -27,7 +27,6 @@ class LicensingGroundsView(BaseFormView):
             kwargs["form_h1_header"] = (
                 "Which of these licensing grounds describes your purpose for providing the sanctioned services?"
             )
-
         if ProfessionalOrBusinessServicesChoices.auditing in self.professional_or_business_services_data:
             kwargs["audit_service_selected"] = True
 
