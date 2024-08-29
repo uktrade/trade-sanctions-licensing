@@ -1,6 +1,6 @@
 from apply_for_a_licence import choices
 from apply_for_a_licence.choices import TypeOfServicesChoices
-from apply_for_a_licence.models import Services
+from apply_for_a_licence.models import Licence
 from apply_for_a_licence.utils import get_cleaned_data_for_step
 from core.crispy_fields import get_field_with_label_id
 from core.forms.base_forms import BaseForm, BaseModelForm
@@ -13,7 +13,7 @@ from sanctions_regimes.licensing import active_regimes
 
 class TypeOfServiceForm(BaseModelForm):
     class Meta:
-        model = Services
+        model = Licence
         fields = ["type_of_service"]
         widgets = {"type_of_service": forms.RadioSelect}
         error_messages = {
@@ -78,7 +78,7 @@ class ProfessionalOrBusinessServicesForm(BaseModelForm):
     )
 
     class Meta:
-        model = Services
+        model = Licence
         fields = ["professional_or_business_service"]
 
     def get_professional_or_business_service_display(self):
@@ -91,7 +91,7 @@ class ProfessionalOrBusinessServicesForm(BaseModelForm):
 
 class ServiceActivitiesForm(BaseModelForm):
     class Meta:
-        model = Services
+        model = Licence
         fields = ["service_activities"]
         labels = {
             "service_activities": "Describe the specific activities within the services you want to provide",

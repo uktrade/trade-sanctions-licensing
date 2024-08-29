@@ -42,7 +42,7 @@ DJANGO_APPS = [
     "django.contrib.sites",
 ]
 
-OUR_APPS = ["config", "core", "healthcheck", "feedback", "apply_for_a_licence"]
+OUR_APPS = ["config", "core", "healthcheck", "feedback", "apply_for_a_licence", "view_a_licence"]
 
 THIRD_PARTY_APPS = [
     "crispy_forms",
@@ -94,7 +94,7 @@ STATIC_ROOT = ROOT_DIR / "static"
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3.S3Storage",
-        "OPTIONS": {"bucket_name": env.temporary_s3_bucket_configuration["bucket_name"], "location": "media"},
+        "OPTIONS": {"bucket_name": env.temporary_s3_bucket_configuration["bucket_name"]},
     },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
@@ -145,6 +145,7 @@ TEMPLATES = [
                 "core.sites.context_processors.sites",
                 "core.context_processors.truncate_words_limit",
                 "core.context_processors.is_debug_mode",
+                "core.context_processors.back_button",
             ],
         },
     },
@@ -195,6 +196,9 @@ COMPANIES_HOUSE_API_KEY = env.companies_house_api_key
 # GOV NOTIFY
 GOV_NOTIFY_API_KEY = env.gov_notify_api_key
 EMAIL_VERIFY_CODE_TEMPLATE_ID = env.email_verify_code_template_id
+NEW_OTSI_USER_TEMPLATE_ID = env.new_otsi_user_template_id
+PUBLIC_USER_NEW_APPLICATION_TEMPLATE_ID = env.public_user_new_application_template_id
+OTSI_NEW_APPLICATION_TEMPLATE_ID = env.otsi_new_application_template_id
 RESTRICT_SENDING = env.restrict_sending  # if True, only send to whitelisted domains
 
 # SENTRY
@@ -230,7 +234,7 @@ if ENFORCE_STAFF_SSO:
 
     LOGIN_URL = reverse_lazy("authbroker_client:login")
     # TODO: update when viewing portal is created
-    LOGIN_REDIRECT_URL = reverse_lazy("view_a_licence:landing")
+    LOGIN_REDIRECT_URL = reverse_lazy("view_a_licence:application_list")
 else:
     LOGIN_URL = "/admin/login"
 
@@ -241,6 +245,7 @@ en_formats.DATE_FORMAT = "d/m/Y"
 # Django sites
 APPLY_FOR_A_LICENCE_DOMAIN = env.apply_for_a_licence_domain
 VIEW_A_LICENCE_DOMAIN = env.view_a_licence_domain
+PROTOCOL = "https://"
 
 # Django Ratelimit
 RATELIMIT_VIEW = "core.views.base_views.rate_limited_view"

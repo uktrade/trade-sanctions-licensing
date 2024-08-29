@@ -1,0 +1,120 @@
+{% extends "core/base.html" %}
+{% block cookie_banner %}{% endblock cookie_banner %}
+{% block title %}Suspected Breach Reports{% endblock title %}
+{% block back_button %}{% endblock back_button %}
+{% block column_content %}
+    <div>
+        <h1 class="govuk-heading-l">
+            Licence applications to provide sanctioned trade services
+        </h1>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    </div>
+    <form method="get" action="{% url 'view_a_licence:application_list' %}" id="sort_form">
+        {% csrf_token %}
+        <div class="govuk-form-group">
+            <label class="govuk-label" for="sort">Sort by
+                <select class="govuk-select" id="sort_by" name="sort_by"
+                        onchange="document.getElementById('sort_form').submit();">
+                    <option value="newest" {% if selected_sort == "newest" %} selected {% endif %}>Date of report
+                        (newest)
+                    </option>
+                    <option value="oldest" {% if selected_sort == "oldest" %} selected {% endif %}>Date of report
+                        (oldest)
+                    </option>
+                </select></label>
+        </div>
+    </form>
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    {% for licence_application in object_list %}
+        <h3 class="govuk-heading-s govuk-!-margin-bottom-2">
+            <a href="{% url 'view_a_licence:view_application' pk=licence_application.pk %}" class="govuk-link">
+                View licence application reference: {{ licence_application.reference }}
+            </a></h3>
+        <div class="govuk-body">
+            <h3 class="govuk-heading-s govuk-summary-list__value">Purpose for providing the service</h3>
+            {% include "apply_for_a_licence/partials/truncated_text.html" with text=licence_application.purpose_of_provision|linebreaksbr %}
+        </div>
+        <dl class="govuk-summary-list govuk-summary-list--no-border mb-1">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-caption-m govuk-!-font-weight-regular">
+                    Submitted by:
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ licence_application.applicant_full_name }}
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-caption-m govuk-!-font-weight-regular">
+                    Proposed licensee:
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {% for licensee in licence_application.licensees %}
+                        {{ licensee.name }}
+                        {% if not forloop.last %}
+                            <br>
+                        {% endif %}
+                    {% endfor %}
+                </dd>
+            </div>
+            {% if licence_application.held_existing_licence %}
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-caption-m govuk-!-font-weight-regular">
+                        Previous licence number:
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ licence_application.existing_licences | linebreaksbr }}
+                    </dd>
+                </div>
+            {% endif %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-caption-m govuk-!-font-weight-regular">
+                    Services being provided:
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ licence_application.get_type_of_service_display }}
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-caption-m govuk-!-font-weight-regular">
+                    Submitted on:
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ licence_application.created_at }}
+                </dd>
+            </div>
+            {% if licence_application.documents.count %}
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-caption-m govuk-!-font-weight-regular">
+                        Files uploaded:
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% for document in licence_application.documents.all %}
+                            <a class="govuk-link" href="{{ document.url }}">{{ document.file_name }}</a>
+                            {% if not forloop.last %}
+                                <br>
+                            {% endif %}
+                        {% endfor %}
+                    </dd>
+                </div>
+            {% endif %}
+        </dl>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible mb-1">
+    {% endfor %}
+{% endblock column_content %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script type="text/javascript" nonce="{{ request.csp_nonce }}">
+        $(document).ready(function () {
+            $('body').on('click', '.read_more_button', function () {
+                $(this).closest('.text_truncator').find('.truncated_text').addClass('hidden');
+                $(this).closest('.text_truncator').find('.expanded_text').removeClass('hidden');
+            });
+            $('body').on('click', '.read_less_button', function () {
+                $(this).closest('.text_truncator').find('.truncated_text').removeClass('hidden');
+                $(this).closest('.text_truncator').find('.expanded_text').addClass('hidden');
+            })
+        })
+    </script>
+{% endblock extra_js %}

@@ -1,4 +1,5 @@
 import logging
+import urllib.parse
 
 from apply_for_a_licence.forms import forms_services as forms
 from core.views.base_views import BaseFormView
@@ -22,6 +23,13 @@ class TypeOfServiceView(BaseFormView):
                 success_url = reverse("professional_or_business_services")
             case _:
                 success_url = reverse("service_activities")
+                # we want to take the user to their redirect_to_url after the form is submitted if there's nothing
+                # else to do after
+                self.redirect_after_post = True
+
+        if get_parameters := urllib.parse.urlencode(self.request.GET):
+            success_url += "?" + get_parameters
+
         return success_url
 
 

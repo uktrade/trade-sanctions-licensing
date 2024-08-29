@@ -26,6 +26,9 @@ class BaseSettings(PydanticBaseSettings):
 
     gov_notify_api_key: str = ""
     email_verify_code_template_id: str = ""
+    new_otsi_user_template_id: str = ""
+    public_user_new_application_template_id: str = ""
+    otsi_new_application_template_id: str = ""
     restrict_sending: bool = True
     email_verify_timeout_seconds: int = 3600
 

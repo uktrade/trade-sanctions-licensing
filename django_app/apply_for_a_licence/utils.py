@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import HttpRequest
 
 
@@ -52,3 +53,8 @@ def get_all_forms(request: HttpRequest):
         forms[step_name] = get_form(request, step_name)
 
     return forms
+
+
+def craft_apply_for_a_licence_url(path: str) -> str:
+    """Crafts and returns a full, complete URL for a path in the apply_for_a_licence."""
+    return f"{settings.PROTOCOL}{settings.APPLY_FOR_A_LICENCE_DOMAIN}{path}"

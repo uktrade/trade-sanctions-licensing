@@ -1,7 +1,7 @@
 {% load truncate_words_html_no_suffix %}
 
 {% if text|wordcount > truncate_words_limit %}
-    <div class="text_truncator">
+    <div class="text_truncator hide-on-print">
         <div class="truncated_text hide-on-js-disabled">
             {{ text|truncate_words_html_no_suffix:truncate_words_limit }}
             <div class="hide-on-js-disabled">
@@ -14,6 +14,10 @@
                 <a href="javascript:void(0);" class="read_less_button govuk-link">Read less</a>
             </div>
         </div>
+    </div>
+	<!-- This is the hidden div containing the full text that is shown when the page is printed -->
+    <div class="hidden show-on-print">
+        {{ text }}
     </div>
 {% else %}
     {{ text }}

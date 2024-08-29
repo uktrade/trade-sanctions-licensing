@@ -1,8 +1,10 @@
 import pytest
 from core.sites import SiteName
+from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.test import Client, RequestFactory
 
+from tests.factories import LicenceFactory
 from tests.helpers import get_test_client
 
 
@@ -27,6 +29,26 @@ def vl_client(db) -> Client:
 
 
 @pytest.fixture()
+def staff_user(db):
+    return User.objects.create_user(
+        "staff",
+        "staff@example.com",
+        is_active=True,
+        is_staff=True,
+    )
+
+
+@pytest.fixture()
+def vl_client_logged_in(vl_client, staff_user) -> Client:
+    """Client used to access the view-a-licence site.
+
+    A user is logged in with this client"""
+
+    vl_client.force_login(staff_user)
+    return vl_client
+
+
+@pytest.fixture()
 def request_object(al_client: Client):
     """Fixture to create a request object."""
     request_object = RequestFactory()
@@ -41,3 +63,8 @@ def request_object(al_client: Client):
 def post_request_object(request_object):
     request_object.method = "POST"
     return request_object
+
+
+@pytest.fixture()
+def licence():
+    return LicenceFactory()

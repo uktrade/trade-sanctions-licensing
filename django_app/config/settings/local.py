@@ -26,3 +26,5 @@ TEST_SSO_PROVIDER_SET_RETURNED_ACCESS_TOKEN = env.mock_sso_token
 
 # we need to override AWS_ENDPOINT_URL environment variable to use localstack
 os.environ["AWS_ENDPOINT_URL"] = f"http://localhost:{env.localstack_port}"
+
+PROTOCOL = "http://"
