@@ -1,10 +1,9 @@
+from apply_for_a_licence.choices import YES_NO_CHOICES
 from django import forms
 
 
-class BooleanChoiceField(forms.ChoiceField):
-    def to_python(self, value: str | bool) -> bool:
-        if isinstance(value, str) and value.lower() in ("false", "0"):
-            value = False
-        else:
-            value = bool(value)
-        return value
+class YesNoBooleanField(forms.TypedChoiceField):
+    def __init__(self, *args, **kwargs):
+        kwargs["coerce"] = lambda x: x.lower() == "true"
+        kwargs.setdefault("choices", YES_NO_CHOICES)
+        super().__init__(*args, **kwargs)

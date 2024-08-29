@@ -28,7 +28,14 @@ class WhereIsTheRecipientLocatedView(BaseFormView):
 
 class AddARecipientView(BaseFormView):
     template_name = "core/base_form_step.html"
-    redirect_after_post = False
+
+    @property
+    def redirect_after_post(self):
+        if self.request.GET.get("change") == "yes":
+            # if we are creating a new one, then we want to take them to the next step
+            return False
+        else:
+            return True
 
     def setup(self, request, *args, **kwargs):
         self.location = kwargs["location"]

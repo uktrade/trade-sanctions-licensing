@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from apply_for_a_licence import choices
-from apply_for_a_licence.models import Applicant, ApplicationType, UserEmailVerification
+from apply_for_a_licence.models import Licence, UserEmailVerification
 from core.crispy_fields import HTMLTemplate
 from core.forms.base_forms import BaseForm, BaseModelForm
 from core.utils import is_request_ratelimited
@@ -15,7 +15,7 @@ from django.utils.timezone import now
 
 class StartForm(BaseModelForm):
     class Meta:
-        model = ApplicationType
+        model = Licence
         fields = ["who_do_you_want_the_licence_to_cover"]
         widgets = {
             "who_do_you_want_the_licence_to_cover": forms.RadioSelect,
@@ -42,9 +42,6 @@ class StartForm(BaseModelForm):
             ),
         )
         self.fields["who_do_you_want_the_licence_to_cover"].choices = CHOICES
-        self.helper.layout = Layout(
-            *self.fields, HTMLTemplate(html_template_path="apply_for_a_licence/form_steps/partials/uk_nexus_details.html")
-        )
 
 
 class ThirdPartyForm(BaseForm):
@@ -72,15 +69,15 @@ class YourDetailsForm(BaseModelForm):
     form_h1_header = "Your details"
 
     class Meta:
-        model = Applicant
-        fields = ["full_name", "business", "role"]
+        model = Licence
+        fields = ["applicant_full_name", "applicant_business", "applicant_role"]
         labels = {
-            "full_name": "Full name",
-            "business": "Business you work for",
-            "role": "Your role",
+            "applicant_full_name": "Full name",
+            "applicant_business": "Business you work for",
+            "applicant_role": "Your role",
         }
         help_texts = {
-            "business": "If you're a third-party agent, this is the business that employs you, "
+            "applicant_business": "If you're a third-party agent, this is the business that employs you, "
             "not the business needing the licence",
         }
         error_messages = {
@@ -91,9 +88,9 @@ class YourDetailsForm(BaseModelForm):
         super().__init__(*args, **kwargs)
         self.helper.label_size = Size.MEDIUM
         self.helper.layout = Layout(
-            Field.text("full_name", field_width=Fluid.TWO_THIRDS),
-            Field.text("business", field_width=Fluid.TWO_THIRDS),
-            Field.text("role", field_width=Fluid.TWO_THIRDS),
+            Field.text("applicant_full_name", field_width=Fluid.TWO_THIRDS),
+            Field.text("applicant_business", field_width=Fluid.TWO_THIRDS),
+            Field.text("applicant_role", field_width=Fluid.TWO_THIRDS),
         )
 
 

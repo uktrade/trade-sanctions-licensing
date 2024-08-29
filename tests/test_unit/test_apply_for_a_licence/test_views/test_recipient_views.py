@@ -5,6 +5,60 @@ from django.urls import reverse
 from . import data
 
 
+class TestAddRecipientView:
+    def test_successful_post(self, al_client):
+        assert al_client.session.get("recipients") is None
+        response = al_client.post(
+            reverse("add_a_recipient", kwargs={"location": "in_the_uk"}),
+            data={
+                "name": "COOL BEANS LTD",
+                "email": "thisismyemail@obviously.com",
+                "address_line_1": "13 I live here",
+                "address_line_2": "Flat bassment",
+                "town_or_city": "Leeds",
+                "postcode": "SW1A 1AA",
+            },
+            follow=True,
+        )
+
+        recipient_uuid = response.resolver_match.kwargs["recipient_uuid"]
+        recipients = al_client.session.get("recipients")
+        assert len(recipients) == 1
+
+        assert recipients[recipient_uuid]["cleaned_data"]["name"] == "COOL BEANS LTD"
+        assert (
+            recipients[recipient_uuid]["cleaned_data"]["readable_address"]
+            == "13 I live here,\n Flat bassment,\n Leeds,\n SW1A 1AA,\n United Kingdom"
+        )
+
+    def test_redirect_after_post(self, al_client):
+        response = al_client.post(
+            reverse("add_a_recipient", kwargs={"location": "in_the_uk"}) + "?redirect_to_url=check_your_answers",
+            data={
+                "name": "COOL BEANS LTD",
+                "email": "thisismyemail@obviously.com",
+                "address_line_1": "13 I live here",
+                "address_line_2": "Flat bassment",
+                "town_or_city": "Leeds",
+                "postcode": "SW1A 1AA",
+            },
+        )
+        assert reverse("check_your_answers") in response.url
+
+        response = al_client.post(
+            reverse("add_a_recipient", kwargs={"location": "in_the_uk"}) + "?redirect_to_url=check_your_answers&change=yes",
+            data={
+                "name": "COOL BEANS LTD",
+                "email": "thisismyemail@obviously.com",
+                "address_line_1": "13 I live here",
+                "address_line_2": "Flat bassment",
+                "town_or_city": "Leeds",
+                "postcode": "SW1A 1AA",
+            },
+        )
+        assert "relationship_provider_recipient" in response.url
+
+
 class TestDeleteRecipientView:
     def test_successful_post(self, al_client):
         request = RequestFactory().post("/")

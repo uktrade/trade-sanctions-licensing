@@ -27,6 +27,10 @@ class ProvideFullFeedbackView(FormView):
         form.save()
         return redirect("feedback:feedback_done")
 
+    def form_invalid(self, form):
+        logger.error("Feedback form is invalid", extra={"form_errors": form.errors})
+        return super().form_invalid(form)
+
 
 class FeedbackDoneView(TemplateView):
     template_name = "feedback/feedback_done.html"

@@ -1,0 +1,301 @@
+{% extends "core/base.html" %}
+{% load crispy_forms_tags crispy_forms_gds %}
+{% block cookie_banner %}{% endblock cookie_banner %}
+{% block title %}View Licence Application{% endblock title %}
+{% block column_content %}
+    <h1 class="govuk-heading-xl">Licence application: {{ licence.reference }}</h1>
+
+    <dl class="govuk-summary-list">
+        <h2 class="govuk-heading-m">Applicant details</h2>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Full name
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ licence.applicant_full_name }}
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Email address
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ licence.applicant_user_email_address }}
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Business applicant works for
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ licence.applicant_business }}
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Role
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ licence.applicant_role }}
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Is this person a third party?
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ licence.is_third_party|yesno:"Yes,No" }}
+            </dd>
+        </div>
+    </dl>
+    <h2 class="govuk-heading-m">Who the licence covers</h2>
+    {% if licence.who_do_you_want_the_licence_to_cover == "business" %}
+        {% for organisation in licence.organisations.all %}
+            {% if organisation.type_of_relationship == "business" %}
+                <div class="action-wrapper">
+                    <h3 class="govuk-heading-s"> Business {{ forloop.counter }}</h3>
+                </div>
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            Business name
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ organisation.name }}
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            Address
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ organisation.readable_address | linebreaksbr }}
+                        </dd>
+                    </div>
+                </dl>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% if licence.who_do_you_want_the_licence_to_cover == "myself" or licence.who_do_you_want_the_licence_to_cover == "individual" %}
+        <h3 class="govuk-heading-s">Their details</h3>
+        {% if licence.who_do_you_want_the_licence_to_cover == "individual" %}
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Business name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ licence.business_employing_individual.name }}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Address
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=licence.readable_address|linebreaksbr %}
+                    </dd>
+                </div>
+            </dl>
+        {% endif %}
+        {% for individual in licence.individuals.all %}
+            <h3 class="govuk-heading-s"> Individual {{ forloop.counter }}</h3>
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ individual.full_name }}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Connection to the UK
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ individual.get_nationality_and_location_display }}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Location of individual
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ individual.get_country_display }}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Address
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=individual.readable_address|linebreaksbr %}
+                    </dd>
+                </div>
+            </dl>
+        {% endfor %}
+    {% endif %}
+    <div class="action-wrapper">
+        <h2 class="govuk-heading-m">Previous licence</h2>
+    </div>
+    <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Previous licence
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ licence.held_existing_licence|yesno:"Yes,No" }}
+            </dd>
+
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Previous licence numbers
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ licence.existing_licences|linebreaksbr }}
+            </dd>
+        </div>
+    </dl>
+    <h2 class="govuk-heading-m">Overview of the services</h2>
+    <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Type of services
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ licence.get_type_of_service_display }}
+            </dd>
+        </div>
+        {% if licence.professional_or_business_service %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    What are the professional or business services you want to provide?
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ licence.professional_or_business_service | linebreaksbr }}
+                </dd>
+            </div>
+        {% endif %}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Specific services
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {% include "apply_for_a_licence/partials/truncated_text.html" with text=licence.service_activities|linebreaksbr %}
+            </dd>
+        </div>
+    </dl>
+    <h3 class="govuk-heading-m">Recipients of the services</h3>
+    {% for recipient in licence.recipients %}
+        <h2 class="govuk-heading-s">Recipient {{ forloop.counter }}</h2>
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    Name and address
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ recipient.name }}
+                    <br><br>
+                    {{ recipient.readable_address }}
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    Website
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {% if recipient.website %}
+                        <a class="govuk-link"
+                           href="{{ recipient.website }}">
+                            {{ recipient.website }}<span class="govuk-visually-hidden"></span>
+                        </a>
+                    {% endif %}
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    Additional contact information
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {% include "apply_for_a_licence/partials/truncated_text.html" with text=recipient.additional_contact_details|linebreaksbr %}
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    Relationship between the provider of the services and the recipient
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ recipient.relationship_provider }}
+                </dd>
+            </div>
+        </dl>
+    {% endfor %}
+    <h2 class="govuk-heading-m">Purpose of the services</h2>
+    <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Licensing grounds
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {% for ground in licence.get_licensing_grounds_display %}
+                    {{ ground }}
+                    {% if not forloop.last %}
+                        <br><br>
+                    {% endif %}
+                {% endfor %}
+            </dd>
+        </div>
+        {% if form_data.licensing_grounds_legal_advisory %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    Licensing grounds (excluding legal advisory)
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {% for ground in licence.get_licensing_grounds_legal_advisory_display %}
+                        {{ ground }}
+                        {% if not forloop.last %}
+                            <br><br>
+                        {% endif %}
+                    {% endfor %}
+                </dd>
+            </div>
+        {% endif %}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Purpose of the service
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {% include "apply_for_a_licence/partials/truncated_text.html" with text=licence.purpose_of_provision|linebreaksbr %}
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                Supporting documents
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {% for document in licence.documents.all %}
+                    <a href="{{ document.url }}" download>{{ document.file_name }}</a><br>
+                {% endfor %}
+            </dd>
+        </div>
+    </dl>
+{% endblock column_content %}
+
+
+{% block extra_js %}
+    {{ block.super }}
+    <script type="text/javascript" nonce="{{ request.csp_nonce }}">
+        $(document).ready(function () {
+            $('body').on('click', '.read_more_button', function () {
+                $(this).closest('.text_truncator').find('.truncated_text').addClass('hidden');
+                $(this).closest('.text_truncator').find('.expanded_text').removeClass('hidden');
+            });
+            $('body').on('click', '.read_less_button', function () {
+                $(this).closest('.text_truncator').find('.truncated_text').removeClass('hidden');
+                $(this).closest('.text_truncator').find('.expanded_text').addClass('hidden');
+            })
+        })
+    </script>
+{% endblock extra_js %}

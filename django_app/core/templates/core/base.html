@@ -49,7 +49,8 @@
                                 </div>
                             </div>
                             <div class="govuk-button-group">
-                                <form method="post" action="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">
+                                <form method="post"
+                                      action="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">
                                     {% csrf_token %}
                                     <button type="submit" class="govuk-button" data-module="govuk-button"
                                             name="do_you_want_to_accept_analytics_cookies" value="True">
@@ -59,7 +60,8 @@
                                             name="do_you_want_to_accept_analytics_cookies" value="False">
                                         Reject analytics cookies
                                     </button>
-                                    <a class="govuk-link" href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">View
+                                    <a class="govuk-link"
+                                       href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">View
                                         cookies</a>
                                 </form>
                             </div>
@@ -69,21 +71,29 @@
                 {% if "cookies_set" in request.GET %}
                     <form method="post" action="{% url 'hide_cookies' %}?banner=True">
                         {% csrf_token %}
-                        <div class="govuk-cookie-banner" data-nosnippet role="region" aria-label="Cookies on Apply for a Licence">
+                        <div class="govuk-cookie-banner" data-nosnippet role="region"
+                             aria-label="Cookies on Apply for a Licence">
                             <div class="govuk-cookie-banner__message govuk-width-container">
                                 <div class="govuk-grid-row">
                                     <div class="govuk-grid-column-two-thirds">
                                         <div class="govuk-cookie-banner__content">
                                             {% if request.COOKIES.accepted_ga_cookies == "true" %}
-                                                <p class="govuk-body">You’ve accepted analytics cookies. You can <a class="govuk-link" href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">change your cookie settings</a> at any time.</p>
+                                                <p class="govuk-body">You’ve accepted analytics cookies. You can <a
+                                                    class="govuk-link"
+                                                    href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">change
+                                                    your cookie settings</a> at any time.</p>
                                             {% elif request.COOKIES.accepted_ga_cookies == "false" %}
-                                                <p class="govuk-body">You’ve rejected analytics cookies. You can <a class="govuk-link" href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">change your cookie settings</a> at any time.</p>
+                                                <p class="govuk-body">You’ve rejected analytics cookies. You can <a
+                                                    class="govuk-link"
+                                                    href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">change
+                                                    your cookie settings</a> at any time.</p>
                                             {% endif %}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="govuk-button-group">
-                                    <button type="submit" class="govuk-button" data-module="govuk-button" name="hide_cookies" value="True">
+                                    <button type="submit" class="govuk-button" data-module="govuk-button"
+                                            name="hide_cookies" value="True">
                                         Hide cookie message
                                     </button>
                                 </div>
@@ -95,7 +105,8 @@
         {% endblock cookie_banner %}
 
 
-        <title>{% block title %}{% endblock title %} - Apply for a licence to provide sanctioned trade services - GOV.UK</title>
+        <title>{% block title %}{% endblock title %} - Apply for a licence to provide sanctioned trade services -
+            GOV.UK</title>
 
         <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="{% static "core/assets/images/favicon.ico" %}"
               type="image/x-icon">
@@ -133,7 +144,7 @@
 
         <header class="govuk-header" role="banner" data-module="govuk-header">
             <div class="govuk-header__container govuk-width-container">
-                <div class="govuk-header__logo">
+                <div class="govuk-header__logo hide-on-print">
                     <a href="https://gov.uk" class="govuk-header__link govuk-header__link--homepage">
                         <svg
                             focusable="false"
@@ -150,14 +161,12 @@
                         </svg>
                     </a>
                 </div>
-                {% block header_service %}
-                    <div class="govuk-header__content">
-                        <a href="{% block header_service_url %}#{% endblock header_service_url %}"
-                           class="govuk-header__link govuk-header__service-name">
-                            {% block service_name %}Apply for a licence to provide sanctioned trade services{% endblock service_name %}
-                        </a>
-                    </div>
-                {% endblock header_service %}
+                <div class="govuk-header__content">
+                    <a href="/"
+                       class="govuk-header__link govuk-header__service-name">
+                        Apply for a licence to provide sanctioned trade services
+                    </a>
+                </div>
 
             </div>
         </header>
@@ -168,23 +177,24 @@
                         Alpha
                     </strong>
                     <span class="govuk-phase-banner__text">
-                        This is a new service – your <a class="govuk-link"
-                                                        href="{% url 'feedback:collect_full_feedback' %}">feedback</a> will help us to improve it.
+                        This is a new service – your
+                        <a class="govuk-link" target="_blank" href="{% url 'feedback:collect_full_feedback' %}">feedback</a>
+                        will help us to improve it.
                     </span>
                 </p>
             </div>
             {% block back_button %}
-                <a class="govuk-back-link govuk-link--no-visited-state show-on-js-enabled hide-on-js-disabled"
-                   href="javascript: window.history.go(-1)">Back</a>
-
+                {# JS-enabled back link #}
+                <a class="govuk-back-link govuk-link--no-visited-state show-on-js-enabled hide-on-js-disabled hide-on-print"
+                   href="javascript: window.history.go(-1)">{{ back_button_text }}</a>
+				{# JS-disabled back link #}
                 {% if "HTTP_REFERER" in request.META %}
-                    <a class="govuk-back-link govuk-link--no-visited-state hide-on-js-enabled show-on-js-enabled"
-                       href="{{ back_button_link|default_if_none:request.META.HTTP_REFERER|default_if_none:"/" }}?start=true">Back</a>
+                    <a class="govuk-back-link govuk-link--no-visited-state hide-on-js-enabled show-on-js-disabled hide-on-print"
+                       href="{{ back_button_link|default_if_none:"/" }}?start=true">{{ back_button_text }}</a>
                 {% else %}
-                    <a class="govuk-back-link govuk-link--no-visited-state hide-on-js-enabled show-on-js-enabled"
-                       href="{{ back_button_link|default_if_none:"/" }}?start=true">Back</a>
+                    <a class="govuk-back-link govuk-link--no-visited-state hide-on-js-enabled show-on-js-disabled hide-on-print"
+                       href="{{ back_button_link|default_if_none:"/" }}?start=true">{{ back_button_text }}</a>
                 {% endif %}
-
             {% endblock %}
             {% block main %}
                 <main class="govuk-main-wrapper" id="main-content" role="main">
@@ -204,7 +214,7 @@
         </div>
 
 		{# footer #}
-        <footer class="govuk-footer">
+        <footer class="govuk-footer hide-on-print">
             <div class="govuk-width-container">
                 <div class="govuk-footer__meta">
                     <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
@@ -252,6 +262,7 @@
             <script type="module" src="{% static "core/javascript/govuk-frontend-5.3.0.min.js" %}"></script>
             <script type="module" nonce="{{ request.csp_nonce }}">
                 import {initAll} from "{% static "core/javascript/govuk-frontend-5.3.0.min.js" %}"
+
                 initAll()
             </script>
             {% block extra_js %}{% endblock %}

@@ -16,6 +16,7 @@ class FeedbackForm(BaseModelForm):
         choices=DidYouExperienceAnyIssues.choices,
         widget=forms.CheckboxSelectMultiple,
         label="Did you experience any of the following issues?",
+        required=False,
     )
 
     class Meta:

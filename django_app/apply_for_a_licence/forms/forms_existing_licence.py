@@ -1,6 +1,6 @@
 from typing import Any
 
-from apply_for_a_licence.models import Applicant
+from apply_for_a_licence.models import Licence
 from core.forms.base_forms import BaseModelForm
 from crispy_forms_gds.layout import (
     ConditionalQuestion,
@@ -16,7 +16,7 @@ class ExistingLicencesForm(BaseModelForm):
     hide_optional_label_fields = ["existing_licences"]
 
     class Meta:
-        model = Applicant
+        model = Licence
         fields = ("held_existing_licence", "existing_licences")
         labels = {
             "existing_licences": "Enter all previous licence numbers",

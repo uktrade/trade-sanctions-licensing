@@ -53,15 +53,10 @@ class EmailVerifyView(BaseFormView):
 
     def get_success_url(self) -> str:
         start_view = self.request.session.get("start", False)
-        third_party_view = self.request.session.get("are_you_third_party", False)
         if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
             return reverse("add_yourself")
-        elif third_party_view.get("are_you_applying_on_behalf_of_someone_else", False) == "True":
-            return reverse("your_details")
-        elif start_view.get("who_do_you_want_the_licence_to_cover") == "business":
-            return reverse("is_the_business_registered_with_companies_house")
         else:
-            return reverse("add_an_individual")
+            return reverse("your_details")
 
 
 @method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")

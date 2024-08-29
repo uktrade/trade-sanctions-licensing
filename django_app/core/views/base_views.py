@@ -1,7 +1,7 @@
 from apply_for_a_licence.utils import get_dirty_form_data
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from django import forms
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -45,6 +45,12 @@ class BaseFormView(FormView):
 
         # now keep it in the session
         self.request.session[self.step_name] = form_data
+
+        # get the success_url as this might change the value of redirect_after_post to avoid duplicating conditional
+        # logic in the get_success_url method
+        success_url = self.get_success_url()
+
+        # figure out if we want to redirect after form is submitted
         redirect_to_url = self.request.GET.get("redirect_to_url", None) or self.request.session.pop("redirect_to_url", None)
         if redirect_to_url and url_has_allowed_host_and_scheme(redirect_to_url, allowed_hosts=None):
             if self.redirect_after_post:
@@ -55,7 +61,11 @@ class BaseFormView(FormView):
                 # so it can redirect the user after it is submitted
                 self.request.session["redirect_to_url"] = redirect_to_url
 
-        return super().form_valid(form)
+        return HttpResponseRedirect(success_url)
+
+    def form_invalid(self, form):
+        # debugging purposes so we can put breakpoints here
+        return super().form_invalid(form)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -84,7 +94,7 @@ class RedirectBaseDomainView(RedirectView):
             # if users are not accessing a specific page in view-a-licence - raise a 404
             # unless they are staff, in which case take them to the manage users page
             if self.request.user.is_staff:
-                return "/"
+                return reverse("view_a_licence:application_list")
             else:
                 raise Http404()
         return ""

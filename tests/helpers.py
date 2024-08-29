@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 from django.http import HttpResponse
 from django.test import Client
 
@@ -20,3 +22,20 @@ def get_response_content(response: HttpResponse) -> str:
 
     """
     return response.content.decode("utf-8")
+
+
+class InfiniteDict(MagicMock):
+    """A dictionary that can be infinitely nested, used in tests to mock massive session objects"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.internal_dict = {}
+
+    def __getitem__(self, item):
+        if item not in self.internal_dict:
+            return "INFINITE DICT"
+        else:
+            return self.internal_dict[item]
+
+    def __setitem__(self, key, value):
+        self.internal_dict[key] = value

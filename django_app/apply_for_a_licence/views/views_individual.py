@@ -24,6 +24,12 @@ class AddAnIndividualView(BaseFormView):
         else:
             return True
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if self.request.method == "GET" and self.request.GET.get("new", None) == "yes":
+            form.is_bound = False
+        return form
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 

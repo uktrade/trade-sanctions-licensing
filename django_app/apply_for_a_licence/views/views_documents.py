@@ -80,8 +80,8 @@ class UploadDocumentsView(BaseFormView):
 class DeleteDocumentsView(View):
     def post(self, *args: object, **kwargs: object) -> HttpResponse:
         if file_name := self.request.GET.get("file_name"):
-            full_file_path = f"{self.request.session.session_key}/{file_name}"
-            TemporaryDocumentStorage().delete(full_file_path)
+            object_key = f"{self.request.session.session_key}/{file_name}"
+            TemporaryDocumentStorage().delete(object_key)
             if is_ajax(self.request):
                 return JsonResponse({"success": True}, status=200)
             else:
@@ -101,8 +101,8 @@ class DownloadDocumentView(View):
 
         if file_name in user_uploaded_files:
             logger.info(f"User is downloading file: {file_name}")
-            session_keyed_file_name = f"{self.request.session.session_key}/{file_name}"
-            file_url = generate_presigned_url(TemporaryDocumentStorage(), session_keyed_file_name)
+            # the object key is actually prefixed with the session key according to the logic in CustomFileUploadHandler
+            file_url = generate_presigned_url(TemporaryDocumentStorage(), f"{self.request.session.session_key}/{file_name}")
             return redirect(file_url)
 
         raise Http404()

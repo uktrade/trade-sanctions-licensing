@@ -80,7 +80,7 @@ class TestEmailVerifyForm:
 
 class TestYourDetailsForm:
     def test_required(self):
-        form = forms.YourDetailsForm(data={"full_name": None})
+        form = forms.YourDetailsForm(data={"applicant_full_name": None})
         assert not form.is_valid()
-        assert "full_name" in form.errors
-        assert form.errors.as_data()["full_name"][0].code == "required"
+        assert "applicant_full_name" in form.errors
+        assert form.errors.as_data()["applicant_full_name"][0].code == "required"
