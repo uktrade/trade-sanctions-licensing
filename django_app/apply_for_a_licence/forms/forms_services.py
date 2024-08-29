@@ -49,10 +49,6 @@ class WhichSanctionsRegimeForm(BaseForm):
 
         sanctions = active_regimes
 
-        if professional_or_business_services := self.request.session.get("TypeOfServiceView", False):
-            if professional_or_business_services.get("type_of_service", False) == "internet":
-                sanctions = [each for each in sanctions if "Russia" in each["name"] or "Belarus" in each["name"]]
-
         for item in sanctions:
             checkbox_choices.append(Choice(item["name"], item["name"]))
 

@@ -1,5 +1,6 @@
 from apply_for_a_licence.utils import get_dirty_form_data
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
+from django import forms
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -26,6 +27,7 @@ class BaseFormView(FormView):
     def form_valid(self, form):
         # we want to assign the form to the view ,so we can access it in the get_success_url method
         self.form = form
+
         # we want to store the dirty form data in the session, so we can access it later on
         form_data = dict(form.data.copy())
 
@@ -35,9 +37,11 @@ class BaseFormView(FormView):
 
         # Django QueryDict is a weird beast, we need to check if the key maps to a list of values (as it does with a
         # multi-select field) and if it does, we need to convert it to a list. If not, we can just keep the value as is.
+        # We also need to keep the value as it is if the form is an ArrayField.
         for key, value in form_data.items():
-            if len(value) == 1:
-                form_data[key] = value[0]
+            if not isinstance(form.fields.get(key), forms.MultipleChoiceField):
+                if len(value) == 1:
+                    form_data[key] = value[0]
 
         # now keep it in the session
         self.request.session[self.step_name] = form_data
