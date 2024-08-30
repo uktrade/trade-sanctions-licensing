@@ -103,6 +103,11 @@ class DownloadDocumentView(View):
             logger.info(f"User is downloading file: {file_name}")
             # the object key is actually prefixed with the session key according to the logic in CustomFileUploadHandler
             file_url = generate_presigned_url(TemporaryDocumentStorage(), f"{self.request.session.session_key}/{file_name}")
+
+            if user_email := self.request.session.get("user_email_address"):
+                logger.info(f"User {user_email} has downloaded file: {file_name}")
+            else:
+                logger.info(f"Downloaded file: {file_name}")
             return redirect(file_url)
 
         raise Http404()
