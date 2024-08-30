@@ -233,7 +233,6 @@ if ENFORCE_STAFF_SSO:
     OAUTHLIB_INSECURE_TRANSPORT = env.oauthlib_insecure_transport
 
     LOGIN_URL = reverse_lazy("authbroker_client:login")
-    # TODO: update when viewing portal is created
     LOGIN_REDIRECT_URL = reverse_lazy("view_a_licence:application_list")
 else:
     LOGIN_URL = "/admin/login"
