@@ -266,3 +266,5 @@ CACHES = {
 }
 
 OTSI_EMAIL = env.otsi_email
+
+SESSION_COOKIE_AGE = 86400
