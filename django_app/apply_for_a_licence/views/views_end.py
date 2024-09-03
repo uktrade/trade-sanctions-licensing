@@ -73,7 +73,8 @@ class DeclarationView(BaseFormView):
             if cleaned_data["start"]["who_do_you_want_the_licence_to_cover"] == "individual":
                 business_employing_individual = True
             # TODO: temporary fix
-            cleaned_data["add_yourself_address"] = self.request.session["add_yourself_address"]
+            if cleaned_data["start"]["who_do_you_want_the_licence_to_cover"] == "myself":
+                cleaned_data["add_yourself_address"] = self.request.session["add_yourself_address"]
 
         if (
             cleaned_data["is_the_business_registered_with_companies_house"].get("business_registered_on_companies_house", "")
