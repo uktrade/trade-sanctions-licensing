@@ -1,6 +1,7 @@
 from typing import Any
 
 from apply_for_a_licence.models import Licence
+from apply_for_a_licence.utils import get_cleaned_data_for_step
 from core.forms.base_forms import BaseModelForm
 from crispy_forms_gds.layout import (
     ConditionalQuestion,
@@ -52,7 +53,7 @@ class ExistingLicencesForm(BaseModelForm):
             "any sanctioned services or export any sanctioned goods?"
         )
 
-        if start_view := self.request.session.get("StartView", False):
+        if start_view := get_cleaned_data_for_step(self.request, "start"):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
                 self.held_existing_licence_label = (
                     "Have you, or has anyone else you've added, held a licence before "
