@@ -36,7 +36,17 @@ class TestAddYourselfView:
             reverse("add_yourself"),
             data={"first_name": "John", "last_name": "Doe", "nationality_and_location": "uk_national_uk_location"},
         )
-        assert response.url == reverse("add_yourself_address")
+
+        assert (
+            reverse(
+                "add_yourself_address",
+                kwargs={
+                    "location": response.resolver_match.kwargs["location"],
+                    "individual_uuid": response.resolver_match.kwargs["individual_uuid"],
+                },
+            )
+            in response.redirect_chain[0][0]
+        )
 
 
 class TestAddYourselfAddressView:
@@ -45,7 +55,17 @@ class TestAddYourselfAddressView:
             reverse("add_yourself_address"),
             data={"country": "DE", "town_or_city": "Berlin", "address_line_1": "Checkpoint Charlie"},
         )
-        assert response.url == reverse("yourself_and_individual_added")
+
+        assert (
+            reverse(
+                "add_yourself_address",
+                kwargs={
+                    "location": response.resolver_match.kwargs["location"],
+                    "individual_uuid": response.resolver_match.kwargs["individual_uuid"],
+                },
+            )
+            in response.redirect_chain[0][0]
+        )
 
 
 class TestDeleteIndividualFromYourselfView:
