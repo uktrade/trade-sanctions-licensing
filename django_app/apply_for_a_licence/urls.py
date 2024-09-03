@@ -70,7 +70,11 @@ views_individual_urls = [
 
 views_yourself_urls = [
     path("add_yourself", views_yourself.AddYourselfView.as_view(), name="add_yourself"),
-    path("add_yourself_address", views_yourself.AddYourselfAddressView.as_view(), name="add_yourself_address"),
+    path(
+        "add_yourself_address/<str:location>/<str:individual_uuid>",
+        views_yourself.AddYourselfAddressView.as_view(),
+        name="add_yourself_address",
+    ),
     path(
         "yourself_and_individual_added",
         views_yourself.YourselfAndIndividualAddedView.as_view(),

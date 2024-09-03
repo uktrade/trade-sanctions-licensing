@@ -39,6 +39,12 @@ class CheckYourAnswersView(TemplateView):
         if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
             context["session_files"] = session_files
 
+        if add_yourself_address_id := self.request.session.get("add_yourself_id", None):
+            context["add_yourself_id"] = add_yourself_address_id
+            context["add_yourself_address"] = (
+                "in_the_uk" if self.request.session["add_yourself_address"]["country"] == "GB" else "outside_the_uk"
+            )
+
         if businesses := self.request.session.get("businesses", None):
             context["businesses"] = businesses
         if individuals := self.request.session.get("individuals", None):
@@ -66,6 +72,8 @@ class DeclarationView(BaseFormView):
             is_individual = True
             if cleaned_data["start"]["who_do_you_want_the_licence_to_cover"] == "individual":
                 business_employing_individual = True
+            # TODO: temporary fix
+            cleaned_data["add_yourself_address"] = self.request.session["add_yourself_address"]
 
         if (
             cleaned_data["is_the_business_registered_with_companies_house"].get("business_registered_on_companies_house", "")

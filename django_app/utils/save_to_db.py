@@ -66,7 +66,6 @@ class SaveToDB:
 
         if self.data["start"]["who_do_you_want_the_licence_to_cover"] == "myself":
             licence.applicant_full_name = f"{self.data['add_yourself']['first_name']} {self.data['add_yourself']['last_name']}"
-            licence.applicant_business = self.data["business_employing_individual"]["name"]
         else:
             licence.applicant_role = self.data["your_details"]["applicant_role"]
             licence.applicant_business = self.data["your_details"]["applicant_business"]
