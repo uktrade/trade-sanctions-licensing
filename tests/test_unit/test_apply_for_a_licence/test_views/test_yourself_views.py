@@ -40,13 +40,14 @@ class TestAddYourselfView:
                 "last_name": "Doe",
                 "nationality_and_location": NationalityAndLocation.uk_national_uk_location.value,
             },
+            follow=True,
         )
 
         assert (
             reverse(
                 "add_yourself_address",
                 kwargs={
-                    "location": response.resolver_match.kwargs["location"],
+                    "location": "in_the_uk",
                     "individual_uuid": response.resolver_match.kwargs["individual_uuid"],
                 },
             )
@@ -57,7 +58,13 @@ class TestAddYourselfView:
 class TestAddYourselfAddressView:
     def test_successful_non_uk_address_post(self, al_client):
         response = al_client.post(
-            reverse("add_yourself_address"),
+            reverse(
+                "add_yourself_address",
+                kwargs={
+                    "location": "outside_the_uk",
+                    "individual_uuid": "individual1",
+                },
+            ),
             data={
                 "country": "DE",
                 "town_or_city": "Berlin",
@@ -66,16 +73,7 @@ class TestAddYourselfAddressView:
             },
         )
 
-        assert (
-            reverse(
-                "add_yourself_address",
-                kwargs={
-                    "location": response.resolver_match.kwargs["location"],
-                    "individual_uuid": response.resolver_match.kwargs["individual_uuid"],
-                },
-            )
-            in response.redirect_chain[0][0]
-        )
+        assert response.url == reverse("yourself_and_individual_added")
 
 
 class TestDeleteIndividualFromYourselfView:
