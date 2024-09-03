@@ -26,7 +26,6 @@ class AddYourselfForm(BaseModelForm):
             "last_name": "Last name",
             "nationality_and_location": "What is your nationality and location?",
         }
-        help_texts = {"nationality_and_location": "Hint text"}
         error_messages = {"first_name": {"required": "Enter your first name"}, "last_name": {"required": "Enter your last name"}}
 
     def __init__(self, *args: object, **kwargs: object) -> None:
