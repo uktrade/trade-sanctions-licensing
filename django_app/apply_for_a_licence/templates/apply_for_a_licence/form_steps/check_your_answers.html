@@ -148,71 +148,73 @@
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
-                       href="{% url 'add_yourself_address' %}">Change<span
+                       href="{% url 'add_yourself_address' location=add_yourself_address individual_uuid=add_yourself_id %}&redirect_to_url=check_your_answers">Change<span
                         class="govuk-visually-hidden">your address</span></a>
                 </dd>
             </div>
         </dl>
-        {% for id, individual in individuals.items %}
-            <h3 class="govuk-heading-s"> Individual {{ forloop.counter }}</h3>
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        Name
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ individual.name_data.cleaned_data.first_name }} {{ individual.name_data.cleaned_data.last_name }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                           href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
-                            class="govuk-visually-hidden">name of individual {{ forloop.counter }}</span></a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        Connection to the UK
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ individual.name_data.cleaned_data.nationality }}
+        {% if form_data.do_you_want_to_add_another_individual == "Yes" or form_data.who_do_you_want_the_licence_to_cover == "individual" or form_data.who_do_you_want_the_licence_to_cover == "business" %}
+            {% for id, individual in individuals.items %}
+                <h3 class="govuk-heading-s"> Individual {{ forloop.counter }}</h3>
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            Name
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ individual.name_data.cleaned_data.first_name }} {{ individual.name_data.cleaned_data.last_name }}
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link"
+                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
+                                class="govuk-visually-hidden">name of individual {{ forloop.counter }}</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            Connection to the UK
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ individual.name_data.cleaned_data.nationality }}
 
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                           href="{% url 'add_an_individual' %}?individual_uuid={{ id }}"
-                           &redirect_to_url=check_your_answers>Change<span
-                            class="govuk-visually-hidden">connection to the UK of individual {{ forloop.counter }}</span></a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        Location of individual
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ individual.name_data.cleaned_data.nationality_and_location | readable_location }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                           href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
-                            class="govuk-visually-hidden">location of individual {{ forloop.counter }}</span></a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        Address
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=individual.address_data.cleaned_data.readable_address|linebreaksbr %}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                           href="{% url 'what_is_individuals_address' location=individual.address_data.cleaned_data.url_location individual_uuid=id %}?redirect_to_url=check_your_answers">
-                            Change
-                            <span class="govuk-visually-hidden">address of individual {{ forloop.counter }}</span></a>
-                    </dd>
-                </div>
-            </dl>
-        {% endfor %}
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link"
+                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }}"
+                               &redirect_to_url=check_your_answers>Change<span
+                                class="govuk-visually-hidden">connection to the UK of individual {{ forloop.counter }}</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            Location of individual
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ individual.name_data.cleaned_data.nationality_and_location | readable_location }}
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link"
+                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
+                                class="govuk-visually-hidden">location of individual {{ forloop.counter }}</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            Address
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {% include "apply_for_a_licence/partials/truncated_text.html" with text=individual.address_data.cleaned_data.readable_address|linebreaksbr %}
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link"
+                               href="{% url 'what_is_individuals_address' location=individual.address_data.cleaned_data.url_location individual_uuid=id %}?redirect_to_url=check_your_answers">
+                                Change
+                                <span class="govuk-visually-hidden">address of individual {{ forloop.counter }}</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            {% endfor %}
+        {% endif %}
         <dl class="govuk-summary-list">
             <a class="govuk-link"
                href="{% url 'add_an_individual' %}?redirect_to_url=check_your_answers&new=yes">

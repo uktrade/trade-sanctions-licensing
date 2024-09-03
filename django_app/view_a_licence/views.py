@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 
 from apply_for_a_licence.models import Licence
@@ -12,6 +13,8 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, TemplateView
 
 from .mixins import ActiveUserRequiredMixin, StaffUserOnlyMixin
+
+logger = logging.getLogger(__name__)
 
 # ALL VIEWS HERE MUST BE DECORATED WITH AT LEAST LoginRequiredMixin
 
@@ -55,11 +58,17 @@ class ManageUsersView(LoginRequiredMixin, StaffUserOnlyMixin, TemplateView):
             user_to_accept = User.objects.get(id=update_user)
             user_to_accept.is_active = True
             user_to_accept.save()
+
+            logger.info(
+                f"{self.request.user} accepted user {user_to_accept.pk} - {user_to_accept.first_name} {user_to_accept.last_name}"
+            )
             return HttpResponseRedirect(reverse("view_a_licence:manage_users"))
 
         if delete_user := self.request.GET.get("delete_user", None):
             denied_user = User.objects.get(id=delete_user)
             denied_user.delete()
+
+            logger.info(f"{self.request.user} accepted user {denied_user.pk} - {denied_user.first_name} {denied_user.last_name}")
             return HttpResponseRedirect(reverse("view_a_licence:manage_users"))
 
         return super().get(request, **kwargs)
