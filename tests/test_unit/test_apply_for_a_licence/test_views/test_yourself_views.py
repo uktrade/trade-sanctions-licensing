@@ -1,3 +1,4 @@
+from apply_for_a_licence.choices import NationalityAndLocation
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -34,17 +35,44 @@ class TestAddYourselfView:
     def test_successful_post(self, al_client):
         response = al_client.post(
             reverse("add_yourself"),
-            data={"first_name": "John", "last_name": "Doe", "nationality_and_location": "uk_national_uk_location"},
+            data={
+                "first_name": "John",
+                "last_name": "Doe",
+                "nationality_and_location": NationalityAndLocation.uk_national_uk_location.value,
+            },
+            follow=True,
         )
-        assert response.url == reverse("add_yourself_address")
+
+        assert (
+            reverse(
+                "add_yourself_address",
+                kwargs={
+                    "location": "in_the_uk",
+                    "individual_uuid": response.resolver_match.kwargs["individual_uuid"],
+                },
+            )
+            in response.redirect_chain[0][0]
+        )
 
 
 class TestAddYourselfAddressView:
     def test_successful_non_uk_address_post(self, al_client):
         response = al_client.post(
-            reverse("add_yourself_address"),
-            data={"country": "DE", "town_or_city": "Berlin", "address_line_1": "Checkpoint Charlie"},
+            reverse(
+                "add_yourself_address",
+                kwargs={
+                    "location": "outside_the_uk",
+                    "individual_uuid": "individual1",
+                },
+            ),
+            data={
+                "country": "DE",
+                "town_or_city": "Berlin",
+                "address_line_1": "Checkpoint Charlie",
+                "nationality_and_location": NationalityAndLocation.non_uk_national_uk_location.value,
+            },
         )
+
         assert response.url == reverse("yourself_and_individual_added")
 
 
