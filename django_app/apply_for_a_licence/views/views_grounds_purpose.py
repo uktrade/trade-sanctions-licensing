@@ -54,6 +54,15 @@ class LicensingGroundsLegalAdvisoryView(BaseFormView):
             "For the other services you want to provide (excluding legal advisory), which of these "
             "licensing grounds describes your purpose for providing them?"
         )
+        self.professional_or_business_services_data = get_cleaned_data_for_step(
+            self.request, "professional_or_business_services"
+        ).get("professional_or_business_service", [])
+        auditing_and_legal_only = {
+            ProfessionalOrBusinessServicesChoices.legal_advisory.value,
+            ProfessionalOrBusinessServicesChoices.auditing.value,
+        }
+        if set(self.professional_or_business_services_data) == auditing_and_legal_only:
+            kwargs["audit_service_selected"] = True
         return kwargs
 
 
