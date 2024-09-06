@@ -203,10 +203,10 @@ class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
         super().__init__(*args, **kwargs)
 
         address_layout = Fieldset(
-            Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
-            Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
-            Field.text("county", field_width=Fluid.ONE_THIRD),
+            Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
+            Field.text("town_or_city", field_width=Fluid.ONE_HALF),
+            Field.text("county", field_width=Fluid.ONE_HALF),
             Field.text("postcode", field_width=Fluid.ONE_THIRD),
             legend="Address",
             legend_size=Size.MEDIUM,
@@ -215,7 +215,7 @@ class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
 
         self.helper.layout = Layout(
             Fieldset(
-                Field.text("name", field_width=Fluid.ONE_HALF),
+                Field.text("name", field_width=Fluid.TWO_THIRDS),
                 legend="Name",
                 legend_size=Size.MEDIUM,
                 legend_tag="h2",
@@ -246,12 +246,12 @@ class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
         super().__init__(*args, **kwargs)
 
         address_layout = Fieldset(
-            Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
-            Field.text("country", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_3", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_4", field_width=Fluid.ONE_THIRD),
+            Field.text("country", field_width=Fluid.TWO_THIRDS),
+            Field.text("town_or_city", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_3", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_4", field_width=Fluid.TWO_THIRDS),
             legend="Address",
             legend_size=Size.MEDIUM,
             legend_tag="h2",
@@ -259,7 +259,7 @@ class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
 
         self.helper.layout = Layout(
             Fieldset(
-                Field.text("name", field_width=Fluid.ONE_HALF),
+                Field.text("name", field_width=Fluid.TWO_THIRDS),
                 legend="Name",
                 legend_size=Size.MEDIUM,
                 legend_tag="h2",
