@@ -8,7 +8,8 @@ from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from django import forms
 from django.template.loader import render_to_string
-from sanctions_regimes.licensing import active_regimes
+
+from ...sanctions_regimes.licensing import active_regimes
 
 
 class TypeOfServiceForm(BaseModelForm):
