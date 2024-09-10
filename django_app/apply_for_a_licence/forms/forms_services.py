@@ -63,6 +63,10 @@ class WhichSanctionsRegimeForm(BaseForm):
             )
         )
 
+    def get_which_sanctions_regime_display(self):
+        display = "\n\n".join(self.cleaned_data["which_sanctions_regime"])
+        return display
+
 
 class ProfessionalOrBusinessServicesForm(BaseModelForm):
     form_h1_header = "What are the professional or business services you want to provide?"

@@ -45,7 +45,7 @@ class SaveToDB:
     def save_licence(self) -> Licence:
         sanctions_regimes = []
         if self.data["which_sanctions_regime"]:
-            sanctions_regimes = [self.data["which_sanctions_regime"]["which_sanctions_regime"]]
+            sanctions_regimes = self.data["which_sanctions_regime"]["which_sanctions_regime"]
 
         licence = Licence.objects.create(
             applicant_user_email_address=self.data["what_is_your_email"]["email"],

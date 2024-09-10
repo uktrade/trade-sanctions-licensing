@@ -178,6 +178,21 @@
                 </dd>
             </div>
         {% endif %}
+        {% if licence.regimes %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    What is the sanctions regime?
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {% for regime in licence.regimes %}
+                        {{ regime }}
+                        {% if not forloop.last %}
+                            <br><br>
+                        {% endif %}
+                    {% endfor %}
+                </dd>
+            </div>
+        {% endif %}
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                 Specific services
