@@ -351,10 +351,23 @@
     </dl>
     <h2 class="govuk-heading-m">Overview of the services</h2>
     <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                What type of services do you want to provide?
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ forms.type_of_service.instance.get_type_of_service_display }}
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link"
+                   href="{% url 'type_of_service' %}?redirect_to_url=check_your_answers">Change<span
+                    class="govuk-visually-hidden">type of service</span></a>
+            </dd>
+        </div>
         {% if form_data.professional_or_business_services %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    What are the professional or business services you want to provide?
+                    What are the services?
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ forms.professional_or_business_services.get_professional_or_business_service_display | linebreaksbr }}
@@ -363,20 +376,6 @@
                     <a class="govuk-link"
                        href="{% url 'professional_or_business_services' %}?redirect_to_url=check_your_answers">Change<span
                         class="govuk-visually-hidden">professional or business services</span></a>
-                </dd>
-            </div>
-        {% else %}
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    What type of services do you want to provide?
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ forms.type_of_service.instance.get_type_of_service_display }}
-                </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link"
-                       href="{% url 'type_of_service' %}?redirect_to_url=check_your_answers">Change<span
-                        class="govuk-visually-hidden">type of service</span></a>
                 </dd>
             </div>
         {% endif %}
