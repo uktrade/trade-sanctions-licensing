@@ -17,7 +17,9 @@ class TestLicenceModel:
         licence.assign_reference()
         assert licence.reference
         assert len(licence.reference) == 6
-        assert licence.reference.isupper()
+        # reference could have digits only in which case isupper returns False
+        if not licence.reference.isdigit():
+            assert licence.reference.isupper()
 
     def test_recipients(self):
         licence = LicenceFactory()
