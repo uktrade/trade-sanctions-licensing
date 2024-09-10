@@ -39,11 +39,8 @@ class CheckYourAnswersView(TemplateView):
         if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
             context["session_files"] = session_files
 
-        if add_yourself_address_id := self.request.session.get("add_yourself_id", None):
-            context["add_yourself_id"] = add_yourself_address_id
-            context["add_yourself_address"] = (
-                "in_the_uk" if self.request.session["add_yourself_address"]["country"] == "GB" else "outside_the_uk"
-            )
+        if user_location := self.request.session.get("add_yourself_address", "").get("country"):
+            context["add_yourself_address"] = "in_the_uk" if user_location == "GB" else "outside_the_uk"
 
         if businesses := self.request.session.get("businesses", None):
             context["businesses"] = businesses
@@ -63,18 +60,22 @@ class DeclarationView(BaseFormView):
 
     def form_valid(self, form: DeclarationForm) -> HttpResponse:
         cleaned_data = get_all_cleaned_data(self.request)
+        is_myself = False
         is_individual = False
         is_on_companies_house = False
         is_third_party = False
         business_employing_individual = False
 
-        if cleaned_data["start"]["who_do_you_want_the_licence_to_cover"] in ["myself", "individual"]:
-            is_individual = True
-            if cleaned_data["start"]["who_do_you_want_the_licence_to_cover"] == "individual":
+        if cleaned_data["start"]["who_do_you_want_the_licence_to_cover"] == "myself":
+            is_myself = True
+            cleaned_data["add_yourself_address"] = self.request.session["add_yourself_address"]
+            if cleaned_data["yourself_and_individual_added"]["do_you_want_to_add_another_individual"]:
                 business_employing_individual = True
-            # TODO: temporary fix
-            if cleaned_data["start"]["who_do_you_want_the_licence_to_cover"] == "myself":
-                cleaned_data["add_yourself_address"] = self.request.session["add_yourself_address"]
+            if not self.request.session.get("individuals", {}):
+                self.request.session["individuals"] = {}
+        elif cleaned_data["start"]["who_do_you_want_the_licence_to_cover"] == "individual":
+            is_individual = True
+            business_employing_individual = True
 
         if (
             cleaned_data["is_the_business_registered_with_companies_house"].get("business_registered_on_companies_house", "")
@@ -98,10 +99,11 @@ class DeclarationView(BaseFormView):
 
             new_licence_object = save_object.save_licence()
 
-            if is_individual:
+            if is_myself or is_individual:
                 save_object.save_individuals()
                 if business_employing_individual:
                     save_object.save_business()
+
             else:
                 save_object.save_business()
 

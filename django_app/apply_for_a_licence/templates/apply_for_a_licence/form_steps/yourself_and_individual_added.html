@@ -2,12 +2,10 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 
 
-{% block title %}You've added yourself {% if request.session.individuals.keys|length > 1 %} plus {{ request.session.individuals.keys|length|add:"-1" }} individual{% if request.session.individuals.keys|length > 1 %}s{% endif %}{% endif %} to the licence{% endblock title %}
-
+{% block title %}You've added yourself {% if request.session.individuals.keys|length > 0 %} plus {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 %}s{% endif %}{% endif %} to the licence{% endblock title %}
 {% block column_content %}
     <h1 class="govuk-heading-l">
-        You've added yourself {% if request.session.individuals.keys|length > 1 %} plus {{ request.session.individuals.keys|length|add:"-1" }} individual{% if request.session.individuals.keys|length > 1 %}s{% endif %}{% endif %} to the licence
-    </h1>
+        You've added yourself {% if request.session.individuals.keys|length > 0 %} plus {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 %}s{% endif %}{% endif %} to the licence    </h1>
     <div class="action-wrapper">
         <div>
             <h3 class="govuk-heading-m" style="float:left;">Your Details </h3>
@@ -48,48 +46,46 @@
         </div>
     </dl>
     {% for id, individual in request.session.individuals.items %}
-        {% if id != request.session.add_yourself_id %}
-            <div class="action-wrapper">
-                <div>
-                    <h3 class="govuk-heading-m" style="float:left;">Individual {{ forloop.counter|add:"-1" }} </h3>
-                    <ul class="govuk-summary-card__actions">
-                        <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
+        <div class="action-wrapper">
+            <div>
+                <h3 class="govuk-heading-m" style="float:left;">Individual {{ forloop.counter }} </h3>
+                <ul class="govuk-summary-card__actions">
+                    <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
 
-                            <a class="govuk-link" style="font-size: 19px; text-align:right"
-                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }}">Change<span
-                                class="govuk-visually-hidden"> Individual {{ forloop.counter|add:"-1" }} details </span></a>
-                        </dd>
-                    </ul>
-                </div>
+                        <a class="govuk-link" style="font-size: 19px; text-align:right"
+                           href="{% url 'add_an_individual' %}?individual_uuid={{ id }}">Change<span
+                            class="govuk-visually-hidden"> Individual {{ forloop.counter }} details </span></a>
+                    </dd>
+                </ul>
             </div>
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Name
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ individual.name_data.cleaned_data.first_name }} {{individual.name_data..cleaned_data.last_name}}
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Nationality and Location
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ individual.name_data.cleaned_data.nationality }}
-                    </dd>
-                </div>
-                <form id="delete_individual_from_yourself_form_{{ forloop.counter|add:"-1" }}" method="post" enctype='multipart/form-data' novalidate
-                      action="{% url 'delete_individual_from_yourself' %}?individual_uuid={{ id }}">
-                    <input type="hidden" name="individual_uuid" value="{{ id }}">
-                    {% csrf_token %}
-                    <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_individual_from_yourself_form_{{ forloop.counter|add:"-1" }}">
-                        Remove Individual {{ forloop.counter|add:"-1" }}<span
-                            class="govuk-visually-hidden"> Individual {{ forloop.counter|add:"-1" }}</span>
-                    </button>
-                </form>
-            </dl>
-        {% endif %}
+        </div>
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Name
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ individual.name_data.cleaned_data.first_name }} {{individual.name_data..cleaned_data.last_name}}
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Nationality and Location
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ individual.name_data.cleaned_data.nationality }}
+                </dd>
+            </div>
+            <form id="delete_individual_from_yourself_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
+                  action="{% url 'delete_individual_from_yourself' %}?individual_uuid={{ id }}">
+                <input type="hidden" name="individual_uuid" value="{{ id }}">
+                {% csrf_token %}
+                <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_individual_from_yourself_form_{{ forloop.counter }}">
+                    Remove Individual {{ forloop.counter }}<span
+                        class="govuk-visually-hidden"> Individual {{ forloop.counter }}</span>
+                </button>
+            </form>
+        </dl>
     {% endfor %}
     {% error_summary form %}
     <form method="post" enctype='multipart/form-data' novalidate>
