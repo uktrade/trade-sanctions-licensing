@@ -69,8 +69,6 @@ class DeclarationView(BaseFormView):
         if cleaned_data["start"]["who_do_you_want_the_licence_to_cover"] == "myself":
             is_myself = True
             cleaned_data["add_yourself_address"] = self.request.session["add_yourself_address"]
-            if cleaned_data["yourself_and_individual_added"]["do_you_want_to_add_another_individual"]:
-                business_employing_individual = True
         elif cleaned_data["start"]["who_do_you_want_the_licence_to_cover"] == "individual":
             is_individual = True
             business_employing_individual = True

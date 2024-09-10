@@ -48,7 +48,6 @@ class TestAddYourselfView:
                 "add_yourself_address",
                 kwargs={
                     "location": "in_the_uk",
-                    "individual_uuid": response.resolver_match.kwargs["individual_uuid"],
                 },
             )
             in response.redirect_chain[0][0]
@@ -62,7 +61,6 @@ class TestAddYourselfAddressView:
                 "add_yourself_address",
                 kwargs={
                     "location": "outside_the_uk",
-                    "individual_uuid": "individual1",
                 },
             ),
             data={
