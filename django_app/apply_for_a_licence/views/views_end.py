@@ -39,7 +39,7 @@ class CheckYourAnswersView(TemplateView):
         if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
             context["session_files"] = session_files
 
-        if user_location := self.request.session.get("add_yourself_address", "").get("country"):
+        if user_location := self.request.session.get("add_yourself_address", {}).get("country", ""):
             context["add_yourself_address"] = "in_the_uk" if user_location == "GB" else "outside_the_uk"
 
         if businesses := self.request.session.get("businesses", None):
