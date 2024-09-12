@@ -56,6 +56,11 @@
                 <dd class="govuk-summary-list__value">
                     {{ form_data.are_you_third_party.are_you_applying_on_behalf_of_someone_else }}
                 </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link"
+                       href="{% url 'are_you_third_party' %}?redirect_to_url=check_your_answers">Change<span
+                        class="govuk-visually-hidden">third party</span></a>
+                </dd>
             </div>
     {% endif %}
     </dl>
