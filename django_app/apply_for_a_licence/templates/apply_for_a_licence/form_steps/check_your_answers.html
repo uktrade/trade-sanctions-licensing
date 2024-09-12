@@ -214,38 +214,10 @@
             {% endif %}
     {% endif %}
     {% if form_data.start.who_do_you_want_the_licence_to_cover == "individual" %}
-        <div class="action-wrapper">
-            <h3 class="govuk-heading-s" style="float:left"> Business detail</h3>
-            <dl class="govuk-summary-card__actions">
-                <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
-                    <a class="govuk-link"
-                       href="{% url 'business_employing_individual' %}?">Change<span
-                        class="govuk-visually-hidden">business name details</span></a>
-                </dd>
-            </dl>
-        </div>
-        <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    Business name
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ form_data.business_employing_individual.name }}
-                </dd>
-            </div>
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    Address
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ form_data.business_employing_individual.readable_address | linebreaksbr }}
-                </dd>
-            </div>
-        </dl>
         {% if individuals %}
             {% for id, individual in individuals.items %}
                 {% if individual.address_data %}
-                            {# we want to make sure that the object has been fully completed, name + address data is necessary #}
+                    {# we want to make sure that the object has been fully completed, name + address data is necessary #}
 
                     <div class="action-wrapper">
                         <h3 class="govuk-heading-s" style="float:left"> Individual {{ forloop.counter }}</h3>
@@ -302,6 +274,36 @@
                 </a>
             </dl>
         {% endif %}
+    {% endif %}
+    {% if form_data.start.who_do_you_want_the_licence_to_cover == "individual" %}
+        <div class="action-wrapper">
+            <h2 class="govuk-heading-m" style="float:left"> Business the individuals work for </h2>
+            <dl class="govuk-summary-card__actions">
+                <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
+                    <a class="govuk-link"
+                       href="{% url 'business_employing_individual' %}?redirect_to_url=check_your_answers">Change<span
+                        class="govuk-visually-hidden">business name details</span></a>
+                </dd>
+            </dl>
+        </div>
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    Business Name
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ form_data.business_employing_individual.name }}
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    Address
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ form_data.business_employing_individual.readable_address | linebreaksbr }}
+                </dd>
+            </div>
+        </dl>
     {% endif %}
     <div class="action-wrapper">
         <h2 class="govuk-heading-m" style="float:left">Existing Licence</h2>
