@@ -112,7 +112,10 @@ class ServiceActivitiesForm(BaseModelForm):
         super().__init__(*args, **kwargs)
         self.fields["service_activities"].widget.attrs = {"rows": 5}
 
+        print(get_cleaned_data_for_step(self.request, "type_of_service"))
+
         if professional_or_business_services := get_cleaned_data_for_step(self.request, "type_of_service"):
+            print(professional_or_business_services)
             if (
                 professional_or_business_services.get("type_of_service", False)
                 == TypeOfServicesChoices.professional_and_business.value
