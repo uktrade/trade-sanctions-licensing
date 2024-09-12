@@ -76,6 +76,14 @@
                     {{ individual.name_data.cleaned_data.nationality }}
                 </dd>
             </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Address
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ individual.address_data.cleaned_data.readable_address | linebreaksbr }}
+                </dd>
+            </div>
             <form id="delete_individual_from_yourself_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
                   action="{% url 'delete_individual_from_yourself' %}?individual_uuid={{ id }}">
                 <input type="hidden" name="individual_uuid" value="{{ id }}">

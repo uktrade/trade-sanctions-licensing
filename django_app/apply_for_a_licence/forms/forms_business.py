@@ -79,11 +79,6 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
 
-        # emptying the form if the user has requested to change the details
-        if self.request.method == "GET" and self.request.GET.get("change", None) == "yes":
-            self.is_bound = False
-            self.data = {}
-
         # remove companies house 500 error if it exists
         self.request.session.pop("company_details_500", None)
         self.request.session.modified = True
