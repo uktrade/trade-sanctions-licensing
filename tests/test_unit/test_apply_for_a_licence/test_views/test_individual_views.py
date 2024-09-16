@@ -36,7 +36,7 @@ class TestIndividualAddedView:
             == reverse(
                 "add_an_individual",
                 kwargs={
-                    "individual_uuid": "individual1",
+                    "individual_uuid": "individual2",
                 },
             )
             + "?change=yes"
@@ -175,8 +175,7 @@ class TestAddAnIndividualView:
         )
         form = response.context["form"]
 
-        assert form.data["first_name"] == "Recipient"
-        assert form.data["last_name"] == "1"
+        assert form.data["full_name"] == "Recipient"
         assert form.data["nationality_and_location"] == NationalityAndLocation.uk_national_uk_location.value
 
 
