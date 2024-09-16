@@ -31,7 +31,16 @@ class TestIndividualAddedView:
             reverse("individual_added"),
             data={"do_you_want_to_add_another_individual": True},
         )
-        assert response.url == reverse("add_an_individual") + "?change=yes"
+        assert (
+            response.url
+            == reverse(
+                "add_an_individual",
+                kwargs={
+                    "individual_uuid": "individual1",
+                },
+            )
+            + "?change=yes"
+        )
 
 
 class TestDeleteIndividualView:
@@ -89,7 +98,13 @@ class TestDeleteIndividualView:
 class TestAddAnIndividualView:
     def test_redirect_after_post(self, al_client):
         response = al_client.post(
-            reverse("add_an_individual") + "?redirect_to_url=check_your_answers&new=yes",
+            reverse(
+                "add_an_individual",
+                kwargs={
+                    "individual_uuid": "individual1",
+                },
+            )
+            + "?redirect_to_url=check_your_answers&new=yes",
             data={
                 "first_name": "test",
                 "last_name": "test last",
@@ -114,7 +129,12 @@ class TestAddAnIndividualView:
     def test_successful_post(self, al_client):
         assert al_client.session.get("individuals") is None
         response = al_client.post(
-            reverse("add_an_individual"),
+            reverse(
+                "add_an_individual",
+                kwargs={
+                    "individual_uuid": "individual1",
+                },
+            ),
             data={
                 "first_name": "test",
                 "last_name": "test last",
@@ -145,7 +165,14 @@ class TestAddAnIndividualView:
         session["individuals"] = data.individuals
         session.save()
 
-        response = al_client.get(reverse("add_an_individual") + "?individual_uuid=individual1")
+        response = al_client.get(
+            reverse(
+                "add_an_individual",
+                kwargs={
+                    "individual_uuid": "individual1",
+                },
+            )
+        )
         form = response.context["form"]
 
         assert form.data["first_name"] == "Recipient"
