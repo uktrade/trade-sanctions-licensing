@@ -171,11 +171,12 @@ class TestAddAnIndividualView:
                 kwargs={
                     "individual_uuid": "individual1",
                 },
-            )
+            ),
         )
         form = response.context["form"]
 
-        assert form.data["full_name"] == "Recipient"
+        assert form.data["first_name"] == "Recipient"
+        assert form.data["last_name"] == "1"
         assert form.data["nationality_and_location"] == NationalityAndLocation.uk_national_uk_location.value
 
 
