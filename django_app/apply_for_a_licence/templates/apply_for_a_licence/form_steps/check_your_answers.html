@@ -166,7 +166,7 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
-                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
+                               href="{% url 'add_an_individual' individual_uuid=id %}&redirect_to_url=check_your_answers">Change<span
                                 class="govuk-visually-hidden">name of individual {{ forloop.counter }}</span></a>
                         </dd>
                     </div>
@@ -180,7 +180,7 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
-                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }}"
+                               href="{% url 'add_an_individual' individual_uuid=id %}"
                                &redirect_to_url=check_your_answers>Change<span
                                 class="govuk-visually-hidden">connection to the UK of individual {{ forloop.counter }}</span></a>
                         </dd>
@@ -194,7 +194,7 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
-                               href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
+                               href="{% url 'add_an_individual' individual_uuid=id %}&redirect_to_url=check_your_answers">Change<span
                                 class="govuk-visually-hidden">location of individual {{ forloop.counter }}</span></a>
                         </dd>
                     </div>
@@ -217,7 +217,7 @@
         {% endif %}
         <dl class="govuk-summary-list">
             <a class="govuk-link"
-               href="{% url 'add_an_individual' %}?redirect_to_url=check_your_answers&new=yes">
+               href="{% url 'add_an_individual' individual_uuid=new_individual %}?redirect_to_url=check_your_answers&new=yes">
                 Add another licensee
             </a>
         </dl>
@@ -266,7 +266,7 @@
                             </dd>
                             <dd class="govuk-summary-list__actions">
                                 <a class="govuk-link"
-                                   href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
+                                   href="{% url 'add_an_individual' individual_uuid=id %}&redirect_to_url=check_your_answers">Change<span
                                     class="govuk-visually-hidden">location of individual {{ forloop.counter }}</span></a>
                             </dd>
                         </div>
@@ -279,7 +279,7 @@
                             </dd>
                             <dd class="govuk-summary-list__actions">
                                 <a class="govuk-link"
-                                   href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
+                                   href="{% url 'add_an_individual' individual_uuid=id %}&redirect_to_url=check_your_answers">Change<span
                                     class="govuk-visually-hidden">location of individual {{ forloop.counter }}</span></a>
                             </dd>
                         </div>
@@ -292,7 +292,7 @@
                             </dd>
                             <dd class="govuk-summary-list__actions">
                                 <a class="govuk-link"
-                                   href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
+                                   href="{% url 'add_an_individual' individual_uuid=id %}&redirect_to_url=check_your_answers">Change<span
                                     class="govuk-visually-hidden">location of individual {{ forloop.counter }}</span></a>
                             </dd>
                         </div>

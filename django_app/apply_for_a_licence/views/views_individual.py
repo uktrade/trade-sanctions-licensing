@@ -1,6 +1,5 @@
 import logging
 import urllib.parse
-import uuid
 
 from apply_for_a_licence.choices import NationalityAndLocation
 from apply_for_a_licence.forms import forms_individual as forms
@@ -44,24 +43,24 @@ class AddAnIndividualView(BaseFormView):
     def form_valid(self, form: forms.AddAnIndividualForm) -> HttpResponse:
         current_individuals = self.request.session.get("individuals", {})
         # get the individual_uuid if it exists, otherwise create it
-        if individual_uuid := self.request.GET.get("individual_uuid", str(uuid.uuid4())):
-            # used to display the individual_uuid data in individual_added.html
-            if individual_uuid not in current_individuals:
-                current_individuals[individual_uuid] = {}
+        individual_uuid = self.kwargs["individual_uuid"]
+        # used to display the individual_uuid data in individual_added.html
+        if individual_uuid not in current_individuals:
+            current_individuals[individual_uuid] = {}
 
-            current_individuals[individual_uuid]["name_data"] = {
-                "cleaned_data": form.cleaned_data,
-                "dirty_data": form.data,
-            }
-            self.individual_uuid = individual_uuid
+        current_individuals[individual_uuid]["name_data"] = {
+            "cleaned_data": form.cleaned_data,
+            "dirty_data": form.data,
+        }
+        self.individual_uuid = individual_uuid
 
-            # is it a UK address?
-            self.is_uk_individual = form.cleaned_data["nationality_and_location"] in [
-                NationalityAndLocation.uk_national_uk_location.value,
-                NationalityAndLocation.dual_national_uk_location.value,
-                NationalityAndLocation.non_uk_national_uk_location.value,
-            ]
-            self.request.session["individuals"] = current_individuals
+        # is it a UK address?
+        self.is_uk_individual = form.cleaned_data["nationality_and_location"] in [
+            NationalityAndLocation.uk_national_uk_location.value,
+            NationalityAndLocation.dual_national_uk_location.value,
+            NationalityAndLocation.non_uk_national_uk_location.value,
+        ]
+        self.request.session["individuals"] = current_individuals
         return super().form_valid(form)
 
     def get_success_url(self):

@@ -53,7 +53,7 @@ views_business_urls = [
 ]
 
 views_individual_urls = [
-    path("add_an_individual", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
+    path("add_an_individual/<str:individual_uuid>", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
     path(
         "what_is_individuals_address/<str:location>/<str:individual_uuid>",
         views_individual.WhatIsIndividualsAddressView.as_view(),

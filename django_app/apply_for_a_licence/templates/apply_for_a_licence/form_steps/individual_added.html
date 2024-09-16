@@ -15,7 +15,7 @@
                 <ul class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         <a class="govuk-link" style="font-size: 19px; text-align:right"
-                           href="{% url 'add_an_individual' %}?individual_uuid={{ id }}">Change<span
+                           href="{% url 'add_an_individual' individual_uuid=id %}">Change<span
                             class="govuk-visually-hidden"> Individual {{forloop.counter}} details </span></a>
                     </dd>
                 </ul>

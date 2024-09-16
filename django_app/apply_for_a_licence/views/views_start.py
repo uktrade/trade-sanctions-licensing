@@ -1,4 +1,5 @@
 import logging
+import uuid
 from typing import Any
 
 from apply_for_a_licence.forms import forms_start as forms
@@ -87,4 +88,9 @@ class YourDetailsView(BaseFormView):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "business":
                 return reverse("is_the_business_registered_with_companies_house")
             else:
-                return reverse("add_an_individual")
+                return reverse(
+                    "add_an_individual",
+                    kwargs={
+                        "individual_uuid": str(uuid.uuid4()),
+                    },
+                )
