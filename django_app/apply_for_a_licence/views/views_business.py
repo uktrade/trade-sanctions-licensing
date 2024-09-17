@@ -138,7 +138,6 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
 
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
-
         return success_url
 
 
