@@ -314,7 +314,7 @@
             {% endfor %}
             <dl class="govuk-summary-list">
                 <a class="govuk-link"
-                   href="{% url 'add_an_individual' %}?redirect_to_url=check_your_answers&change=yes&new=yes">
+                   href="{% url 'add_an_individual' individual_uuid=new_individual %}?redirect_to_url=check_your_answers&new=yes">
                     Add another licensee
                 </a>
             </dl>

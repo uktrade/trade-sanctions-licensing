@@ -1,5 +1,6 @@
 import logging
 import urllib.parse
+import uuid
 
 from apply_for_a_licence.choices import NationalityAndLocation
 from apply_for_a_licence.forms import forms_individual as forms
@@ -136,7 +137,8 @@ class IndividualAddedView(BaseFormView):
     def get_success_url(self):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
-            return reverse("add_an_individual") + "?change=yes"
+            new_individual = str(uuid.uuid4())
+            return reverse("add_an_individual", kwargs={"individual_uuid": new_individual}) + "?new=yes"
         else:
             return reverse("previous_licence")
 
