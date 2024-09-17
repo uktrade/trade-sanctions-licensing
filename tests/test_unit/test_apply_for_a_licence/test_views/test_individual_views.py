@@ -31,16 +31,8 @@ class TestIndividualAddedView:
             reverse("individual_added"),
             data={"do_you_want_to_add_another_individual": True},
         )
-        assert (
-            response.url
-            == reverse(
-                "add_an_individual",
-                kwargs={
-                    "individual_uuid": "individual2",
-                },
-            )
-            + "?change=yes"
-        )
+        assert "add_an_individual" in response.url
+        assert "?new=yes" in response.url
 
 
 class TestDeleteIndividualView:
@@ -164,20 +156,19 @@ class TestAddAnIndividualView:
         session = al_client.session
         session["individuals"] = data.individuals
         session.save()
-
         response = al_client.get(
             reverse(
                 "add_an_individual",
                 kwargs={
-                    "individual_uuid": "individual1",
+                    "individual_uuid": "individual2",
                 },
-            ),
+            )
         )
-        form = response.context["form"]
 
+        form = response.context["form"]
         assert form.data["first_name"] == "Recipient"
-        assert form.data["last_name"] == "1"
-        assert form.data["nationality_and_location"] == NationalityAndLocation.uk_national_uk_location.value
+        assert form.data["last_name"] == "2"
+        assert form.data["nationality_and_location"] == NationalityAndLocation.uk_national_non_uk_location.value
 
 
 class TestWhatIsIndividualsAddressView:

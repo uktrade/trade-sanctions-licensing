@@ -35,7 +35,7 @@ class AddAnIndividualView(BaseFormView):
 
         # restore the form data from the individual_uuid, if it exists
         if self.request.method == "GET":
-            if individual_uuid := self.request.GET.get("individual_uuid", None):
+            if individual_uuid := self.kwargs.get("individual_uuid", None):
                 if individuals_dict := self.request.session.get("individuals", {}).get(individual_uuid, None):
                     kwargs["data"] = individuals_dict["name_data"]["dirty_data"]
 
