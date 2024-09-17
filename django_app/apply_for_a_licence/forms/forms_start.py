@@ -17,6 +17,7 @@ class StartForm(BaseModelForm):
     class Meta:
         model = Licence
         fields = ["who_do_you_want_the_licence_to_cover"]
+        labels = {"who_do_you_want_the_licence_to_cover": "Who do you want the licence to cover?"}
         widgets = {
             "who_do_you_want_the_licence_to_cover": forms.RadioSelect,
         }
@@ -28,20 +29,24 @@ class StartForm(BaseModelForm):
             Choice(
                 choices.WhoDoYouWantTheLicenceToCoverChoices.business.value,
                 choices.WhoDoYouWantTheLicenceToCoverChoices.business.label,
-                hint="The licence will cover all employees, members, partners, consultants, officers and directors",
+                hint="The licence will cover all employees, members, partners, consultants, contractors, officers and directors",
             ),
             Choice(
                 choices.WhoDoYouWantTheLicenceToCoverChoices.individual.value,
                 choices.WhoDoYouWantTheLicenceToCoverChoices.individual.label,
-                hint="The licence will cover the named individuals only but not the business they work for",
+                hint="If your business has no UK nexus it cannot be licenced, but any employees or consultants with a UK nexus "
+                "must be licenced before they can provide sanctioned services for you",
             ),
             Choice(
                 choices.WhoDoYouWantTheLicenceToCoverChoices.myself.value,
                 choices.WhoDoYouWantTheLicenceToCoverChoices.myself.label,
-                hint="You can add other named individuals if they will be providing the services with you",
+                hint="Apply for a licence for yourself if you’re a sole trader or cannot be covered by a business licence",
             ),
         )
         self.fields["who_do_you_want_the_licence_to_cover"].choices = CHOICES
+        self.helper.layout = Layout(
+            *self.fields, HTMLTemplate(html_template_path="apply_for_a_licence/form_steps/partials/uk_nexus_details.html")
+        )
 
 
 class ThirdPartyForm(BaseForm):
