@@ -14,13 +14,6 @@ def get_cleaned_data_for_step(request: HttpRequest, step_name: str) -> dict:
     view_class = step_to_view_dict[step_name]
     form_class = view_class.form_class
     form = form_class(get_dirty_form_data(request, step_name), request=request)
-    if step_name == "type_of_service":
-        print(get_dirty_form_data(request, step_name))
-        form = form_class(None, {}, request=request)
-        print(form.errors)
-        print(form.is_bound)
-    # print(form.is_valid())
-    # print(step_name)
     if form.is_valid():
         return form.cleaned_data
     else:

@@ -1,6 +1,7 @@
 import logging
 import urllib.parse
 
+from apply_for_a_licence.choices import TypeOfServicesChoices
 from apply_for_a_licence.forms import forms_services as forms
 from core.views.base_views import BaseFormView
 from django.urls import reverse
@@ -13,7 +14,6 @@ class TypeOfServiceView(BaseFormView):
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["type_of_service"]
-        print(self.form.is_valid())
         match answer:
             case "interception_or_monitoring":
                 success_url = reverse("which_sanctions_regime")
@@ -82,5 +82,14 @@ class ServiceActivitiesView(BaseFormView):
         if self.request.GET.get("change", None) == "yes":
             self.redirect_after_post = False
             success_url = reverse("purpose_of_provision")
+            if professional_or_business_services := (self.request.session.get("type_of_service", {})):
+                if (
+                    professional_or_business_services.get("type_of_service", False)
+                    == TypeOfServicesChoices.professional_and_business.value
+                ):
+                    success_url = reverse("licensing_grounds")
+
+        if get_parameters := urllib.parse.urlencode(self.request.GET):
+            success_url += "?" + get_parameters
 
         return success_url

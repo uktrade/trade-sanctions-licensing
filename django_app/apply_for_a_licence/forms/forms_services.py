@@ -1,7 +1,6 @@
 from apply_for_a_licence import choices
 from apply_for_a_licence.choices import TypeOfServicesChoices
 from apply_for_a_licence.models import Licence
-from apply_for_a_licence.utils import get_cleaned_data_for_step
 from core.crispy_fields import get_field_with_label_id
 from core.forms.base_forms import BaseForm, BaseModelForm
 from crispy_forms_gds.choices import Choice
@@ -112,10 +111,7 @@ class ServiceActivitiesForm(BaseModelForm):
         super().__init__(*args, **kwargs)
         self.fields["service_activities"].widget.attrs = {"rows": 5}
 
-        print(get_cleaned_data_for_step(self.request, "type_of_service"))
-
-        if professional_or_business_services := get_cleaned_data_for_step(self.request, "type_of_service"):
-            print(professional_or_business_services)
+        if professional_or_business_services := (self.request.session.get("type_of_service", {})):
             if (
                 professional_or_business_services.get("type_of_service", False)
                 == TypeOfServicesChoices.professional_and_business.value

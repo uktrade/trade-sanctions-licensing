@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class LicensingGroundsView(BaseFormView):
     form_class = forms.LicensingGroundsForm
     success_url = reverse_lazy("purpose_of_provision")
+    redirect_after_post = False
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -41,6 +42,8 @@ class LicensingGroundsView(BaseFormView):
             # the user has selected 'Legal advisory' as well as other services, redirect them to the legal advisory page
             return reverse("licensing_grounds_legal_advisory")
         else:
+            # delete form data for legal advisory grounds
+            self.request.session["licensing_grounds_legal_advisory"] = {}
             return reverse("purpose_of_provision")
 
 
