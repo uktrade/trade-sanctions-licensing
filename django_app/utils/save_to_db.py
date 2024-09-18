@@ -78,7 +78,7 @@ class SaveToDB:
         return licence
 
     def save_individuals(self) -> None:
-        for _, individual in self.request.session["individuals"].items():
+        for _, individual in self.request.session.get("individuals", {}).items():
             Individual.objects.create(
                 licence=self.licence_object,
                 first_name=individual["name_data"]["cleaned_data"]["first_name"],

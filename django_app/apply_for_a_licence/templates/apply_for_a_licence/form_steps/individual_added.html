@@ -15,7 +15,7 @@
                 <ul class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         <a class="govuk-link" style="font-size: 19px; text-align:right"
-                           href="{% url 'add_an_individual' %}?individual_uuid={{ id }}">Change<span
+                           href="{% url 'add_an_individual' individual_uuid=id %}">Change<span
                             class="govuk-visually-hidden"> Individual {{forloop.counter}} details </span></a>
                     </dd>
                 </ul>
@@ -36,6 +36,14 @@
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ individual.name_data.cleaned_data.nationality }}
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Address
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ individual.address_data.cleaned_data.readable_address | linebreaksbr }}
                 </dd>
             </div>
             {% if request.session.individuals.keys|length > 1 %}

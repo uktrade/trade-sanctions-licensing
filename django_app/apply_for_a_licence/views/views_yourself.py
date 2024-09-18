@@ -24,18 +24,6 @@ class AddYourselfView(BaseFormView):
         }
         self.request.session["name_data"] = your_details
 
-        current_individuals = self.request.session.get("individuals", {})
-        # get the individual_uuid if it exists, otherwise create it
-        if individual_uuid := self.request.GET.get("individual_uuid", str(uuid.uuid4())):
-            # used to display the individual_uuid data in individual_added.html
-            if individual_uuid not in current_individuals:
-                current_individuals[individual_uuid] = {}
-
-            current_individuals[individual_uuid]["name_data"] = your_details
-            self.individual_uuid = individual_uuid
-
-            self.request.session["individuals"] = current_individuals
-
         self.is_uk_individual = form.cleaned_data["nationality_and_location"] in [
             NationalityAndLocation.uk_national_uk_location.value,
             NationalityAndLocation.dual_national_uk_location.value,
@@ -49,7 +37,6 @@ class AddYourselfView(BaseFormView):
             "add_yourself_address",
             kwargs={
                 "location": "in_the_uk" if self.is_uk_individual else "outside_the_uk",
-                "individual_uuid": self.individual_uuid,
             },
         )
         if get_parameters := urllib.parse.urlencode(self.request.GET):
@@ -72,17 +59,6 @@ class AddYourselfAddressView(BaseFormView):
                 form_class = forms.AddYourselfUKAddressForm
         return form_class
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-
-        # restore the form data from the individual_uuid, if it exists
-        if self.request.method == "GET":
-            if individual_uuid := self.request.GET.get("individual_uuid", None):
-                if individuals_dict := self.request.session.get("individuals", {}).get(individual_uuid, None):
-                    kwargs["data"] = individuals_dict["name_data"]["dirty_data"]
-
-        return kwargs
-
     def form_valid(self, form: forms.AddYourselfUKAddressForm | forms.AddYourselfNonUKAddressForm) -> HttpResponse:
         your_address = {
             "cleaned_data": form.cleaned_data,
@@ -90,21 +66,8 @@ class AddYourselfAddressView(BaseFormView):
         }
         self.request.session["your_address"] = your_address
 
-        current_individuals = self.request.session.get("individuals", {})
-        # get the individual_uuid if it exists, otherwise create it
-        if individual_uuid := self.kwargs.get("individual_uuid", str(uuid.uuid4())):
-            # used to display the individual_uuid data in individual_added.html
-            if individual_uuid not in current_individuals:
-                current_individuals[individual_uuid] = {}
-
-            self.request.session["add_yourself_id"] = individual_uuid
-            self.request.session["add_yourself_address"] = your_address
-            current_individuals[individual_uuid]["address_data"] = your_address
-            self.individual_uuid = individual_uuid
-
-            # is it a UK address?
-            self.is_uk_individual = form.cleaned_data["url_location"] == "in_the_uk"
-            self.request.session["individuals"] = current_individuals
+        # is it a UK address?
+        self.is_uk_individual = form.cleaned_data["url_location"] == "in_the_uk"
 
         return super().form_valid(form)
 
@@ -121,7 +84,16 @@ class YourselfAndIndividualAddedView(BaseFormView):
     def get_success_url(self):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
-            return reverse("add_an_individual") + "?change=yes"
+            individual_uuid = str(uuid.uuid4())
+            return (
+                reverse(
+                    "add_an_individual",
+                    kwargs={
+                        "individual_uuid": individual_uuid,
+                    },
+                )
+                + "?change=yes"
+            )
         else:
             return reverse("previous_licence")
 

@@ -48,7 +48,7 @@ class AddYourselfForm(BaseModelForm):
 
 
 class AddYourselfUKAddressForm(BaseUKBusinessDetailsForm):
-    form_h1_header = "What is your work address?"
+    form_h1_header = "What is your home address?"
 
     class Meta(BaseUKBusinessDetailsForm.Meta):
         model = Organisation
@@ -68,13 +68,11 @@ class AddYourselfUKAddressForm(BaseUKBusinessDetailsForm):
         super().__init__(*args, **kwargs)
 
         self.helper.layout = Layout(
-            Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
-            Field.text("country", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_3", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_4", field_width=Fluid.ONE_THIRD),
-            Field.text("county", field_width=Fluid.ONE_THIRD),
+            Field.text("country", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
+            Field.text("town_or_city", field_width=Fluid.ONE_HALF),
+            Field.text("county", field_width=Fluid.ONE_HALF),
             Field.text("postcode", field_width=Fluid.ONE_THIRD),
         )
 
@@ -102,12 +100,12 @@ class AddYourselfNonUKAddressForm(BaseNonUKBusinessDetailsForm):
         super().__init__(*args, **kwargs)
 
         self.helper.layout = Layout(
-            Field.text("town_or_city", field_width=Fluid.ONE_THIRD),
-            Field.text("country", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_1", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_2", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_3", field_width=Fluid.ONE_THIRD),
-            Field.text("address_line_4", field_width=Fluid.ONE_THIRD),
+            Field.text("country", field_width=Fluid.TWO_THIRDS),
+            Field.text("town_or_city", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_2", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_3", field_width=Fluid.TWO_THIRDS),
+            Field.text("address_line_4", field_width=Fluid.TWO_THIRDS),
         )
 
 

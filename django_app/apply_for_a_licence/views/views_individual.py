@@ -14,15 +14,7 @@ logger = logging.getLogger(__name__)
 
 class AddAnIndividualView(BaseFormView):
     form_class = forms.AddAnIndividualForm
-
-    @property
-    def redirect_after_post(self) -> bool:
-        if self.request.GET.get("new", None) == "yes":
-            # if we want to create a new individual, we need want to redirect the user to the next page so they can
-            # provide the rest of the information
-            return False
-        else:
-            return True
+    redirect_after_post = False
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
@@ -35,7 +27,7 @@ class AddAnIndividualView(BaseFormView):
 
         # restore the form data from the individual_uuid, if it exists
         if self.request.method == "GET":
-            if individual_uuid := self.request.GET.get("individual_uuid", None):
+            if individual_uuid := self.kwargs.get("individual_uuid", None):
                 if individuals_dict := self.request.session.get("individuals", {}).get(individual_uuid, None):
                     kwargs["data"] = individuals_dict["name_data"]["dirty_data"]
 
@@ -44,24 +36,24 @@ class AddAnIndividualView(BaseFormView):
     def form_valid(self, form: forms.AddAnIndividualForm) -> HttpResponse:
         current_individuals = self.request.session.get("individuals", {})
         # get the individual_uuid if it exists, otherwise create it
-        if individual_uuid := self.request.GET.get("individual_uuid", str(uuid.uuid4())):
-            # used to display the individual_uuid data in individual_added.html
-            if individual_uuid not in current_individuals:
-                current_individuals[individual_uuid] = {}
+        individual_uuid = self.kwargs["individual_uuid"]
+        # used to display the individual_uuid data in individual_added.html
+        if individual_uuid not in current_individuals:
+            current_individuals[individual_uuid] = {}
 
-            current_individuals[individual_uuid]["name_data"] = {
-                "cleaned_data": form.cleaned_data,
-                "dirty_data": form.data,
-            }
-            self.individual_uuid = individual_uuid
+        current_individuals[individual_uuid]["name_data"] = {
+            "cleaned_data": form.cleaned_data,
+            "dirty_data": form.data,
+        }
+        self.individual_uuid = individual_uuid
 
-            # is it a UK address?
-            self.is_uk_individual = form.cleaned_data["nationality_and_location"] in [
-                NationalityAndLocation.uk_national_uk_location.value,
-                NationalityAndLocation.dual_national_uk_location.value,
-                NationalityAndLocation.non_uk_national_uk_location.value,
-            ]
-            self.request.session["individuals"] = current_individuals
+        # is it a UK address?
+        self.is_uk_individual = form.cleaned_data["nationality_and_location"] in [
+            NationalityAndLocation.uk_national_uk_location.value,
+            NationalityAndLocation.dual_national_uk_location.value,
+            NationalityAndLocation.non_uk_national_uk_location.value,
+        ]
+        self.request.session["individuals"] = current_individuals
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -137,7 +129,8 @@ class IndividualAddedView(BaseFormView):
     def get_success_url(self):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
-            return reverse("add_an_individual") + "?change=yes"
+            new_individual = str(uuid.uuid4())
+            return reverse("add_an_individual", kwargs={"individual_uuid": new_individual}) + "?new=yes"
         else:
             return reverse("previous_licence")
 

@@ -63,12 +63,14 @@ individuals = {
     "individual2": {
         "name_data": {
             "cleaned_data": {
-                "name": "Recipient 2",
-                "website": "http://fdas.com",
-                "country": "GB",
-                "address_line_1": "Line 1",
-                "town_or_city": "City",
-            }
+                "first_name": "Recipient",
+                "last_name": "2",
+            },
+            "dirty_data": {
+                "first_name": "Recipient",
+                "last_name": "2",
+                "nationality_and_location": "uk_national_non_uk_location",
+            },
         }
     },
     "individual3": {

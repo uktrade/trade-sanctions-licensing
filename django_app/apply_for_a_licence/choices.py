@@ -8,8 +8,8 @@ YES_NO_CHOICES = (
 
 
 class WhoDoYouWantTheLicenceToCoverChoices(models.TextChoices):
-    business = "business", "A business or several businesses"
-    individual = "individual", "A named individual or several named individuals"
+    business = "business", "A business or businesses with a UK nexus"
+    individual = "individual", "Named individuals with a UK nexus working for a business with no UK nexus"
     myself = "myself", "Myself"
 
 

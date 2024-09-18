@@ -8,7 +8,6 @@ from core.utils import get_mime_type
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Layout
 from django import forms
-from django.utils.html import escape
 from django_chunk_upload_handlers.clam_av import VirusFoundInFileException
 from utils.s3 import get_all_session_files
 
@@ -39,7 +38,7 @@ class UploadDocumentsForm(BaseForm):
             except VirusFoundInFileException:
                 documents.remove(document)
                 raise forms.ValidationError(
-                    "A virus was found in one of the files you uploaded.",
+                    "The selected file contains a virus",
                 )
 
             # is the document a valid file type?
@@ -67,9 +66,7 @@ class UploadDocumentsForm(BaseForm):
                 "image/jpeg",
                 "image/png",
             ]
-
-            _, file_extension = os.path.splitext(document.name)
-            valid_extension = file_extension in [
+            valid_extensions = [
                 # word documents
                 ".doc",
                 ".docx",
@@ -98,10 +95,14 @@ class UploadDocumentsForm(BaseForm):
                 ".png",
             ]
 
+            _, file_extension = os.path.splitext(document.name)
+            valid_extension = file_extension.lower() in valid_extensions
+            valid_file_type = (
+                ", ".join(valid_extensions[:-1]).replace(".", "").upper() + " or " + valid_extensions[-1].replace(".", "").upper()
+            )
+
             if not valid_mimetype or not valid_extension:
-                raise forms.ValidationError(
-                    f"{escape(document.name)} cannot be uploaded, it is not a valid file type", code="invalid_file_type"
-                )
+                raise forms.ValidationError(f"The selected file must be a {valid_file_type}", code="invalid_file_type")
 
             # has the user already uploaded 10 files?
             if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
@@ -110,6 +111,6 @@ class UploadDocumentsForm(BaseForm):
 
             # is the document too large?
             if document.size > 104857600:
-                raise forms.ValidationError(f"{document.name} must be smaller than 100 MB", code="too_large")
+                raise forms.ValidationError("The selected file must be smaller than 100 MB", code="too_large")
 
         return documents
