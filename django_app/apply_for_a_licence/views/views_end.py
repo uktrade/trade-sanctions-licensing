@@ -1,4 +1,5 @@
 import logging
+import uuid
 from typing import Any
 
 from apply_for_a_licence.forms.forms_yourself import DeclarationForm
@@ -49,6 +50,7 @@ class CheckYourAnswersView(TemplateView):
         if recipients := self.request.session.get("recipients", None):
             context["recipients"] = recipients
 
+        context["new_individual"] = str(uuid.uuid4())
         return context
 
 
