@@ -224,7 +224,7 @@
                             <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
 
                                 <a class="govuk-link"
-                                   href="{% url 'add_an_individual' %}?individual_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span
+                                   href="{% url 'add_an_individual' individual_uuid=new_individual %}?redirect_to_url=check_your_answers">Change<span
                                     class="govuk-visually-hidden"> individual {{ forloop.counter }} details</span></a>
                             </dd>
                         </dl>

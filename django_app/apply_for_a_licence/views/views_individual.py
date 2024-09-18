@@ -14,15 +14,7 @@ logger = logging.getLogger(__name__)
 
 class AddAnIndividualView(BaseFormView):
     form_class = forms.AddAnIndividualForm
-
-    @property
-    def redirect_after_post(self) -> bool:
-        if self.request.GET.get("new", None) == "yes":
-            # if we want to create a new individual, we need want to redirect the user to the next page so they can
-            # provide the rest of the information
-            return False
-        else:
-            return True
+    redirect_after_post = False
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
