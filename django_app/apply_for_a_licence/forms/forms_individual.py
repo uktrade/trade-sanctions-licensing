@@ -79,7 +79,6 @@ class IndividualAddedForm(BaseForm):
 
 
 class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
-    form_h1_header = "Details of the business employing the individual[s]"
 
     class Meta(BaseBusinessDetailsForm.Meta):
         model = Organisation

@@ -149,3 +149,12 @@ class DeleteIndividualView(BaseFormView):
 class BusinessEmployingIndividualView(BaseFormView):
     form_class = forms.BusinessEmployingIndividualForm
     success_url = reverse_lazy("type_of_service")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if len(self.request.session.get("individuals", {})) == 1:
+            kwargs["form_h1_header"] = "Details of the business employing the individual"
+        else:
+            kwargs["form_h1_header"] = "Details of the business employing the individuals"
+
+        return kwargs
