@@ -54,7 +54,7 @@
                     <input type="hidden" name="business_uuid" value="{{ id }}">
                     {% csrf_token %}
                     <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_business_form_{{ forloop.counter }}">
-                        Remove Business {{ forloop.counter }} <span
+                        Remove business {{ forloop.counter }} <span
                             class="govuk-visually-hidden"> Business {{forloop.counter}}</span>
                     </button>
                 </form>

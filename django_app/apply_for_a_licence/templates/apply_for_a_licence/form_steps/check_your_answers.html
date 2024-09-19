@@ -58,7 +58,7 @@
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
                        href="{% url 'are_you_third_party' %}?redirect_to_url=check_your_answers">Change<span
-                        class="govuk-visually-hidden">third party</span></a>
+                        class="govuk-visually-hidden"> whether you're a third party or not</span></a>
                 </dd>
             </div>
         </dl>
@@ -164,7 +164,7 @@
                                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                                     <a class="govuk-link"
                                        href="{% url 'add_an_individual' individual_uuid=id %}?redirect_to_url=check_your_answers">Change<span
-                                        class="govuk-visually-hidden"> individual {{ forloop.counter }} details</span></a>
+                                        class="govuk-visually-hidden"> Individual {{ forloop.counter }} details</span></a>
                                 </dd>
                             </dl>
                         </div>
@@ -225,7 +225,7 @@
 
                                 <a class="govuk-link"
                                    href="{% url 'add_an_individual' individual_uuid=id %}?redirect_to_url=check_your_answers">Change<span
-                                    class="govuk-visually-hidden"> individual {{ forloop.counter }} details</span></a>
+                                    class="govuk-visually-hidden"> Individual {{ forloop.counter }} details</span></a>
                             </dd>
                         </dl>
                     </div>
@@ -281,7 +281,7 @@
                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                     <a class="govuk-link"
                        href="{% url 'business_employing_individual' %}?redirect_to_url=check_your_answers">Change<span
-                        class="govuk-visually-hidden">business name details</span></a>
+                        class="govuk-visually-hidden"> business the individuals work for</span></a>
                 </dd>
             </dl>
         </div>
@@ -305,19 +305,19 @@
         </dl>
     {% endif %}
     <div class="action-wrapper">
-        <h2 class="govuk-heading-m" style="float:left">Existing Licence</h2>
+        <h2 class="govuk-heading-m" style="float:left">Previous Licence</h2>
         <dl class="govuk-summary-card__actions">
             <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                 <a class="govuk-link"
                    href="{% url 'previous_licence' %}?redirect_to_url=check_your_answers">Change<span
-                    class="govuk-visually-hidden">existing licence</span></a>
+                    class="govuk-visually-hidden"> previous licence details</span></a>
             </dd>
         </dl>
     </div>
     <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                Existing licence
+                Previous licence
             </dt>
             <dd class="govuk-summary-list__value">
                 {{ form_data.previous_licence.held_existing_licence | capfirst }}
@@ -327,7 +327,7 @@
         {% if form_data.previous_licence.held_existing_licence == 'yes' %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    Enter all previous licence numbers
+                    Previous licence numbers
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ form_data.previous_licence.existing_licences|linebreaksbr }}
@@ -534,9 +534,13 @@
                 Upload supporting documents
             </dt>
             <dd class="govuk-summary-list__value">
-                {% for _, more_info in session_files.items %}
-                    <a class="govuk-link" href="{{ more_info.url }}" download>{{ more_info.file_name }}</a><br>
-                {% endfor %}
+                {% if not session_files.items %}
+                    None uploaded
+                {% else %}
+                    {% for _, more_info in session_files.items %}
+                        <a class="govuk-link" href="{{ more_info.url }}" download>{{ more_info.file_name }}</a><br>
+                    {% endfor %}
+                {% endif %}
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"

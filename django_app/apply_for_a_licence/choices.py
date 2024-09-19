@@ -45,7 +45,7 @@ class TypeOfServicesChoices(models.TextChoices):
     )
     mining_manufacturing_or_computer = (
         "mining_manufacturing_or_computer",
-        "Mining manufacturing or computer services (Democratic People's Republic of Korea",
+        "Mining, manufacturing or computer services (Democratic People’s Republic of Korea)",
     )
     ships_or_aircraft_related = (
         "ships_or_aircraft_related",
@@ -60,7 +60,7 @@ class ProfessionalOrBusinessServicesChoices(models.TextChoices):
     auditing = "auditing", "Auditing"
     business_and_management_consulting = "business_and_management_consulting", "Business and management consulting"
     engineering = "engineering", "Engineering"
-    it_consultancy_or_design = "it_consultancy_or_design", "IT consultancy or design"
+    it_consultancy_and_design = "it_consultancy_and_design", "IT consultancy and design"
     legal_advisory = "legal_advisory", "Legal advisory"
     public_relations = "public_relations", "Public relations"
 
@@ -73,7 +73,7 @@ class LicensingGroundsChoices(models.TextChoices):
     energy = "energy", "Services necessary for ensuring critical energy supply to any country"
     divest = (
         "divest",
-        "Services necessary for non - Russian persons to divest from Russia, or to wind down business operations in Russia",
+        "Services necessary for non-Russian persons to divest from Russia, or to wind down business operations in Russia",
     )
     humanitarian = "humanitarian", "The delivery of humanitarian assistance activity"
     parent_or_subsidiary_company = (
