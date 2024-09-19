@@ -356,22 +356,37 @@
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"
-                   href="{% url 'type_of_service' %}?redirect_to_url=check_your_answers">Change<span
-                    class="govuk-visually-hidden">type of service</span></a>
+                   href="{% url 'type_of_service' %}?change=yes&redirect_to_url=check_your_answers">Change<span
+                    class="govuk-visually-hidden"> the type of services you want to provide</span></a>
             </dd>
         </div>
         {% if form_data.professional_or_business_services %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    What are the professional or business services you want to provide?
+                    What are the services?
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ forms.professional_or_business_services.get_professional_or_business_service_display | linebreaksbr }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
-                       href="{% url 'professional_or_business_services' %}?redirect_to_url=check_your_answers">Change<span
-                        class="govuk-visually-hidden">professional or business services</span></a>
+                       href="{% url 'professional_or_business_services' %}?change=yes&redirect_to_url=check_your_answers">Change<span
+                        class="govuk-visually-hidden"> the services</span></a>
+                </dd>
+            </div>
+        {% endif %}
+        {% if form_data.which_sanctions_regime %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    What is the sanctions regime?
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ forms.which_sanctions_regime.get_which_sanctions_regime_display | linebreaksbr }}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link"
+                       href="{% url 'which_sanctions_regime' %}?redirect_to_url=check_your_answers">Change<span
+                        class="govuk-visually-hidden">sanctions regime</span></a>
                 </dd>
             </div>
         {% endif %}
@@ -385,7 +400,7 @@
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"
                    href="{% url 'service_activities' %}?redirect_to_url=check_your_answers">Change<span
-                    class="govuk-visually-hidden">service activities</span></a>
+                    class="govuk-visually-hidden"> the description of the specific activities within the services you want to provide</span></a>
             </dd>
         </div>
     </dl>
@@ -401,27 +416,13 @@
 
                         <a class="govuk-link"
                            href="{% url 'where_is_the_recipient_located' %}?recipient_uuid={{ id }}">Change<span
-                            class="govuk-visually-hidden">location of recipient {{ forloop.counter }}</span></a>
+                            class="govuk-visually-hidden"> Recipient {{ forloop.counter }} details </span></a>
                     </dd>
 
                 </dl>
             </div>
 
             <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        Location of recipient {{ forloop.counter }}
-                    </dt>
-                    {% if recipient.cleaned_data.country == "GB" %}
-                        <dd class="govuk-summary-list__value">
-                            The UK
-                        </dd>
-                    {% else %}
-                        <dd class="govuk-summary-list__value">
-                            Outside the UK
-                        </dd>
-                    {% endif %}
-                </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                         Name and address of recipient {{ forloop.counter }}
@@ -475,23 +476,35 @@
     <dl class="govuk-summary-list">
         {% if form_data.licensing_grounds %}
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    Licensing grounds
-                </dt>
+                {%  if form_data.professional_or_business_services.professional_or_business_service|length == 1 and form_data.professional_or_business_services.professional_or_business_service|first == 'legal_advisory' %}
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Licensing grounds for the relevant activity
+                    </dt>
+                {% else %}
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Licensing grounds
+                    </dt>
+                {% endif %}
                 <dd class="govuk-summary-list__value">
                     {% include "apply_for_a_licence/partials/truncated_text.html" with text=forms.licensing_grounds.get_licensing_grounds_display|linebreaksbr %}
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link"
-                       href="{% url 'licensing_grounds' %}?redirect_to_url=check_your_answers">Change<span
-                        class="govuk-visually-hidden">licensing grounds</span></a>
+                    {%  if form_data.professional_or_business_services.professional_or_business_service|length == 1 and form_data.professional_or_business_services.professional_or_business_service|first == 'legal_advisory' %}
+                        <a class="govuk-link"
+                           href="{% url 'licensing_grounds' %}?redirect_to_url=check_your_answers">Change<span
+                            class="govuk-visually-hidden"> licensing grounds for the relevant activity</span></a>
+                    {% else %}
+                        <a class="govuk-link"
+                           href="{% url 'licensing_grounds' %}?redirect_to_url=check_your_answers">Change<span
+                            class="govuk-visually-hidden"> licensing grounds </span></a>
+                    {% endif %}
                 </dd>
             </div>
         {% endif %}
         {% if form_data.licensing_grounds_legal_advisory %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    Licensing grounds (excluding legal advisory)
+                    Licensing grounds for other services (not legal advisory)
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {% include "apply_for_a_licence/partials/truncated_text.html" with text=forms.licensing_grounds_legal_advisory.get_licensing_grounds_display|linebreaksbr %}
@@ -499,13 +512,13 @@
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
                        href="{% url 'licensing_grounds_legal_advisory' %}?redirect_to_url=check_your_answers">Change<span
-                        class="govuk-visually-hidden">licensing grounds</span></a>
+                        class="govuk-visually-hidden"> licensing grounds for other services (not legal advisory)</span></a>
                 </dd>
             </div>
         {% endif %}
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                Purpose of the service
+                Purpose for providing the services
             </dt>
             <dd class="govuk-summary-list__value">
                 {% include "apply_for_a_licence/partials/truncated_text.html" with text=form_data.purpose_of_provision.purpose_of_provision|linebreaksbr %}
@@ -513,7 +526,7 @@
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"
                    href="{% url 'purpose_of_provision' %}?redirect_to_url=check_your_answers">Change<span
-                    class="govuk-visually-hidden">purpose of provision</span></a>
+                    class="govuk-visually-hidden"> purpose for providing the services</span></a>
             </dd>
         </div>
         <div class="govuk-summary-list__row">

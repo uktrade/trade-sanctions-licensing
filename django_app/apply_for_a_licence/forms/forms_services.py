@@ -1,7 +1,6 @@
 from apply_for_a_licence import choices
 from apply_for_a_licence.choices import TypeOfServicesChoices
 from apply_for_a_licence.models import Licence
-from apply_for_a_licence.utils import get_cleaned_data_for_step
 from core.crispy_fields import get_field_with_label_id
 from core.forms.base_forms import BaseForm, BaseModelForm
 from crispy_forms_gds.choices import Choice
@@ -63,6 +62,10 @@ class WhichSanctionsRegimeForm(BaseForm):
             )
         )
 
+    def get_which_sanctions_regime_display(self):
+        display = "\n\n".join(self.cleaned_data["which_sanctions_regime"])
+        return display
+
 
 class ProfessionalOrBusinessServicesForm(BaseModelForm):
     form_h1_header = "What are the professional or business services you want to provide?"
@@ -107,8 +110,8 @@ class ServiceActivitiesForm(BaseModelForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.fields["service_activities"].widget.attrs = {"rows": 5}
-
-        if professional_or_business_services := get_cleaned_data_for_step(self.request, "type_of_service"):
+        # todo: use get_cleaned_data_for_step method here - form was invalid so wasn't working
+        if professional_or_business_services := (self.request.session.get("type_of_service", {})):
             if (
                 professional_or_business_services.get("type_of_service", False)
                 == TypeOfServicesChoices.professional_and_business.value

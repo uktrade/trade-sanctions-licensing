@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class LicensingGroundsView(BaseFormView):
     form_class = forms.LicensingGroundsForm
     success_url = reverse_lazy("purpose_of_provision")
+    redirect_after_post = False
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -41,6 +42,8 @@ class LicensingGroundsView(BaseFormView):
             # the user has selected 'Legal advisory' as well as other services, redirect them to the legal advisory page
             return reverse("licensing_grounds_legal_advisory")
         else:
+            # delete form data for legal advisory grounds
+            self.request.session["licensing_grounds_legal_advisory"] = {}
             return reverse("purpose_of_provision")
 
 
@@ -54,6 +57,15 @@ class LicensingGroundsLegalAdvisoryView(BaseFormView):
             "For the other services you want to provide (excluding legal advisory), which of these "
             "licensing grounds describes your purpose for providing them?"
         )
+        self.professional_or_business_services_data = get_cleaned_data_for_step(
+            self.request, "professional_or_business_services"
+        ).get("professional_or_business_service", [])
+        auditing_and_legal_only = {
+            ProfessionalOrBusinessServicesChoices.legal_advisory.value,
+            ProfessionalOrBusinessServicesChoices.auditing.value,
+        }
+        if set(self.professional_or_business_services_data) == auditing_and_legal_only:
+            kwargs["audit_service_selected"] = True
         return kwargs
 
 
