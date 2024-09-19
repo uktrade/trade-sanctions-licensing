@@ -110,7 +110,7 @@ class ServiceActivitiesForm(BaseModelForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.fields["service_activities"].widget.attrs = {"rows": 5}
-
+        # todo: use get_cleaned_data_for_step method here - form was invalid so wasn't working
         if professional_or_business_services := (self.request.session.get("type_of_service", {})):
             if (
                 professional_or_business_services.get("type_of_service", False)

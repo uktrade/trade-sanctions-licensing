@@ -82,6 +82,7 @@ class ServiceActivitiesView(BaseFormView):
         if self.request.GET.get("change", None) == "yes":
             self.redirect_after_post = False
             success_url = reverse("purpose_of_provision")
+            # todo: use get_cleaned_data_for_step method here - form was invalid so wasn't working
             if professional_or_business_services := (self.request.session.get("type_of_service", {})):
                 if (
                     professional_or_business_services.get("type_of_service", False)
