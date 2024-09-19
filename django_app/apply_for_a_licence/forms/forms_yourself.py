@@ -1,6 +1,5 @@
 from apply_for_a_licence.models import Individual, Organisation
 from core.forms.base_forms import (
-    BaseForm,
     BaseModelForm,
     BaseNonUKBusinessDetailsForm,
     BaseUKBusinessDetailsForm,
@@ -107,9 +106,3 @@ class AddYourselfNonUKAddressForm(BaseNonUKBusinessDetailsForm):
             Field.text("address_line_3", field_width=Fluid.TWO_THIRDS),
             Field.text("address_line_4", field_width=Fluid.TWO_THIRDS),
         )
-
-
-class DeclarationForm(BaseForm):
-    declaration = forms.BooleanField(
-        label="I agree and accept", required=True, error_messages={"required": "Confirm if you agree and accept the declaration"}
-    )

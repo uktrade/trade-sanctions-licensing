@@ -2,7 +2,7 @@ import logging
 import uuid
 from typing import Any
 
-from apply_for_a_licence.forms.forms_yourself import DeclarationForm
+from apply_for_a_licence.forms.forms_end import DeclarationForm
 from apply_for_a_licence.utils import get_all_cleaned_data, get_all_forms
 from core.document_storage import TemporaryDocumentStorage
 from core.views.base_views import BaseFormView
