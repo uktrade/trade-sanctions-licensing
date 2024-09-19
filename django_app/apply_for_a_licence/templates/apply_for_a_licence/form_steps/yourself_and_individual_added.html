@@ -8,13 +8,13 @@
         You've added yourself {% if request.session.individuals.keys|length > 0 %} plus {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 %}s{% endif %}{% endif %} to the licence    </h1>
     <div class="action-wrapper">
         <div>
-            <h3 class="govuk-heading-m" style="float:left;">Your Details </h3>
+            <h3 class="govuk-heading-m" style="float:left;">Your details </h3>
             <ul class="govuk-summary-card__actions">
                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
 
                     <a class="govuk-link" style="font-size: 19px; text-align:right"
                        href="{% url 'add_yourself' %}">Change<span
-                        class="govuk-visually-hidden"> Your details </span></a>
+                        class="govuk-visually-hidden"> your details </span></a>
                 </dd>
             </ul>
         </div>
@@ -30,7 +30,7 @@
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-                Nationality and Location
+                Nationality and location
             </dt>
             <dd class="govuk-summary-list__value">
                 {{ yourself_form.instance.get_nationality_and_location_display }}
@@ -54,7 +54,7 @@
 
                         <a class="govuk-link" style="font-size: 19px; text-align:right"
                            href="{% url 'add_an_individual' individual_uuid=id %}">Change<span
-                            class="govuk-visually-hidden"> Individual {{ forloop.counter }} details </span></a>
+                            class="govuk-visually-hidden"> individual {{ forloop.counter }} details </span></a>
                     </dd>
                 </ul>
             </div>
@@ -70,7 +70,7 @@
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
-                    Nationality and Location
+                    Nationality and location
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ individual.name_data.cleaned_data.nationality }}
@@ -89,8 +89,7 @@
                 <input type="hidden" name="individual_uuid" value="{{ id }}">
                 {% csrf_token %}
                 <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_individual_from_yourself_form_{{ forloop.counter }}">
-                    Remove Individual {{ forloop.counter }}<span
-                        class="govuk-visually-hidden"> Individual {{ forloop.counter }}</span>
+                    Remove individual {{ forloop.counter }}
                 </button>
             </form>
         </dl>

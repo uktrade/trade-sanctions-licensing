@@ -119,7 +119,7 @@ class AddressMixin(models.Model):
     address_line_3 = models.CharField(max_length=200, blank=True, null=True)
     address_line_4 = models.CharField(max_length=200, blank=True, null=True)
     postcode = models.CharField(max_length=20, blank=True, null=True)
-    country = CountryField(blank_label="Select Country", blank=True, null=True)
+    country = CountryField(blank_label="Select country", blank=True, null=True)
     town_or_city = models.CharField(max_length=250, blank=True, null=True)
     county = models.CharField(max_length=250, null=True, blank=True)
 

@@ -191,7 +191,7 @@ class WhereIsTheBusinessLocatedForm(BaseForm):
 
 
 class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
-    form_h1_header = "Add a business"
+    form_h1_header = "Business details"
 
     class Meta(BaseUKBusinessDetailsForm.Meta):
         model = Organisation
@@ -234,7 +234,7 @@ class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
 
 
 class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
-    form_h1_header = "Add a business"
+    form_h1_header = "Business details"
 
     class Meta(BaseNonUKBusinessDetailsForm.Meta):
         model = Organisation
