@@ -30,9 +30,9 @@ class AddAnIndividualForm(BaseModelForm):
             "nationality_and_location": "What is the individual's nationality and location?",
         }
         error_messages = {
-            "first_name": {"required": "Enter your first name"},
-            "last_name": {"required": "Enter your last name"},
-            "nationality_and_location": {"required": "Enter your nationality and location"},
+            "first_name": {"required": "Enter first name"},
+            "last_name": {"required": "Enter last name"},
+            "nationality_and_location": {"required": "Select the individual's nationality and location"},
         }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
@@ -137,7 +137,9 @@ class IndividualUKAddressForm(BaseUKBusinessDetailsForm):
         )
         widgets = BaseUKBusinessDetailsForm.Meta.widgets
         labels = BaseUKBusinessDetailsForm.Meta.labels
-        error_messages = BaseUKBusinessDetailsForm.Meta.error_messages
+        error_messages = BaseUKBusinessDetailsForm.Meta.error_messages | {
+            "address_line_1": {"required": "Enter address line 1, such as the building and street"},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -168,7 +170,9 @@ class IndividualNonUKAddressForm(BaseNonUKBusinessDetailsForm):
         )
         widgets = BaseUKBusinessDetailsForm.Meta.widgets
         labels = BaseUKBusinessDetailsForm.Meta.labels
-        error_messages = BaseUKBusinessDetailsForm.Meta.error_messages
+        error_messages = BaseUKBusinessDetailsForm.Meta.error_messages | {
+            "address_line_1": {"required": "Enter address line 1"},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

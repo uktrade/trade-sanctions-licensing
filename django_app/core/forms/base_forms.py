@@ -97,7 +97,6 @@ class BaseBusinessDetailsForm(BaseModelForm):
         }
         error_messages = {
             "name": {"required": "Enter the name of the business"},
-            "address_line_1": {"required": "Enter address line 1, such as the building and street"},
             "town_or_city": {"required": "Enter town or city"},
             "postcode": {"required": "Enter postcode", "invalid": "Enter a full UK postcode"},
             "country": {"required": "Select country"},
@@ -123,7 +122,6 @@ class BaseUKBusinessDetailsForm(BaseBusinessDetailsForm):
     class Meta(BaseBusinessDetailsForm.Meta):
         widgets = BaseBusinessDetailsForm.Meta.widgets
         labels = BaseBusinessDetailsForm.Meta.labels
-        error_messages = BaseBusinessDetailsForm.Meta.error_messages
         fields = (
             "name",
             "website",
@@ -135,6 +133,7 @@ class BaseUKBusinessDetailsForm(BaseBusinessDetailsForm):
             "county",
             "postcode",
         )
+        error_messages = BaseBusinessDetailsForm.Meta.error_messages
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)

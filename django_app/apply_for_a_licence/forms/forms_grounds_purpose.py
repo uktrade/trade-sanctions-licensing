@@ -14,7 +14,8 @@ class LicensingGroundsForm(BaseForm):
         required=True,
         label="Select all that apply",
         error_messages={
-            "required": "Select the licensing grounds",
+            "required": "Select which licensing grounds describe your purpose for "
+            "providing the sanctioned services, or select none of these, or select I do not know",
             "invalid": "Select the licensing grounds or select I do not know",
         },
     )
@@ -68,6 +69,19 @@ class LicensingGroundsForm(BaseForm):
                     "licensing_grounds",
                     forms.ValidationError(code="invalid", message=self.fields["licensing_grounds"].error_messages["invalid"]),
                 )
+            if "Legal advisory" in licensing_grounds:
+                if len(licensing_grounds) >= 2:
+                    self.add_error(
+                        "licensing_grounds",
+                        "Select which licensing grounds describe your purpose for providing the "
+                        "sanctioned services (excluding legal advisory), or select none of these, or select I do not know",
+                    )
+                else:
+                    self.add_error(
+                        "licensing_grounds",
+                        "Select which licensing grounds describe the purpose of the relevant activity for which the "
+                        "legal advice is being given, or select none of these, or select I do not know",
+                    )
 
         return cleaned_data
 
@@ -77,6 +91,13 @@ class LicensingGroundsForm(BaseForm):
             display += [dict(self.fields["licensing_grounds"].choices)[licensing_ground]]
         display = ",\n\n".join(display)
         return display
+
+
+class LicensingGroundsInclLegalForm(LicensingGroundsForm):
+    class Meta:
+        error_messages = {
+            "licensing_grounds": {"required": "LEGAL LEGAL LEGAL"},
+        }
 
 
 class PurposeOfProvisionForm(BaseModelForm):
@@ -94,7 +115,7 @@ class PurposeOfProvisionForm(BaseModelForm):
         }
         error_messages = {
             "purpose_of_provision": {
-                "required": "Select the purpose for providing these services",
+                "required": "Enter details of your purpose for providing the sanctioned services",
             }
         }
 
