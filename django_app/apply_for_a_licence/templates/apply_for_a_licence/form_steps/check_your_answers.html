@@ -52,9 +52,15 @@
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                     Are you a third party?
                 </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ form_data.are_you_third_party.are_you_applying_on_behalf_of_someone_else }}
-                </dd>
+                {% if form_data.are_you_third_party.are_you_applying_on_behalf_of_someone_else %}
+                    <dd class="govuk-summary-list__value">
+                        Yes
+                    </dd>
+                {% else %}
+                    <dd class="govuk-summary-list__value">
+                        No
+                    </dd>
+                {% endif %}
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
                        href="{% url 'are_you_third_party' %}?redirect_to_url=check_your_answers">Change<span
@@ -149,7 +155,7 @@
                         Address
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=form_data.add_yourself_address|linebreaksbr %}
+                        {{ request.session.your_address.cleaned_data.readable_address | linebreaksbr }}
                     </dd>
                 </div>
             </dl>
@@ -305,7 +311,7 @@
         </dl>
     {% endif %}
     <div class="action-wrapper">
-        <h2 class="govuk-heading-m" style="float:left">Previous Licence</h2>
+        <h2 class="govuk-heading-m" style="float:left">Previous licence</h2>
         <dl class="govuk-summary-card__actions">
             <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                 <a class="govuk-link"
@@ -328,16 +334,6 @@
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                     Previous licence numbers
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ form_data.previous_licence.existing_licences|linebreaksbr }}
-                </dd>
-            </div>
-        {% endif %}
-        {% if form_data.previous_licence.held_existing_licence == 'no' %}
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    Enter all previous licence numbers
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {{ form_data.previous_licence.existing_licences|linebreaksbr }}

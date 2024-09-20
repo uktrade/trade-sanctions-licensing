@@ -70,6 +70,4 @@ class ExistingLicencesForm(BaseModelForm):
         cleaned_data = super().clean()
         if cleaned_data.get("held_existing_licence") == "yes" and not cleaned_data["existing_licences"]:
             self.add_error("existing_licences", self.Meta.error_messages["existing_licences"]["required"])
-        if cleaned_data.get("held_existing_licence") == "no":
-            cleaned_data["existing_licences"] = None
         return cleaned_data
