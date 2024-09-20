@@ -122,6 +122,7 @@ class BaseUKBusinessDetailsForm(BaseBusinessDetailsForm):
     class Meta(BaseBusinessDetailsForm.Meta):
         widgets = BaseBusinessDetailsForm.Meta.widgets
         labels = BaseBusinessDetailsForm.Meta.labels
+        error_messages = BaseBusinessDetailsForm.Meta.error_messages
         fields = (
             "name",
             "website",
@@ -133,7 +134,6 @@ class BaseUKBusinessDetailsForm(BaseBusinessDetailsForm):
             "county",
             "postcode",
         )
-        error_messages = BaseBusinessDetailsForm.Meta.error_messages
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
