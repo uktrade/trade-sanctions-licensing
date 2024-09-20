@@ -122,7 +122,7 @@ class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
 
 
 class IndividualUKAddressForm(BaseUKBusinessDetailsForm):
-    form_h1_header = "What is the individual's address?"
+    form_h1_header = "What is the individual's home address?"
 
     class Meta(BaseUKBusinessDetailsForm.Meta):
         model = Individual
@@ -153,7 +153,7 @@ class IndividualUKAddressForm(BaseUKBusinessDetailsForm):
 
 
 class IndividualNonUKAddressForm(BaseNonUKBusinessDetailsForm):
-    form_h1_header = "What is the individual's address?"
+    form_h1_header = "What is the individual's home address?"
 
     class Meta(BaseNonUKBusinessDetailsForm.Meta):
         model = Individual
