@@ -66,7 +66,7 @@ class ExistingLicencesForm(BaseModelForm):
         if cleaned_data.get("held_existing_licence") == "yes" and not cleaned_data["existing_licences"]:
             self.add_error("existing_licences", "Enter previous licence numbers")
 
-        if not cleaned_data["held_existing_licence"]:
+        if not cleaned_data.get("held_existing_licence", []):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "business":
                 self.add_error(
                     "held_existing_licence",

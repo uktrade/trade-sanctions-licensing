@@ -58,9 +58,9 @@ class LicensingGroundsForm(BaseForm):
             )
         )
 
-        services = get_cleaned_data_for_step(self.request, "professional_or_business_services")[
-            "professional_or_business_service"
-        ]
+        services = get_cleaned_data_for_step(self.request, "professional_or_business_services").get(
+            "professional_or_business_service", []
+        )
         error_messages = self.fields["licensing_grounds"].error_messages
 
         if "legal_advisory" in services:
