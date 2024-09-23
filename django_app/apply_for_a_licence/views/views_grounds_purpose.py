@@ -45,7 +45,7 @@ class LicensingGroundsView(BaseFormView):
 
 
 class LicensingGroundsLegalAdvisoryView(BaseFormView):
-    form_class = forms.LicensingGroundsForm
+    form_class = forms.LicensingGroundsLegalAdvisoryForm
     success_url = reverse_lazy("purpose_of_provision")
 
     def get_form_kwargs(self):

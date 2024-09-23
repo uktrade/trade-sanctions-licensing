@@ -79,7 +79,7 @@ class ExistingLicencesForm(BaseModelForm):
                     "Select yes if any of the individuals have held a licence before to "
                     "provide sanctioned services or export sanctioned goods",
                 )
-            elif start_view.get("who_do_you_want_the_licence_to_cover") == "business":
+            elif start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
                 self.add_error(
                     "held_existing_licence",
                     "Select yes if you, or anyone else you've added, has held a licence before to "
