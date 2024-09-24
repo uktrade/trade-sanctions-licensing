@@ -25,7 +25,11 @@ class AddYourselfForm(BaseModelForm):
             "last_name": "Last name",
             "nationality_and_location": "What is your nationality and location?",
         }
-        error_messages = {"first_name": {"required": "Enter your first name"}, "last_name": {"required": "Enter your last name"}}
+        error_messages = {
+            "first_name": {"required": "Enter first name"},
+            "last_name": {"required": "Enter last name"},
+            "nationality_and_location": {"required": "Select your nationality and location"},
+        }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
@@ -61,7 +65,9 @@ class AddYourselfUKAddressForm(BaseUKBusinessDetailsForm):
         )
         widgets = BaseUKBusinessDetailsForm.Meta.widgets
         labels = BaseUKBusinessDetailsForm.Meta.labels
-        error_messages = BaseUKBusinessDetailsForm.Meta.error_messages
+        error_messages = BaseUKBusinessDetailsForm.Meta.error_messages | {
+            "address_line_1": {"required": "Enter address line 1, typically the building and street"},
+        }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
@@ -93,7 +99,9 @@ class AddYourselfNonUKAddressForm(BaseNonUKBusinessDetailsForm):
         )
         widgets = BaseNonUKBusinessDetailsForm.Meta.widgets
         labels = BaseNonUKBusinessDetailsForm.Meta.labels
-        error_messages = BaseNonUKBusinessDetailsForm.Meta.error_messages
+        error_messages = BaseNonUKBusinessDetailsForm.Meta.error_messages | {
+            "address_line_1": {"required": "Enter address line 1"},
+        }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
