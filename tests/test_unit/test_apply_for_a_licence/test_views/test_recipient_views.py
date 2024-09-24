@@ -9,7 +9,7 @@ class TestAddRecipientView:
     def test_successful_post(self, al_client):
         assert al_client.session.get("recipients") is None
         response = al_client.post(
-            reverse("add_a_recipient", kwargs={"location": "in_the_uk"}),
+            reverse("add_a_recipient", kwargs={"location": "in-uk"}),
             data={
                 "name": "COOL BEANS LTD",
                 "email": "thisismyemail@obviously.com",
@@ -33,7 +33,7 @@ class TestAddRecipientView:
 
     def test_redirect_after_post(self, al_client):
         response = al_client.post(
-            reverse("add_a_recipient", kwargs={"location": "in_the_uk"}) + "?redirect_to_url=check_your_answers",
+            reverse("add_a_recipient", kwargs={"location": "in-uk"}) + "?redirect_to_url=check_your_answers",
             data={
                 "name": "COOL BEANS LTD",
                 "email": "thisismyemail@obviously.com",
@@ -46,7 +46,7 @@ class TestAddRecipientView:
         assert reverse("check_your_answers") in response.url
 
         response = al_client.post(
-            reverse("add_a_recipient", kwargs={"location": "in_the_uk"}) + "?redirect_to_url=check_your_answers&change=yes",
+            reverse("add_a_recipient", kwargs={"location": "in-uk"}) + "?redirect_to_url=check_your_answers&change=yes",
             data={
                 "name": "COOL BEANS LTD",
                 "email": "thisismyemail@obviously.com",

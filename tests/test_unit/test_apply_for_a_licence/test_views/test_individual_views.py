@@ -181,7 +181,7 @@ class TestWhatIsIndividualsAddressView:
             reverse(
                 "what_is_individuals_address",
                 kwargs={
-                    "location": "in_the_uk",
+                    "location": "in-uk",
                     "individual_uuid": "individual1",
                 },
             ),
@@ -211,7 +211,7 @@ class TestWhatIsIndividualsAddressView:
             reverse(
                 "what_is_individuals_address",
                 kwargs={
-                    "location": "in_the_uk",
+                    "location": "in-uk",
                     "individual_uuid": "individualNA",
                 },
             )
@@ -228,7 +228,7 @@ class TestWhatIsIndividualsAddressView:
             reverse(
                 "what_is_individuals_address",
                 kwargs={
-                    "location": "in_the_uk",
+                    "location": "in-uk",
                     "individual_uuid": "individual1",
                 },
             ),

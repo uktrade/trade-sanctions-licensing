@@ -157,8 +157,8 @@ class ManualCompaniesHouseInputForm(BaseForm):
     manual_companies_house_input = forms.ChoiceField(
         label="Where is the business located?",
         choices=(
-            ("in_the_uk", "In the UK"),
-            ("outside_the_uk", "Outside the UK"),
+            ("in-uk", "In the UK"),
+            ("outside-uk", "Outside the UK"),
         ),
         widget=forms.RadioSelect,
         error_messages={
@@ -182,8 +182,8 @@ class WhereIsTheBusinessLocatedForm(BaseForm):
     where_is_the_address = forms.ChoiceField(
         label="Where is the business located?",
         choices=(
-            ("in_the_uk", "In the UK"),
-            ("outside_the_uk", "Outside the UK"),
+            ("in-uk", "In the UK"),
+            ("outside-uk", "Outside the UK"),
         ),
         widget=forms.RadioSelect,
         error_messages={"required": "Select if the business is located in the UK, or outside the UK"},

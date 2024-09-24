@@ -35,7 +35,7 @@ class AddABusinessView(BaseFormView):
         return kwargs
 
     def get_form_class(self):
-        if self.location == "in_the_uk":
+        if self.location == "in-uk":
             form_class = forms.AddAUKBusinessForm
         else:
             form_class = forms.AddANonUKBusinessForm

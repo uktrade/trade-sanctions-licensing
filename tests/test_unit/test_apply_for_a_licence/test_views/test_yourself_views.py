@@ -47,7 +47,7 @@ class TestAddYourselfView:
             reverse(
                 "add_yourself_address",
                 kwargs={
-                    "location": "in_the_uk",
+                    "location": "in-uk",
                 },
             )
             in response.redirect_chain[0][0]
@@ -60,7 +60,7 @@ class TestAddYourselfAddressView:
             reverse(
                 "add_yourself_address",
                 kwargs={
-                    "location": "outside_the_uk",
+                    "location": "outside-uk",
                 },
             ),
             data={

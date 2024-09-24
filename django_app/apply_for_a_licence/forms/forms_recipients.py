@@ -14,8 +14,8 @@ class WhereIsTheRecipientLocatedForm(BaseForm):
     where_is_the_address = forms.ChoiceField(
         label="Where is the recipient of the services located?",
         choices=(
-            ("outside_the_uk", "Outside the UK"),
-            ("in_the_uk", "In the UK"),
+            ("outside-uk", "Outside the UK"),
+            ("in-uk", "In the UK"),
         ),
         widget=forms.RadioSelect,
         error_messages={"required": "Select if the recipient of the services is located in the UK, or outside the UK"},
