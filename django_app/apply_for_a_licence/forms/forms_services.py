@@ -17,7 +17,7 @@ class TypeOfServiceForm(BaseModelForm):
         widgets = {"type_of_service": forms.RadioSelect}
         error_messages = {
             "type_of_service": {
-                "required": "Select the type of service you want to provide",
+                "required": "Select which type of services you want to provide",
             }
         }
         labels = {
@@ -38,7 +38,7 @@ class WhichSanctionsRegimeForm(BaseForm):
         choices=(()),
         required=True,
         error_messages={
-            "required": "Select the sanctions regime the licence is for",
+            "required": "Select which sanctions regime the licence is for",
         },
     )
 
@@ -76,7 +76,7 @@ class ProfessionalOrBusinessServicesForm(BaseModelForm):
         choices=choices.ProfessionalOrBusinessServicesChoices.choices,
         required=True,
         error_messages={
-            "required": "Select the professional or business services the licence is for",
+            "required": "Select the professional or business services you want to provide",
         },
     )
 
@@ -104,7 +104,7 @@ class ServiceActivitiesForm(BaseModelForm):
             "match to the specific meaning of services in the sanctions regime that applies to your intended activity",
         }
         error_messages = {
-            "service_activities": {"required": "Enter the specific activities within the services you want to provide"},
+            "service_activities": {"required": "Enter details about the services you want to provide"},
         }
 
     def __init__(self, *args: object, **kwargs: object) -> None:

@@ -1,5 +1,6 @@
 from apply_for_a_licence import choices
 from apply_for_a_licence.models import Licence
+from apply_for_a_licence.utils import get_cleaned_data_for_step
 from core.crispy_fields import get_field_with_label_id
 from core.forms.base_forms import BaseForm, BaseModelForm
 from crispy_forms_gds.choices import Choice
@@ -14,7 +15,6 @@ class LicensingGroundsForm(BaseForm):
         required=True,
         label="Select all that apply",
         error_messages={
-            "required": "Select the licensing grounds",
             "invalid": "Select the licensing grounds or select I do not know",
         },
     )
@@ -58,18 +58,21 @@ class LicensingGroundsForm(BaseForm):
             )
         )
 
-    def clean(self):
-        cleaned_data = super().clean()
-        if licensing_grounds := cleaned_data.get("licensing_grounds"):
-            if ("Unknown grounds" in licensing_grounds or "None of these" in licensing_grounds) and len(licensing_grounds) >= 2:
-                # the user has selected "I do not know" or 'None of these' and other grounds, this is an issue.
-                # note that the user can select both "I do not know" and "None of these"
-                self.add_error(
-                    "licensing_grounds",
-                    forms.ValidationError(code="invalid", message=self.fields["licensing_grounds"].error_messages["invalid"]),
-                )
+        services = get_cleaned_data_for_step(self.request, "professional_or_business_services").get(
+            "professional_or_business_service", []
+        )
+        error_messages = self.fields["licensing_grounds"].error_messages
 
-        return cleaned_data
+        if "legal_advisory" in services:
+            self.fields["licensing_grounds"].error_messages = error_messages | {
+                "required": "Select which licensing grounds describe the purpose of the relevant activity for which the legal "
+                "advice is being given, or select none of these, or select I do not know"
+            }
+        else:
+            self.fields["licensing_grounds"].error_messages = error_messages | {
+                "required": "Select which licensing grounds describe your purpose for providing"
+                " the sanctioned services, or select none of these, or select I do not know"
+            }
 
     def get_licensing_grounds_display(self):
         display = []
@@ -77,6 +80,15 @@ class LicensingGroundsForm(BaseForm):
             display += [dict(self.fields["licensing_grounds"].choices)[licensing_ground]]
         display = ",\n\n".join(display)
         return display
+
+
+class LicensingGroundsLegalAdvisoryForm(LicensingGroundsForm):
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["licensing_grounds"].error_messages = self.fields["licensing_grounds"].error_messages | {
+            "required": "Select which licensing grounds describe your purpose for providing "
+            "the sanctioned services (excluding legal advisory), or select none of these, or select I do not know"
+        }
 
 
 class PurposeOfProvisionForm(BaseModelForm):
@@ -94,7 +106,7 @@ class PurposeOfProvisionForm(BaseModelForm):
         }
         error_messages = {
             "purpose_of_provision": {
-                "required": "Select the purpose for providing these services",
+                "required": "Enter details of your purpose for providing the sanctioned services",
             }
         }
 

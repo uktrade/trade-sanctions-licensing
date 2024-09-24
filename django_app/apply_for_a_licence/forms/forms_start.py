@@ -64,7 +64,7 @@ class WhatIsYourEmailForm(BaseForm):
         label="What is your email address?",
         error_messages={
             "required": "Enter your email address",
-            "invalid": "Enter a valid email address",
+            "invalid": "Enter an email in the correct format, for example name@example.com",
         },
         help_text="We need to send you an email to verify your email address.",
     )
@@ -86,7 +86,9 @@ class YourDetailsForm(BaseModelForm):
             "not the business needing the licence",
         }
         error_messages = {
-            "full_name": {"required": "Enter your full name"},
+            "applicant_full_name": {"required": "Enter your full name"},
+            "applicant_business": {"required": "Enter the business you work for"},
+            "applicant_role": {"required": "Enter your role"},
         }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
@@ -108,7 +110,7 @@ class EmailVerifyForm(BaseForm):
         label="Enter the 6 digit security code",
         error_messages={
             "required": "Enter the 6 digit security code we sent to your email",
-            "expired": "The code you entered is no longer valid. New code sent",
+            "expired": "The code you entered is no longer valid. Please verify your email again",
             "invalid": "Code is incorrect. Enter the 6 digit security code we sent to your email",
         },
         widget=forms.TextInput(attrs={"style": "max-width: 5em"}),

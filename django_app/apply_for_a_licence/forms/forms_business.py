@@ -161,9 +161,7 @@ class ManualCompaniesHouseInputForm(BaseForm):
             ("outside_the_uk", "Outside the UK"),
         ),
         widget=forms.RadioSelect,
-        error_messages={
-            "required": "Select if the address of the business you would like the licence for is in the UK, or outside the UK"
-        },
+        error_messages={"required": "Select if the business is located in the UK or outside the UK"},
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
@@ -186,7 +184,7 @@ class WhereIsTheBusinessLocatedForm(BaseForm):
             ("outside_the_uk", "Outside the UK"),
         ),
         widget=forms.RadioSelect,
-        error_messages={"required": "Select if the business is located in the UK, or outside the UK"},
+        error_messages={"required": "Select if the business is located in the UK or outside the UK"},
     )
 
 
@@ -206,7 +204,9 @@ class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
         )
         widgets = BaseUKBusinessDetailsForm.Meta.widgets
         labels = BaseUKBusinessDetailsForm.Meta.labels
-        error_messages = BaseUKBusinessDetailsForm.Meta.error_messages
+        error_messages = BaseUKBusinessDetailsForm.Meta.error_messages | {
+            "address_line_1": {"required": "Enter address line 1, typically the building and street"},
+        }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
@@ -249,7 +249,9 @@ class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
         )
         widgets = BaseNonUKBusinessDetailsForm.Meta.widgets
         labels = BaseNonUKBusinessDetailsForm.Meta.labels
-        error_messages = BaseNonUKBusinessDetailsForm.Meta.error_messages
+        error_messages = BaseNonUKBusinessDetailsForm.Meta.error_messages | {
+            "address_line_1": {"required": "Enter address line 1"},
+        }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
