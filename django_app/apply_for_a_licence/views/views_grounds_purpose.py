@@ -19,7 +19,7 @@ class LicensingGroundsView(BaseFormView):
         # todo: use get_cleaned_data_for_step method here - form was invalid so wasn't working
         professional_or_business_services = self.request.session.get("professional_or_business_services", {})
         self.professional_or_business_services_data = professional_or_business_services.get(
-            "professional_or_business_service", False
+            "professional_or_business_service", []
         )
         if ProfessionalOrBusinessServicesChoices.legal_advisory.value in self.professional_or_business_services_data:
             kwargs["form_h1_header"] = (
