@@ -31,7 +31,7 @@ class TestIndividualAddedView:
             reverse("individual_added"),
             data={"do_you_want_to_add_another_individual": True},
         )
-        assert "add_an_individual" in response.url
+        assert "individual-details" in response.url
         assert "?new=yes" in response.url
 
 
@@ -48,7 +48,7 @@ class TestDeleteIndividualView:
         )
         assert "individual1" not in al_client.session["individuals"].keys()
         assert al_client.session["individuals"] != data.individuals
-        assert response.url == "/apply-for-a-licence/individual_added"
+        assert response.url == "/apply-for-a-licence/add-individual"
         assert response.status_code == 302
 
     def test_cannot_delete_all_individuals_post(self, al_client):
@@ -71,7 +71,7 @@ class TestDeleteIndividualView:
         # does not delete last individual
         assert len(al_client.session["individuals"]) == 1
         assert "individual3" in al_client.session["individuals"].keys()
-        assert response.url == "/apply-for-a-licence/individual_added"
+        assert response.url == "/apply-for-a-licence/add-individual"
         assert response.status_code == 302
 
     def test_unsuccessful_post(self, al_client):
@@ -83,7 +83,7 @@ class TestDeleteIndividualView:
             reverse("delete_individual"),
         )
         assert al_client.session["individuals"] == data.individuals
-        assert response.url == "/apply-for-a-licence/individual_added"
+        assert response.url == "/apply-for-a-licence/add-individual"
         assert response.status_code == 302
 
 

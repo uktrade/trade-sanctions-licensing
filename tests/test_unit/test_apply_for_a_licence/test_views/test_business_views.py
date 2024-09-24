@@ -68,7 +68,7 @@ class TestDeleteBusinessView:
         )
         assert "business1" not in al_client.session["businesses"].keys()
         assert al_client.session["businesses"] != data.businesses
-        assert response.url == "/apply-for-a-licence/business_added"
+        assert response.url == "/apply-for-a-licence/add-business"
         assert response.status_code == 302
 
     def test_cannot_delete_all_businesses_post(self, al_client):
@@ -91,7 +91,7 @@ class TestDeleteBusinessView:
         # does not delete last business
         assert len(al_client.session["businesses"]) == 1
         assert "business3" in al_client.session["businesses"].keys()
-        assert response.url == "/apply-for-a-licence/business_added"
+        assert response.url == "/apply-for-a-licence/add-business"
         assert response.status_code == 302
 
     def test_unsuccessful_post(self, al_client):
@@ -103,5 +103,5 @@ class TestDeleteBusinessView:
             reverse("delete_business"),
         )
         assert al_client.session["businesses"] == data.businesses
-        assert response.url == "/apply-for-a-licence/business_added"
+        assert response.url == "/apply-for-a-licence/add-business"
         assert response.status_code == 302
