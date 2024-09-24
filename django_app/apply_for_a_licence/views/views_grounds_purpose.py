@@ -16,9 +16,11 @@ class LicensingGroundsView(BaseFormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        self.professional_or_business_services_data = get_cleaned_data_for_step(
-            self.request, "professional_or_business_services"
-        ).get("professional_or_business_service", [])
+        # todo: use get_cleaned_data_for_step method here - form was invalid so wasn't working
+        professional_or_business_services = self.request.session.get("professional_or_business_services", {})
+        self.professional_or_business_services_data = professional_or_business_services.get(
+            "professional_or_business_service", False
+        )
         if ProfessionalOrBusinessServicesChoices.legal_advisory.value in self.professional_or_business_services_data:
             kwargs["form_h1_header"] = (
                 "Which of these licensing grounds describes the purpose of the relevant activity for "
