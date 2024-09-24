@@ -11,6 +11,7 @@ from crispy_forms_gds.layout import (
     Layout,
     Size,
 )
+from django import forms
 
 
 class ExistingLicencesForm(BaseModelForm):
@@ -59,32 +60,31 @@ class ExistingLicencesForm(BaseModelForm):
                     "provide any sanctioned services or export any sanctioned goods?"
                 )
         self.fields["held_existing_licence"].label = self.held_existing_licence_label
+        start_view = get_cleaned_data_for_step(self.request, "start")
+
+        if start_view.get("who_do_you_want_the_licence_to_cover") == "business":
+            self.fields["held_existing_licence"].error_messages["required"] = (
+                "Select yes if any of the businesses "
+                "have held a licence before to provide sanctioned services or export sanctioned goods"
+            )
+
+        elif start_view.get("who_do_you_want_the_licence_to_cover") == "individual":
+            self.fields["held_existing_licence"].error_messages["required"] = (
+                "Select yes if any of the individuals have held a licence before to "
+                "provide sanctioned services or export sanctioned goods"
+            )
+
+        elif start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
+            self.fields["held_existing_licence"].error_messages["required"] = (
+                "Select yes if you, or anyone else you've "
+                "added, has held a licence before to provide sanctioned "
+                "services or export sanctioned goods"
+            )
 
     def clean(self) -> dict[str, Any]:
-        start_view = get_cleaned_data_for_step(self.request, "start")
         cleaned_data = super().clean()
         if cleaned_data.get("held_existing_licence") == "yes" and not cleaned_data["existing_licences"]:
-            self.add_error("existing_licences", "Enter previous licence numbers")
-
-        if not cleaned_data.get("held_existing_licence", []):
-            if start_view.get("who_do_you_want_the_licence_to_cover") == "business":
-                self.add_error(
-                    "held_existing_licence",
-                    "Select yes if any of the businesses have held a licence before to "
-                    "provide sanctioned services or export sanctioned goods",
-                )
-            elif start_view.get("who_do_you_want_the_licence_to_cover") == "individual":
-                self.add_error(
-                    "held_existing_licence",
-                    "Select yes if any of the individuals have held a licence before to "
-                    "provide sanctioned services or export sanctioned goods",
-                )
-            elif start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
-                self.add_error(
-                    "held_existing_licence",
-                    "Select yes if you, or anyone else you've added, has held a licence before to "
-                    "provide sanctioned services or export sanctioned goods",
-                )
+            self.add_error("existing_licences", forms.ValidationError(code="required", message="Enter previous licence numbers"))
 
         if cleaned_data.get("held_existing_licence") == "no":
             cleaned_data["existing_licences"] = None
