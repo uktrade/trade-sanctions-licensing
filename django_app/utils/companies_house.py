@@ -53,12 +53,15 @@ def get_formatted_address(address_dict: dict[str, Any]) -> str:
         address_string += f",\n {town_or_city}"
     if postcode := address_dict.get("postcode"):
         address_string += f",\n {postcode}"
+    # Companies House address formats
+    if locality := address_dict.get("locality"):
+        address_string += f",\n {locality}"
+    if postal_code := address_dict.get("postal_code"):
+        address_string += f" \n {postal_code}"
 
+    # If UK address, do not add country
     if country := address_dict.get("country"):
-        if country in ["England", "Northern Ireland", "Scotland", "Wales", "United Kingdom", "England/Wales"]:
-            # companies house API returns the full country name, so we just normalise it here to United Kingdom
-            address_string += ",\n United Kingdom"
-        else:
+        if country not in ["GB", "England", "Northern Ireland", "Scotland", "Wales", "United Kingdom", "England/Wales"]:
             COUNTRY_DICT = dict(countries)
             address_string += f",\n {COUNTRY_DICT[country]}"
 

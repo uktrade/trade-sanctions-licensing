@@ -149,6 +149,7 @@ class BaseUKBusinessDetailsForm(BaseBusinessDetailsForm):
         cleaned_data = super().clean()
         cleaned_data["country"] = "GB"
         cleaned_data["url_location"] = "in_the_uk"
+        cleaned_data["readable_address"] = get_formatted_address(cleaned_data)
         return cleaned_data
 
     def clean_postcode(self) -> dict[str, Any]:
