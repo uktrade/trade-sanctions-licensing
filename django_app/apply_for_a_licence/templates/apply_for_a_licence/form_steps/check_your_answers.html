@@ -110,7 +110,7 @@
     {% endif %}
     {% if form_data.start.who_do_you_want_the_licence_to_cover == "myself" %}
         <div class="action-wrapper">
-            <h3 class="govuk-heading-s" style="float:left"> Your Details</h3>
+            <h3 class="govuk-heading-s" style="float:left"> Your details</h3>
             <dl class="govuk-summary-card__actions">
                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
 
@@ -134,14 +134,6 @@
                     </dt>
                     <dd class="govuk-summary-list__value">
                         {{ form_data.add_yourself.nationality }}
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        Location of individual
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ form_data.add_yourself.nationality_and_location | readable_location }}
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -183,14 +175,6 @@
                                 </dt>
                                 <dd class="govuk-summary-list__value">
                                     {{ individual.name_data.cleaned_data.nationality }}
-                                </dd>
-                            </div>
-                            <div class="govuk-summary-list__row">
-                                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                                    Location of individual
-                                </dt>
-                                <dd class="govuk-summary-list__value">
-                                    {{ individual.name_data.dirty_data.nationality_and_location | readable_location }}
                                 </dd>
                             </div>
                             <div class="govuk-summary-list__row">
