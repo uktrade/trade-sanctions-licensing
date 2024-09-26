@@ -71,6 +71,7 @@ class AddYourselfUKAddressForm(BaseUKBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
+        self.fields["country"].initial = "GB"
 
         self.helper.layout = Layout(
             Field.text("country", field_width=Fluid.TWO_THIRDS),
