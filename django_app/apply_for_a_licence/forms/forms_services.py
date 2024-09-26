@@ -21,7 +21,7 @@ class TypeOfServiceForm(BaseModelForm):
             }
         }
         labels = {
-            "type_of_service": "What type of service do you want to provide?",
+            "type_of_service": "What type of services do you want to provide?",
         }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
