@@ -148,7 +148,7 @@ class BaseUKBusinessDetailsForm(BaseBusinessDetailsForm):
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
         cleaned_data["country"] = "GB"
-        cleaned_data["url_location"] = "in_the_uk"
+        cleaned_data["url_location"] = "in-uk"
         cleaned_data["readable_address"] = get_formatted_address(cleaned_data)
         return cleaned_data
 
@@ -191,7 +191,7 @@ class BaseNonUKBusinessDetailsForm(BaseBusinessDetailsForm):
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
-        cleaned_data["url_location"] = "outside_the_uk"
+        cleaned_data["url_location"] = "outside-uk"
         return cleaned_data
 
 

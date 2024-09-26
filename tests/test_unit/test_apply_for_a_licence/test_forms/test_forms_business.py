@@ -106,7 +106,7 @@ class TestAddAUKBusinessForm:
             data={"name": "Business", "town_or_city": "London", "address_line_1": "40 Hollyhead", "postcode": "SW1A 1AA"},
         )
         assert form.is_valid()
-        assert form.cleaned_data["url_location"] == "in_the_uk"
+        assert form.cleaned_data["url_location"] == "in-uk"
 
     def test_incorrect_postcode_validation(self):
 

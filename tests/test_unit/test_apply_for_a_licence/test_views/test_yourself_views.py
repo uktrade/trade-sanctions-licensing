@@ -27,7 +27,7 @@ class TestYourselfAndIndividualAddedView:
             reverse("yourself_and_individual_added"),
             data={"do_you_want_to_add_another_individual": True},
         )
-        assert "add_an_individual" in response.url
+        assert "individual-details" in response.url
         assert response.status_code == 302
 
 
@@ -47,7 +47,7 @@ class TestAddYourselfView:
             reverse(
                 "add_yourself_address",
                 kwargs={
-                    "location": "in_the_uk",
+                    "location": "in-uk",
                 },
             )
             in response.redirect_chain[0][0]
@@ -60,7 +60,7 @@ class TestAddYourselfAddressView:
             reverse(
                 "add_yourself_address",
                 kwargs={
-                    "location": "outside_the_uk",
+                    "location": "outside-uk",
                 },
             ),
             data={
@@ -87,7 +87,7 @@ class TestDeleteIndividualFromYourselfView:
         )
         assert "individual1" not in al_client.session["individuals"].keys()
         assert al_client.session["individuals"] != data.individuals
-        assert response.url == "/apply-for-a-licence/yourself_and_individual_added"
+        assert response.url == "/apply-for-a-licence/check-your-details-add-individuals"
         assert response.status_code == 302
 
     def test_delete_all_individuals_post(self, al_client):
@@ -109,7 +109,7 @@ class TestDeleteIndividualFromYourselfView:
         )
         # does not delete last individual
         assert len(al_client.session["individuals"]) == 0
-        assert response.url == "/apply-for-a-licence/yourself_and_individual_added"
+        assert response.url == "/apply-for-a-licence/check-your-details-add-individuals"
         assert response.status_code == 302
 
     def test_unsuccessful_post(self, al_client):
@@ -121,5 +121,5 @@ class TestDeleteIndividualFromYourselfView:
             reverse("delete_individual_from_yourself"),
         )
         assert al_client.session["individuals"] == data.individuals
-        assert response.url == "/apply-for-a-licence/yourself_and_individual_added"
+        assert response.url == "/apply-for-a-licence/check-your-details-add-individuals"
         assert response.status_code == 302

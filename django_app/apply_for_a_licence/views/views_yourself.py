@@ -37,7 +37,7 @@ class AddYourselfView(BaseFormView):
         success_url = reverse(
             "add_yourself_address",
             kwargs={
-                "location": "in_the_uk" if self.is_uk_individual else "outside_the_uk",
+                "location": "in-uk" if self.is_uk_individual else "outside-uk",
             },
         )
         if get_parameters := urllib.parse.urlencode(self.request.GET):
@@ -68,7 +68,7 @@ class AddYourselfAddressView(BaseFormView):
         self.request.session["your_address"] = your_address
 
         # is it a UK address?
-        self.is_uk_individual = form.cleaned_data["url_location"] == "in_the_uk"
+        self.is_uk_individual = form.cleaned_data["url_location"] == "in-uk"
 
         return super().form_valid(form)
 

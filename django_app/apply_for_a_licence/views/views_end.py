@@ -41,7 +41,7 @@ class CheckYourAnswersView(TemplateView):
             context["session_files"] = session_files
 
         if user_location := self.request.session.get("add_yourself_address", {}).get("country", ""):
-            context["add_yourself_address"] = "in_the_uk" if user_location == "GB" else "outside_the_uk"
+            context["add_yourself_address"] = "in-uk" if user_location == "GB" else "outside-uk"
 
         if businesses := self.request.session.get("businesses", None):
             context["businesses"] = businesses

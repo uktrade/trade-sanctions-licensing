@@ -60,7 +60,7 @@ class AddAnIndividualView(BaseFormView):
         success_url = reverse(
             "what_is_individuals_address",
             kwargs={
-                "location": "in_the_uk" if self.is_uk_individual else "outside_the_uk",
+                "location": "in-uk" if self.is_uk_individual else "outside-uk",
                 "individual_uuid": self.individual_uuid,
             },
         )
@@ -88,7 +88,7 @@ class WhatIsIndividualsAddressView(BaseFormView):
         return kwargs
 
     def get_form_class(self) -> [forms.IndividualUKAddressForm | forms.IndividualNonUKAddressForm]:
-        if self.location == "in_the_uk":
+        if self.location == "in-uk":
             form_class = forms.IndividualUKAddressForm
         else:
             form_class = forms.IndividualNonUKAddressForm

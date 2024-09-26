@@ -9,7 +9,7 @@ class TestAddRecipientView:
     def test_successful_post(self, al_client):
         assert al_client.session.get("recipients") is None
         response = al_client.post(
-            reverse("add_a_recipient", kwargs={"location": "in_the_uk"}),
+            reverse("add_a_recipient", kwargs={"location": "in-uk"}),
             data={
                 "name": "COOL BEANS LTD",
                 "email": "thisismyemail@obviously.com",
@@ -33,7 +33,7 @@ class TestAddRecipientView:
 
     def test_redirect_after_post(self, al_client):
         response = al_client.post(
-            reverse("add_a_recipient", kwargs={"location": "in_the_uk"}) + "?redirect_to_url=check_your_answers",
+            reverse("add_a_recipient", kwargs={"location": "in-uk"}) + "?redirect_to_url=check_your_answers",
             data={
                 "name": "COOL BEANS LTD",
                 "email": "thisismyemail@obviously.com",
@@ -46,7 +46,7 @@ class TestAddRecipientView:
         assert reverse("check_your_answers") in response.url
 
         response = al_client.post(
-            reverse("add_a_recipient", kwargs={"location": "in_the_uk"}) + "?redirect_to_url=check_your_answers&change=yes",
+            reverse("add_a_recipient", kwargs={"location": "in-uk"}) + "?redirect_to_url=check_your_answers&change=yes",
             data={
                 "name": "COOL BEANS LTD",
                 "email": "thisismyemail@obviously.com",
@@ -56,7 +56,7 @@ class TestAddRecipientView:
                 "postcode": "SW1A 1AA",
             },
         )
-        assert "relationship_provider_recipient" in response.url
+        assert "provider-recipient-relationship" in response.url
 
 
 class TestDeleteRecipientView:
@@ -72,7 +72,7 @@ class TestDeleteRecipientView:
         )
         assert "recipient1" not in al_client.session["recipients"].keys()
         assert al_client.session["recipients"] != data.recipients
-        assert response.url == "/apply-for-a-licence/recipient_added"
+        assert response.url == "/apply-for-a-licence/add-recipient"
         assert response.status_code == 302
 
     def test_cannot_delete_all_recipients_post(self, al_client):
@@ -95,7 +95,7 @@ class TestDeleteRecipientView:
         # does not delete last recipient
         assert len(al_client.session["recipients"]) == 1
         assert "recipient3" in al_client.session["recipients"].keys()
-        assert response.url == "/apply-for-a-licence/recipient_added"
+        assert response.url == "/apply-for-a-licence/add-recipient"
         assert response.status_code == 302
 
     def test_unsuccessful_post(self, al_client):
@@ -107,7 +107,7 @@ class TestDeleteRecipientView:
             reverse("delete_recipient"),
         )
         assert al_client.session["recipients"] == data.recipients
-        assert response.url == "/apply-for-a-licence/recipient_added"
+        assert response.url == "/apply-for-a-licence/add-recipient"
         assert response.status_code == 302
 
 

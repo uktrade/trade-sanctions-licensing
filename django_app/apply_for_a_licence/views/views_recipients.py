@@ -52,7 +52,7 @@ class AddARecipientView(BaseFormView):
         return kwargs
 
     def get_form_class(self) -> [forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm]:
-        if self.location == "in_the_uk":
+        if self.location == "in-uk":
             form_class = forms.AddAUKRecipientForm
         else:
             form_class = forms.AddANonUKRecipientForm
