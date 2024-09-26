@@ -99,7 +99,6 @@ class BaseBusinessDetailsForm(BaseModelForm):
         }
         error_messages = {
             "name": {"required": "Enter the name of the business"},
-            "address_line_1": {"required": "Enter address line 1, such as the building and street"},
             "town_or_city": {"required": "Enter town or city"},
             "postcode": {"required": "Enter postcode", "invalid": "Enter a full UK postcode"},
             "country": {"required": "Select country"},
@@ -150,6 +149,7 @@ class BaseUKBusinessDetailsForm(BaseBusinessDetailsForm):
         cleaned_data = super().clean()
         cleaned_data["country"] = "GB"
         cleaned_data["url_location"] = "in-uk"
+        cleaned_data["readable_address"] = get_formatted_address(cleaned_data)
         return cleaned_data
 
     def clean_postcode(self) -> dict[str, Any]:

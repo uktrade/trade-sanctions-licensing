@@ -18,7 +18,7 @@ class WhereIsTheRecipientLocatedForm(BaseForm):
             ("in-uk", "In the UK"),
         ),
         widget=forms.RadioSelect,
-        error_messages={"required": "Select if the recipient of the services is located in the UK, or outside the UK"},
+        error_messages={"required": "Select if the recipient of the services is located outside the UK or in the UK"},
     )
 
 
@@ -54,7 +54,9 @@ class AddAUKRecipientForm(BaseUKBusinessDetailsForm):
         )
         widgets = BaseBusinessDetailsForm.Meta.widgets
         labels = BaseBusinessDetailsForm.Meta.labels
-        error_messages = BaseBusinessDetailsForm.Meta.error_messages
+        error_messages = BaseBusinessDetailsForm.Meta.error_messages | {
+            "address_line_1": {"required": "Enter address line 1, typically the building and street"},
+        }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
@@ -116,7 +118,9 @@ class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
         )
         widgets = BaseBusinessDetailsForm.Meta.widgets
         labels = BaseBusinessDetailsForm.Meta.labels
-        error_messages = BaseBusinessDetailsForm.Meta.error_messages
+        error_messages = BaseBusinessDetailsForm.Meta.error_messages | {
+            "address_line_1": {"required": "Enter address line 1"},
+        }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
@@ -180,11 +184,7 @@ class RelationshipProviderRecipientForm(BaseForm):
         label="What is the relationship between the provider of the services and the recipient?",
         help_text="For example, the recipient is a subsidiary of the provider; " "or there is no relationship",
         required=True,
-        error_messages={
-            "relationship": {
-                "required": "Relationship between the provider of the services and the recipient cannot be left blank"
-            }
-        },
+        error_messages={"required": "Enter the relationship between the provider of the services and the recipient"},
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:

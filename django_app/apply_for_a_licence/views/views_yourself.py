@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 class AddYourselfView(BaseFormView):
     form_class = forms.AddYourselfForm
+    redirect_after_post = False
 
     def form_valid(self, form: forms.AddYourselfForm) -> HttpResponse:
         your_details = {

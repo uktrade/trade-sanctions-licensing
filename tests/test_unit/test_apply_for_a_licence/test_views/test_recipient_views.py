@@ -28,7 +28,7 @@ class TestAddRecipientView:
         assert recipients[recipient_uuid]["cleaned_data"]["name"] == "COOL BEANS LTD"
         assert (
             recipients[recipient_uuid]["cleaned_data"]["readable_address"]
-            == "13 I live here,\n Flat bassment,\n Leeds,\n SW1A 1AA"
+            == "13 I live here,\n Flat bassment,\n Leeds,\n SW1A 1AA,\n United Kingdom"
         )
 
     def test_redirect_after_post(self, al_client):
