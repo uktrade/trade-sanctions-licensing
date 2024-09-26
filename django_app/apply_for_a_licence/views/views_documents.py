@@ -70,7 +70,11 @@ class UploadDocumentsView(BaseFormView):
     def form_invalid(self, form: Form) -> HttpResponse:
         if is_ajax(self.request):
             return JsonResponse(
-                {"success": False, "error": form.errors["document"][0], "file_name": self.request.FILES["document"].name},
+                {
+                    "success": False,
+                    "error": form.errors["document"][0],
+                    "file_name": self.request.FILES["document"].name.rpartition("/")[2],
+                },
                 status=200,
             )
         else:

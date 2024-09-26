@@ -173,7 +173,6 @@ class SaveToDB:
             )
 
     def save_documents(self) -> None:
-        # TODO: need to update this to include the permanent bucket path, see DST-529
         documents = get_all_session_files(TemporaryDocumentStorage(), self.request.session)
         for key, _ in documents.items():
             new_key = store_document_in_permanent_bucket(object_key=key, licence_pk=self.licence_object.pk)

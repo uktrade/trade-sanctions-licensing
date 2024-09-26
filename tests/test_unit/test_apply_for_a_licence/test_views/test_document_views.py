@@ -43,7 +43,7 @@ class TestDocumentUploadView:
             "The selected file must be a DOC, DOCX, ODT, FODT, XLS, XLSX, ODS, FODS, "
             "PPT, PPTX, ODP, FODP, PDF, TXT, CSV, ZIP, HTML, JPEG, JPG or PNG" in response["error"]
         )
-        assert response["file_name"].split("/")[1] == "bad.gif"
+        assert response["file_name"] == "bad.gif"
         assert "file_uploads" not in al_client.session
 
     def test_non_ajax_successful_post(self, al_client):
