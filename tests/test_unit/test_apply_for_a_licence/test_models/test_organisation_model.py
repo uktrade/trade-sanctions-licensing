@@ -17,7 +17,7 @@ class TestIndividualModel:
             town_or_city="town_or_city",
             registered_office_address="",
         )
-        assert organisation.readable_address() == "address_line_1,\n address_line_2,\n town_or_city,\n postcode"
+        assert organisation.readable_address() == "address_line_1,\n address_line_2,\n town_or_city,\n postcode,\n United Kingdom"
 
         # now if we provide a registered_office_address it should pull from there
         organisation = OrganisationFactory(
