@@ -40,6 +40,11 @@ class AddYourselfView(BaseFormView):
                 "location": "in-uk" if self.is_uk_individual else "outside-uk",
             },
         )
+
+        # changed from UK address to another address or vice versa
+        if "nationality_and_location" in self.changed_fields:
+            self.request.session["add_yourself_address"] = {}
+
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
         return success_url
