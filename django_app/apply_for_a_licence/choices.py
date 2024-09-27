@@ -35,9 +35,9 @@ class YesNoDoNotKnowChoices(models.TextChoices):
 class TypeOfServicesChoices(models.TextChoices):
     professional_and_business = "professional_and_business", "Professional and business services (Russia)"
     energy_related = "energy_related", "Energy-related services (Russia)"
-    infrastructure_and_tourism_related = (
-        "infrastructure_and_tourism_related",
-        "Infrastructure and tourism-related services to non-government controlled Ukrainian territories (Russia)",
+    infrastructure_or_tourism_related = (
+        "infrastructure_or_tourism_related",
+        "Infrastructure or tourism-related services to non-government controlled Ukrainian territories (Russia)",
     )
     interception_or_monitoring = (
         "interception_or_monitoring",
