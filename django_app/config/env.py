@@ -74,7 +74,7 @@ class BaseSettings(PydanticBaseSettings):
     redis_port: int = 6379
 
     # Application-specific settings
-    otsi_email: str = "DBT-OTSI@businessandtrade.gov.uk"
+    otsi_email: str = "email@example.com"
 
     @computed_field
     @property
