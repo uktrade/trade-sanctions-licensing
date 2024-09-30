@@ -29,11 +29,10 @@ class LicensingGroundsForm(BaseForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         self.audit_service_selected = kwargs.pop("audit_service_selected", False)
         super().__init__(*args, **kwargs)
-        services = get_cleaned_data_for_step(self.request, "professional_or_business_services").get(
-            "professional_or_business_service", []
-        )
+        services = self.get_services()
         error_messages = self.fields["licensing_grounds"].error_messages
         self.checkbox_choices = self.fields["licensing_grounds"].choices
+
         # Create the 'or' divider between the last choice and I do not know
         last_checkbox_value = self.checkbox_choices[-1][0]
         last_checkbox_label = self.checkbox_choices[-1][1]
@@ -72,6 +71,11 @@ class LicensingGroundsForm(BaseForm):
                 "required": "Select which licensing grounds describe your purpose for providing"
                 " the sanctioned services, or select none of these, or select I do not know"
             }
+
+    def get_services(self):
+        return get_cleaned_data_for_step(self.request, "professional_or_business_services").get(
+            "professional_or_business_service", []
+        )
 
     def get_licensing_grounds_display(self):
         display = []
