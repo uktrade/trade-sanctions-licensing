@@ -29,39 +29,38 @@ class LicensingGroundsForm(BaseForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         self.audit_service_selected = kwargs.pop("audit_service_selected", False)
         super().__init__(*args, **kwargs)
-        checkbox_choices = self.fields["licensing_grounds"].choices
+        services = get_cleaned_data_for_step(self.request, "professional_or_business_services").get(
+            "professional_or_business_service", []
+        )
+        error_messages = self.fields["licensing_grounds"].error_messages
+        self.checkbox_choices = self.fields["licensing_grounds"].choices
         # Create the 'or' divider between the last choice and I do not know
-        last_checkbox_value = checkbox_choices[-1][0]
-        last_checkbox_label = checkbox_choices[-1][1]
-        checkbox_choices[-1] = Choice(
+        last_checkbox_value = self.checkbox_choices[-1][0]
+        last_checkbox_label = self.checkbox_choices[-1][1]
+        self.checkbox_choices[-1] = Choice(
             value=last_checkbox_value,
             label=last_checkbox_label,
             divider="or",
         )
-        checkbox_choices.append(Choice("Unknown grounds", "I do not know"))
-        checkbox_choices.append(Choice("None of these", "None of these"))
+        self.checkbox_choices.append(Choice("Unknown grounds", "I do not know"))
+        self.checkbox_choices.append(Choice("None of these", "None of these"))
 
         # now we cut the choices down depending on the user's answer to the professional_or_business_services question
-        if self.audit_service_selected:
-            checkbox_choices.remove(
+        if services == ["auditing"]:
+            self.checkbox_choices.remove(
                 (
                     choices.LicensingGroundsChoices.parent_or_subsidiary_company.value,
                     choices.LicensingGroundsChoices.parent_or_subsidiary_company.label,
                 )
             )
 
-        self.fields["licensing_grounds"].choices = checkbox_choices
+        self.fields["licensing_grounds"].choices = self.checkbox_choices
         self.helper.layout = Layout(
             Fieldset(
                 get_field_with_label_id("licensing_grounds", field_method=Field.checkboxes, label_id="checkbox"),
                 aria_describedby="checkbox",
             )
         )
-
-        services = get_cleaned_data_for_step(self.request, "professional_or_business_services").get(
-            "professional_or_business_service", []
-        )
-        error_messages = self.fields["licensing_grounds"].error_messages
 
         if "legal_advisory" in services:
             self.fields["licensing_grounds"].error_messages = error_messages | {
@@ -89,6 +88,15 @@ class LicensingGroundsLegalAdvisoryForm(LicensingGroundsForm):
             "required": "Select which licensing grounds describe your purpose for providing "
             "the sanctioned services (excluding legal advisory), or select none of these, or select I do not know"
         }
+
+        if self.audit_service_selected:
+            self.checkbox_choices.remove(
+                (
+                    choices.LicensingGroundsChoices.parent_or_subsidiary_company.value,
+                    choices.LicensingGroundsChoices.parent_or_subsidiary_company.label,
+                )
+            )
+        self.fields["licensing_grounds"].choices = self.checkbox_choices
 
 
 class PurposeOfProvisionForm(BaseModelForm):
