@@ -8,7 +8,7 @@ from .views.base_views import RedirectBaseDomainView
 urlpatterns = [
     path("", RedirectBaseDomainView.as_view(), name="initial_redirect_view"),
     path("feedback/", include("feedback.urls")),
-    path("pingdom/", include("healthcheck.urls")),
+    path("healthcheck/", include("healthcheck.urls")),
     path("throw_error/", lambda x: 1 / 0),
     path("admin/", admin.site.urls),
     path("apply-for-a-licence/", include("apply_for_a_licence.urls")),
