@@ -87,7 +87,7 @@ class TestDeleteIndividualFromYourselfView:
         )
         assert "individual1" not in al_client.session["individuals"].keys()
         assert al_client.session["individuals"] != data.individuals
-        assert response.url == "/apply-for-a-licence/check-your-details-add-individuals"
+        assert response.url == "/apply/check-your-details-add-individuals"
         assert response.status_code == 302
 
     def test_delete_all_individuals_post(self, al_client):
@@ -109,7 +109,7 @@ class TestDeleteIndividualFromYourselfView:
         )
         # does not delete last individual
         assert len(al_client.session["individuals"]) == 0
-        assert response.url == "/apply-for-a-licence/check-your-details-add-individuals"
+        assert response.url == "/apply/check-your-details-add-individuals"
         assert response.status_code == 302
 
     def test_unsuccessful_post(self, al_client):
@@ -121,5 +121,5 @@ class TestDeleteIndividualFromYourselfView:
             reverse("delete_individual_from_yourself"),
         )
         assert al_client.session["individuals"] == data.individuals
-        assert response.url == "/apply-for-a-licence/check-your-details-add-individuals"
+        assert response.url == "/apply/check-your-details-add-individuals"
         assert response.status_code == 302

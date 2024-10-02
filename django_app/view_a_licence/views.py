@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class RedirectBaseViewerView(RedirectView):
+class RedirectBaseViewerView(LoginRequiredMixin, ActiveUserRequiredMixin, RedirectView):
     """Redirects view_a_licence base site visits to view-all-reports view"""
 
     @property

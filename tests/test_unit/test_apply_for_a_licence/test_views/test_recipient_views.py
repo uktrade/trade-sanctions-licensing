@@ -72,7 +72,7 @@ class TestDeleteRecipientView:
         )
         assert "recipient1" not in al_client.session["recipients"].keys()
         assert al_client.session["recipients"] != data.recipients
-        assert response.url == "/apply-for-a-licence/add-recipient"
+        assert response.url == "/apply/add-recipient"
         assert response.status_code == 302
 
     def test_cannot_delete_all_recipients_post(self, al_client):
@@ -95,7 +95,7 @@ class TestDeleteRecipientView:
         # does not delete last recipient
         assert len(al_client.session["recipients"]) == 1
         assert "recipient3" in al_client.session["recipients"].keys()
-        assert response.url == "/apply-for-a-licence/add-recipient"
+        assert response.url == "/apply/add-recipient"
         assert response.status_code == 302
 
     def test_unsuccessful_post(self, al_client):
@@ -107,7 +107,7 @@ class TestDeleteRecipientView:
             reverse("delete_recipient"),
         )
         assert al_client.session["recipients"] == data.recipients
-        assert response.url == "/apply-for-a-licence/add-recipient"
+        assert response.url == "/apply/add-recipient"
         assert response.status_code == 302
 
 
