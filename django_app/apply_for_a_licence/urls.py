@@ -119,9 +119,9 @@ views_recipients_urls = [
 ]
 
 views_grounds_purpose_urls = [
-    path("legal-licensing-grounds", views_grounds_purpose.LicensingGroundsView.as_view(), name="licensing_grounds"),
+    path("licensing-grounds", views_grounds_purpose.LicensingGroundsView.as_view(), name="licensing_grounds"),
     path(
-        "licensing-grounds",
+        "other-licensing-grounds",
         views_grounds_purpose.LicensingGroundsLegalAdvisoryView.as_view(),
         name="licensing_grounds_legal_advisory",
     ),
