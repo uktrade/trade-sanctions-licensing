@@ -98,7 +98,7 @@ class RedirectBaseDomainView(RedirectView):
             return reverse("start")
         elif is_view_a_licence_site(self.request.site):
             # if users are not accessing a specific page in view-a-licence - raise a 404
-            # unless they are staff, in which case take them to the manage users page
+            # unless they are staff, in which case take them to the application lists page
             if self.request.user.is_staff:
                 return reverse("view_a_licence:application_list")
             else:

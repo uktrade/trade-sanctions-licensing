@@ -10,13 +10,22 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import reverse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, ListView, TemplateView
+from django.views.generic import DetailView, ListView, RedirectView, TemplateView
 
 from .mixins import ActiveUserRequiredMixin, StaffUserOnlyMixin
 
 logger = logging.getLogger(__name__)
 
 # ALL VIEWS HERE MUST BE DECORATED WITH AT LEAST LoginRequiredMixin
+
+
+@method_decorator(require_view_a_licence(), name="dispatch")
+class RedirectBaseViewerView(RedirectView):
+    """Redirects view_a_licence base site visits to view-all-reports view"""
+
+    @property
+    def url(self) -> str:
+        return reverse("view_a_licence:application_list")
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
