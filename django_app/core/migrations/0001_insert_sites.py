@@ -11,6 +11,11 @@ def insert_sites(apps, schema_editor):
     Site.objects.create(domain=settings.APPLY_FOR_A_LICENCE_DOMAIN, name="apply-for-a-licence")
     # Register SITE_ID = 2
     Site.objects.create(domain=settings.VIEW_A_LICENCE_DOMAIN, name="view-a-licence")
+    if settings.ENVIRONMENT == "production":
+        # Register SITE_ID = 3
+        Site.objects.create(domain=settings.APPLY_FOR_A_LICENCE_EXTRA_DOMAIN, name="apply-for-a-licence")
+        # Register SITE_ID = 4
+        Site.objects.create(domain=settings.VIEW_A_LICENCE_EXTRA_DOMAIN, name="view-a-licence")
 
 
 def remove_sites(apps, schema_editor):

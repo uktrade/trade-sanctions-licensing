@@ -55,6 +55,9 @@ class BaseSettings(PydanticBaseSettings):
     apply_for_a_licence_domain: str = "apply-for-a-licence"
     view_a_licence_domain: str = "view-a-licence"
 
+    apply_for_a_licence_extra_domain: str = ""
+    view_a_licence_extra_domain: str = ""
+
     # SSO
     enforce_staff_sso: bool = False
     authbroker_url: str = ""
