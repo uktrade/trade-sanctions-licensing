@@ -1,7 +1,7 @@
 from apply_for_a_licence.utils import get_dirty_form_data
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from django import forms
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -97,10 +97,5 @@ class RedirectBaseDomainView(RedirectView):
         if is_apply_for_a_licence_site(self.request.site):
             return reverse("start")
         elif is_view_a_licence_site(self.request.site):
-            # if users are not accessing a specific page in view-a-licence - raise a 404
-            # unless they are staff, in which case take them to the application lists page
-            if self.request.user.is_staff:
-                return reverse("view_a_licence:application_list")
-            else:
-                raise Http404()
+            return reverse("view_a_licence:application_list")
         return ""
