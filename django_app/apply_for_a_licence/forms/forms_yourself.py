@@ -36,8 +36,8 @@ class AddYourselfForm(BaseModelForm):
         self.fields["nationality_and_location"].choices.pop(0)
         self.helper.label_size = Size.MEDIUM
         self.helper.layout = Layout(
-            Field.text("first_name", field_width=Fluid.ONE_THIRD),
-            Field.text("last_name", field_width=Fluid.ONE_THIRD),
+            Field.text("first_name", field_width=Fluid.TWO_THIRDS),
+            Field.text("last_name", field_width=Fluid.TWO_THIRDS),
             Field.radios("nationality_and_location", legend_size=Size.MEDIUM, legend_tag="h2"),
         )
 
