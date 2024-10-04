@@ -31,6 +31,7 @@ class BaseSettings(PydanticBaseSettings):
     otsi_new_application_template_id: str = ""
     restrict_sending: bool = True
     email_verify_timeout_seconds: int = 3600
+    new_application_alert_recipients: str = "email@example.com"
 
     sentry_dsn: str = ""
     sentry_environment: str = ""
