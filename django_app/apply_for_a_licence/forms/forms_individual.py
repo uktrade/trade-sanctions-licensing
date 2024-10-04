@@ -100,6 +100,10 @@ class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
 
+        self.fields["country"].required = True
+        self.fields["country"].empty_label = "Select country"
+        self.fields["address_line_1"].error_messages["required"] = "Enter address line 1"
+
         self.helper.layout = Layout(
             Fieldset(
                 Field.text("name", field_width=Fluid.TWO_THIRDS),
