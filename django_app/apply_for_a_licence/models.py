@@ -188,6 +188,7 @@ class Individual(BaseModel, AddressMixin):
 class Document(BaseModel):
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="documents")
     file = models.FileField(
+        max_length=340,
         null=True,
         blank=True,
         # if we're storing the document in the DB, we can assume it's in the permanent bucket
