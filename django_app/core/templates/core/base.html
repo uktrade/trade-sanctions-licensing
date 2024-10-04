@@ -28,6 +28,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="theme-color" content="#0b0c0c">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="robots" content="noindex, nofollow">
+        {% block meta %}{% endblock meta %}
 
         {% block cookie_banner %}
             {% if request.resolver_match.url_name != "cookies_consent" %}
@@ -113,7 +115,6 @@
         <link rel="mask-icon" href="{% static "core/assets/images/govuk-icon-mask.svg" %}" color="#0b0c0c">
         <link rel="apple-touch-icon" sizes="180x180"
               href="{% static "core/assets/images/govuk-icon-180.png" %}">
-        <meta name="robots" content="noindex, nofollow">
         <meta property="og:image" content="{% static "core/assets/images/govuk-opengraph-image.png" %}">
 
 		{# stylesheets #}
@@ -223,6 +224,10 @@
                         <ul class="govuk-footer__inline-list">
                             <li class="govuk-footer__inline-list-item hide-on-print">
                                 <a class="govuk-footer__link" href="{% url 'cookies_consent' %}">Cookies</a>
+                            </li>
+                            <li class="govuk-footer__inline-list-item hide-on-print">
+                                <a class="govuk-footer__link"
+                                   href="{% url 'privacy_notice' %}">Privacy</a>
                             </li>
                             {% if is_debug_mode %}
                                 <li class="govuk-footer__inline-list-item hide-on-print">
