@@ -7,7 +7,6 @@ from apply_for_a_licence.utils import get_all_cleaned_data, get_all_forms
 from core.document_storage import TemporaryDocumentStorage
 from core.views.base_views import BaseFormView
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -121,12 +120,13 @@ class DeclarationView(BaseFormView):
         view_application_url = craft_view_a_licence_url(
             reverse("view_a_licence:view_application", kwargs={"pk": new_licence_object.pk})
         )
-        for user in User.objects.filter(is_staff=True):
+        for email in settings.NEW_APPLICATION_ALERT_RECIPIENTS:
             send_email(
-                email=user.email,
+                email=email,
                 template_id=settings.OTSI_NEW_APPLICATION_TEMPLATE_ID,
                 context={"application_number": new_licence_object.reference, "url": view_application_url},
             )
+
         # Successfully saved to DB - clear session ready for new application
         self.request.session.flush()
 
