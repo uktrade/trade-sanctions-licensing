@@ -17,28 +17,26 @@ class TypeOfServiceView(BaseFormView):
         match answer:
             case "interception_or_monitoring":
                 success_url = reverse("which_sanctions_regime")
-                if self.changed_fields.get("type_of_service"):
-                    self.redirect_after_post = False
             case "professional_and_business":
                 success_url = reverse("professional_or_business_services")
-                if self.changed_fields.get("type_of_service"):
-                    self.redirect_after_post = False
             case _:
                 success_url = reverse("service_activities")
 
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
 
-        # changed from Professional or Business Services to other service
-        if self.changed_fields.get("type_of_service") == "professional_and_business":
-            # delete form data for professional business services and licensing grounds
-            self.request.session["professional_or_business_services"] = {}
-            self.request.session["licensing_grounds"] = {}
+        if type_of_service := self.changed_fields.get("type_of_service", False):
             self.redirect_after_post = False
 
-        # changed from Interception or Monitoring to other service
-        if self.changed_fields.get("type_of_service") == "interception_or_monitoring":
-            self.request.session["which_sanctions_regime"] = {}
+            # changed from Professional or Business Services to other service
+            if type_of_service == "professional_and_business":
+                # delete form data for professional business services and licensing grounds
+                self.request.session["professional_or_business_services"] = {}
+                self.request.session["licensing_grounds"] = {}
+
+            # changed from Interception or Monitoring to other service
+            if type_of_service == "interception_or_monitoring":
+                self.request.session["which_sanctions_regime"] = {}
 
         return success_url
 
@@ -48,13 +46,20 @@ class ProfessionalOrBusinessServicesView(BaseFormView):
 
     def get_success_url(self) -> str:
         success_url = reverse("service_activities")
+        url_params = ""
 
-        if self.request.GET.get("change", None) == "yes":
+        if self.request.GET.get("update", None) == "yes":
             self.redirect_after_post = False
 
-        if get_parameters := urllib.parse.urlencode(self.request.GET):
-            success_url += "?" + get_parameters
+        # We need separate logic here as only want to go through the full update flow for pbs if it's actually changed.
+        if self.changed_fields.get("professional_or_business_service", False):
+            self.redirect_after_post = False
+            url_params = "update=yes"
 
+        if get_parameters := urllib.parse.urlencode(self.request.GET):
+            success_url += "?" + url_params + "&" + get_parameters
+        else:
+            success_url += "?" + url_params
         return success_url
 
 
@@ -64,7 +69,7 @@ class WhichSanctionsRegimeView(BaseFormView):
     def get_success_url(self) -> str:
         success_url = reverse("service_activities")
 
-        if self.request.GET.get("change", None) == "yes":
+        if self.request.GET.get("update", None) == "yes":
             self.redirect_after_post = False
 
         if get_parameters := urllib.parse.urlencode(self.request.GET):
@@ -79,7 +84,7 @@ class ServiceActivitiesView(BaseFormView):
     def get_success_url(self) -> str:
         success_url = reverse("where_is_the_recipient_located")
 
-        if self.request.GET.get("change", None) == "yes":
+        if self.request.GET.get("update", None) == "yes":
             self.redirect_after_post = False
             success_url = reverse("purpose_of_provision")
             # todo: use get_cleaned_data_for_step method here - form was invalid so wasn't working
