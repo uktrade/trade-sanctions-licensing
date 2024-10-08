@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views import View
@@ -18,7 +19,7 @@ class PrivacyNoticeView(TemplateView):
 
 class AccessibilityStatementView(TemplateView):
     template_name = "core/accessibility_statement.html"
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["otsi_email"] = settings.OTSI_EMAIL
