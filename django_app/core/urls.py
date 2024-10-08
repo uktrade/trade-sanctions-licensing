@@ -17,6 +17,7 @@ urlpatterns = [
     path("privacy-notice", generic_views.PrivacyNoticeView.as_view(), name="privacy_notice"),
     path("hide_cookies", cookie_views.HideCookiesView.as_view(), name="hide_cookies"),
     path("reset_session", generic_views.ResetSessionView.as_view(), name="reset_session"),
+    path("accessibility-statement", generic_views.AccessibilityStatementView.as_view(), name="accessibility_statement"),
 ]
 
 if settings.ENFORCE_STAFF_SSO:
