@@ -13,7 +13,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("apply/", include("apply_for_a_licence.urls")),
     path("view/", include("view_a_licence.urls")),
-    path("cookies_consent", cookie_views.CookiesConsentView.as_view(), name="cookies_consent"),
+    path("cookies-policy", cookie_views.CookiesConsentView.as_view(), name="cookies_consent"),
     path("privacy-notice", generic_views.PrivacyNoticeView.as_view(), name="privacy_notice"),
     path("hide_cookies", cookie_views.HideCookiesView.as_view(), name="hide_cookies"),
     path("reset_session", generic_views.ResetSessionView.as_view(), name="reset_session"),
