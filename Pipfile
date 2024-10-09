@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "~=4.2"
+django = "~=4.2.16"
 sentry-sdk = "*"
 pydantic-settings = "~=2.2"
 dbt-copilot-python = "~=0.2"
@@ -29,9 +29,10 @@ django-staff-sso-client = "~=4.2.2"
 python-magic = "~=0.4"
 whitenoise = "~=6.6.0"
 django-ratelimit = "~=4.1.0"
-dbt-platform-helper = "==10.4.0"
 gevent = "==24.2.1"
 psycopg2-binary = "*"
+certifi = "*"
+cryptography = "~=43.0.1"
 
 [dev-packages]
 black = "~=24.3"
