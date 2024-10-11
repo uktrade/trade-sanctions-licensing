@@ -319,11 +319,11 @@
             </dd>
         </div>
     </dl>
-    <h3 class="govuk-heading-m">Recipients of the services</h3>
+    <h2 class="govuk-heading-m">Recipients of the services</h2>
     {% if request.session.recipients %}
         {% for id, recipient in request.session.recipients.items %}
             <div class="action-wrapper">
-                <h2 class="govuk-heading-s" style="float:left">Recipient {{ forloop.counter }}</h2>
+                <h3 class="govuk-heading-s" style="float:left">Recipient {{ forloop.counter }}</h3>
                 <dl class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         <a class="govuk-link"
