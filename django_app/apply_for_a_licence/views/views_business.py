@@ -104,6 +104,7 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
 @method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
 class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
     form_class = forms.DoYouKnowTheRegisteredCompanyNumberForm
+    template_name = "apply_for_a_licence/form_steps/registered_company_number.html"
     redirect_after_post = False
 
     def form_valid(self, form: forms.DoYouKnowTheRegisteredCompanyNumberForm) -> HttpResponse:
