@@ -98,7 +98,6 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
                 "No",
             )
         )
-        self.conditional_id = "do_you_know_the_registered_company_number"
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()

@@ -47,6 +47,7 @@ class ExistingLicencesForm(BaseModelForm):
             "Have any of the businesses you've added held a licence before to provide "
             "any sanctioned services or export any sanctioned goods?"
         )
+        self.conditional_id = "held_existing_licence"
 
         if start_view := get_cleaned_data_for_step(self.request, "start"):
             if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":

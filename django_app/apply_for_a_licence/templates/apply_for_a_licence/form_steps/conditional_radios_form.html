@@ -1,0 +1,16 @@
+{% extends "core/base_form_step.html" %}
+{% load crispy_forms_tags crispy_forms_gds static %}
+
+{% block title %}{{ page_title }}{% endblock title %}
+
+
+{% block extra_js %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function (event) {
+            const noRadio = document.querySelector('input[value="no"]');
+            if (noRadio) {
+                noRadio.removeAttribute("aria-controls");
+            }
+        });
+    </script>
+{% endblock extra_js %}
