@@ -25,7 +25,8 @@ if settings.ENFORCE_STAFF_SSO:
         path("auth/", include("authbroker_client.urls")),
     )
 
-if settings.ENVIRONMENT == "local":
+if "debug_toolbar" in settings.INSTALLED_APPS:
+    # checking if we have debug_toolbar installed
     urlpatterns.append(
         path("__debug__/", include("debug_toolbar.urls")),
     )

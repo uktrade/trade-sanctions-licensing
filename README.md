@@ -12,6 +12,7 @@ Apply for a trade sanctions licence service
 * [Useful commands](#useful-commands)
   + [Django](#django)
   + [Dependencies](#dependencies)
+  + [Testing](#running-the-tests)
 
 
 ## Setup
@@ -130,4 +131,15 @@ git submodule update --init
 If this list has changed, you can update it from the latest version of the submodule by running the following command:
 ```
 git submodule update --remote --merge
+```
+
+### Running the tests
+To run unit tests:
+```
+invoke unittests
+```
+
+To run the frontend tests (more documentation can be found in the tests/test_frontend/README.md):
+```
+invoke frontendtests
 ```
