@@ -126,7 +126,10 @@ class DeclarationView(BaseFormView):
                 template_id=settings.OTSI_NEW_APPLICATION_TEMPLATE_ID,
                 context={"application_number": new_licence_object.reference, "url": view_application_url},
             )
-            # Successfully saved to DB - clear session ready for new application
+
+        # Successfully saved to DB - clear session ready for new application.
+        # only do this if we're not in debug mode, sometimes nice to back and re-submit
+        if not settings.DEBUG:
             self.request.session.flush()
 
         self.request.session["licence_reference"] = new_licence_object.reference

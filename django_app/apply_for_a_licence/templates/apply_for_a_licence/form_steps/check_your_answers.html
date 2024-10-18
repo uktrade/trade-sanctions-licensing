@@ -387,7 +387,7 @@
                     {% include "apply_for_a_licence/partials/truncated_text.html" with text=forms.licensing_grounds.get_licensing_grounds_display|linebreaksbr %}
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    {% if form_data.professional_or_business_services.professional_or_business_service|length == 1 and form_data.professional_or_business_services.professional_or_business_service|first == 'legal_advisory' %}
+                    {% if form_data.professional_or_business_services.professional_or_business_services|length == 1 and form_data.professional_or_business_services.professional_or_business_services|first == 'legal_advisory' %}
                         <a class="govuk-link"
                            href="{% url 'licensing_grounds' %}?redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">licensing grounds for the relevant activity</span></a>
                     {% else %}
@@ -441,6 +441,7 @@
     </dl>
     <a class="govuk-button"
        data-module="govuk-button"
+       data-testid="continue_button"
        href="{% url 'declaration' %}">Continue</a>
 {% endblock form_content %}
 {% block extra_js %}

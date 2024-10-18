@@ -6,7 +6,7 @@ class TestLicensingGroundsView:
     def test_legal_advisory_h1_header_form_kwargs(self, al_client):
         session = al_client.session
         session["professional_or_business_services"] = {
-            "professional_or_business_service": [ProfessionalOrBusinessServicesChoices.legal_advisory.value]
+            "professional_or_business_services": [ProfessionalOrBusinessServicesChoices.legal_advisory.value]
         }
         session.save()
 
@@ -28,7 +28,7 @@ class TestLicensingGroundsView:
     def test_audit_h1_header_form_kwargs(self, al_client):
         session = al_client.session
         session["professional_or_business_services"] = {
-            "professional_or_business_service": [ProfessionalOrBusinessServicesChoices.auditing.value]
+            "professional_or_business_services": [ProfessionalOrBusinessServicesChoices.auditing.value]
         }
         session.save()
 

@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from apply_for_a_licence import choices
 from apply_for_a_licence.forms import forms_services as forms
 
 
@@ -51,10 +52,23 @@ class TestSanctionsRegimeForm:
 
 class TestProfessionalOrBusinessServicesForm:
     def test_required(self, request_object):
-        form = forms.ProfessionalOrBusinessServicesForm(data={"professional_or_business_service": None}, request=request_object)
+        form = forms.ProfessionalOrBusinessServicesForm(data={"professional_or_business_services": None}, request=request_object)
         assert not form.is_valid()
-        assert "professional_or_business_service" in form.errors
-        assert form.errors.as_data()["professional_or_business_service"][0].code == "required"
+        assert "professional_or_business_services" in form.errors
+        assert form.errors.as_data()["professional_or_business_services"][0].code == "required"
+
+    def test_get_professional_or_business_service_display(self, request_object):
+        form = forms.ProfessionalOrBusinessServicesForm(
+            data={
+                "professional_or_business_services": [
+                    choices.ProfessionalOrBusinessServicesChoices.accounting.value,
+                    choices.ProfessionalOrBusinessServicesChoices.legal_advisory.value,
+                ]
+            },
+            request=request_object,
+        )
+        assert form.is_valid()
+        assert form.get_professional_or_business_service_display() == "Accounting,\nLegal advisory"
 
 
 class TestServiceActivitiesForm:

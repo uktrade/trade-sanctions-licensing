@@ -168,13 +168,18 @@
                 {{ licence.get_type_of_service_display }}
             </dd>
         </div>
-        {% if licence.professional_or_business_service %}
+        {% if licence.type_of_service == "professional_and_business" %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    What are the professional or business services you want to provide?
+                    Specific services
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ licence.professional_or_business_service | linebreaksbr }}
+                    {% for service in licence.get_professional_or_business_services_display %}
+                        {{ service }}
+                        {% if not forloop.last %}
+                            <br>
+                        {% endif %}
+                    {% endfor %}
                 </dd>
             </div>
         {% endif %}
@@ -195,7 +200,7 @@
         {% endif %}
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                Specific services
+                Description of the services
             </dt>
             <dd class="govuk-summary-list__value">
                 {% include "apply_for_a_licence/partials/truncated_text.html" with text=licence.service_activities|linebreaksbr %}

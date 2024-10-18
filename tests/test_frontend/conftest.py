@@ -284,7 +284,11 @@ class RecipientBase(PlaywrightTestBase):
         page.get_by_role("button", name="Continue").click()
         self.recipient(page, "Auditing")
 
-    def recipient_legal_and_other(self, page, reporter_type="business"):
+    def recipient_legal_and_other(
+        self,
+        page,
+        reporter_type="business",
+    ):
         page.get_by_label("No").check()
         page.get_by_role("button", name="Continue").click()
         if reporter_type == "individual":
