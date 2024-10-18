@@ -1,4 +1,5 @@
 import pytest
+from apply_for_a_licence import choices
 from apply_for_a_licence.choices import (
     LicensingGroundsChoices,
     TypeOfRelationshipChoices,
@@ -59,3 +60,16 @@ class TestLicenceModel:
         assert licensees[0].name == individual.full_name
         assert licensees[0].address == get_formatted_address(model_to_dict(individual))
         assert licensees[0].label_name == "Individual"
+
+    def test_professional_business_services_display(self, licence):
+        assert licence.get_professional_or_business_services_display() == []
+
+        licence.professional_or_business_services = [
+            choices.ProfessionalOrBusinessServicesChoices.accounting.value,
+            choices.ProfessionalOrBusinessServicesChoices.auditing.value,
+        ]
+        licence.save()
+        assert licence.get_professional_or_business_services_display() == [
+            choices.ProfessionalOrBusinessServicesChoices.accounting.label,
+            choices.ProfessionalOrBusinessServicesChoices.auditing.label,
+        ]

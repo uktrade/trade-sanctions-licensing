@@ -74,7 +74,7 @@ class LicensingGroundsForm(BaseForm):
 
     def get_services(self):
         return get_cleaned_data_for_step(self.request, "professional_or_business_services").get(
-            "professional_or_business_service", []
+            "professional_or_business_services", []
         )
 
     def get_licensing_grounds_display(self):

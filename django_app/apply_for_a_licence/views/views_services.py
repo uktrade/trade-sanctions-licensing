@@ -52,7 +52,7 @@ class ProfessionalOrBusinessServicesView(BaseFormView):
             self.redirect_after_post = False
 
         # We need separate logic here as only want to go through the full update flow for pbs if it's actually changed.
-        if self.changed_fields.get("professional_or_business_service", False):
+        if self.changed_fields.get("professional_or_business_services", False):
             self.redirect_after_post = False
             url_params = "update=yes"
 

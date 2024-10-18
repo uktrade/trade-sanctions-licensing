@@ -54,7 +54,9 @@ class SaveToDB:
             business_registered_on_companies_house="Yes" if self.is_on_companies_house else "No",
             regimes=sanctions_regimes,
             type_of_service=self.data["type_of_service"]["type_of_service"],
-            professional_or_business_service=self.data.get("professional_or_business_service", ""),
+            professional_or_business_services=self.data.get("professional_or_business_services").get(
+                "professional_or_business_services"
+            ),
             service_activities=self.data["service_activities"]["service_activities"],
             purpose_of_provision=self.data["purpose_of_provision"]["purpose_of_provision"],
             held_existing_licence=self.data["previous_licence"]["held_existing_licence"],

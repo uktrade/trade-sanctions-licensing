@@ -69,7 +69,7 @@ class WhichSanctionsRegimeForm(BaseForm):
 
 class ProfessionalOrBusinessServicesForm(BaseModelForm):
     form_h1_header = "What are the professional or business services you want to provide?"
-    professional_or_business_service = forms.MultipleChoiceField(
+    professional_or_business_services = forms.MultipleChoiceField(
         label=False,
         help_text=("Select all that apply"),
         widget=forms.CheckboxSelectMultiple,
@@ -82,12 +82,12 @@ class ProfessionalOrBusinessServicesForm(BaseModelForm):
 
     class Meta:
         model = Licence
-        fields = ["professional_or_business_service"]
+        fields = ["professional_or_business_services"]
 
     def get_professional_or_business_service_display(self):
         display = []
-        for professional_or_business_service in self.cleaned_data["professional_or_business_service"]:
-            display += [dict(self.fields["professional_or_business_service"].choices)[professional_or_business_service]]
+        for professional_or_business_service in self.cleaned_data["professional_or_business_services"]:
+            display += [dict(self.fields["professional_or_business_services"].choices)[professional_or_business_service]]
         display = ",\n".join(display)
         return display
 
