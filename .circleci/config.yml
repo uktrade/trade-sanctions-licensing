@@ -10,7 +10,8 @@ commands:
       - run:
          name: Install Python dependencies
          command: |
-             pip install pipenv && pipenv install --dev
+             pip install pipenv
+             pipenv install --dev
 
   restore_dependency_cache:
     description: "Restore dependency cache."
@@ -76,12 +77,16 @@ jobs:
             DATABASE_URI: "psql://postgres:password@127.0.0.1:5432/apply_for_a_licence"
             AWS_DEFAULT_REGION: eu-west-2
             AWS_ENDPOINT_URL: http://localhost:4566
+            LOCALSTACK_PORT: 4566
             TEMPORARY_S3_BUCKET_NAME: temporary-document-bucket
             TEMPORARY_S3_BUCKET_ACCESS_KEY_ID: test
             TEMPORARY_S3_BUCKET_SECRET_ACCESS_KEY: test
             PERMANENT_S3_BUCKET_NAME: permanent-document-bucket
             PERMANENT_S3_BUCKET_ACCESS_KEY_ID: test
             PERMANENT_S3_BUCKET_SECRET_ACCESS_KEY: test
+            HEADLESS: true
+            DJANGO_ALLOW_ASYNC_UNSAFE: true
+            SAVE_VIDEOS: true
         - image: cimg/postgres:16.1
           environment:
             POSTGRES_USER: postgres
@@ -104,6 +109,7 @@ jobs:
               pipenv run awslocal s3api put-bucket-cors --bucket permanent-document-bucket --cors-configuration file://./aws/cors.json
         - run: git submodule sync
         - run: git submodule update --init
+
         - run:
             name: Check missing migrations (changes to models that haven't been added to migrations)
             command: pipenv run python django_app/manage.py makemigrations --check --dry-run --settings=config.settings.local
@@ -111,12 +117,27 @@ jobs:
         - run:
             name: Run tests and save coverage report
             command: |
-              pipenv run pytest tests/test_unit --cov=django_app --cov-branch --cov-report=json --junitxml=test-results/unit-test-results.xml
-
-        - codecov/upload
+              pipenv run pytest tests/test_unit --cov=django_app --cov-branch --cov-report=json --junitxml=test-results/unit/results.xml
 
         - store_test_results:
             path: test-results
+
+        - codecov/upload
+
+        - run:
+            name: Run front-end tests
+            # we don't run frontend tests with coverage as only unit tests should affect coverage
+            command: |
+              sudo tee -a /etc/hosts \<<<'127.0.0.1 apply-for-a-licence'
+              pipenv run playwright install --with-deps firefox
+              pipenv run pytest tests/test_frontend --browser firefox --junitxml=test-results/frontend/results.xml --create-db
+
+        - store_test_results:
+            path: test-results
+
+        - store_artifacts:
+            # save the frontend test videos
+            path: video-test-results
 
 workflows:
   build_and_test:

@@ -55,8 +55,8 @@ class BaseSettings(PydanticBaseSettings):
     presigned_url_expiry_seconds: int = 3600
 
     # Django sites
-    apply_for_a_licence_domain: str = "apply-for-a-licence"
-    view_a_licence_domain: str = "view-a-licence"
+    apply_for_a_licence_domain: str = "apply-for-a-licence:8000"
+    view_a_licence_domain: str = "view-a-licence:8000"
 
     apply_for_a_licence_extra_domain: str = ""
     view_a_licence_extra_domain: str = ""
@@ -115,6 +115,11 @@ class LocalSettings(BaseSettings):
     database_uri: str = Field(alias="DATABASE_URL")
     profiling_enabled: bool = False
     localstack_port: int = 24566
+
+
+class TestSettings(LocalSettings):
+    headless: bool = False
+    save_videos: bool = False  # Save videos of the tests
 
 
 class GovPaasSettings(BaseSettings):
@@ -229,14 +234,17 @@ class DBTPlatformSettings(BaseSettings):
 
 if "CIRCLECI" in os.environ:
     # CircleCI, don't validate
-    # There's a funny issue with capitalisation here, so we casefold() everything in the environ so we can match it to
-    # the properties in the settings models. Everything except for DATABASE_URL which is case sensitive.
-    env = LocalSettings.model_construct(
+    # There's a funny issue with capitalisation here, so we casefold() everything in the environ, so we can match it to
+    # the properties in the settings models. Everything except for DATABASE_URL which is case-sensitive.
+    env = TestSettings.model_construct(
         **{key if key == "DATABASE_URL" else key.casefold(): value for key, value in os.environ.items()}
     )
-elif os.environ.get("DJANGO_SETTINGS_MODULE", "") in ["config.settings.local", "config.settings.test"]:
+elif os.environ.get("DJANGO_SETTINGS_MODULE", "") == "config.settings.local":
     # Local development
     env = LocalSettings()
+elif os.environ.get("DJANGO_SETTINGS_MODULE", "") == "config.settings.test":
+    # Testing
+    env = TestSettings()
 elif "COPILOT_ENVIRONMENT_NAME" in os.environ:
     # Deployed on DBT Platform
     env = DBTPlatformSettings()
