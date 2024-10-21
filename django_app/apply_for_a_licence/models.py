@@ -27,7 +27,7 @@ class Licence(BaseModel):
         blank=False,
     )
     type_of_service = models.CharField(choices=choices.TypeOfServicesChoices.choices)
-    professional_or_business_service = models.CharField()
+    professional_or_business_service = models.CharField(null=True, blank=True)
     service_activities = models.TextField()
     description_provision = models.TextField(blank=True, null=True)
     purpose_of_provision = models.TextField(blank=True, null=True)
