@@ -107,6 +107,14 @@ class Licence(BaseModel):
         else:
             return []
 
+    def get_professional_or_business_services_display(self) -> list[str]:
+        if self.professional_or_business_services:
+            return [
+                choices.ProfessionalOrBusinessServicesChoices[value].label for value in self.professional_or_business_services
+            ]
+        else:
+            return []
+
 
 class UserEmailVerification(BaseModelID):
     user_session = models.ForeignKey(Session, on_delete=models.CASCADE)
