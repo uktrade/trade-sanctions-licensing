@@ -199,7 +199,6 @@ EMAIL_VERIFY_CODE_TEMPLATE_ID = env.email_verify_code_template_id
 NEW_OTSI_USER_TEMPLATE_ID = env.new_otsi_user_template_id
 PUBLIC_USER_NEW_APPLICATION_TEMPLATE_ID = env.public_user_new_application_template_id
 OTSI_NEW_APPLICATION_TEMPLATE_ID = env.otsi_new_application_template_id
-RESTRICT_SENDING = env.restrict_sending  # if True, only send to whitelisted domains
 if "," in env.new_application_alert_recipients:  # check if multiple recipients
     NEW_APPLICATION_ALERT_RECIPIENTS = env.new_application_alert_recipients.split(",")
 else:
@@ -223,24 +222,19 @@ GTM_ENABLED = env.gtm_enabled
 GTM_ID = env.gtm_id
 
 # Authentication - SSO
-ENFORCE_STAFF_SSO = env.enforce_staff_sso
+AUTHENTICATION_BACKENDS = [
+    "auth.view_portal_auth.ViewPortalAuth",
+]
+AUTHBROKER_URL = env.authbroker_url
+AUTHBROKER_CLIENT_ID = env.authbroker_client_id
+AUTHBROKER_CLIENT_SECRET = env.authbroker_client_secret
+AUTHBROKER_TOKEN_SESSION_KEY = env.authbroker_token_session_key
+AUTHBROKER_STAFF_SSO_SCOPE = env.authbroker_staff_sso_scope
 
-if ENFORCE_STAFF_SSO:
-    AUTHENTICATION_BACKENDS = [
-        "auth.view_portal_auth.ViewPortalAuth",
-    ]
-    AUTHBROKER_URL = env.authbroker_url
-    AUTHBROKER_CLIENT_ID = env.authbroker_client_id
-    AUTHBROKER_CLIENT_SECRET = env.authbroker_client_secret
-    AUTHBROKER_TOKEN_SESSION_KEY = env.authbroker_token_session_key
-    AUTHBROKER_STAFF_SSO_SCOPE = env.authbroker_staff_sso_scope
+OAUTHLIB_INSECURE_TRANSPORT = env.oauthlib_insecure_transport
 
-    OAUTHLIB_INSECURE_TRANSPORT = env.oauthlib_insecure_transport
-
-    LOGIN_URL = reverse_lazy("authbroker_client:login")
-    LOGIN_REDIRECT_URL = reverse_lazy("view_a_licence:application_list")
-else:
-    LOGIN_URL = "/admin/login"
+LOGIN_URL = reverse_lazy("authbroker_client:login")
+LOGIN_REDIRECT_URL = reverse_lazy("view_a_licence:application_list")
 
 TRUNCATE_WORDS_LIMIT = 30
 

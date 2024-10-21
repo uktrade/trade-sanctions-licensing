@@ -1,12 +1,16 @@
 import os
 import re
+from unittest import mock
 
+import notifications_python_client
+import pytest
 from core.sites import SiteName
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import override_settings
 from django.test.testcases import LiveServerTestCase
 from playwright.sync_api import expect, sync_playwright
+from utils import notifier
 
 from tests.test_frontend.fixtures import data
 
@@ -304,3 +308,10 @@ class LicensingGroundsBase(PlaywrightTestBase):
         page.get_by_label("What is your purpose for").fill("Test purpose")
         page.get_by_role("button", name="Continue").click()
         page.get_by_role("button", name="Continue").click()
+
+
+@pytest.fixture(autouse=True)
+def patched_send_email(monkeypatch):
+    """We don't want to send emails when running front-end tests"""
+    mock_notifications_api_client = mock.create_autospec(notifications_python_client.notifications.NotificationsAPIClient)
+    monkeypatch.setattr(notifier, "NotificationsAPIClient", mock_notifications_api_client)

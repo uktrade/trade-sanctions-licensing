@@ -29,7 +29,6 @@ class BaseSettings(PydanticBaseSettings):
     new_otsi_user_template_id: str = ""
     public_user_new_application_template_id: str = ""
     otsi_new_application_template_id: str = ""
-    restrict_sending: bool = True
     email_verify_timeout_seconds: int = 3600
     new_application_alert_recipients: str = "email@example.com"
 
@@ -62,7 +61,6 @@ class BaseSettings(PydanticBaseSettings):
     view_a_licence_extra_domain: str = ""
 
     # SSO
-    enforce_staff_sso: bool = False
     authbroker_url: str = ""
     authbroker_client_id: str = ""
     authbroker_client_secret: str = ""

@@ -11,7 +11,7 @@ from tests.test_frontend.conftest import (
 
 
 class TestAddBusiness(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
-    """Tests for the business journey"""
+    """Tests for the business journey."""
 
     def test_third_party_located_in_uk(self):
         self.page.goto(self.base_url)
