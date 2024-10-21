@@ -11,7 +11,6 @@ from view_a_licence.utils import craft_view_a_licence_url
 class ActiveUserRequiredMixin:
     def dispatch(self, request: HttpRequest, **kwargs: object) -> HttpResponse:
         if not request.user.is_active:
-            print("user is not active")
             admin_url = craft_view_a_licence_url(reverse("view_a_licence:manage_users") + "#pending")
             user_login_datetime = f"{datetime.now():%Y-%m-%d %H:%M:%S%z}"
             for user in User.objects.filter(is_staff=True):
