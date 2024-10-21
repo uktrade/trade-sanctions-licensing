@@ -104,6 +104,7 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
 @method_decorator(ratelimit(key="ip", rate=settings.RATELIMIT, method="POST", block=False), name="post")
 class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
     form_class = forms.DoYouKnowTheRegisteredCompanyNumberForm
+    template_name = "apply_for_a_licence/form_steps/conditional_radios_form.html"
     redirect_after_post = False
 
     def form_valid(self, form: forms.DoYouKnowTheRegisteredCompanyNumberForm) -> HttpResponse:
@@ -139,6 +140,11 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
         return success_url
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        context = super().get_context_data()
+        context["page_title"] = "Registered Company Number"
+        return context
 
 
 class ManualCompaniesHouseInputView(BaseFormView):
