@@ -28,6 +28,10 @@ class TestDoYouKnowTheRegisteredCompanyNumber:
         )
         assert response.url == reverse("where_is_the_business_located")
 
+    def test_get_context_data(self, al_client):
+        response = al_client.get(reverse("do_you_know_the_registered_company_number"))
+        assert response.context["page_title"] == "Registered Company Number"
+
 
 class TestBusinessAddedView:
     def test_do_not_add_business_successful_post(self, al_client):
