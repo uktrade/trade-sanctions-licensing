@@ -20,10 +20,9 @@ urlpatterns = [
     path("accessibility-statement", generic_views.AccessibilityStatementView.as_view(), name="accessibility_statement"),
 ]
 
-if settings.ENFORCE_STAFF_SSO:
-    urlpatterns.append(
-        path("auth/", include("authbroker_client.urls")),
-    )
+urlpatterns.append(
+    path("auth/", include("authbroker_client.urls")),
+)
 
 if "debug_toolbar" in settings.INSTALLED_APPS:
     # checking if we have debug_toolbar installed
