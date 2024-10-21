@@ -127,8 +127,10 @@ class DeclarationView(BaseFormView):
                 context={"application_number": new_licence_object.reference, "url": view_application_url},
             )
 
-        # Successfully saved to DB - clear session ready for new application
-        self.request.session.flush()
+        # Successfully saved to DB - clear session ready for new application.
+        # only do this if we're not in debug mode, sometimes nice to back and re-submit
+        if not settings.DEBUG:
+            self.request.session.flush()
 
         self.request.session["licence_reference"] = new_licence_object.reference
         self.request.session["applicant_email"] = new_licence_object.applicant_user_email_address

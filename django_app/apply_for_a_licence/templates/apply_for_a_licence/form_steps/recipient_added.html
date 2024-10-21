@@ -11,7 +11,7 @@
     {% for id, recipient in request.session.recipients.items %}
         <div class="action-wrapper">
             <div>
-                <h3 class="govuk-heading-m" style="float:left;">Recipient {{ forloop.counter }} </h3>
+                <h2 class="govuk-heading-m" style="float:left;">Recipient {{ forloop.counter }} </h2>
                 <ul class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         {% if recipient.cleaned_data.country == "GB" %}

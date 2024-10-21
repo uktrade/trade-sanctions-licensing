@@ -1,4 +1,11 @@
 EMAIL_DETAILS = {"email": "test@digital.gov.uk", "verify_code": "012345"}
+
+YOUR_DETAILS = {
+    "full_name": "Test full name",
+    "business": "Test business",
+    "role": "Test role",
+}
+
 UK_ADDRESS_DETAILS = {
     "name": "business",
     "website": "example.com",

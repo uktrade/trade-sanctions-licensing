@@ -22,14 +22,14 @@
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Full name</dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value" data-testid="your-details-name">
                     {{ form_data.your_details.applicant_full_name }}
                 </dd>
             </div>
             {% if form_data.your_details.applicant_business %}
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Business you work for</dt>
-                    <dd class="govuk-summary-list__value">
+                    <dd class="govuk-summary-list__value" data-testid="your-details-business">
                         {{ form_data.your_details.applicant_business }}
                     </dd>
                 </div>
@@ -37,7 +37,7 @@
             {% if form_data.your_details.applicant_role %}
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Your role</dt>
-                    <dd class="govuk-summary-list__value">
+                    <dd class="govuk-summary-list__value" data-testid="your-details-role">
                         {{ form_data.your_details.applicant_role }}
                     </dd>
                 </div>
@@ -45,11 +45,11 @@
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Are you a third party?</dt>
                 {% if form_data.are_you_third_party.are_you_applying_on_behalf_of_someone_else %}
-                    <dd class="govuk-summary-list__value">
+                    <dd class="govuk-summary-list__value" data-testid="your-details-third-party">
                         Yes
                     </dd>
                 {% else %}
-                    <dd class="govuk-summary-list__value">
+                    <dd class="govuk-summary-list__value" data-testid="your-details-third-party">
                         No
                     </dd>
                 {% endif %}
@@ -84,13 +84,13 @@
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Business name</dt>
-                    <dd class="govuk-summary-list__value">
+                    <dd class="govuk-summary-list__value" data-testid="who-the-licence-covers-name">
                         {{ business.cleaned_data.name }}
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Address</dt>
-                    <dd class="govuk-summary-list__value">
+                    <dd class="govuk-summary-list__value" data-testid="who-the-licence-covers-address">
                         {% include "apply_for_a_licence/partials/truncated_text.html" with text=business.cleaned_data.readable_address|linebreaksbr %}
                     </dd>
                 </div>
@@ -116,19 +116,19 @@
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Name</dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value" data-testid="who-the-licence-covers-name">
                     {{ form_data.add_yourself.first_name }} {{ form_data.add_yourself.last_name }}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Connection to the UK</dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value" data-testid="who-the-licence-covers-connection">
                     {{ form_data.add_yourself.nationality }}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Address</dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value"  data-testid="who-the-licence-covers-address">
                     {{ request.session.your_address.cleaned_data.readable_address | linebreaksbr }}
                 </dd>
             </div>
@@ -193,19 +193,19 @@
                     <dl class="govuk-summary-list">
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Name</dt>
-                            <dd class="govuk-summary-list__value">
+                            <dd class="govuk-summary-list__value" data-testid="who-the-licence-covers-name">
                                 {{ individual.name_data.cleaned_data.first_name }} {{ individual.name_data.cleaned_data.last_name }}
                             </dd>
                         </div>
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Connection to the UK</dt>
-                            <dd class="govuk-summary-list__value">
+                            <dd class="govuk-summary-list__value" data-testid="who-the-licence-covers-connection">
                                 {{ individual.name_data.cleaned_data.nationality }}
                             </dd>
                         </div>
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Address</dt>
-                            <dd class="govuk-summary-list__value">
+                            <dd class="govuk-summary-list__value" data-testid="who-the-licence-covers-address">
                                 {% include "apply_for_a_licence/partials/truncated_text.html" with text=individual.address_data.cleaned_data.readable_address|linebreaksbr %}
                             </dd>
                         </div>
@@ -257,7 +257,7 @@
     <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Previous licence</dt>
-            <dd class="govuk-summary-list__value">
+            <dd class="govuk-summary-list__value" data-testid="previous-licence">
                 {{ form_data.previous_licence.held_existing_licence | capfirst }}
             </dd>
         </div>
@@ -274,7 +274,7 @@
     <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">What type of services do you want to provide?</dt>
-            <dd class="govuk-summary-list__value">
+            <dd class="govuk-summary-list__value" data-testid="services-type">
                 {{ forms.type_of_service.instance.get_type_of_service_display }}
             </dd>
             <dd class="govuk-summary-list__actions">
@@ -310,7 +310,7 @@
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                 Describe the specific activities within the services you want to provide
             </dt>
-            <dd class="govuk-summary-list__value">
+            <dd class="govuk-summary-list__value" data-testid="services-description">
                 {% include "apply_for_a_licence/partials/truncated_text.html" with text=form_data.service_activities.service_activities|linebreaksbr %}
             </dd>
             <dd class="govuk-summary-list__actions">
@@ -319,11 +319,11 @@
             </dd>
         </div>
     </dl>
-    <h3 class="govuk-heading-m">Recipients of the services</h3>
+    <h2 class="govuk-heading-m">Recipients of the services</h2>
     {% if request.session.recipients %}
         {% for id, recipient in request.session.recipients.items %}
             <div class="action-wrapper">
-                <h2 class="govuk-heading-s" style="float:left">Recipient {{ forloop.counter }}</h2>
+                <h3 class="govuk-heading-s" style="float:left">Recipient {{ forloop.counter }}</h3>
                 <dl class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         <a class="govuk-link"
@@ -334,7 +334,7 @@
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Name and address</dt>
-                    <dd class="govuk-summary-list__value">
+                    <dd class="govuk-summary-list__value" data-testid="recipient-name-and-address">
                         {{ recipient.cleaned_data.name }}
                         <br>
                         <br>
@@ -361,7 +361,7 @@
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                         Relationship between the provider of the services and the recipient
                     </dt>
-                    <dd class="govuk-summary-list__value">
+                    <dd class="govuk-summary-list__value" data-testid="recipient-relationship">
                         {{ recipient.relationship }}
                     </dd>
                 </div>
@@ -383,11 +383,11 @@
                 {% else %}
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Licensing grounds</dt>
                 {% endif %}
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value" data-testid="licensing-grounds">
                     {% include "apply_for_a_licence/partials/truncated_text.html" with text=forms.licensing_grounds.get_licensing_grounds_display|linebreaksbr %}
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    {% if form_data.professional_or_business_services.professional_or_business_service|length == 1 and form_data.professional_or_business_services.professional_or_business_service|first == 'legal_advisory' %}
+                    {% if form_data.professional_or_business_services.professional_or_business_services|length == 1 and form_data.professional_or_business_services.professional_or_business_services|first == 'legal_advisory' %}
                         <a class="govuk-link"
                            href="{% url 'licensing_grounds' %}?redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">licensing grounds for the relevant activity</span></a>
                     {% else %}
@@ -413,7 +413,7 @@
         {% endif %}
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Purpose for providing the services</dt>
-            <dd class="govuk-summary-list__value">
+            <dd class="govuk-summary-list__value" data-testid="purpose">
                 {% include "apply_for_a_licence/partials/truncated_text.html" with text=form_data.purpose_of_provision.purpose_of_provision|linebreaksbr %}
             </dd>
             <dd class="govuk-summary-list__actions">
@@ -423,7 +423,7 @@
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Upload supporting documents</dt>
-            <dd class="govuk-summary-list__value">
+            <dd class="govuk-summary-list__value" data-testid="supporting-documents">
                 {% if not session_files.items %}
                     None uploaded
                 {% else %}
@@ -441,6 +441,7 @@
     </dl>
     <a class="govuk-button"
        data-module="govuk-button"
+       data-testid="continue_button"
        href="{% url 'declaration' %}">Continue</a>
 {% endblock form_content %}
 {% block extra_js %}
