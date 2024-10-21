@@ -68,7 +68,6 @@ class WhichSanctionsRegimeForm(BaseForm):
 
 
 class ProfessionalOrBusinessServicesForm(BaseModelForm):
-    form_h1_header = "What are the professional or business services you want to provide?"
     professional_or_business_services = forms.MultipleChoiceField(
         label=False,
         help_text=("Select all that apply"),
@@ -90,6 +89,20 @@ class ProfessionalOrBusinessServicesForm(BaseModelForm):
             display += [dict(self.fields["professional_or_business_services"].choices)[professional_or_business_service]]
         display = ",\n".join(display)
         return display
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            Fieldset(
+                Field.checkboxes(
+                    "professional_or_business_services",
+                    label="What are the professional or business services you want to provide?",
+                ),
+                legend="What are the professional or business services you want to provide?",
+                legend_size="l",
+                legend_tag="h1",
+            )
+        )
 
 
 class ServiceActivitiesForm(BaseModelForm):
