@@ -185,3 +185,5 @@ fabric.properties
 /static/
 /pgdata/
 /video-test-results/
+
+.DS_Store
