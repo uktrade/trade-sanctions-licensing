@@ -59,7 +59,7 @@ class TestViewApplicationView:
         User.objects.create_user("Polly", "staff@example.com", is_staff=True, is_active=True)
 
         licence = LicenceFactory()
-        response = vl_client.get(reverse("view_a_licence:view_application", kwargs={"pk": licence.pk}))
+        response = vl_client.get(reverse("view_a_licence:view_application", kwargs={"reference": licence.reference}))
         assert response.status_code == 200
         mock_email.assert_not_called()
 
@@ -75,13 +75,13 @@ class TestViewApplicationView:
         User.objects.create_user("Polly", "staff@example.com", is_staff=True, is_active=True)
 
         licence = LicenceFactory()
-        response = vl_client.get(reverse("view_a_licence:view_application", kwargs={"pk": licence.pk}))
+        response = vl_client.get(reverse("view_a_licence:view_application", kwargs={"reference": licence.reference}))
         assert response.status_code == 401
         assert "Not authorised to" in response.content.decode()
         mock_email.assert_called_once()
 
     def test_anonymous_user(self, vl_client, licence):
-        response = vl_client.get(reverse("view_a_licence:view_application", kwargs={"pk": licence.pk}))
+        response = vl_client.get(reverse("view_a_licence:view_application", kwargs={"reference": licence.reference}))
 
         # we should be redirected to the login page
         assert response.status_code == 302

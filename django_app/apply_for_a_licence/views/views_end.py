@@ -118,7 +118,7 @@ class DeclarationView(BaseFormView):
 
         # Send confirmation email to OTSI staff
         view_application_url = craft_view_a_licence_url(
-            reverse("view_a_licence:view_application", kwargs={"pk": new_licence_object.pk})
+            reverse("view_a_licence:view_application", kwargs={"reference": new_licence_object.reference})
         )
         for email in settings.NEW_APPLICATION_ALERT_RECIPIENTS:
             send_email(

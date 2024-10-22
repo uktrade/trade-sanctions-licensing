@@ -28,7 +28,7 @@
 
     {% for licence_application in object_list %}
         <h3 class="govuk-heading-s govuk-!-margin-bottom-2">
-            <a href="{% url 'view_a_licence:view_application' pk=licence_application.pk %}" class="govuk-link">
+            <a href="{% url 'view_a_licence:view_application' reference=licence_application.reference %}" class="govuk-link">
                 View licence application reference: {{ licence_application.reference }}
             </a></h3>
         <div class="govuk-body">

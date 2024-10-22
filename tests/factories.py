@@ -1,8 +1,10 @@
 import random
+import string
 
 import factory
 from apply_for_a_licence.models import Individual, Licence, Organisation
 from django.contrib.auth.models import User
+from factory.fuzzy import FuzzyText
 
 
 class ModelFieldLazyChoice(factory.LazyFunction):
@@ -38,6 +40,7 @@ class LicenceFactory(factory.django.DjangoModelFactory):
     applicant_full_name = factory.Faker("name")
     applicant_business = factory.Faker("company")
     applicant_role = factory.Faker("job")
+    reference = FuzzyText(length=4, chars=string.ascii_uppercase + string.digits)
 
 
 class OrganisationFactory(factory.django.DjangoModelFactory):

@@ -51,14 +51,15 @@ class ProfessionalOrBusinessServicesView(BaseFormView):
         if self.request.GET.get("update", None) == "yes":
             self.redirect_after_post = False
 
-        # We need separate logic here as only want to go through the full update flow for pbs if it's actually changed.
-        if self.changed_fields.get("professional_or_business_services", False):
+        # We need separate logic here if coming from CYA as we
+        # only want to go through the full update flow for pbs if it's actually changed.
+        if self.changed_fields.get("professional_or_business_services", False) and "redirect_to_url" in self.request.GET:
             self.redirect_after_post = False
             url_params = "update=yes"
 
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + url_params + "&" + get_parameters
-        else:
+        elif url_params:
             success_url += "?" + url_params
         return success_url
 
