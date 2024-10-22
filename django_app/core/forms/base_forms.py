@@ -57,7 +57,7 @@ class BaseForm(forms.Form):
         self.helper.layout = Layout(*self.fields)
 
         # clearing the form data if 'change' is passed as a query parameter, and it's a GET request
-        if self.request and self.request.method == "GET" and self.request.GET.get("change"):
+        if self.request and self.request.method == "GET" and (self.request.GET.get("change") or self.request.GET.get("update")):
             self.is_bound = False
 
 

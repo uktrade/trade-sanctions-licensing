@@ -49,14 +49,8 @@ class LicensingGroundsView(BaseFormView):
             self.request.session["licensing_grounds_legal_advisory"] = {}
             self.success_url = reverse("purpose_of_provision")
 
-        url_params = ""
-        if self.request.GET.get("redirect_to_url", ""):
-            url_params = "update=yes"
-
         if get_parameters := urllib.parse.urlencode(self.request.GET):
-            self.success_url += "?" + url_params + "&" + get_parameters
-        else:
-            self.success_url += "?" + url_params
+            self.success_url += "?" + get_parameters
 
         return self.success_url
 
