@@ -1,4 +1,7 @@
-from apply_for_a_licence.choices import ProfessionalOrBusinessServicesChoices
+from apply_for_a_licence.choices import (
+    LicensingGroundsChoices,
+    ProfessionalOrBusinessServicesChoices,
+)
 from django.urls import reverse
 
 
@@ -35,6 +38,23 @@ class TestLicensingGroundsView:
         response = al_client.get(reverse("licensing_grounds"))
         form = response.context["form"]
         assert form.audit_service_selected
+
+    def test_get_success_url_legal_advisory(self, al_client):
+        session = al_client.session
+        session["professional_or_business_services"] = {
+            "professional_or_business_services": [
+                ProfessionalOrBusinessServicesChoices.legal_advisory.value,
+                ProfessionalOrBusinessServicesChoices.auditing.value,
+            ]
+        }
+        session.save()
+
+        response = al_client.post(reverse("licensing_grounds"), data={"licensing_grounds": LicensingGroundsChoices.safety.value})
+        assert response.url == reverse("licensing_grounds_legal_advisory")
+
+    def test_get_success_url_purpose_of_provision(self, al_client):
+        response = al_client.post(reverse("licensing_grounds"), data={"licensing_grounds": LicensingGroundsChoices.safety.value})
+        assert response.url == reverse("purpose_of_provision")
 
 
 class TestLicensingGroundsLegalAdvisoryView:
