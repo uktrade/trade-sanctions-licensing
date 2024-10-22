@@ -65,3 +65,8 @@ class TestLicensingGroundsLegalAdvisoryView:
             form.form_h1_header == "For the other services you want to provide (excluding legal advisory), "
             "which of these licensing grounds describes your purpose for providing them?"
         )
+
+    def test_get_form_kwargs_update(self, al_client):
+        response = al_client.get(reverse("licensing_grounds_legal_advisory") + "?update=yes")
+        form = response.context["form"]
+        assert not form.is_bound

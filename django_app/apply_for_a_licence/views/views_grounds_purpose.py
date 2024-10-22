@@ -77,7 +77,8 @@ class LicensingGroundsLegalAdvisoryView(BaseFormView):
 
         if self.request.GET.get("update", ""):
             # clear the session data if the user is coming from the CYA page
-            self.request.session.pop("licensing_grounds_legal_advisory", {})
+            if self.request.session.get("licensing_grounds_legal_advisory", ""):
+                self.request.session.pop("licensing_grounds_legal_advisory")
         return kwargs
 
 
