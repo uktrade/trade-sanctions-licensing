@@ -88,7 +88,8 @@ class ViewALicenceApplicationView(LoginRequiredMixin, ActiveUserRequiredMixin, D
     template_name = "view_a_licence/view_a_licence_application.html"
     context_object_name = "licence"
     model = Licence
-    slug_url_kwarg = "pk"
+    slug_url_kwarg = "reference"
+    slug_field = "reference"
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)

@@ -10,7 +10,7 @@ from tests.test_frontend.conftest import (
 
 
 class TestProfessionalServices(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
-    """Tests that the professional services are saved correctly."""
+    """Tests that the professional services are saved correctly"""
 
     def test_professional_business_services_saved(self):
         self.page.goto(self.base_url)
