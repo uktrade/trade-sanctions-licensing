@@ -1,3 +1,5 @@
+import uuid
+
 from apply_for_a_licence.choices import (
     NationalityAndLocation,
     WhoDoYouWantTheLicenceToCoverChoices,
@@ -32,7 +34,7 @@ class TestIndividualAddedView:
             data={"do_you_want_to_add_another_individual": True},
         )
         assert "individual-details" in response.url
-        assert "?new=yes" in response.url
+        assert "?change=yes" in response.url
 
 
 class TestDeleteIndividualView:
@@ -93,7 +95,7 @@ class TestAddAnIndividualView:
             reverse(
                 "add_an_individual",
                 kwargs={
-                    "individual_uuid": "individual1",
+                    "individual_uuid": uuid.uuid4(),
                 },
             )
             + "?redirect_to_url=check_your_answers&new=yes",
