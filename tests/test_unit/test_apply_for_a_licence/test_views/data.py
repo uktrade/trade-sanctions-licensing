@@ -36,6 +36,7 @@ individuals = {
             "cleaned_data": {
                 "first_name": "Recipient",
                 "last_name": "1",
+                "nationality_and_location": "uk_national_uk_location",
             },
             "dirty_data": {
                 "first_name": "Recipient",
@@ -65,6 +66,7 @@ individuals = {
             "cleaned_data": {
                 "first_name": "Recipient",
                 "last_name": "2",
+                "nationality_and_location": "uk_national_non_uk_location",
             },
             "dirty_data": {
                 "first_name": "Recipient",
