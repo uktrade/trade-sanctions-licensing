@@ -1,5 +1,9 @@
+from unittest.mock import patch
+
 import pytest
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.models import (
+    Document,
     Individual,
     Organisation,
     Session,
@@ -139,9 +143,130 @@ def test_save_recipients(request_object):
     )
     save_object.save_licence()
     save_object.save_recipient()
-    licence_recipients = Organisation.objects.filter(licence=save_object.licence_object.id)
+    licence_recipients = Organisation.objects.filter(
+        licence=save_object.licence_object.id,
+        type_of_relationship=TypeOfRelationshipChoices.recipient,
+    )
     assert save_object.licence_object.recipients.count() == 2
     assert licence_recipients[0].name == "Recipient 1"
     assert licence_recipients[0].relationship_provider == "friends"
     assert licence_recipients[1].name == "Recipient 2"
     assert licence_recipients[1].relationship_provider == "suppliers"
+
+
+@pytest.mark.django_db
+def test_save_business(request_object):
+    user_email_address = "test@testmail.com"
+    request_object.session["user_email_address"] = user_email_address
+    request_object.session.save()
+    verify_code = "012345"
+    user_session = Session.objects.get(session_key=request_object.session.session_key)
+    UserEmailVerification.objects.create(
+        user_session=user_session,
+        email_verification_code=verify_code,
+        verified=True,
+    )
+
+    request_object.session["businesses"] = data.businesses
+    save_object = SaveToDB(
+        request_object,
+        data=data.cleaned_data,
+        is_individual=False,
+        is_on_companies_house=False,
+        is_third_party=False,
+    )
+    save_object.save_licence()
+    save_object.save_business()
+    licence_business = Organisation.objects.filter(
+        licence=save_object.licence_object.id,
+        type_of_relationship=TypeOfRelationshipChoices.business,
+    )
+    assert len(licence_business) == 3
+    assert licence_business[0].name == "Business 1"
+    assert licence_business[0].country == "AX"
+    assert licence_business[1].name == "Business 2"
+    assert licence_business[1].town_or_city == "City"
+    assert licence_business[2].name == "Companies House Business"
+    assert licence_business[2].registered_company_number == "12345678"
+    assert licence_business[2].registered_office_address == "Address Line 1, GB"
+
+
+@pytest.mark.django_db
+def test_save_business_employing_individual(request_object):
+    user_email_address = "test@testmail.com"
+    request_object.session["user_email_address"] = user_email_address
+    user_email_address = "test@testmail.com"
+    request_object.session["user_email_address"] = user_email_address
+    request_object.session.save()
+    verify_code = "012345"
+    user_session = Session.objects.get(session_key=request_object.session.session_key)
+    UserEmailVerification.objects.create(
+        user_session=user_session,
+        email_verification_code=verify_code,
+        verified=True,
+    )
+
+    cleaned_data_business_employing_individual = data.cleaned_data
+    cleaned_data_business_employing_individual["business_employing_individual"]["name"] = "John Smith"
+    cleaned_data_business_employing_individual["business_employing_individual"]["address_line_1"] = "42 Wallaby Way"
+    cleaned_data_business_employing_individual["business_employing_individual"]["country"] = "AU"
+    cleaned_data_business_employing_individual["business_employing_individual"]["town_or_city"] = "Sydney"
+
+    save_object = SaveToDB(
+        request_object,
+        data=data.cleaned_data,
+        is_individual=True,
+        is_on_companies_house=False,
+        is_third_party=False,
+    )
+    save_object.save_licence()
+    save_object.save_business()
+    licence_business = Organisation.objects.filter(
+        licence=save_object.licence_object.id,
+        type_of_relationship=TypeOfRelationshipChoices.named_individuals,
+    )
+    assert len(licence_business) == 1
+    assert licence_business[0].name == "John Smith"
+    assert licence_business[0].country == "AU"
+
+
+@patch("utils.save_to_db.store_document_in_permanent_bucket")
+@patch("utils.save_to_db.get_all_session_files")
+@pytest.mark.django_db
+def test_save_document(mocked_get_all_session_files, mocked_store_document_in_permanent_bucket, request_object):
+    user_email_address = "test@testmail.com"
+    request_object.session["user_email_address"] = user_email_address
+    user_email_address = "test@testmail.com"
+    request_object.session["user_email_address"] = user_email_address
+    request_object.session.save()
+    verify_code = "012345"
+    user_session = Session.objects.get(session_key=request_object.session.session_key)
+    UserEmailVerification.objects.create(
+        user_session=user_session,
+        email_verification_code=verify_code,
+        verified=True,
+    )
+
+    save_object = SaveToDB(
+        request_object,
+        data=data.cleaned_data,
+        is_individual=False,
+        is_on_companies_house=False,
+        is_third_party=False,
+    )
+    save_object.save_licence()
+    mocked_get_all_session_files.return_value = {
+        user_session: {
+            "file_name": "file.pdf",
+            "url": "file_url",
+        }
+    }
+    mocked_store_document_in_permanent_bucket.return_value = "file.pdf"
+    save_object.save_documents()
+    documents = Document.objects.filter(
+        licence=save_object.licence_object.id,
+    )
+
+    assert len(documents) == 1
+    assert documents[0].file.name == "file.pdf"
+    assert "file.pdf" in documents[0].file.url

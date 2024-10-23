@@ -100,3 +100,23 @@ recipients = {
         "relationship": "suppliers",
     },
 }
+
+businesses = {
+    "business1": {"cleaned_data": {"name": "Business 1", "country": "AX", "address_line_1": "AL1", "town_or_city": "Town"}},
+    "business2": {
+        "cleaned_data": {
+            "name": "Business 2",
+            "country": "GB",
+            "address_line_1": "Line 1",
+            "town_or_city": "City",
+        }
+    },
+    "business3": {
+        "cleaned_data": {
+            "companies_house": "yes",
+            "name": "Companies House Business",
+            "company_number": "12345678",
+            "readable_address": "Address Line 1, GB",
+        }
+    },
+}
