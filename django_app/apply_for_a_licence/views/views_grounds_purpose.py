@@ -1,4 +1,5 @@
 import logging
+import urllib
 
 from apply_for_a_licence.choices import ProfessionalOrBusinessServicesChoices
 from apply_for_a_licence.forms import forms_grounds_purpose as forms
@@ -42,11 +43,16 @@ class LicensingGroundsView(BaseFormView):
             and len(self.professional_or_business_services_data) > 1
         ):
             # the user has selected 'Legal advisory' as well as other services, redirect them to the legal advisory page
-            return reverse("licensing_grounds_legal_advisory")
+            self.success_url = reverse("licensing_grounds_legal_advisory")
         else:
             # delete form data for legal advisory grounds
             self.request.session["licensing_grounds_legal_advisory"] = {}
-            return reverse("purpose_of_provision")
+            self.success_url = reverse("purpose_of_provision")
+
+        if get_parameters := urllib.parse.urlencode(self.request.GET):
+            self.success_url += "?" + get_parameters
+
+        return self.success_url
 
 
 class LicensingGroundsLegalAdvisoryView(BaseFormView):
@@ -68,6 +74,11 @@ class LicensingGroundsLegalAdvisoryView(BaseFormView):
         }
         if set(self.professional_or_business_services_data) == auditing_and_legal_only:
             kwargs["audit_service_selected"] = True
+
+        if self.request.GET.get("update", ""):
+            # clear the session data if the user is coming from the CYA page
+            if self.request.session.get("licensing_grounds_legal_advisory", ""):
+                self.request.session.pop("licensing_grounds_legal_advisory")
         return kwargs
 
 
