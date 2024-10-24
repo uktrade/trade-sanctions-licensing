@@ -15,8 +15,7 @@ from tests.test_unit.test_utils import data
 
 
 @pytest.mark.django_db
-def test_save_basic_licence(request_object):
-
+def save_a_licence(request_object, is_individual, is_on_companies_house, is_third_party, cleaned_data=data.cleaned_data):
     user_email_address = "test@testmail.com"
     request_object.session["user_email_address"] = user_email_address
     request_object.session.save()
@@ -30,11 +29,18 @@ def test_save_basic_licence(request_object):
 
     save_object = SaveToDB(
         request_object,
-        data=data.cleaned_data,
-        is_individual=False,
-        is_on_companies_house=False,
-        is_third_party=False,
+        data=cleaned_data,
+        is_individual=is_individual,
+        is_on_companies_house=is_on_companies_house,
+        is_third_party=is_third_party,
     )
+
+    return save_object
+
+
+@pytest.mark.django_db
+def test_save_basic_licence(request_object):
+    save_object = save_a_licence(request_object, is_individual=False, is_on_companies_house=False, is_third_party=False)
     licence = save_object.save_licence()
     assert licence.is_third_party is False
     assert licence.applicant_role == data.cleaned_data["your_details"]["applicant_role"]
@@ -44,25 +50,8 @@ def test_save_basic_licence(request_object):
 
 @pytest.mark.django_db
 def test_save_individuals(request_object):
-    user_email_address = "test@testmail.com"
-    request_object.session["user_email_address"] = user_email_address
-    request_object.session.save()
-    verify_code = "012345"
-    user_session = Session.objects.get(session_key=request_object.session.session_key)
-    UserEmailVerification.objects.create(
-        user_session=user_session,
-        email_verification_code=verify_code,
-        verified=True,
-    )
-
     request_object.session["individuals"] = data.individuals
-    save_object = SaveToDB(
-        request_object,
-        data=data.cleaned_data,
-        is_individual=False,
-        is_on_companies_house=False,
-        is_third_party=False,
-    )
+    save_object = save_a_licence(request_object, is_individual=False, is_on_companies_house=False, is_third_party=False)
     save_object.save_licence()
     save_object.save_individuals()
     licence_individuals = Individual.objects.filter(licence=save_object.licence_object.id)
@@ -77,17 +66,6 @@ def test_save_individuals(request_object):
 
 @pytest.mark.django_db
 def test_save_myself(request_object):
-    user_email_address = "test@testmail.com"
-    request_object.session["user_email_address"] = user_email_address
-    request_object.session.save()
-    verify_code = "012345"
-    user_session = Session.objects.get(session_key=request_object.session.session_key)
-    UserEmailVerification.objects.create(
-        user_session=user_session,
-        email_verification_code=verify_code,
-        verified=True,
-    )
-
     request_object.session["individuals"] = data.individuals
     cleaned_data_myself = data.cleaned_data
     cleaned_data_myself["start"]["who_do_you_want_the_licence_to_cover"] = "myself"
@@ -98,13 +76,10 @@ def test_save_myself(request_object):
     cleaned_data_myself["add_yourself_address"]["postcode"] = "MM1 1MM"
     cleaned_data_myself["add_yourself_address"]["country"] = "GB"
 
-    save_object = SaveToDB(
-        request_object,
-        data=cleaned_data_myself,
-        is_individual=False,
-        is_on_companies_house=False,
-        is_third_party=False,
+    save_object = save_a_licence(
+        request_object, is_individual=False, is_on_companies_house=False, is_third_party=False, cleaned_data=cleaned_data_myself
     )
+
     save_object.save_licence()
     save_object.save_individuals()
     licence_individuals = Individual.objects.filter(licence=save_object.licence_object.id)
@@ -122,25 +97,8 @@ def test_save_myself(request_object):
 
 @pytest.mark.django_db
 def test_save_recipients(request_object):
-    user_email_address = "test@testmail.com"
-    request_object.session["user_email_address"] = user_email_address
-    request_object.session.save()
-    verify_code = "012345"
-    user_session = Session.objects.get(session_key=request_object.session.session_key)
-    UserEmailVerification.objects.create(
-        user_session=user_session,
-        email_verification_code=verify_code,
-        verified=True,
-    )
-
     request_object.session["recipients"] = data.recipients
-    save_object = SaveToDB(
-        request_object,
-        data=data.cleaned_data,
-        is_individual=False,
-        is_on_companies_house=False,
-        is_third_party=False,
-    )
+    save_object = save_a_licence(request_object, is_individual=False, is_on_companies_house=False, is_third_party=False)
     save_object.save_licence()
     save_object.save_recipient()
     licence_recipients = Organisation.objects.filter(
@@ -156,25 +114,9 @@ def test_save_recipients(request_object):
 
 @pytest.mark.django_db
 def test_save_business(request_object):
-    user_email_address = "test@testmail.com"
-    request_object.session["user_email_address"] = user_email_address
-    request_object.session.save()
-    verify_code = "012345"
-    user_session = Session.objects.get(session_key=request_object.session.session_key)
-    UserEmailVerification.objects.create(
-        user_session=user_session,
-        email_verification_code=verify_code,
-        verified=True,
-    )
-
     request_object.session["businesses"] = data.businesses
-    save_object = SaveToDB(
-        request_object,
-        data=data.cleaned_data,
-        is_individual=False,
-        is_on_companies_house=False,
-        is_third_party=False,
-    )
+
+    save_object = save_a_licence(request_object, is_individual=False, is_on_companies_house=False, is_third_party=False)
     save_object.save_licence()
     save_object.save_business()
     licence_business = Organisation.objects.filter(
@@ -193,31 +135,18 @@ def test_save_business(request_object):
 
 @pytest.mark.django_db
 def test_save_business_employing_individual(request_object):
-    user_email_address = "test@testmail.com"
-    request_object.session["user_email_address"] = user_email_address
-    user_email_address = "test@testmail.com"
-    request_object.session["user_email_address"] = user_email_address
-    request_object.session.save()
-    verify_code = "012345"
-    user_session = Session.objects.get(session_key=request_object.session.session_key)
-    UserEmailVerification.objects.create(
-        user_session=user_session,
-        email_verification_code=verify_code,
-        verified=True,
-    )
 
     cleaned_data_business_employing_individual = data.cleaned_data
     cleaned_data_business_employing_individual["business_employing_individual"]["name"] = "John Smith"
     cleaned_data_business_employing_individual["business_employing_individual"]["address_line_1"] = "42 Wallaby Way"
     cleaned_data_business_employing_individual["business_employing_individual"]["country"] = "AU"
     cleaned_data_business_employing_individual["business_employing_individual"]["town_or_city"] = "Sydney"
-
-    save_object = SaveToDB(
+    save_object = save_a_licence(
         request_object,
-        data=data.cleaned_data,
         is_individual=True,
         is_on_companies_house=False,
         is_third_party=False,
+        cleaned_data=cleaned_data_business_employing_individual,
     )
     save_object.save_licence()
     save_object.save_business()
@@ -234,26 +163,9 @@ def test_save_business_employing_individual(request_object):
 @patch("utils.save_to_db.get_all_session_files")
 @pytest.mark.django_db
 def test_save_document(mocked_get_all_session_files, mocked_store_document_in_permanent_bucket, request_object):
-    user_email_address = "test@testmail.com"
-    request_object.session["user_email_address"] = user_email_address
-    user_email_address = "test@testmail.com"
-    request_object.session["user_email_address"] = user_email_address
-    request_object.session.save()
-    verify_code = "012345"
     user_session = Session.objects.get(session_key=request_object.session.session_key)
-    UserEmailVerification.objects.create(
-        user_session=user_session,
-        email_verification_code=verify_code,
-        verified=True,
-    )
+    save_object = save_a_licence(request_object, is_individual=True, is_on_companies_house=False, is_third_party=False)
 
-    save_object = SaveToDB(
-        request_object,
-        data=data.cleaned_data,
-        is_individual=False,
-        is_on_companies_house=False,
-        is_third_party=False,
-    )
     save_object.save_licence()
     mocked_get_all_session_files.return_value = {
         user_session: {
