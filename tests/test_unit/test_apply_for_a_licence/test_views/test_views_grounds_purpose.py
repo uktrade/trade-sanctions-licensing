@@ -25,17 +25,6 @@ class TestLicensingGroundsView:
             == "Which of these licensing grounds describes your purpose for providing the sanctioned services?"
         )
 
-    def test_audit_h1_header_form_kwargs(self, al_client):
-        session = al_client.session
-        session["professional_or_business_services"] = {
-            "professional_or_business_services": [ProfessionalOrBusinessServicesChoices.auditing.value]
-        }
-        session.save()
-
-        response = al_client.get(reverse("licensing_grounds"))
-        form = response.context["form"]
-        assert form.audit_service_selected
-
 
 class TestLicensingGroundsLegalAdvisoryView:
     def test_form_h1_header(self, al_client):

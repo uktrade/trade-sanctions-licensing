@@ -93,6 +93,13 @@ class LicensingGroundsChoices(models.TextChoices):
     food = "food", "Services in connection with the production or distribution of food for the benefit of the civilian population"
 
 
+class DecommissionedLicensingGroundsChoices(models.TextChoices):
+    parent_or_subsidiary_company = (
+        "parent_or_subsidiary_company",
+        "Services to a person connected with Russia by a UK parent company or UK subsidiary of that parent company",
+    )
+
+
 class TypeOfRelationshipChoices(models.TextChoices):
     recipient = "recipient", "Recipient"
     business = "business", "Business"
