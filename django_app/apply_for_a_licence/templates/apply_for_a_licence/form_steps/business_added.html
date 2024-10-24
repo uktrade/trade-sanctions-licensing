@@ -2,11 +2,11 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 
 
-{% block title %}You've added {{ request.session.businesses.keys|length }} business{% if request.session.businesses.keys|length > 1 %}es{% endif %}{% endblock title %}
+{% block title %}You've added {{ request.session.businesses.keys|length }} business{% if request.session.businesses.keys|length > 1 or request.session.businesses.keys|length == 0 %}es{% endif %}{% endblock title %}
 
 {% block column_content %}
     <h1 class="govuk-heading-l">
-        You've added {{ request.session.businesses.keys|length }} business{% if request.session.businesses.keys|length > 1 %}es{% endif %}
+        You've added {{ request.session.businesses.keys|length }} business{% if request.session.businesses.keys|length > 1 or request.session.businesses.keys|length == 0 %}es{% endif %}
     </h1>
     {% for id, business in request.session.businesses.items %}
         <div class="action-wrapper">
@@ -19,11 +19,11 @@
                             class="govuk-visually-hidden"> Business {{forloop.counter}} details </span></a>
                     {% elif business.cleaned_data.country == "GB" %}
                         <a class="govuk-link govuk-summary-list__action govuk-!-font-weight-regular" style="font-size: 19px; text-align:right"
-                           href="{% url 'add_a_business' location='in-uk' %}?business_uuid={{ id }}">Change<span
+                           href="{% url 'add_a_business' location='in-uk' business_uuid=id %}">Change<span
                             class="govuk-visually-hidden"> Business {{forloop.counter}} details </span></a>
                     {% else %}
                         <a class="govuk-link govuk-summary-list__action govuk-!-font-weight-regular" style="font-size: 19px; text-align:right"
-                           href="{% url 'add_a_business' location='outside-uk' %}?business_uuid={{ id }}">Change<span
+                           href="{% url 'add_a_business' location='outside-uk' business_uuid=id %}">Change<span
                             class="govuk-visually-hidden"> Business {{forloop.counter}} details </span></a>
                     {% endif %}
                 </ul>

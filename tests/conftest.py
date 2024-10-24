@@ -62,6 +62,7 @@ def request_object(al_client: Client):
 @pytest.fixture()
 def post_request_object(request_object):
     request_object.method = "POST"
+    request_object.FILES = {}
     return request_object
 
 

@@ -11,7 +11,7 @@ from tests.test_frontend.conftest import (
 
 
 class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
-    """Test making a change on Check Your Answers"""
+    """Test making a change on Check Your Answers."""
 
     def test_cya_changes(self):
         self.page.goto(self.base_url)

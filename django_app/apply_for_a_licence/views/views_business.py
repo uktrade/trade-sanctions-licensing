@@ -4,6 +4,7 @@ import uuid
 from typing import Any, Dict
 
 from apply_for_a_licence.forms import forms_business as forms
+from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
 from core.views.base_views import BaseFormView
 from django.conf import settings
 from django.http import HttpResponse
@@ -15,24 +16,15 @@ from django_ratelimit.decorators import ratelimit
 logger = logging.getLogger(__name__)
 
 
-class AddABusinessView(BaseFormView):
-    template_name = "core/base_form_step.html"
+class AddABusinessView(AddAnEntityView):
     success_url = reverse_lazy("business_added")
     redirect_after_post = False
+    session_key = "businesses"
+    url_parameter_key = "business_uuid"
 
     def setup(self, request, *args, **kwargs):
         self.location = kwargs["location"]
         return super().setup(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-
-        # restore the form data from the business_uuid, if it exists
-        if self.request.method == "GET":
-            if business_uuid := self.request.GET.get("business_uuid", None):
-                if businesses_dict := self.request.session.get("businesses", {}).get(business_uuid, None):
-                    kwargs["data"] = businesses_dict["dirty_data"]
-        return kwargs
 
     def get_form_class(self):
         if self.location == "in-uk":
@@ -40,18 +32,6 @@ class AddABusinessView(BaseFormView):
         else:
             form_class = forms.AddANonUKBusinessForm
         return form_class
-
-    def form_valid(self, form: forms.AddAUKBusinessForm | forms.AddANonUKBusinessForm) -> HttpResponse:
-        current_businesses = self.request.session.get("businesses", {})
-        # get the business_uuid if it exists, otherwise create it
-        if business_uuid := self.request.GET.get("business_uuid", self.kwargs.get("business_uuid", str(uuid.uuid4()))):
-            # used to display the business_uuid data in business_added.html
-            current_businesses[business_uuid] = {
-                "cleaned_data": form.cleaned_data,
-                "dirty_data": form.data,
-            }
-        self.request.session["businesses"] = current_businesses
-        return super().form_valid(form)
 
 
 class BusinessAddedView(BaseFormView):
@@ -73,15 +53,10 @@ class BusinessAddedView(BaseFormView):
             return reverse("previous_licence")
 
 
-class DeleteBusinessView(BaseFormView):
-    def post(self, *args: object, **kwargs: object) -> HttpResponse:
-        businesses = self.request.session.get("businesses", [])
-        # at least one business must be added
-        if len(businesses) > 1:
-            if business_uuid := self.request.POST.get("business_uuid"):
-                businesses.pop(business_uuid, None)
-                self.request.session["businesses"] = businesses
-        return redirect(reverse_lazy("business_added"))
+class DeleteBusinessView(DeleteAnEntityView):
+    session_key = "businesses"
+    url_parameter_key = "business_uuid"
+    success_url = reverse_lazy("business_added")
 
 
 class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
@@ -94,7 +69,7 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
         if answer == "yes":
             success_url = reverse("do_you_know_the_registered_company_number")
         else:
-            success_url = reverse("where_is_the_business_located")
+            success_url = reverse("where_is_the_business_located", kwargs={"business_uuid": uuid.uuid4()})
 
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
@@ -135,7 +110,7 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
             else:
                 success_url = reverse("check_company_details", kwargs={"business_uuid": self.business_uuid})
         else:
-            success_url = reverse("where_is_the_business_located")
+            success_url = reverse("where_is_the_business_located", kwargs={"business_uuid": uuid.uuid4()})
 
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
@@ -153,7 +128,7 @@ class ManualCompaniesHouseInputView(BaseFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["manual_companies_house_input"]
-        return reverse("add_a_business", kwargs={"location": location})
+        return reverse("add_a_business", kwargs={"location": location, "business_uuid": uuid.uuid4()})
 
 
 class CheckCompanyDetailsView(BaseFormView):
@@ -174,7 +149,7 @@ class WhereIsTheBusinessLocatedView(BaseFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
-        success_url = reverse("add_a_business", kwargs={"location": location})
+        success_url = reverse("add_a_business", kwargs={"location": location, "business_uuid": self.kwargs["business_uuid"]})
 
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters

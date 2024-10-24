@@ -2,11 +2,11 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 
 
-{% block title %}You've added {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 %}s{% endif %}{% endblock title %}
+{% block title %}You've added {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 or request.session.individuals.keys|length == 0 %}s{% endif %}{% endblock title %}
 
 {% block column_content %}
     <h1 class="govuk-heading-l">
-        You've added {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 %}s{% endif %}
+        You've added {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 or request.session.individuals.keys|length == 0 %}s{% endif %}
     </h1>
     {% for id, individual in request.session.individuals.items %}
         <div class="action-wrapper">
