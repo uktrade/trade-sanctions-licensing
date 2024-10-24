@@ -90,12 +90,11 @@ class YourselfAndIndividualAddedView(BaseFormView):
     def get_success_url(self):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
-            individual_uuid = str(uuid.uuid4())
             return (
                 reverse(
                     "add_an_individual",
                     kwargs={
-                        "individual_uuid": individual_uuid,
+                        "individual_uuid": uuid.uuid4(),
                     },
                 )
                 + "?change=yes"

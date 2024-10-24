@@ -68,3 +68,24 @@ class TestAddBusiness(StartBase, ProviderBase, RecipientBase, LicensingGroundsBa
         self.page.get_by_role("button", name="Remove business 1").click()
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         expect(self.page.get_by_role("heading", name="You've added 1 business")).to_be_visible()
+
+    def test_back_button_doesnt_duplicate(self):
+        self.page.goto(self.base_url)
+        self.business_third_party(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/your-details"))
+        self.provider_business_located_in_uk(self.page)
+
+        expect(self.page.get_by_role("heading", name="You've added 1 business")).to_be_visible()
+
+        self.page.go_back()
+        self.page.go_back()
+        self.page.go_back()
+
+        # now let's go forward again
+        self.page.go_forward()
+        self.page.go_forward()
+        self.page.go_forward()
+
+        # we still should see only 1 business, no duplicate created
+        expect(self.page).to_have_url(re.compile(r".*/add-business"))
+        expect(self.page.get_by_role("heading", name="You've added 1 business")).to_be_visible()

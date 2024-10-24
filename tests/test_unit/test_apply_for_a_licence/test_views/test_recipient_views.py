@@ -1,3 +1,5 @@
+import uuid
+
 from apply_for_a_licence.choices import TypeOfServicesChoices
 from django.test import RequestFactory
 from django.urls import reverse
@@ -8,8 +10,10 @@ from . import data
 class TestAddRecipientView:
     def test_successful_post(self, al_client):
         assert al_client.session.get("recipients") is None
-        response = al_client.post(
-            reverse("add_a_recipient", kwargs={"location": "in-uk"}),
+        recipient_uuid = str(uuid.uuid4())
+
+        al_client.post(
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid}),
             data={
                 "name": "COOL BEANS LTD",
                 "email": "thisismyemail@obviously.com",
@@ -21,7 +25,6 @@ class TestAddRecipientView:
             follow=True,
         )
 
-        recipient_uuid = response.resolver_match.kwargs["recipient_uuid"]
         recipients = al_client.session.get("recipients")
         assert len(recipients) == 1
 
@@ -33,7 +36,8 @@ class TestAddRecipientView:
 
     def test_redirect_after_post(self, al_client):
         response = al_client.post(
-            reverse("add_a_recipient", kwargs={"location": "in-uk"}) + "?redirect_to_url=check_your_answers",
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": uuid.uuid4()})
+            + "?redirect_to_url=check_your_answers",
             data={
                 "name": "COOL BEANS LTD",
                 "email": "thisismyemail@obviously.com",
@@ -46,7 +50,8 @@ class TestAddRecipientView:
         assert reverse("check_your_answers") in response.url
 
         response = al_client.post(
-            reverse("add_a_recipient", kwargs={"location": "in-uk"}) + "?redirect_to_url=check_your_answers&change=yes",
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": uuid.uuid4()})
+            + "?redirect_to_url=check_your_answers&change=yes",
             data={
                 "name": "COOL BEANS LTD",
                 "email": "thisismyemail@obviously.com",
@@ -119,11 +124,8 @@ class TestRecipientAddedView:
         )
         assert response.url == reverse("purpose_of_provision")
 
-        response = al_client.post(
-            reverse("recipient_added"),
-            data={"do_you_want_to_add_another_recipient": "True"},
-        )
-        assert response.url == reverse("where_is_the_recipient_located") + "?change=yes"
+        response = al_client.post(reverse("recipient_added"), data={"do_you_want_to_add_another_recipient": "True"}, follow=True)
+        assert response.wsgi_request.path == reverse("where_is_the_recipient_located", kwargs=response.resolver_match.kwargs)
 
         session = al_client.session
         session["type_of_service"] = {"type_of_service": TypeOfServicesChoices.professional_and_business.value}

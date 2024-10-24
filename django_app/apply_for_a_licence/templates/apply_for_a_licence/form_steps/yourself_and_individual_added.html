@@ -2,10 +2,10 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 
 
-{% block title %}You've added yourself {% if request.session.individuals.keys|length > 0 %} plus {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 %}s{% endif %}{% endif %} to the licence{% endblock title %}
+{% block title %}You've added yourself {% if request.session.individuals.keys|length > 0 %} plus {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 or request.session.individuals.keys|length == 0 %}s{% endif %}{% endif %} to the licence{% endblock title %}
 {% block column_content %}
     <h1 class="govuk-heading-l">
-        You've added yourself {% if request.session.individuals.keys|length > 0 %} plus {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 %}s{% endif %}{% endif %} to the licence    </h1>
+        You've added yourself {% if request.session.individuals.keys|length > 0 %} plus {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 or request.session.individuals.keys|length == 0 %}s{% endif %}{% endif %} to the licence    </h1>
     <div class="action-wrapper">
         <div>
             <h2 class="govuk-heading-m" style="float:left;">Your details </h2>

@@ -7,9 +7,11 @@ from . import data
 class TestIsTheBusinessRegisteredWithCompaniesHouse:
     def test_business_not_registered_successful_post(self, al_client):
         response = al_client.post(
-            reverse("is_the_business_registered_with_companies_house"), data={"business_registered_on_companies_house": "no"}
+            reverse("is_the_business_registered_with_companies_house"),
+            data={"business_registered_on_companies_house": "no"},
+            follow=True,
         )
-        assert response.url == reverse("where_is_the_business_located")
+        assert reverse("where_is_the_business_located", kwargs=response.resolver_match.kwargs) in response.wsgi_request.path
 
     def test_business_registered_successful_post(self, al_client):
         response = al_client.post(
@@ -24,9 +26,11 @@ class TestDoYouKnowTheRegisteredCompanyNumber:
 
     def test_do_not_know_the_registered_company_number_successful_post(self, al_client):
         response = al_client.post(
-            reverse("do_you_know_the_registered_company_number"), data={"do_you_know_the_registered_company_number": "no"}
+            reverse("do_you_know_the_registered_company_number"),
+            data={"do_you_know_the_registered_company_number": "no"},
+            follow=True,
         )
-        assert response.url == reverse("where_is_the_business_located")
+        assert reverse("where_is_the_business_located", kwargs=response.resolver_match.kwargs) in response.wsgi_request.path
 
     def test_get_context_data(self, al_client):
         response = al_client.get(reverse("do_you_know_the_registered_company_number"))

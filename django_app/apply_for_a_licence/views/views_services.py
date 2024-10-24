@@ -1,5 +1,6 @@
 import logging
 import urllib.parse
+import uuid
 
 from apply_for_a_licence.choices import TypeOfServicesChoices
 from apply_for_a_licence.forms import forms_services as forms
@@ -83,7 +84,7 @@ class ServiceActivitiesView(BaseFormView):
     form_class = forms.ServiceActivitiesForm
 
     def get_success_url(self) -> str:
-        success_url = reverse("where_is_the_recipient_located")
+        success_url = reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()})
 
         if self.request.GET.get("update", None) == "yes":
             self.redirect_after_post = False
