@@ -33,7 +33,6 @@ class LicensingGroundsForm(BaseForm):
         self.checkbox_choices = self.fields["licensing_grounds"].choices
 
         for choice in choices.DecommissionedLicensingGroundsChoices.choices:
-            print(choice)
             self.checkbox_choices.remove(
                 (
                     choice[0],
