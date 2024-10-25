@@ -32,6 +32,14 @@ class LicensingGroundsForm(BaseForm):
         error_messages = self.fields["licensing_grounds"].error_messages
         self.checkbox_choices = self.fields["licensing_grounds"].choices
 
+        for choice in choices.DecommissionedLicensingGroundsChoices.choices:
+            self.checkbox_choices.remove(
+                (
+                    choice[0],
+                    choice[1],
+                )
+            )
+
         # Create the 'or' divider between the last choice and I do not know
         last_checkbox_value = self.checkbox_choices[-1][0]
         last_checkbox_label = self.checkbox_choices[-1][1]

@@ -76,6 +76,10 @@ class LicensingGroundsChoices(models.TextChoices):
         "Services necessary for non-Russian persons to divest from Russia, or to wind down business operations in Russia",
     )
     humanitarian = "humanitarian", "The delivery of humanitarian assistance activity"
+    parent_or_subsidiary_company = (
+        "parent_or_subsidiary_company",
+        "Services to a person connected with Russia by a UK parent company or UK subsidiary of that parent company",
+    )
     medical_and_pharmaceutical = (
         "medical_and_pharmaceutical",
         "Medical and pharmaceutical purposes for the benefit of the civilian population",
@@ -87,6 +91,13 @@ class LicensingGroundsChoices(models.TextChoices):
         "safety of existing infrastructure, or the environment",
     )
     food = "food", "Services in connection with the production or distribution of food for the benefit of the civilian population"
+
+
+class DecommissionedLicensingGroundsChoices(models.TextChoices):
+    parent_or_subsidiary_company = (
+        "parent_or_subsidiary_company",
+        "Services to a person connected with Russia by a UK parent company or UK subsidiary of that parent company",
+    )
 
 
 class TypeOfRelationshipChoices(models.TextChoices):
