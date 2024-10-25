@@ -69,7 +69,7 @@ class AddARecipientView(AddAnEntityView):
         return super().setup(request, *args, **kwargs)
 
     def get_form(self, form_class=None):
-        # overriding this method to ensure the form is not pre-populated if the user is coming from a CYA page
+        # ensure the form is not bound if the user has changed the recipients location
         form = super().get_form(form_class)
         if self.request.method == "GET":
             if self.request.GET.get("change", ""):
