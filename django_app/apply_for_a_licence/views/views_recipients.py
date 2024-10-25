@@ -26,12 +26,23 @@ class WhereIsTheRecipientLocatedView(BaseFormView):
 
     def form_valid(self, form: forms.WhereIsTheRecipientLocatedForm) -> HttpResponse:
         recipient_uuid = str(self.kwargs["recipient_uuid"])
+
+        # first time a recipient is created
         if not self.request.session.get("recipient_locations", ""):
             self.request.session["recipient_locations"] = {
                 recipient_uuid: {"location": form.cleaned_data["where_is_the_address"], "changed": False}
             }
             return super().form_valid(form)
 
+        # new recipient is added
+        if recipient_uuid not in self.request.session["recipient_locations"].keys():
+            self.request.session["recipient_locations"][recipient_uuid] = {
+                "location": form.cleaned_data["where_is_the_address"],
+                "changed": False,
+            }
+            return super().form_valid(form)
+
+        # recipient data is changing
         if self.request.GET.get("change"):
             recipient_data = self.request.session["recipient_locations"][recipient_uuid]
             past_choice = recipient_data["location"]
