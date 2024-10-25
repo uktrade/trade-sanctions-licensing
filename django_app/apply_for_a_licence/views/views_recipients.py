@@ -40,6 +40,17 @@ class AddARecipientView(AddAnEntityView):
         self.location = kwargs["location"]
         return super().setup(request, *args, **kwargs)
 
+    def get_form(self, form_class=None):
+        # overriding this method to ensure the form is not pre-populated if the user is coming from a CYA page
+        form = super().get_form(form_class)
+        if self.request.method == "GET":
+            if self.request.GET.get("change", ""):
+                form.is_bound = False
+                recipient_uuid = str(self.kwargs["recipient_uuid"])
+                if self.request.session.get("recipients", {}).get(recipient_uuid, ""):
+                    del self.request.session["recipients"][recipient_uuid]
+        return form
+
     def get_form_class(self) -> [forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm]:
         if self.location == "in-uk":
             form_class = forms.AddAUKRecipientForm

@@ -14,15 +14,9 @@
                 <h2 class="govuk-heading-m" style="float:left;">Recipient {{ forloop.counter }} </h2>
                 <ul class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
-                        {% if recipient.cleaned_data.country == "GB" %}
-                            <a class="govuk-link" style="font-size: 19px; text-align:right"
-                               href="{% url 'add_a_recipient' location='in-uk' recipient_uuid=id %}">Change<span
-                                class="govuk-visually-hidden"> recipient {{forloop.counter}} details </span></a>
-                        {% else %}
-                            <a class="govuk-link" style="font-size: 19px; text-align:right"
-                               href="{% url 'add_a_recipient' location='outside-uk' recipient_uuid=id %}">Change<span
-                                class="govuk-visually-hidden"> recipient {{forloop.counter}} details </span></a>
-                        {% endif %}
+                        <a class="govuk-link" style="font-size: 19px; text-align:right"
+                           href="{% url 'where_is_the_recipient_located' recipient_uuid=id %}?change=yes">Change<span
+                            class="govuk-visually-hidden"> recipient {{forloop.counter}} details </span></a>
                     </dd>
                 </ul>
             </div>
