@@ -66,7 +66,6 @@ class DeclarationView(BaseFormView):
         is_on_companies_house = False
         is_third_party = False
         business_employing_individual = False
-
         if cleaned_data["start"]["who_do_you_want_the_licence_to_cover"] == "myself":
             is_myself = True
             cleaned_data["add_yourself_address"] = self.request.session["add_yourself_address"]

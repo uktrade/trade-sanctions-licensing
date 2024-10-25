@@ -67,5 +67,20 @@ def post_request_object(request_object):
 
 
 @pytest.fixture()
+def licence_request_object(request_object):
+    steps = [
+        "start",
+        "is_the_business_registered_with_companies_house",
+        "are_you_third_party",
+        "add_yourself_address",
+        "do_you_know_the_registered_company_number",
+    ]
+    for step in steps:
+        request_object.session[step] = {}
+
+    return request_object
+
+
+@pytest.fixture()
 def licence():
     return LicenceFactory()
