@@ -66,6 +66,12 @@ class ProfessionalOrBusinessServicesChoices(models.TextChoices):
 
 
 class LicensingGroundsChoices(models.TextChoices):
+
+    @classmethod
+    def active_choices(cls):
+        deactive_choices = ["parent_or_subsidiary_company"]
+        return [choice for choice in LicensingGroundsChoices.choices if choice[0] not in deactive_choices]
+
     civil_society = (
         "civil_society",
         "Civil society activities that directly promote democracy, human rights or the rule of law in Russia",
@@ -91,13 +97,6 @@ class LicensingGroundsChoices(models.TextChoices):
         "safety of existing infrastructure, or the environment",
     )
     food = "food", "Services in connection with the production or distribution of food for the benefit of the civilian population"
-
-
-class DecommissionedLicensingGroundsChoices(models.TextChoices):
-    parent_or_subsidiary_company = (
-        "parent_or_subsidiary_company",
-        "Services to a person connected with Russia by a UK parent company or UK subsidiary of that parent company",
-    )
 
 
 class TypeOfRelationshipChoices(models.TextChoices):
