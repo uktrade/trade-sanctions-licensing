@@ -7,6 +7,12 @@ YES_NO_CHOICES = (
 )
 
 
+class BaseChoices(models.TextChoices):
+    @classmethod
+    def active_choices(cls):
+        return [choice for choice in cls.choices if choice[0] not in cls.deactive_choices]
+
+
 class WhoDoYouWantTheLicenceToCoverChoices(models.TextChoices):
     business = "business", "A business or businesses with a UK nexus"
     individual = "individual", "Named individuals with a UK nexus working for a business with no UK nexus"
@@ -65,12 +71,8 @@ class ProfessionalOrBusinessServicesChoices(models.TextChoices):
     public_relations = "public_relations", "Public relations"
 
 
-class LicensingGroundsChoices(models.TextChoices):
-
-    @classmethod
-    def active_choices(cls):
-        deactive_choices = ["parent_or_subsidiary_company"]
-        return [choice for choice in LicensingGroundsChoices.choices if choice[0] not in deactive_choices]
+class LicensingGroundsChoices(BaseChoices):
+    deactive_choices = ["parent_or_subsidiary_company"]
 
     civil_society = (
         "civil_society",
