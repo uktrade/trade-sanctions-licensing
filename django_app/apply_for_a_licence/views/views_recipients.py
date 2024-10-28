@@ -73,10 +73,11 @@ class AddARecipientView(AddAnEntityView):
         form = super().get_form(form_class)
         if self.request.method == "GET" and self.request.GET.get("change", ""):
             recipient_uuid = str(self.kwargs["recipient_uuid"])
-            if self.request.session.get("recipient_locations", "").get(recipient_uuid)["changed"]:
-                form.is_bound = False
-                if self.request.session.get("recipients", {}).get(recipient_uuid, ""):
-                    del self.request.session["recipients"][recipient_uuid]
+            if recipients := self.request.session.get("recipient_locations", {}):
+                if recipients.get(recipient_uuid, {}).get("changed", ""):
+                    form.is_bound = False
+                    if self.request.session.get("recipients", {}).get(recipient_uuid, ""):
+                        del self.request.session["recipients"][recipient_uuid]
             else:
                 form.is_bound = True
                 self.kwargs = self.get_form_kwargs()

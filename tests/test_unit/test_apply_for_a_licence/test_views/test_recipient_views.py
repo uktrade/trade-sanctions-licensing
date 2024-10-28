@@ -63,6 +63,45 @@ class TestAddRecipientView:
         )
         assert "provider-recipient-relationship" in response.url
 
+    def test_get_form_new_recipient(self, al_client):
+        response = al_client.get(reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": uuid.uuid4()}))
+        assert response.context["form"].is_bound is False
+        assert response.status_code == 200
+
+    def test_get_form_is_not_bound_different_location(self, al_client):
+        recipient_uuid = uuid.uuid4()
+        session = al_client.session
+        session["recipient_locations"] = {
+            str(recipient_uuid): {
+                "location": "in-uk",
+                "changed": True,
+            }
+        }
+        session.save()
+
+        response = al_client.get(
+            reverse("add_a_recipient", kwargs={"location": "outside-uk", "recipient_uuid": recipient_uuid}) + "?change=yes"
+        )
+        assert response.context["form"].is_bound is False
+        assert response.status_code == 200
+
+    def get_form_is_bound_same_location(self, al_client):
+        recipient_uuid = uuid.uuid4()
+        session = al_client.session
+        session["recipient_locations"] = {
+            str(recipient_uuid): {
+                "location": "in-uk",
+                "changed": False,
+            }
+        }
+        session.save()
+
+        response = al_client.get(
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid}) + "?change=yes"
+        )
+        assert response.context["form"].is_bound
+        assert response.status_code == 200
+
 
 class TestDeleteRecipientView:
     def test_successful_post(self, al_client):
