@@ -83,7 +83,7 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
     redirect_after_post = False
 
     def form_valid(self, form: forms.DoYouKnowTheRegisteredCompanyNumberForm) -> HttpResponse:
-        # Want to add companies house businesses to the business list
+        # we want to add companies house businesses to the business list
         current_businesses = self.request.session.get("businesses", {})
         # get the business_uuid if it exists, otherwise create it
         self.business_uuid = self.request.GET.get("business_uuid", str(uuid.uuid4()))
