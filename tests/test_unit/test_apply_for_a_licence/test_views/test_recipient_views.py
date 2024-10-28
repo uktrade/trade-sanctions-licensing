@@ -85,7 +85,7 @@ class TestAddRecipientView:
         assert response.context["form"].is_bound is False
         assert response.status_code == 200
 
-    def get_form_is_bound_same_location(self, al_client):
+    def test_get_form_is_bound_same_location(self, al_client):
         recipient_uuid = uuid.uuid4()
         session = al_client.session
         session["recipient_locations"] = {

@@ -77,7 +77,7 @@ class AddARecipientView(AddAnEntityView):
         if self.request.method == "GET" and self.request.GET.get("change", ""):
             if recipients := self.request.session.get("recipient_locations", {}):
 
-                # recipient location has changed from in/out of UK, clear the form
+                # recipient location has changed, clear the form
                 if recipients.get(recipient_uuid, {}).get("changed", ""):
                     form.is_bound = False
 
@@ -85,10 +85,9 @@ class AddARecipientView(AddAnEntityView):
                     if self.request.session.get("recipients", {}).get(recipient_uuid, ""):
                         del self.request.session["recipients"][recipient_uuid]
 
-            # recipient has not changed from in/out of UK
-            else:
-                form.is_bound = True
-                self.kwargs = self.get_form_kwargs()
+                # recipient has not changed location choice
+                else:
+                    form.is_bound = True
 
         # the user submitted the form, update "changed" in order to wipe the slate
         elif self.request.method == "POST":
