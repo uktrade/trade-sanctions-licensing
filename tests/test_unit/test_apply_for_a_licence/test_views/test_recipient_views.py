@@ -169,3 +169,44 @@ class TestRelationshipProviderRecipientView:
             reverse("relationship_provider_recipient", kwargs={"recipient_uuid": "recipientNA"}),
         )
         assert not response.context["form"].is_bound
+
+
+class TestWhereIsTheRecipientLocatedView:
+    def test_form_valid(self, al_client):
+        # first recipient
+        first_recipient_uuid = uuid.uuid4()
+        response = al_client.post(
+            reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": first_recipient_uuid}),
+            data={"where_is_the_address": "in-uk"},
+        )
+
+        assert response.status_code == 302
+        assert response.url == reverse("add_a_recipient", kwargs={"recipient_uuid": first_recipient_uuid, "location": "in-uk"})
+        assert al_client.session["recipient_locations"][str(first_recipient_uuid)]["location"] == "in-uk"
+        assert al_client.session["recipient_locations"][str(first_recipient_uuid)]["changed"] is False
+
+        # new recipient
+        new_recipient_uuid = uuid.uuid4()
+        response = al_client.post(
+            reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": new_recipient_uuid}),
+            data={"where_is_the_address": "outside-uk"},
+        )
+
+        assert response.status_code == 302
+        assert response.url == reverse("add_a_recipient", kwargs={"recipient_uuid": new_recipient_uuid, "location": "outside-uk"})
+        assert al_client.session["recipient_locations"][str(new_recipient_uuid)]["location"] == "outside-uk"
+        assert al_client.session["recipient_locations"][str(new_recipient_uuid)]["changed"] is False
+
+        # change first recipients location
+        response = al_client.post(
+            reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": first_recipient_uuid}) + "?change=true",
+            data={"where_is_the_address": "outside-uk"},
+        )
+
+        assert response.status_code == 302
+        assert (
+            response.url
+            == reverse("add_a_recipient", kwargs={"recipient_uuid": first_recipient_uuid, "location": "outside-uk"})
+            + "?change=true"
+        )
+        assert al_client.session["recipient_locations"][str(first_recipient_uuid)]["changed"] is True

@@ -19,7 +19,7 @@ class WhereIsTheRecipientLocatedView(BaseFormView):
     redirect_after_post = False
 
     def dispatch(self, request, *args, **kwargs):
-        if self.kwargs["recipient_uuid"]:
+        if self.kwargs.get("recipient_uuid", ""):
             return super().dispatch(request, *args, **kwargs)
         else:
             return redirect(reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()}))
@@ -71,16 +71,15 @@ class AddARecipientView(AddAnEntityView):
     def get_form(self, form_class=None):
         # ensure the form is not bound if the user has changed the recipients location
         form = super().get_form(form_class)
-        if self.request.method == "GET":
-            if self.request.GET.get("change", ""):
-                recipient_uuid = str(self.kwargs["recipient_uuid"])
-                if self.request.session.get("recipient_locations", "").get(recipient_uuid)["changed"]:
-                    form.is_bound = False
-                    if self.request.session.get("recipients", {}).get(recipient_uuid, ""):
-                        del self.request.session["recipients"][recipient_uuid]
-                else:
-                    form.is_bound = True
-                    self.kwargs = self.get_form_kwargs()
+        if self.request.method == "GET" and self.request.GET.get("change", ""):
+            recipient_uuid = str(self.kwargs["recipient_uuid"])
+            if self.request.session.get("recipient_locations", "").get(recipient_uuid)["changed"]:
+                form.is_bound = False
+                if self.request.session.get("recipients", {}).get(recipient_uuid, ""):
+                    del self.request.session["recipients"][recipient_uuid]
+            else:
+                form.is_bound = True
+                self.kwargs = self.get_form_kwargs()
         return form
 
     def get_form_class(self) -> [forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm]:
