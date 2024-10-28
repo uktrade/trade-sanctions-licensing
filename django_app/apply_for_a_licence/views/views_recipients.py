@@ -48,6 +48,8 @@ class WhereIsTheRecipientLocatedView(BaseFormView):
             past_choice = recipient_data["location"]
             if past_choice != form.cleaned_data["where_is_the_address"]:
                 recipient_data["changed"] = True
+                # update the location in case the user selects change again
+                recipient_data["location"] = form.cleaned_data["where_is_the_address"]
 
         return super().form_valid(form)
 
@@ -71,8 +73,8 @@ class AddARecipientView(AddAnEntityView):
     def get_form(self, form_class=None):
         # ensure the form is not bound if the user has changed the recipients location
         form = super().get_form(form_class)
+        recipient_uuid = str(self.kwargs["recipient_uuid"])
         if self.request.method == "GET" and self.request.GET.get("change", ""):
-            recipient_uuid = str(self.kwargs["recipient_uuid"])
             if recipients := self.request.session.get("recipient_locations", {}):
                 if recipients.get(recipient_uuid, {}).get("changed", ""):
                     form.is_bound = False
@@ -81,6 +83,14 @@ class AddARecipientView(AddAnEntityView):
             else:
                 form.is_bound = True
                 self.kwargs = self.get_form_kwargs()
+
+        elif self.request.method == "POST":
+            # the user submitted the form, update "changed" in order to wipe the slate
+            if recipients := self.request.session.get("recipient_locations", {}):
+                if recipients.get(recipient_uuid, {}):
+                    recipients[recipient_uuid]["changed"] = False
+            return form
+
         return form
 
     def get_form_class(self) -> [forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm]:
