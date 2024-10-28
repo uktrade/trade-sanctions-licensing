@@ -71,21 +71,27 @@ class AddARecipientView(AddAnEntityView):
         return super().setup(request, *args, **kwargs)
 
     def get_form(self, form_class=None):
-        # ensure the form is not bound if the user has changed the recipients location
         form = super().get_form(form_class)
         recipient_uuid = str(self.kwargs["recipient_uuid"])
+
         if self.request.method == "GET" and self.request.GET.get("change", ""):
             if recipients := self.request.session.get("recipient_locations", {}):
+
+                # recipient location has changed from in/out of UK, clear the form
                 if recipients.get(recipient_uuid, {}).get("changed", ""):
                     form.is_bound = False
+
+                    # delete the recipients session data so we don't have conflicts before the save
                     if self.request.session.get("recipients", {}).get(recipient_uuid, ""):
                         del self.request.session["recipients"][recipient_uuid]
+
+            # recipient has not changed from in/out of UK
             else:
                 form.is_bound = True
                 self.kwargs = self.get_form_kwargs()
 
+        # the user submitted the form, update "changed" in order to wipe the slate
         elif self.request.method == "POST":
-            # the user submitted the form, update "changed" in order to wipe the slate
             if recipients := self.request.session.get("recipient_locations", {}):
                 if recipients.get(recipient_uuid, {}):
                     recipients[recipient_uuid]["changed"] = False
