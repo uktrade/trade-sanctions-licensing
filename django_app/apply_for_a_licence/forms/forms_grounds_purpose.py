@@ -11,7 +11,7 @@ from django import forms
 class LicensingGroundsForm(BaseForm):
     licensing_grounds = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple,
-        choices=choices.LicensingGroundsChoices.choices,
+        choices=choices.LicensingGroundsChoices.active_choices(),
         required=True,
         label="Select all that apply",
         error_messages={
@@ -27,12 +27,10 @@ class LicensingGroundsForm(BaseForm):
         js = ["apply_for_a_licence/javascript/licensing_grounds.js"]
 
     def __init__(self, *args: object, **kwargs: object) -> None:
-        self.audit_service_selected = kwargs.pop("audit_service_selected", False)
         super().__init__(*args, **kwargs)
         services = self.get_services()
         error_messages = self.fields["licensing_grounds"].error_messages
         self.checkbox_choices = self.fields["licensing_grounds"].choices
-
         # Create the 'or' divider between the last choice and I do not know
         last_checkbox_value = self.checkbox_choices[-1][0]
         last_checkbox_label = self.checkbox_choices[-1][1]
@@ -43,15 +41,6 @@ class LicensingGroundsForm(BaseForm):
         )
         self.checkbox_choices.append(Choice("Unknown grounds", "I do not know"))
         self.checkbox_choices.append(Choice("None of these", "None of these"))
-
-        # now we cut the choices down depending on the user's answer to the professional_or_business_services question
-        if services == ["auditing"]:
-            self.checkbox_choices.remove(
-                (
-                    choices.LicensingGroundsChoices.parent_or_subsidiary_company.value,
-                    choices.LicensingGroundsChoices.parent_or_subsidiary_company.label,
-                )
-            )
 
         self.fields["licensing_grounds"].choices = self.checkbox_choices
         self.helper.layout = Layout(
@@ -93,13 +82,6 @@ class LicensingGroundsLegalAdvisoryForm(LicensingGroundsForm):
             "the sanctioned services (excluding legal advisory), or select none of these, or select I do not know"
         }
 
-        if self.audit_service_selected:
-            self.checkbox_choices.remove(
-                (
-                    choices.LicensingGroundsChoices.parent_or_subsidiary_company.value,
-                    choices.LicensingGroundsChoices.parent_or_subsidiary_company.label,
-                )
-            )
         self.fields["licensing_grounds"].choices = self.checkbox_choices
 
 

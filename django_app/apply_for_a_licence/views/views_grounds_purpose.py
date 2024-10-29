@@ -32,9 +32,6 @@ class LicensingGroundsView(BaseFormView):
                 "Which of these licensing grounds describes your purpose for providing the sanctioned services?"
             )
 
-        if ProfessionalOrBusinessServicesChoices.auditing in self.professional_or_business_services_data:
-            kwargs["audit_service_selected"] = True
-
         return kwargs
 
     def get_success_url(self) -> str:
@@ -68,12 +65,6 @@ class LicensingGroundsLegalAdvisoryView(BaseFormView):
         self.professional_or_business_services_data = get_cleaned_data_for_step(
             self.request, "professional_or_business_services"
         ).get("professional_or_business_services", [])
-        auditing_and_legal_only = {
-            ProfessionalOrBusinessServicesChoices.legal_advisory.value,
-            ProfessionalOrBusinessServicesChoices.auditing.value,
-        }
-        if set(self.professional_or_business_services_data) == auditing_and_legal_only:
-            kwargs["audit_service_selected"] = True
 
         if self.request.GET.get("update", ""):
             # clear the session data if the user is coming from the CYA page
