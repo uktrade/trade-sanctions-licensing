@@ -17,10 +17,8 @@ from .types import Licensee
 class Licence(BaseModel):
     """The chief model for the application for a licence. Represents an application"""
 
-    licensing_grounds = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.active_choices()), null=True)
-    licensing_grounds_legal_advisory = ArrayField(
-        models.CharField(choices=choices.LicensingGroundsChoices.active_choices()), null=True
-    )
+    licensing_grounds = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
+    licensing_grounds_legal_advisory = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
     regimes = ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
     reference = models.CharField(max_length=6)
     business_registered_on_companies_house = models.CharField(

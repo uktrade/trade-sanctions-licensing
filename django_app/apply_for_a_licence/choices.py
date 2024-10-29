@@ -1,3 +1,5 @@
+from typing import List
+
 from crispy_forms_gds.choices import Choice
 from django.db import models
 
@@ -10,7 +12,11 @@ YES_NO_CHOICES = (
 class BaseChoices(models.TextChoices):
     @classmethod
     def active_choices(cls):
-        return [choice for choice in cls.choices if choice[0] not in cls.deactive_choices]
+        return [choice for choice in cls.choices if choice[0] not in cls.deactive_choices()]
+
+    @classmethod
+    def deactive_choices(cls):
+        pass
 
 
 class WhoDoYouWantTheLicenceToCoverChoices(models.TextChoices):
@@ -72,7 +78,9 @@ class ProfessionalOrBusinessServicesChoices(models.TextChoices):
 
 
 class LicensingGroundsChoices(BaseChoices):
-    deactive_choices = ["parent_or_subsidiary_company"]
+    @classmethod
+    def deactive_choices(cls) -> List[str]:
+        return ["parent_or_subsidiary_company"]
 
     civil_society = (
         "civil_society",
