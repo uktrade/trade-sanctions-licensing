@@ -57,3 +57,18 @@ class TestViewFeedbackView:
         assert feedback_items[0].id not in object_ids
         assert feedback_items[1].id in object_ids
         assert feedback_items[2].id not in object_ids
+
+    def test_get_did_you_experience_any_issues_display(self, request_object):
+        feedback_items = FeedbackFactory.create_batch(3)
+        feedback_items[0].did_you_experience_any_issues = ["difficult"]
+        feedback_items[0].save()
+        feedback_items[1].did_you_experience_any_issues = ["not_found", "lacks_features"]
+        feedback_items[1].save()
+        feedback_items[2].did_you_experience_any_issues = []
+        feedback_items[2].save()
+        assert feedback_items[0].get_did_you_experience_any_issues_display() == "I found it difficult to navigate"
+        assert (
+            feedback_items[1].get_did_you_experience_any_issues_display()
+            == "I did not find what I was looking for,\nThe system lacks the feature I need"
+        )
+        assert feedback_items[2].get_did_you_experience_any_issues_display() == ""
