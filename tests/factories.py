@@ -5,6 +5,7 @@ import factory
 from apply_for_a_licence.models import Individual, Licence, Organisation
 from django.contrib.auth.models import User
 from factory.fuzzy import FuzzyText
+from feedback.models import FeedbackItem
 
 
 class ModelFieldLazyChoice(factory.LazyFunction):
@@ -79,3 +80,12 @@ class UserFactory(factory.django.DjangoModelFactory):
     email = factory.Faker("email")
     is_active = factory.Faker("boolean")
     is_staff = factory.Faker("boolean")
+
+
+class FeedbackFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = FeedbackItem
+
+    rating = ModelFieldLazyChoice(FeedbackItem, "rating")
+    did_you_experience_any_issues = ArrayFieldLazyChoice(FeedbackItem, "did_you_experience_any_issues")
+    how_we_could_improve_the_service = factory.Faker("text")
