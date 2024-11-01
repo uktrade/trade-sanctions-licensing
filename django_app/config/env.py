@@ -82,7 +82,7 @@ class BaseSettings(PydanticBaseSettings):
 
     # CSP settings
     csp_report_only: bool = True
-    csp_report_uri: list[str] | None = None
+    csp_report_uri: str | None = None
 
     @computed_field
     @property
