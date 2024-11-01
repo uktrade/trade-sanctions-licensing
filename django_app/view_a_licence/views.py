@@ -11,6 +11,7 @@ from django.shortcuts import reverse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, RedirectView, TemplateView
+from feedback.models import FeedbackItem
 
 from .mixins import ActiveUserRequiredMixin, StaffUserOnlyMixin
 
@@ -95,3 +96,18 @@ class ViewALicenceApplicationView(LoginRequiredMixin, ActiveUserRequiredMixin, D
         context = super().get_context_data(**kwargs)
         context["back_button_text"] = "View all licence applications"
         return context
+
+
+@method_decorator(require_view_a_licence(), name="dispatch")
+class ViewFeedbackView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView):
+    context_object_name = "feedback"
+    model = FeedbackItem
+    template_name = "view_a_licence/view_feedback.html"
+
+    def get_queryset(self) -> "QuerySet[FeedbackItem]":
+        queryset = super().get_queryset()
+        if date_min := self.request.GET.get("date_min"):
+            queryset = queryset.filter(created_at__date__gte=date_min)
+        if date_max := self.request.GET.get("date_max"):
+            queryset = queryset.filter(created_at__date__lte=date_max)
+        return queryset

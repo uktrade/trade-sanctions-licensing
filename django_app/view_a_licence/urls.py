@@ -9,4 +9,5 @@ urlpatterns = [
     path("view-all-applications", views.ApplicationListView.as_view(), name="application_list"),
     path("view-application/<str:reference>/", views.ViewALicenceApplicationView.as_view(), name="view_application"),
     path("manage-users/", views.ManageUsersView.as_view(), name="manage_users"),
+    path("view-feedback/", views.ViewFeedbackView.as_view(), name="view_feedback"),
 ]
