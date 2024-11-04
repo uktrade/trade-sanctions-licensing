@@ -7,6 +7,7 @@ from apply_for_a_licence.forms import forms_recipients as forms
 from apply_for_a_licence.utils import get_cleaned_data_for_step
 from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
 from core.views.base_views import BaseFormView
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 
@@ -18,10 +19,39 @@ class WhereIsTheRecipientLocatedView(BaseFormView):
     redirect_after_post = False
 
     def dispatch(self, request, *args, **kwargs):
-        if self.kwargs["recipient_uuid"]:
+        if self.kwargs.get("recipient_uuid", ""):
             return super().dispatch(request, *args, **kwargs)
         else:
             return redirect(reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()}))
+
+    def form_valid(self, form: forms.WhereIsTheRecipientLocatedForm) -> HttpResponse:
+        recipient_uuid = str(self.kwargs["recipient_uuid"])
+
+        # first time a recipient is created
+        if not self.request.session.get("recipient_locations", ""):
+            self.request.session["recipient_locations"] = {
+                recipient_uuid: {"location": form.cleaned_data["where_is_the_address"], "changed": False}
+            }
+            return super().form_valid(form)
+
+        # new recipient is added
+        if recipient_uuid not in self.request.session["recipient_locations"].keys():
+            self.request.session["recipient_locations"][recipient_uuid] = {
+                "location": form.cleaned_data["where_is_the_address"],
+                "changed": False,
+            }
+            return super().form_valid(form)
+
+        # recipient data is changing
+        if self.request.GET.get("change"):
+            recipient_data = self.request.session["recipient_locations"][recipient_uuid]
+            past_choice = recipient_data["location"]
+            if past_choice != form.cleaned_data["where_is_the_address"]:
+                recipient_data["changed"] = True
+                # update the location in case the user selects change again
+                recipient_data["location"] = form.cleaned_data["where_is_the_address"]
+
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
@@ -39,6 +69,33 @@ class AddARecipientView(AddAnEntityView):
     def setup(self, request, *args, **kwargs):
         self.location = kwargs["location"]
         return super().setup(request, *args, **kwargs)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        recipient_uuid = str(self.kwargs["recipient_uuid"])
+
+        if self.request.method == "GET" and self.request.GET.get("change", ""):
+            if recipients := self.request.session.get("recipient_locations", {}):
+
+                # recipient location has changed, clear the form
+                if recipients.get(recipient_uuid, {}).get("changed", ""):
+                    form.is_bound = False
+
+                    # delete the recipients session data so we don't have conflicts before the save
+                    if self.request.session.get("recipients", {}).get(recipient_uuid, ""):
+                        del self.request.session["recipients"][recipient_uuid]
+
+                # recipient has not changed location choice
+                else:
+                    form.is_bound = True
+
+        # the user submitted the form, update "changed" in order to wipe the slate
+        elif self.request.method == "POST":
+            if recipients := self.request.session.get("recipient_locations", {}):
+                if recipients.get(recipient_uuid, {}):
+                    recipients[recipient_uuid]["changed"] = False
+
+        return form
 
     def get_form_class(self) -> [forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm]:
         if self.location == "in-uk":
