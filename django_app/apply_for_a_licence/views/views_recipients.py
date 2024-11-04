@@ -94,7 +94,6 @@ class AddARecipientView(AddAnEntityView):
             if recipients := self.request.session.get("recipient_locations", {}):
                 if recipients.get(recipient_uuid, {}):
                     recipients[recipient_uuid]["changed"] = False
-            return form
 
         return form
 
