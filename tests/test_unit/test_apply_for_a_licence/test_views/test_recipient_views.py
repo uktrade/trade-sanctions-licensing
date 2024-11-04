@@ -63,6 +63,73 @@ class TestAddRecipientView:
         )
         assert "provider-recipient-relationship" in response.url
 
+    def test_get_form_new_recipient(self, al_client):
+        response = al_client.get(reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": uuid.uuid4()}))
+        assert response.context["form"].is_bound is False
+        assert response.status_code == 200
+
+    def test_get_form_is_not_bound_different_location(self, al_client):
+        recipient_uuid = uuid.uuid4()
+        session = al_client.session
+        session["recipient_locations"] = {
+            str(recipient_uuid): {
+                "location": "in-uk",
+                "changed": True,
+            }
+        }
+        session.save()
+
+        response = al_client.get(
+            reverse("add_a_recipient", kwargs={"location": "outside-uk", "recipient_uuid": recipient_uuid}) + "?change=yes"
+        )
+        assert response.context["form"].is_bound is False
+        assert response.status_code == 200
+        assert not session.get("recipients", {}).get(str(recipient_uuid), False)
+
+    def test_get_form_is_bound_same_location(self, al_client):
+        recipient_uuid = uuid.uuid4()
+        session = al_client.session
+        session["recipient_locations"] = {
+            str(recipient_uuid): {
+                "location": "in-uk",
+                "changed": False,
+            }
+        }
+        session.save()
+
+        response = al_client.get(
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid}) + "?change=yes"
+        )
+        assert response.context["form"].is_bound
+        assert response.status_code == 200
+
+    def test_post_form_complete_change(self, al_client):
+        recipient_uuid = uuid.uuid4()
+        session = al_client.session
+        session["recipient_locations"] = {
+            str(recipient_uuid): {
+                "location": "in-uk",
+                "changed": True,
+            }
+        }
+        session.save()
+
+        response = al_client.post(
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid})
+            + "?redirect_to_url=check_your_answers&change=yes",
+            data={
+                "name": "COOL BEANS LTD",
+                "email": "thisismyemail@obviously.com",
+                "address_line_1": "13 I live here",
+                "address_line_2": "Flat basement",
+                "town_or_city": "Leeds",
+                "postcode": "SW1A 1AA",
+            },
+        )
+
+        assert response.status_code == 302
+        assert al_client.session["recipient_locations"][str(recipient_uuid)]["changed"] is False
+
 
 class TestDeleteRecipientView:
     def test_successful_post(self, al_client):
@@ -169,3 +236,44 @@ class TestRelationshipProviderRecipientView:
             reverse("relationship_provider_recipient", kwargs={"recipient_uuid": "recipientNA"}),
         )
         assert not response.context["form"].is_bound
+
+
+class TestWhereIsTheRecipientLocatedView:
+    def test_form_valid(self, al_client):
+        # first recipient
+        first_recipient_uuid = uuid.uuid4()
+        response = al_client.post(
+            reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": first_recipient_uuid}),
+            data={"where_is_the_address": "in-uk"},
+        )
+
+        assert response.status_code == 302
+        assert response.url == reverse("add_a_recipient", kwargs={"recipient_uuid": first_recipient_uuid, "location": "in-uk"})
+        assert al_client.session["recipient_locations"][str(first_recipient_uuid)]["location"] == "in-uk"
+        assert al_client.session["recipient_locations"][str(first_recipient_uuid)]["changed"] is False
+
+        # new recipient
+        new_recipient_uuid = uuid.uuid4()
+        response = al_client.post(
+            reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": new_recipient_uuid}),
+            data={"where_is_the_address": "outside-uk"},
+        )
+
+        assert response.status_code == 302
+        assert response.url == reverse("add_a_recipient", kwargs={"recipient_uuid": new_recipient_uuid, "location": "outside-uk"})
+        assert al_client.session["recipient_locations"][str(new_recipient_uuid)]["location"] == "outside-uk"
+        assert al_client.session["recipient_locations"][str(new_recipient_uuid)]["changed"] is False
+
+        # change first recipients location
+        response = al_client.post(
+            reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": first_recipient_uuid}) + "?change=true",
+            data={"where_is_the_address": "outside-uk"},
+        )
+
+        assert response.status_code == 302
+        assert (
+            response.url
+            == reverse("add_a_recipient", kwargs={"recipient_uuid": first_recipient_uuid, "location": "outside-uk"})
+            + "?change=true"
+        )
+        assert al_client.session["recipient_locations"][str(first_recipient_uuid)]["changed"] is True
