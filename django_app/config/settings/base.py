@@ -322,5 +322,4 @@ CSP_INCLUDE_NONCE_IN = ["script-src"]
 CSP_REPORT_ONLY = env.csp_report_only
 
 # URL to send CSP violation reports to
-if env.csp_report_uri:
-    CSP_REPORT_URI = env.csp_report_uri
+CSP_REPORT_URI = env.csp_report_uri

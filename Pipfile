@@ -33,6 +33,7 @@ gevent = "==24.2.1"
 psycopg2-binary = "*"
 certifi = "*"
 cryptography = "~=43.0.1"
+awscli-local = "~=0.22"
 
 [dev-packages]
 black = "~=24.3"
