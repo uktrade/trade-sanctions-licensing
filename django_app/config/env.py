@@ -80,6 +80,10 @@ class BaseSettings(PydanticBaseSettings):
     # Application-specific settings
     otsi_email: str = "email@example.com"
 
+    # CSP settings
+    csp_report_only: bool = True
+    csp_report_uri: str | None = None
+
     @computed_field
     @property
     def redis_url(self) -> str:
