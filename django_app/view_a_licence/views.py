@@ -85,7 +85,7 @@ class ManageUsersView(LoginRequiredMixin, StaffUserOnlyMixin, TemplateView):
 
 @method_decorator(require_view_a_licence(), name="dispatch")
 class ViewALicenceApplicationView(LoginRequiredMixin, ActiveUserRequiredMixin, DetailView):
-    template_name = "view_a_licence/view_a_licence_application.html"
+    template_name = "apply_for_a_licence/licence_application.html"
     context_object_name = "licence"
     model = Licence
     slug_url_kwarg = "reference"

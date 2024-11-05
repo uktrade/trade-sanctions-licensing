@@ -52,6 +52,7 @@ THIRD_PARTY_APPS = [
     "storages",
     "authbroker_client",
     "django_countries",
+    "wkhtmltopdf",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + OUR_APPS + THIRD_PARTY_APPS
@@ -323,3 +324,6 @@ CSP_REPORT_ONLY = env.csp_report_only
 
 # URL to send CSP violation reports to
 CSP_REPORT_URI = env.csp_report_uri
+
+WKHTMLTOPDF_CMD = "/usr/local/bin/wkhtmltopdf"
+WKHTMLTOPDF_CMD_OPTIONS = {"quiet": None, "enable-local-file-access": True}
