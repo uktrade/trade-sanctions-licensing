@@ -325,5 +325,5 @@ CSP_REPORT_ONLY = env.csp_report_only
 # URL to send CSP violation reports to
 CSP_REPORT_URI = env.csp_report_uri
 
-WKHTMLTOPDF_CMD = "/usr/local/bin/wkhtmltopdf"
+WKHTMLTOPDF_CMD = "wkhtmltopdf"
 WKHTMLTOPDF_CMD_OPTIONS = {"quiet": None, "enable-local-file-access": True}
