@@ -1,0 +1,71 @@
+{% load static i18n %}
+<html lang="en" class="govuk-template">
+    <head>
+        <meta charset=utf-8">
+
+                            <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="http://localhost:28000/static/core/assets/images/favicon.ico"
+                                                                                                                                                                 type="image/x-icon">
+                                 <link rel="mask-icon" href="http://localhost:28000/static/core/assets/images/govuk-icon-mask.svg" color="#0b0c0c">
+                                                                                                                                                                <link rel="apple-touch-icon" sizes="180x180"
+                                                                                                                                                                                                                          href="http://localhost:28000/static/core/assets/images/govuk-icon-180.png">
+                                                                                        <meta property="og:image" content=http://localhost:28000/static/core/assets/images/govuk-opengraph-image.png">
+
+		{# stylesheets #}
+        <link rel="stylesheet" href="http://localhost:28000/static/core/stylesheets/govuk-frontend-5.3.0.min.css">
+        <link rel="stylesheet" href="http://localhost:28000/static/stylesheets/common.css">
+        <title> Licence Application {{ reference }}</title>
+
+        <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="http://localhost:28000/static/core/assets/images/favicon.ico"
+              type="image/x-icon">
+        <link rel="mask-icon" href="http://localhost:28000/static/core/assets/images/govuk-icon-mask.svg" color="#0b0c0c">
+        <link rel="apple-touch-icon" sizes="180x180"
+              href="http://localhost:28000/static/core/assets/images/govuk-icon-180.png">
+        <meta property="og:image" content="http://localhost:28000/static/core/assets/images/govuk-opengraph-image.png">
+
+		{# stylesheets #}
+        <link rel="stylesheet" href="http://localhost:28000/static/core/stylesheets/govuk-frontend-5.3.0.min.css">
+        <link rel="stylesheet" href="http://localhost:28000/static/core/stylesheets/common.css">
+
+    </head>
+
+    <body class="govuk-template__body js-disabled govuk-frontend-supported">
+
+        <script type="text/javascript" nonce="{{ request.csp_nonce }}">
+            document.body.classList.remove("js-disabled");
+            document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
+        </script>
+
+        {% block skip_link %}
+            <a href="#main-content" class="govuk-skip-link">{% trans 'Skip to main content' %}</a>
+        {% endblock %}
+
+        <header class="govuk-header" role="banner" data-module="govuk-header">
+            <div class="govuk-header__container govuk-width-container">
+                <div class="govuk-panel__body">Hello!</div>
+            </div>
+        </header>
+        <div class="govuk-width-container">
+
+            <p class="govuk-phase-banner__content">
+                <strong class="govuk-tag govuk-phase-banner__content__tag">
+                    Beta
+                </strong>
+            </p>
+
+
+            <main class="govuk-main-wrapper" id="main-content">
+
+                <div class="govuk-grid-row">
+
+                    <div class="govuk-grid-column-two-thirds">
+                        <p class="govuk-body-l">I'm here</p>
+
+                    </div>
+
+                </div>
+
+            </main>
+
+        </div>
+    </body>
+</html>
