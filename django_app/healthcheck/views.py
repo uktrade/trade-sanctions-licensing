@@ -20,8 +20,8 @@ class HealthCheckView(View):
 
         start = time.time()
         is_db_good = db_check()
-        #  is_s3_good = s3_check()
-        all_good = is_db_good and True
+        is_s3_good = s3_check()
+        all_good = is_db_good and is_s3_good
 
         end = time.time()
         time_taken = round(end - start, 3)
