@@ -1,4 +1,4 @@
 repository: tsl
 builder:
-  name: amazonlinux
-  version: 2
+  name: paketo-buildpacks/python
+  version: 2.22.1
