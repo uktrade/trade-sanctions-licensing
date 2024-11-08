@@ -2,3 +2,14 @@ repository: tsl
 builder:
   name: paketobuildpacks/builder-jammy-full
   version: 0.3.339
+packages:
+  - libpq-dev
+  - fontconfig
+  - freetype
+  - freetype-devel
+  - libX11
+  - libXext
+  - libextrender
+  - xorg-x11-fonts-Type1
+  - xorg-x11-fonts-75dpi
+  - wkhtmltopdf
