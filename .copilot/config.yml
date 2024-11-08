@@ -1,3 +1,4 @@
 repository: tsl
 builder:
-  name: paketo-buildpacks/python
+  name: paketobuildpacks/python
+  version: 2.22.1
