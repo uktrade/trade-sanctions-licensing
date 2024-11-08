@@ -1,4 +1,4 @@
 repository: tsl
 builder:
-  name: paketobuildpacks/python
-  version: 2.22.1
+  name: paketobuildpacks/builder-jammy-full
+  version: 0.3.419

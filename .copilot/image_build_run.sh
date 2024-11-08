@@ -12,14 +12,14 @@ export DJANGO_SETTINGS_MODULE='config.settings.deploy.development'
 
 echo "Installing wkhtmltopdf"
 yum install -y \
-  fontconfig
-  freetype
-  freetype=deve;
-  libX11
-  libXext
-  libextrender
-  xorg-x11-fonts-Type1
-  xorg-x11-fonts-75dpi
+  fontconfig \
+  freetype \
+  freetype-devel \
+  libX11 \
+  libXext \
+  libextrender \
+  xorg-x11-fonts-Type1 \
+  xorg-x11-fonts-75dpi \
   wget
 
 #wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb
