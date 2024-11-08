@@ -11,7 +11,7 @@ export DATABASE_CREDENTIALS='{"username": "postgres", "password": "password", "e
 export DJANGO_SETTINGS_MODULE='config.settings.deploy.development'
 
 echo "Installing wkhtmltopdf"
-apt-get update && apt-get install -y \
+sudo apt-get update && apt-get install -y \
   wget \
   xfonts-75dpi \
   fontconfig \
@@ -20,11 +20,11 @@ apt-get update && apt-get install -y \
   ca-certificates
 
 wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb
-apt install ./libssl1.1_1.1.0g-2ubuntu4_amd64.deb
+sudo apt install ./libssl1.1_1.1.0g-2ubuntu4_amd64.deb
 rm libssl1.1_1.1.0g-2ubuntu4_amd64.deb
 
 wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
-apt install ./wkhtmltox_0.12.6-1.bionic_amd64.deb
+sudo apt install ./wkhtmltox_0.12.6-1.bionic_amd64.deb
 
 echo "Running django_app/manage.py collectstatic --noinput"
 python django_app/manage.py collectstatic --no-input
