@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#USER root
+USER root
 # Exit early if something goes wrong
 set -e
 
@@ -26,7 +26,7 @@ apt install -y ./libssl1.1_1.1.0g-2ubuntu4_amd64.deb
 rm libssl1.1_1.1.0g-2ubuntu4_amd64.deb
 
 wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
-apt install -y ./wkhtmltox_0.12.6-1.bionic_amd64.deb
+apt-get install -y ./wkhtmltox_0.12.6-1.bionic_amd64.deb
 
 echo "Running django_app/manage.py collectstatic --noinput"
 python django_app/manage.py collectstatic --no-input
