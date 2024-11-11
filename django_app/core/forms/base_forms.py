@@ -100,6 +100,12 @@ class BaseBusinessDetailsForm(BaseModelForm):
         }
 
     readable_address = forms.CharField(widget=forms.HiddenInput, required=False)
+    website = forms.URLField(
+        widget=forms.TextInput,
+        label="Website address",
+        required=False,
+        error_messages={"invalid": "Enter website in the correct format, such as www.example.com or example.com"},
+    )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
