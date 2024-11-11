@@ -10,7 +10,7 @@ from playwright.sync_api import sync_playwright
 
 
 class DownloadPDFView(TemplateView):
-    template_name = "apply_for_a_licence/test_for_pdf.html"
+    template_name = "core/application_pdf.html"
 
     def get(self, request: HttpRequest, *args: object, **kwargs: object) -> FileResponse:
         context_data = self.get_context_data()
