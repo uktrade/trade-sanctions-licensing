@@ -16,11 +16,7 @@
             <strong>{{ reference }}</strong>
         </div>
     </div>
-    {% if request.session.applicant_email %}
-        <p class="govuk-body">We've sent a confirmation email to {{ request.session.applicant_email }}</p>
-    {% else %}
-        <p class="govuk-body">We have sent you a confirmation email.</p>
-    {% endif %}
+    <p class="govuk-body">We have sent you a confirmation email.</p>
 
     <h2 class="govuk-heading-m">What happens next</h2>
     <p class="govuk-body">

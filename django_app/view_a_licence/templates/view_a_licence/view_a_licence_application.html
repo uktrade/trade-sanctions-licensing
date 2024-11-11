@@ -2,6 +2,11 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 {% block cookie_banner %}{% endblock cookie_banner %}
 {% block title %}View Licence Application{% endblock title %}
+<div class="govuk-grid-column-one-third govuk-!-text-align-right">
+    <p class="govuk-body">
+        <a href="{% url 'download_application' %}?reference={{ licence.reference }}" class="govuk-link" target="_blank">Download and view application (opens in new tab)</a>
+    </p>
+</div>
 {% block column_content %}
     <h1 class="govuk-heading-xl">Licence application: {{ licence.reference }}</h1>
 

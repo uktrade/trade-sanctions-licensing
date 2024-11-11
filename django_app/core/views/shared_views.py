@@ -12,7 +12,7 @@ class DownloadPDFView(TemplateView):
 
     def get(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
         context_data = self.get_context_data()
-        self.filename = f"application-{context_data['reference']}.pdf"
+        filename = f"application-{context_data['reference']}.pdf"
         pdf_data = None
         template_string = render_to_string(self.template_name, context=context_data)
 
@@ -24,11 +24,11 @@ class DownloadPDFView(TemplateView):
             browser.close()
 
         response = HttpResponse(pdf_data, content_type="application/pdf")
-        response["Content-Disposition"] = f"inline; filename={self.filename}"
+        response["Content-Disposition"] = f"inline; filename={filename}"
 
         return response
 
     def get_context_data(self, *args: object, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["reference"] = self.request.GET.get("reference")
+        context["reference"] = self.request.GET.get("reference", "")
         return context
