@@ -16,7 +16,7 @@
     <input type="hidden" id="existing_feedback_id" name="existing_feedback_id">
 </form>
 
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{ request.csp_nonce }}">
     document.addEventListener('DOMContentLoaded', function () {
         $('.star-rating__label').click(function (e) {
             let rating = $(this).data("rating-value")
