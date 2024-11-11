@@ -13,26 +13,20 @@ class DownloadPDFView(TemplateView):
     def get(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
         context_data = self.get_context_data()
         self.filename = f"application-{context_data['reference']}.pdf"
-        # pdf_buffer = BytesIO()
         pdf_data = None
         template_string = render_to_string(self.template_name, context=context_data)
-        # pdf_path = os.path.join(settings.BASE_DIR, self.filename)
 
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True)
             page = browser.new_page()
             page.set_content(mark_safe(template_string))
             pdf_data = page.pdf(format="A4")
-            # pdf_buffer.write(pdf_data)
-            # pdf_buffer.seek(0)
             browser.close()
 
         response = HttpResponse(pdf_data, content_type="application/pdf")
-        response["Content-Disposition"] = f"attachment; filename={self.filename}"
+        response["Content-Disposition"] = f"inline; filename={self.filename}"
 
         return response
-
-        # return FileResponse(open(pdf_path, "rb"), filename=self.filename, as_attachment=True)
 
     def get_context_data(self, *args: object, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
