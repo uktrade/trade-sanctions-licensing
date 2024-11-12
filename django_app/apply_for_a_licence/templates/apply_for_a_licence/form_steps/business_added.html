@@ -60,7 +60,7 @@
         </dl>
     {% endfor %}
     {% error_summary form %}
-    <form action="{{ request.path }}" method="post" enctype='multipart/form-data' novalidate>
+    <form action="" method="post" enctype='multipart/form-data' novalidate>
         {% csrf_token %}
         {% crispy form %}
     </form>
