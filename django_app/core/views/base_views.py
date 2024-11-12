@@ -57,14 +57,10 @@ class BaseFormView(FormView):
         success_url = self.get_success_url()
 
         # figure out if we want to redirect after form is submitted
-        print(self.request.GET)
-        print(self.request.POST)
         redirect_to_url = self.request.GET.get("redirect_to_url", None) or self.request.session.pop("redirect_to_url", None)
-        print(redirect_to_url)
         if redirect_to_url and url_has_allowed_host_and_scheme(redirect_to_url, allowed_hosts=None):
             if self.redirect_after_post:
                 # we want to redirect the user to a specific page after the form is submitted
-                print(redirect_to_url)
                 return redirect(redirect_to_url)
             else:
                 # we don't want to redirect the user just now, but we want to pass the redirect_to URL to the next form,
