@@ -21,10 +21,13 @@
     <p class="govuk-body hide-on-js-disabled show-on-js-enabled hide-on-print">
         <a class="govuk-link" onclick="window.print()" href=#>Print this screen</a>
         <p class="govuk-body">
-{#    TODO: remove comments and update dummy template when DST-798 is complete #}
-{#    <p class="govuk-body">#}
-{#        <a href="{% url 'download_application' %}?reference={{ request.session.licence_reference }}" class="govuk-link" target="_blank">Download and view application (opens in new tab)</a>#}
-{#    </p>#}
+{% comment %}
+    TODO: remove comments and update dummy template when DST-798 is complete
+	<p class="govuk-body">
+        <a href="{% url 'download_application' %}?reference={{ request.session.licence_reference }}" class="govuk-link" target="_blank">Download and view application (opens in new tab)</a>
+    </p>
+{% endcomment %}
+
             <h2 class="govuk-heading-m">What happens next</h2>
             <p class="govuk-body">
                 We've sent your application to the Office of Trade Sanctions Implementation (OTSI), part of the Department for
