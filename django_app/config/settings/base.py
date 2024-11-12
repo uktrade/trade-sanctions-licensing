@@ -272,8 +272,8 @@ CACHES = {
 OTSI_EMAIL = env.otsi_email
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# Session cookie age is set to 40 minutes
-SESSION_COOKIE_AGE = 40 * 60
+# Session cookie age is set to 3 hours
+SESSION_COOKIE_AGE = 3 * 60 * 60
 
 # CSP policies
 
