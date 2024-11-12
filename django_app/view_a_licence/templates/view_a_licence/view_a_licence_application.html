@@ -2,9 +2,16 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 {% block cookie_banner %}{% endblock cookie_banner %}
 {% block title %}View Licence Application{% endblock title %}
+{% comment %}
+    TODO: remove comments and update dummy template when DST-798 is complete
+    {% block download_link %}
+    <div class="govuk-grid-column-one-half govuk-!-text-align-right govuk-!-margin-top-3 hide-on-print">
+        <a href="{% url 'download_application' %}?reference={{ licence.reference }}" class="govuk-link--muted govuk-body-s" target="_blank">Download and view application (opens in new tab)</a>
+    </div>
+    {% endblock download_link %}
+{% endcomment %}
 {% block column_content %}
     <h1 class="govuk-heading-xl">Licence application: {{ licence.reference }}</h1>
-
     <dl class="govuk-summary-list">
         <h2 class="govuk-heading-m">Applicant details</h2>
         <div class="govuk-summary-list__row">
@@ -305,7 +312,9 @@
             </dd>
         </div>
     </dl>
+
 {% endblock column_content %}
+
 
 
 {% block extra_js %}

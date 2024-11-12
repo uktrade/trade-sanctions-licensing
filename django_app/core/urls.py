@@ -4,6 +4,7 @@ from django.urls import include, path
 
 from .views import cookie_views, generic_views
 from .views.base_views import RedirectBaseDomainView
+from .views.shared_views import DownloadPDFView
 
 urlpatterns = [
     path("", RedirectBaseDomainView.as_view(), name="initial_redirect_view"),
@@ -18,11 +19,9 @@ urlpatterns = [
     path("hide_cookies", cookie_views.HideCookiesView.as_view(), name="hide_cookies"),
     path("reset_session", generic_views.ResetSessionView.as_view(), name="reset_session"),
     path("accessibility-statement", generic_views.AccessibilityStatementView.as_view(), name="accessibility_statement"),
-]
-
-urlpatterns.append(
+    path("download_application/", DownloadPDFView.as_view(), name="download_application"),
     path("auth/", include("authbroker_client.urls")),
-)
+]
 
 if "debug_toolbar" in settings.INSTALLED_APPS:
     # checking if we have debug_toolbar installed
