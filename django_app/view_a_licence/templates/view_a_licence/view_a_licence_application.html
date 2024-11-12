@@ -4,14 +4,15 @@
 {% block title %}View Licence Application{% endblock title %}
 {% block download_link %}
     <div class="govuk-grid-column-one-half govuk-!-text-align-right govuk-!-margin-top-3 hide-on-print">
-        <a href="{% url 'download_application' %}?reference={{ licence.reference }}" class="govuk-link" target="_blank">Download and view application (opens in new tab)</a>
-    </div>{% endblock download_link %}
+        <a href="{% url 'download_application' %}?reference={{ licence.reference }}" class="govuk-link--muted govuk-body-s" target="_blank">Download and view application (opens in new tab)</a>
+    </div>
+{% endblock download_link %}
 {% block column_content %}
     <h1 class="govuk-heading-xl">Licence application: {{ licence.reference }}</h1>
     <dl class="govuk-summary-list">
         <h2 class="govuk-heading-m">Applicant details</h2>
         <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+            <dt class="govuk-summary-list__key govuk-!-font-weight- regular">
                 Full name
             </dt>
             <dd class="govuk-summary-list__value">
