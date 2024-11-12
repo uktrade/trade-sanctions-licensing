@@ -5,7 +5,7 @@
 
 {% block title %}Check company details{% endblock title %}
 {% block form_content %}
-    <form method="post">
+    <form action="{{ request.path }}" method="post">
         <div>
             <h1 class="govuk-heading-l">
                 Check company details
