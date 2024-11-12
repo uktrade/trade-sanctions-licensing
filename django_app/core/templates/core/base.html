@@ -187,6 +187,7 @@
                 </div>
         {% endblock phase_banner %}
         {% block back_button %}
+
                 {# JS-enabled back link #}
             <a class="govuk-back-link govuk-link--no-visited-state show-on-js-enabled hide-on-js-disabled hide-on-print"
                href="javascript: window.history.go(-1)">{{ back_button_text }}</a>
@@ -198,6 +199,10 @@
                 <a class="govuk-back-link govuk-link--no-visited-state hide-on-js-enabled show-on-js-disabled hide-on-print"
                    href="{{ back_button_link|default_if_none:"/" }}?start=true">{{ back_button_text }}</a>
             {% endif %}
+            <p class="govuk-!-text-align-right">
+                <a href="{% url 'download_application' %}?reference={{ licence.reference }}" class="govuk-link" target="_blank">Download and view application (opens in new tab)</a>
+            </p>
+
         {% endblock %}
         {% block main %}
             <main class="govuk-main-wrapper" id="main-content">
