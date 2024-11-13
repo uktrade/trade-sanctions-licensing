@@ -116,6 +116,7 @@ CHUNK_UPLOADER_RAISE_EXCEPTION_ON_VIRUS_FOUND = False
 # MIDDLEWARE
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "django_permissions_policy.PermissionsPolicyMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -126,7 +127,6 @@ MIDDLEWARE = [
     "simple_history.middleware.HistoryRequestMiddleware",
     "core.middleware.CurrentSiteMiddleware",
     "django_ratelimit.middleware.RatelimitMiddleware",
-    # Security middleware
     "csp.middleware.CSPMiddleware",
     "core.middleware.SetPermittedCrossDomainPolicyHeaderMiddleware",
     "core.middleware.CacheControlMiddleware",
@@ -323,3 +323,23 @@ CSP_REPORT_ONLY = env.csp_report_only
 
 # URL to send CSP violation reports to
 CSP_REPORT_URI = env.csp_report_uri
+
+# Permissions policy header
+PERMISSIONS_POLICY = {
+    "fullscreen": ["self"],
+    "accelerometer": [],
+    "ambient-light-sensor": [],
+    "autoplay": [],
+    "camera": [],
+    "display-capture": [],
+    "document-domain": [],
+    "encrypted-media": [],
+    "geolocation": [],
+    "gyroscope": [],
+    "interest-cohort": [],
+    "magnetometer": [],
+    "microphone": [],
+    "midi": [],
+    "payment": [],
+    "usb": [],
+}
