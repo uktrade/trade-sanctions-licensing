@@ -34,6 +34,7 @@ psycopg2-binary = "*"
 certifi = "*"
 cryptography = "~=43.0.1"
 playwright = "~=1.47.0"
+django-permissions-policy = "*"
 
 [dev-packages]
 black = "~=24.3"
@@ -55,7 +56,6 @@ pyinstrument = "*"
 factory-boy = "*"
 mypy = "~=1.9"
 freezegun = "*"
-
 
 [requires]
 python_version = "3.11"
