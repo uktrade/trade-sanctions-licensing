@@ -5,7 +5,7 @@
 {% block title %}
     Check your answers
 {% endblock title %}
-{% block form_content %}
+{% block column_content %}
     <div>
         <h1 class="govuk-heading-l">Check your answers</h1>
     </div>
@@ -368,7 +368,7 @@
                            href="{% url 'where_is_the_recipient_located' recipient_uuid=id %}?change=yes&redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">Recipient {{ forloop.counter }} details</span></a>
                     </dd>
                     {% if request.session.recipients.keys|length > 1 %}
-                        <dd class="govuk-summary-list__actions govuk-!-font-weight-regular">
+                        <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                             <form id="delete_recipient_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
                                   action="{% url 'delete_recipient' %}?recipient_uuid={{ id }}&success_url=check_your_answers">
                                 <input type="hidden" name="recipient_uuid" value="{{ id }}">
@@ -495,7 +495,7 @@
        data-module="govuk-button"
        data-testid="continue_button"
        href="{% url 'declaration' %}">Continue</a>
-{% endblock form_content %}
+{% endblock column_content %}
 {% block extra_js %}
     {{ block.super }}
     <script type="text/javascript" nonce="{{ request.csp_nonce }}">
