@@ -1,3 +1,4 @@
+from core.utils import update_last_activity_session_timestamp
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
@@ -24,3 +25,20 @@ class AccessibilityStatementView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["otsi_email"] = settings.OTSI_EMAIL
         return context
+
+
+class PingSessionView(View):
+    """Pings the session to keep it alive"""
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        update_last_activity_session_timestamp(request)
+        return HttpResponse("pong")
+
+
+class SessionExpiredView(TemplateView):
+    template_name = "core/session_expired.html"
+
+    def get(self, request: HttpRequest, *args, **kwargs):
+        # the session should already be empty by definition but just in case, manually clear
+        request.session.flush()
+        return super().get(request, *args, **kwargs)

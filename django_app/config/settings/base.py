@@ -151,6 +151,7 @@ TEMPLATES = [
                 "core.context_processors.truncate_words_limit",
                 "core.context_processors.is_debug_mode",
                 "core.context_processors.back_button",
+                "core.context_processors.session_expiry_times",
             ],
         },
     },
@@ -272,8 +273,9 @@ CACHES = {
 OTSI_EMAIL = env.otsi_email
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# Session cookie age is set to 3 hours
-SESSION_COOKIE_AGE = 3 * 60 * 60
+# Session cookie age is set to 40 minutes
+SESSION_COOKIE_AGE = 1 * 60
+SESSION_LAST_ACTIVITY_KEY = "last_form_submission"
 
 # CSP policies
 

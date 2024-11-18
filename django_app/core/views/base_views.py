@@ -1,9 +1,13 @@
+import datetime
+
 from apply_for_a_licence.utils import get_dirty_form_data
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from django import forms
+from django.conf import settings
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import FormView, RedirectView
 from django_ratelimit.exceptions import Ratelimited
@@ -23,6 +27,34 @@ class BaseFormView(FormView):
         step_name = view_to_step_dict[self.__class__.__name__]
 
         return step_name
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        kwargs["request"] = self.request
+
+        # restore the form data from the session, if it exists
+        if self.request.method == "GET":
+            if previous_data := get_dirty_form_data(self.request, self.step_name):
+                kwargs["data"] = previous_data
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        # checking for session expiry
+        if last_activity := request.session.get(settings.SESSION_LAST_ACTIVITY_KEY, None):
+            now = timezone.now()
+            last_activity = datetime.datetime.fromisoformat(last_activity)
+            # if the last recorded activity was more than the session cookie age ago, we assume the session has expired
+            if now > (last_activity + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)):
+                return redirect(reverse("session_expired"))
+        else:
+            # if we don't have a last activity, we assume the session has expired
+            return redirect(reverse("session_expired"))
+
+        # now setting the last active to the current time
+        request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
+
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         # we want to assign the form to the view ,so we can access it in the get_success_url method
@@ -72,17 +104,6 @@ class BaseFormView(FormView):
     def form_invalid(self, form):
         # debugging purposes so we can put breakpoints here
         return super().form_invalid(form)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-
-        kwargs["request"] = self.request
-
-        # restore the form data from the session, if it exists
-        if self.request.method == "GET":
-            if previous_data := get_dirty_form_data(self.request, self.step_name):
-                kwargs["data"] = previous_data
-        return kwargs
 
 
 def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpResponse:

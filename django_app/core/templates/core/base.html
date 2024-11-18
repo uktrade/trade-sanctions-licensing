@@ -188,11 +188,11 @@
         {% endblock phase_banner %}
         {% block back_button %}
             <div class="govuk-grid-row">
-                {# JS-enabled back link #}
+				{# JS-enabled back link #}
                 <div class="govuk-grid-column-one-half">
                     <a class="govuk-back-link govuk-link--no-visited-state show-on-js-enabled hide-on-js-disabled hide-on-print"
                        href="javascript: window.history.go(-1)">{{ back_button_text }}</a>
-				{# JS-disabled back link #}
+					{# JS-disabled back link #}
                     {% if "HTTP_REFERER" in request.META %}
                         <a class="govuk-back-link govuk-link--no-visited-state hide-on-js-enabled show-on-js-disabled hide-on-print"
                            href="{{ back_button_link|default_if_none:"/" }}?start=true">{{ back_button_text }}</a>
@@ -201,7 +201,7 @@
                            href="{{ back_button_link|default_if_none:"/" }}?start=true">{{ back_button_text }}</a>
                     {% endif %}
                 </div>
-                {% block download_link %}{% endblock download_link%}
+                {% block download_link %}{% endblock download_link %}
             </div>
         {% endblock %}
         {% block main %}
@@ -210,6 +210,7 @@
                     <div class="govuk-grid-row">
                         {% block row_content %}
                             <div class="govuk-grid-column-two-thirds">
+                                {% block column_start %}{% endblock column_start %}
                                 {% block column_content %}
                                 {% endblock column_content %}
                             </div>
@@ -285,5 +286,6 @@
             {% block extra_js %}{% endblock %}
         </footer>
     {% endblock footer %}
+    {% block body_end %}{% endblock body_end %}
 </body>
 </html>
