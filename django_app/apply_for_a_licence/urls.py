@@ -144,11 +144,13 @@ views_documents_urls = [
     path("delete-documents", views_documents.DeleteDocumentsView.as_view(), name="delete_documents"),
     path("download-document/<str:file_name>", views_documents.DownloadDocumentView.as_view(), name="download_document"),
 ]
+
 views_end_urls = [
     path("check-your-answers", views_end.CheckYourAnswersView.as_view(), name="check_your_answers"),
     path("declaration", views_end.DeclarationView.as_view(), name="declaration"),
     path("application-complete", views_end.CompleteView.as_view(), name="complete"),
 ]
+
 urlpatterns = (
     views_start_urls
     + views_business_urls

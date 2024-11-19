@@ -1,8 +1,10 @@
 import pytest
 from core.sites import SiteName
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.test import Client, RequestFactory
+from django.utils import timezone
 
 from tests.factories import LicenceFactory
 from tests.helpers import get_test_client
@@ -15,7 +17,11 @@ def al_client(db) -> Client:
     No user is logged in with this client.
     """
     al_site = Site.objects.get(name=SiteName.apply_for_a_licence)
-    return get_test_client(al_site.domain)
+    al_client = get_test_client(al_site.domain)
+    session = al_client.session
+    session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
+    session.save()
+    return al_client
 
 
 @pytest.fixture()
