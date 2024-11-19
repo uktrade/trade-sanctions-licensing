@@ -6,9 +6,9 @@ from apply_for_a_licence.choices import NationalityAndLocation
 from apply_for_a_licence.forms import forms_individual as individual_forms
 from apply_for_a_licence.forms import forms_yourself as forms
 from apply_for_a_licence.utils import get_form
+from apply_for_a_licence.views.base_views import DeleteAnEntityView
 from core.views.base_views import BaseFormView
 from django.http import HttpResponse
-from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 
 logger = logging.getLogger(__name__)
@@ -103,11 +103,8 @@ class YourselfAndIndividualAddedView(BaseFormView):
             return reverse("previous_licence")
 
 
-class DeleteIndividualFromYourselfView(BaseFormView):
-    def post(self, *args: object, **kwargs: object) -> HttpResponse:
-        redirect_to = redirect(reverse_lazy("yourself_and_individual_added"))
-        if individual_uuid := self.request.POST.get("individual_uuid"):
-            individuals = self.request.session.get("individuals", None)
-            individuals.pop(individual_uuid, None)
-            self.request.session["individuals"] = individuals
-        return redirect_to
+class DeleteIndividualFromYourselfView(DeleteAnEntityView):
+    success_url = reverse_lazy("yourself_and_individual_added")
+    session_key = "individuals"
+    url_parameter_key = "individual_uuid"
+    allow_zero_entities = True

@@ -4,6 +4,7 @@ from core.forms.base_forms import BaseForm
 from core.views.base_views import BaseFormView
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from django.urls import reverse_lazy
 
 
 class AddAnEntityView(BaseFormView):
@@ -110,10 +111,13 @@ class DeleteAnEntityView(BaseFormView):
     def post(self, *args: object, **kwargs: object) -> HttpResponse:
         """Remove the entity from the session and redirect back to the success URL."""
         entities = self.request.session.get(self.session_key, [])
+        success_url = self.get_success_url()
         # at least one entity must be added
         if self.allow_zero_entities or len(entities) > 1:
+            if redirect_to := self.request.POST.get("success_url"):
+                success_url = reverse_lazy(redirect_to)
             if entity_uuid := self.request.POST.get(self.url_parameter_key):
                 entities.pop(entity_uuid, None)
                 self.request.session[self.session_key] = entities
 
-        return redirect(self.get_success_url())
+        return redirect(success_url)
