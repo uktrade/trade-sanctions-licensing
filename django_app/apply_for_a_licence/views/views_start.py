@@ -4,6 +4,7 @@ from typing import Any
 
 from apply_for_a_licence.forms import forms_start as forms
 from core.forms.base_forms import GenericForm
+from core.utils import update_last_activity_session_timestamp
 from core.views.base_views import BaseFormView
 from django.conf import settings
 from django.http import HttpResponse
@@ -17,6 +18,11 @@ logger = logging.getLogger(__name__)
 
 class StartView(BaseFormView):
     form_class = forms.StartForm
+
+    def dispatch(self, request, *args, **kwargs):
+        # refresh the session expiry timestamp. This is the start of the session
+        update_last_activity_session_timestamp(request)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["who_do_you_want_the_licence_to_cover"]

@@ -39,7 +39,7 @@
     margin-bottom: 1rem;
 }
 
-.button-that-looks-like-link {
+.button-that-looks-like-link, .remove-button-that-looks-like-link {
     background: none !important;
     border: none;
     padding: 0 !important;
@@ -48,6 +48,10 @@
     font-size: 19px;
     margin-top: 10px;
     text-decoration: underline;
+}
+
+.remove-button-that-looks-like-link {
+    margin-top: 0;
 }
 
 .govuk-summary-list__key {
@@ -67,4 +71,14 @@
     .govuk-grid-column-two-thirds {
         width: 100%;
     }
+}
+
+dialog {
+    border: none;
+    padding: 35px;
+    max-width: 50%;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0 ,0 ,0.8);
 }

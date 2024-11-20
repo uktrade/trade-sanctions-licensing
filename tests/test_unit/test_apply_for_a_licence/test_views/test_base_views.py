@@ -101,3 +101,40 @@ def test_delete_a_thing_view(al_client):
     assert len(entities) == 1
 
     urlpatterns.pop()
+
+
+def test_delete_a_thing_and_change_success_url_view(al_client):
+    # adding an entity to the session
+    session = al_client.session
+    entity_uuid = str(uuid.uuid4())
+    session["entities"] = {entity_uuid: {"cleaned_data": {"name": "an entity"}, "dirty_data": {"name": "an entity"}}}
+    session.save()
+
+    # create 3 entities
+    session = al_client.session
+    entity_uuid = str(uuid.uuid4())
+    another_entity_uuid = str(uuid.uuid4())
+    third_entity_uuid = str(uuid.uuid4())
+    session["entities"] = {
+        entity_uuid: {"cleaned_data": {"name": "an entity"}, "dirty_data": {"name": "an entity"}},
+        another_entity_uuid: {"cleaned_data": {"name": "Another entity"}, "dirty_data": {"name": "Another entity"}},
+        third_entity_uuid: {"cleaned_data": {"name": "Third entity"}, "dirty_data": {"name": "Third entity"}},
+    }
+    session.save()
+
+    # delete an entity with a different success_url
+    response = al_client.post(reverse("delete_a_thing"), data={"entity_uuid": entity_uuid, "success_url": "check_your_answers"})
+
+    entities = al_client.session["entities"]
+    assert len(entities) == 2
+    assert response.status_code == 302
+    assert response.url == reverse("check_your_answers")
+
+    response = al_client.post(reverse("delete_a_thing"), data={"entity_uuid": third_entity_uuid})
+    entities = al_client.session["entities"]
+
+    assert len(entities) == 1
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    urlpatterns.pop()
