@@ -78,6 +78,8 @@ function setup_session_dialog(session_expiry_seconds, ping_session_url, session_
     countdown.start();
 
     document.getElementById("ping_session_button").addEventListener('click', () => {
+        throw new Error("test sentry error");
+
         $.ajax({
             url: ping_session_url,
             type: 'GET',
@@ -87,8 +89,6 @@ function setup_session_dialog(session_expiry_seconds, ping_session_url, session_
                 dialog_element.close();
             },
             error: function (request, error) {
-                // log to sentry - DST-785
-                console.error("Error: " + error);
             }
         });
     });
