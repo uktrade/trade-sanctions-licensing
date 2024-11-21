@@ -36,6 +36,7 @@ cryptography = "~=43.0.1"
 playwright = "~=1.47.0"
 django-permissions-policy = "*"
 ddtrace = "*"
+django-requestlogs = "==0.8"
 
 [dev-packages]
 black = "~=24.3"
