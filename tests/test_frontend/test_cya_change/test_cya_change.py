@@ -11,7 +11,7 @@ from tests.test_frontend.conftest import (
 
 
 class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
-    """Test making a change on Check Your Answers."""
+    """Test making changes on Check Your Answers."""
 
     def test_cya_changes(self):
         self.page.goto(self.base_url)
@@ -26,7 +26,7 @@ class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.licensing_grounds_simple(self.page)
 
         # Change your details
-        self.page.get_by_role("link", name="Change your details").click()
+        self.page.get_by_test_id("change_your_details_link").click()
         self.page.get_by_label("Full name").fill("Test name change")
         self.page.get_by_role("button", name="Continue").click()
         expect(self.page.locator("text=Test name change")).to_be_visible()
