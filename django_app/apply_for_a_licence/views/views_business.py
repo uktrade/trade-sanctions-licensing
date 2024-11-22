@@ -150,13 +150,13 @@ class CheckCompanyDetailsView(BaseFormView):
         # we want to add companies house businesses to the business list
         current_businesses = self.request.session.get("businesses", {})
         # get the business_uuid if it exists, otherwise create it
-        self.business_uuid = self.request.GET.get("business_uuid", str(uuid.uuid4()))
+        self.business_uuid = self.kwargs.get("business_uuid", str(uuid.uuid4()))
         # used to display the business_uuid data in business_added.html
+
         company_details = self.request.session["companies_house_businesses"][self.kwargs["business_uuid"]]["cleaned_data"]
         company_details_dirty_data = self.request.session["companies_house_businesses"][self.kwargs["business_uuid"]][
             "dirty_data"
         ]
-
         current_businesses[self.business_uuid] = {
             "cleaned_data": {
                 "company_number": company_details["company_number"],
