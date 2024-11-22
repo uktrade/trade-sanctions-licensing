@@ -81,3 +81,22 @@ individuals = {
         }
     },
 }
+
+companies_house_business = {
+    "companieshouse1": {
+        "cleaned_data": {
+            "company_number": "1234567",
+            "name": "Company 1",
+            "readable_address": "AL1, United Kingdom",
+            "companies_house": True,
+        }
+    },
+    "companieshouse2": {
+        "cleaned_data": {
+            "company_number": "1222347",
+            "name": "Company 2",
+            "readable_address": "Line 2, Mozambique",
+            "companies_house": True,
+        }
+    },
+}

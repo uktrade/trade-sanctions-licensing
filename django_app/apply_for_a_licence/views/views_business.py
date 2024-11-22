@@ -156,7 +156,7 @@ class CheckCompanyDetailsView(BaseFormView):
         company_details_dirty_data = self.request.session["companies_house_businesses"][self.kwargs["business_uuid"]][
             "dirty_data"
         ]
-        print(company_details)
+
         current_businesses[self.business_uuid] = {
             "cleaned_data": {
                 "company_number": company_details["company_number"],

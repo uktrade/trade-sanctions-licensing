@@ -22,7 +22,12 @@ class TestIsTheBusinessRegisteredWithCompaniesHouse:
 
 class TestDoYouKnowTheRegisteredCompanyNumber:
     def test_know_the_registered_company_number_successful_post(self, al_client):
-        pass
+        response = al_client.post(
+            reverse("do_you_know_the_registered_company_number"),
+            data={"do_you_know_the_registered_company_number": "yes", "registered_company_number": "12345678"},
+            follow=True,
+        )
+        assert "/apply/check-company-details/" in response.wsgi_request.path
 
     def test_do_not_know_the_registered_company_number_successful_post(self, al_client):
         response = al_client.post(
@@ -113,3 +118,17 @@ class TestDeleteBusinessView:
         assert al_client.session["businesses"] == data.businesses
         assert response.url == "/apply/add-business"
         assert response.status_code == 302
+
+
+class TestCheckCompanyDetailsView:
+    def check_successful_post(self, request_object, al_client):
+        request_object.session = al_client.session
+        request_object.session["businesses"] = data.businesses
+        request_object.session["companies_house_businesses"] = data.companies_house_business
+        request_object.session.save()
+
+        response = al_client.post(reverse("check-company-details"), kwargs={"business_uuid": "companieshouse1"})
+        businesses = request_object.session["businesses"]
+        assert response.url == "add-business"
+        assert len(businesses) == 4
+        assert "companieshouse1" in businesses.keys()
