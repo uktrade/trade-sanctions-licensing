@@ -6,6 +6,22 @@
 <!DOCTYPE html>
 <html lang="en" class="govuk-template">
     <head>
+        {% if SENTRY_ENABLED %}
+            <script
+                src="https://browser.sentry-cdn.com/8.39.0/bundle.tracing.min.js"
+                integrity="sha384-GmCdCRO2s8VuYopAldiuHl/uns+EWDcLodj8AW810pK14r3vPQxoDNsMxnitCt18"
+                crossorigin="anonymous"
+                data-lazy="no"
+            ></script>
+            <script nonce="{{ request.csp_nonce }}">
+                Sentry.init({
+                    dsn: "{{ SENTRY_DSN }}",
+                    environment: "{{ SENTRY_ENVIRONMENT }}",
+                    enableTracing: {% if SENTRY_ENABLE_TRACING %}true{% else %}false{% endif %},
+                    tracesSampleRate: {{ SENTRY_TRACES_SAMPLE_RATE }},
+                });
+            </script>
+        {% endif %}
         {% if gtm_enabled %}
 			<!-- Google Tag Manager -->
             <script nonce="{{ request.csp_nonce }}">
