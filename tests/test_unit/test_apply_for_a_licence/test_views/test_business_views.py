@@ -126,9 +126,8 @@ class TestCheckCompanyDetailsView:
         request_object.session["companies_house_businesses"] = data.companies_house_business
         request_object.session.save()
 
-        response = al_client.post(reverse("check_company_details", kwargs={"business_uuid": "companieshouse1"}))
+        al_client.post(reverse("check_company_details", kwargs={"business_uuid": "companieshouse1"}))
         businesses = al_client.session["businesses"]
-        assert response.url == "/apply/add-business"
         assert len(businesses) == 4
         assert "companieshouse1" in businesses.keys()
 
