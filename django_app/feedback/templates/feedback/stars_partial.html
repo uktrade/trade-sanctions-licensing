@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="{% static "feedback/stylesheets/feedback.css" %}">
 <script src="{% static 'feedback/javascript/feedback.js' %}"></script>
 
-<form method="post" id="feedback_form" action="{% url 'feedback:collect_feedback' %}">
+<form method="post" id="feedback_form" action="{% url 'feedback:collect_full_feedback' %}">
     {% csrf_token %}
     {% include "feedback/crispy_fields/feedback_stars.html" %}
     <div class="flex-parent">
@@ -23,7 +23,7 @@
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': $('[name="csrfmiddlewaretoken"]').val()},
-                url: "{% url 'feedback:collect_feedback' %}",
+                url: "{% url 'feedback:collect_full_feedback' %}",
                 data: {
                     "rating": rating,
                     "existing_feedback_id": $('#existing_feedback_id').val(),
