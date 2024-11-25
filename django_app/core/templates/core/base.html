@@ -68,7 +68,7 @@
                             </div>
                             <div class="govuk-button-group">
                                 <form method="post"
-                                      action="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">
+                                      action="{% url 'cookies_consent' %}?redirect_back_to={{ request.get_full_path|urlencode }}">
                                     {% csrf_token %}
                                     <button type="submit" class="govuk-button" data-module="govuk-button"
                                             name="do_you_want_to_accept_analytics_cookies" value="True">
@@ -79,7 +79,7 @@
                                         Reject analytics cookies
                                     </button>
                                     <a class="govuk-link"
-                                       href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">View
+                                       href="{% url 'cookies_consent' %}?redirect_back_to={{ request.get_full_path|urlencode }}">View
                                         cookies</a>
                                 </form>
                             </div>
@@ -98,12 +98,12 @@
                                             {% if request.COOKIES.accepted_ga_cookies == "true" %}
                                                 <p class="govuk-body">You’ve accepted analytics cookies. You can <a
                                                     class="govuk-link"
-                                                    href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">change
+                                                    href="{% url 'cookies_consent' %}?redirect_back_to={{ request.get_full_path|urlencode }}">change
                                                     your cookie settings</a> at any time.</p>
                                             {% elif request.COOKIES.accepted_ga_cookies == "false" %}
                                                 <p class="govuk-body">You’ve rejected analytics cookies. You can <a
                                                     class="govuk-link"
-                                                    href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">change
+                                                    href="{% url 'cookies_consent' %}?redirect_back_to={{ request.get_full_path|urlencode }}">change
                                                     your cookie settings</a> at any time.</p>
                                             {% endif %}
                                         </div>
