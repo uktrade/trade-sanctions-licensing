@@ -29,8 +29,31 @@ def update_old_values(apps, schema_editor):
         licence.save()
 
 
-class Migration(migrations.Migration):
+def revert_old_values(apps, schema_editor):
+    Licence = apps.get_model("apply_for_a_licence", "Licence")
+    for licence in Licence.objects.all():
+        licensing_grounds = licence.licensing_grounds
+        if licensing_grounds:
+            if "none" in licensing_grounds:
+                licensing_grounds.remove("none")
+                licensing_grounds.append("None of these")
+            if "unknown" in licensing_grounds:
+                licensing_grounds.remove("unknown")
+                licensing_grounds.append("Unknown grounds")
 
+        licensing_grounds_legal_advisory = licence.licensing_grounds_legal_advisory
+        if licensing_grounds_legal_advisory:
+            if "none" in licensing_grounds_legal_advisory:
+                licensing_grounds_legal_advisory.remove("none")
+                licensing_grounds_legal_advisory.append("None of these")
+            if "unknown" in licensing_grounds_legal_advisory:
+                licensing_grounds_legal_advisory.remove("unknown")
+                licensing_grounds_legal_advisory.append("Unknown grounds")
+
+        licence.save()
+
+
+class Migration(migrations.Migration):
     dependencies = [
         ("apply_for_a_licence", "0006_remove_historicallicence_professional_or_business_service_and_more"),
     ]
@@ -196,5 +219,5 @@ class Migration(migrations.Migration):
                 size=None,
             ),
         ),
-        migrations.RunPython(update_old_values),
+        migrations.RunPython(update_old_values, reverse_code=revert_old_values),
     ]

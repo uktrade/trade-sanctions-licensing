@@ -32,11 +32,11 @@ class LicensingGroundsForm(BaseForm):
         error_messages = self.fields["licensing_grounds"].error_messages
         self.checkbox_choices = self.fields["licensing_grounds"].choices
         # Create the 'or' divider between the last choice and I do not know
-        second_last_checkbox_value = self.checkbox_choices[-3][0]
-        second_last_checkbox_label = self.checkbox_choices[-3][1]
+        last_actual_licensing_ground_value = self.checkbox_choices[-3][0]
+        last_actual_licensing_ground_label = self.checkbox_choices[-3][1]
         self.checkbox_choices[-3] = Choice(
-            value=second_last_checkbox_value,
-            label=second_last_checkbox_label,
+            value=last_actual_licensing_ground_value,
+            label=last_actual_licensing_ground_label,
             divider="or",
         )
 
