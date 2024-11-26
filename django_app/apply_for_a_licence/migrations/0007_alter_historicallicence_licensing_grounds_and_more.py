@@ -5,16 +5,27 @@ from django.db import migrations, models
 
 
 def update_old_values(apps, schema_editor):
+    # changing 'None of these' -> 'none' and 'Unknown grounds' -> 'unknown'
     Licence = apps.get_model("apply_for_a_licence", "Licence")
     for licence in Licence.objects.all():
         licensing_grounds = licence.licensing_grounds
+        if licensing_grounds:
+            if "None of these" in licensing_grounds:
+                licensing_grounds.remove("None of these")
+                licensing_grounds.append("none")
+            if "Unknown grounds" in licensing_grounds:
+                licensing_grounds.remove("Unknown grounds")
+                licensing_grounds.append("unknown")
+
         licensing_grounds_legal_advisory = licence.licensing_grounds_legal_advisory
-        if "parent_or_subsidiary_company" in licensing_grounds:
-            licensing_grounds.remove("parent_or_subsidiary_company")
-            licensing_grounds.append("parent_or_subsidiary_company")
-        if "parent_or_subsidiary_company" in licensing_grounds_legal_advisory:
-            licensing_grounds_legal_advisory.remove("parent_or_subsidiary_company")
-            licensing_grounds_legal_advisory.append("parent_or_subsidiary_company")
+        if licensing_grounds_legal_advisory:
+            if "None of these" in licensing_grounds_legal_advisory:
+                licensing_grounds_legal_advisory.remove("None of these")
+                licensing_grounds_legal_advisory.append("none")
+            if "Unknown grounds" in licensing_grounds_legal_advisory:
+                licensing_grounds_legal_advisory.remove("Unknown grounds")
+                licensing_grounds_legal_advisory.append("unknown")
+
         licence.save()
 
 
@@ -185,4 +196,5 @@ class Migration(migrations.Migration):
                 size=None,
             ),
         ),
+        migrations.RunPython(update_old_values),
     ]
