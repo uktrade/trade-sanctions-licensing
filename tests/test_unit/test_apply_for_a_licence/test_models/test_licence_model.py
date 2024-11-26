@@ -42,6 +42,15 @@ class TestLicenceModel:
             LicensingGroundsChoices.energy.label,
         ]
 
+    def test_licensing_grounds_none_of_these_display(self):
+        licence = LicenceFactory(
+            licensing_grounds=[LicensingGroundsChoices.civil_society.value, LicensingGroundsChoices.energy.value]
+        )
+        assert licence.get_licensing_grounds_display() == [
+            LicensingGroundsChoices.civil_society.label,
+            LicensingGroundsChoices.energy.label,
+        ]
+
     def test_get_licensees(self):
         licence = LicenceFactory(who_do_you_want_the_licence_to_cover="business")
         organisation = OrganisationFactory(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)

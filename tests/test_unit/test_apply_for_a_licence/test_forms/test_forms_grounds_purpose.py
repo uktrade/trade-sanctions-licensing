@@ -12,6 +12,12 @@ class TestLicensingGroundsForm:
             each[0] for each in form.fields["licensing_grounds"].choices
         ]
 
+    def test_checkbox_or(self, request_object):
+        form = forms.LicensingGroundsForm(data={"licensing_grounds": None}, request=request_object)
+        assert form.checkbox_choices[-3].divider == "or"
+        assert form.checkbox_choices[-2][0] == "Unknown grounds"
+        assert form.checkbox_choices[-1][0] == "None of these"
+
 
 class TestPurposeOfProvisionForm:
     def test_required(self, request_object):
