@@ -44,11 +44,16 @@ class TestLicenceModel:
 
     def test_licensing_grounds_none_of_these_display(self):
         licence = LicenceFactory(
-            licensing_grounds=[LicensingGroundsChoices.civil_society.value, LicensingGroundsChoices.energy.value]
+            licensing_grounds=[
+                LicensingGroundsChoices.civil_society.value,
+                LicensingGroundsChoices.energy.value,
+                LicensingGroundsChoices.none.value,
+            ]
         )
         assert licence.get_licensing_grounds_display() == [
             LicensingGroundsChoices.civil_society.label,
             LicensingGroundsChoices.energy.label,
+            LicensingGroundsChoices.none.label,
         ]
 
     def test_get_licensees(self):
