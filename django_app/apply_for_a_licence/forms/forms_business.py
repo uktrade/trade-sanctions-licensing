@@ -195,12 +195,12 @@ class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
         model = Organisation
         fields = (
             "name",
+            "country",
             "town_or_city",
             "address_line_1",
             "address_line_2",
             "county",
             "postcode",
-            "country",
         )
         widgets = BaseUKBusinessDetailsForm.Meta.widgets
         labels = BaseUKBusinessDetailsForm.Meta.labels
@@ -240,8 +240,8 @@ class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
         model = Organisation
         fields = (
             "name",
-            "town_or_city",
             "country",
+            "town_or_city",
             "address_line_1",
             "address_line_2",
             "address_line_3",
