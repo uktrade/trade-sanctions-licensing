@@ -56,10 +56,10 @@ class AddYourselfUKAddressForm(BaseUKBusinessDetailsForm):
     class Meta(BaseUKBusinessDetailsForm.Meta):
         model = Organisation
         fields = (
-            "town_or_city",
             "country",
             "address_line_1",
             "address_line_2",
+            "town_or_city",
             "county",
             "postcode",
         )
@@ -89,8 +89,8 @@ class AddYourselfNonUKAddressForm(BaseNonUKBusinessDetailsForm):
     class Meta(BaseNonUKBusinessDetailsForm.Meta):
         model = Organisation
         fields = (
-            "town_or_city",
             "country",
+            "town_or_city",
             "address_line_1",
             "address_line_2",
             "address_line_3",

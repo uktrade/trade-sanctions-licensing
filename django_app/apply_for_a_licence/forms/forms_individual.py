@@ -131,10 +131,10 @@ class IndividualUKAddressForm(BaseUKBusinessDetailsForm):
     class Meta(BaseUKBusinessDetailsForm.Meta):
         model = Individual
         fields = (
-            "town_or_city",
             "country",
             "address_line_1",
             "address_line_2",
+            "town_or_city",
             "county",
             "postcode",
         )
@@ -164,8 +164,8 @@ class IndividualNonUKAddressForm(BaseNonUKBusinessDetailsForm):
     class Meta(BaseNonUKBusinessDetailsForm.Meta):
         model = Individual
         fields = (
-            "town_or_city",
             "country",
+            "town_or_city",
             "address_line_1",
             "address_line_2",
             "address_line_3",
