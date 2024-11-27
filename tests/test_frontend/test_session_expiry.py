@@ -53,4 +53,4 @@ class TestSessionExpiry(PlaywrightTestBase):
         # might as well test the grammar rule
         assert self.page.get_by_test_id("session_expiry_time_remaining").text_content() == "1 second"
         sleep(1)
-        expect(self.page.get_by_text("Your application has been deleted")).to_be_visible()
+        expect(self.page.get_by_role("heading", name="Your application has been")).to_be_visible()
