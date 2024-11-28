@@ -76,9 +76,6 @@ class BaseSettings(PydanticBaseSettings):
     redis_host: str = ""
     redis_port: int = 6379
 
-    # Application-specific settings
-    otsi_email: str = "email@example.com"
-
     # CSP settings
     csp_report_only: bool = True
     csp_report_uri: str | None = None
