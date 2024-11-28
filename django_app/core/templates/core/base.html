@@ -1,7 +1,6 @@
 {% load static i18n %}
 {% load gtm_enabled %}
 {% load get_gtm_id %}
-{% load get_feedback_url %}
 {% gtm_enabled as gtm_enabled %}
 
 <!DOCTYPE html>
@@ -200,7 +199,7 @@
 	                        {# don't show the feedback text whilst on a feedback page #}
                             {% if request.resolver_match.app_name != "feedback" %}
                                 – your
-                                <a class="govuk-link" target="_blank" href="{% url 'feedback:collect_full_feedback' %}?url={% get_feedback_url request %}">feedback</a>
+                                <a class="govuk-link" target="_blank" href="{% url 'feedback:collect_full_feedback' %}?url={{ request.get_full_path|urlencode }}">feedback</a>
                                 will help us to improve it (opens in a new tab).
                             {% endif %}
                         </span>

@@ -6,9 +6,9 @@ from freezegun import freeze_time
 class TestProvideFullFeedbackView:
 
     @freeze_time("2012-01-14")
-    def test_successful(self, rasb_client):
+    def test_successful(self, al_client):
         assert FeedbackItem.objects.count() == 0
-        response = rasb_client.post(
+        response = al_client.post(
             reverse("feedback:collect_full_feedback"),
             data={
                 "rating": 1,
@@ -27,8 +27,8 @@ class TestProvideFullFeedbackView:
         assert feedback_object.created_at.month == 1
         assert feedback_object.created_at.day == 14
 
-    def test_unsuccessful(self, rasb_client):
-        response = rasb_client.post(
+    def test_unsuccessful(self, al_client):
+        response = al_client.post(
             reverse("feedback:collect_full_feedback"),
             data={"rating": 60},
         )
@@ -37,8 +37,8 @@ class TestProvideFullFeedbackView:
         assert response.context["form"].is_valid() is False
         assert "rating" in response.context["form"].errors
 
-    def test_adding_url_to_feedback(self, rasb_client):
-        rasb_client.post(
+    def test_adding_url_to_feedback(self, al_client):
+        al_client.post(
             reverse("feedback:collect_full_feedback") + "?url=https://example.com",
             data={
                 "rating": 1,
