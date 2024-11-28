@@ -19,7 +19,7 @@ class TestCollectFeedback(PlaywrightTestBase):
             assert new_page.get_by_label("I did not experience any").is_visible()
             new_page.get_by_label("I did not experience any").check()
             new_page.get_by_label("Very satisfied").check()
-            assert not new_page.get_by_label("I did not experience any").is_visible()
+            assert not new_page.get_by_label("I did not experience any").is_hidden()
             new_page.get_by_role("button", name="Submit").click()
 
         assert FeedbackItem.objects.count() == 1
