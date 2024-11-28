@@ -5,8 +5,8 @@ from feedback.forms import FeedbackForm
 
 def test_html_template(request_object):
     layout = HTMLTemplate(
-        html_template_path="report_a_suspected_breach/form_steps/complete.html",
-        html_context={"reference": "123456", "request": request_object},
+        html_template_path="apply_for_a_licence/form_steps/partials/not_received_code_help_text.html",
+        html_context={"request_verify_code": "123456", "request": request_object},
     )
     rendered = layout.render(FeedbackForm())
     assert "123456" in rendered
