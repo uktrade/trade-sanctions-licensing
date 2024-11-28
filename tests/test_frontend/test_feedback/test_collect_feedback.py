@@ -15,10 +15,10 @@ class TestCollectFeedback(PlaywrightTestBase):
             self.page.get_by_test_id("collect_feedback_link").click()
 
             new_page = new_page_info.value
-            new_page.get_by_label("Very dissatisfied").check()
+            new_page.get_by_label("Very dissatisfied").click()
             assert new_page.get_by_label("I did not experience any").is_visible()
-            new_page.get_by_label("I did not experience any").check()
-            new_page.get_by_label("Very satisfied").check()
+            new_page.get_by_label("I did not experience any").click()
+            new_page.get_by_label("Very satisfied").click()
             assert not new_page.get_by_label("I did not experience any").is_hidden()
             new_page.get_by_role("button", name="Submit").click()
 
