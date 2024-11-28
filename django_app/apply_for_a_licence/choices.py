@@ -107,6 +107,8 @@ class LicensingGroundsChoices(BaseChoices):
         "safety of existing infrastructure, or the environment",
     )
     food = "food", "Services in connection with the production or distribution of food for the benefit of the civilian population"
+    unknown = "unknown", "I do not know"
+    none = "none", "None of these"
 
 
 class TypeOfRelationshipChoices(models.TextChoices):
