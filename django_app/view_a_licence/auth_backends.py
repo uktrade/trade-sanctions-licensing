@@ -6,9 +6,9 @@ from django.contrib.auth.models import User
 from django.db import transaction
 
 
-class ViewPortalAuth(AuthbrokerBackend):
-    def __init__(self) -> None:
-        super(ViewPortalAuth, self).__init__()
+class StaffSSOBackend(AuthbrokerBackend):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     def get_or_create_user(self, profile: dict[str, Any]) -> User:
         with transaction.atomic():

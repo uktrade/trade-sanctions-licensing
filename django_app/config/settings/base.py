@@ -236,7 +236,8 @@ GTM_ID = env.gtm_id
 
 # Authentication - SSO
 AUTHENTICATION_BACKENDS = [
-    "auth.view_portal_auth.ViewPortalAuth",
+    "view_a_licence.auth_backends.StaffSSOBackend",
+    "view_a_licence.auth_backends.StaffSSOBackend",
 ]
 AUTHBROKER_URL = env.authbroker_url
 AUTHBROKER_CLIENT_ID = env.authbroker_client_id
