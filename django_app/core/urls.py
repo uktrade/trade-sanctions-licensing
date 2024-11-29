@@ -23,7 +23,8 @@ urlpatterns = [
     path("inactive-application-deleted/", SessionExpiredView.as_view(), name="session_expired"),
     path("accessibility-statement", generic_views.AccessibilityStatementView.as_view(), name="accessibility_statement"),
     path("download_application/", DownloadPDFView.as_view(), name="download_application"),
-    path("auth/", include("authbroker_client.urls")),
+    path("staff-sso/", include("authbroker_client.urls")),
+    path("one-login/", include("one_login.urls")),
 ]
 
 if "debug_toolbar" in settings.INSTALLED_APPS:

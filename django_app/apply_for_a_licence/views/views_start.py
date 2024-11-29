@@ -7,6 +7,7 @@ from core.forms.base_forms import GenericForm
 from core.utils import update_last_activity_session_timestamp
 from core.views.base_views import BaseFormView
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
@@ -16,7 +17,7 @@ from utils.notifier import verify_email
 logger = logging.getLogger(__name__)
 
 
-class StartView(BaseFormView):
+class StartView(LoginRequiredMixin, BaseFormView):
     form_class = forms.StartForm
 
     def dispatch(self, request, *args, **kwargs):

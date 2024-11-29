@@ -1,83 +1,67 @@
-from typing import TYPE_CHECKING, Any, Literal
+from typing import Any
 
 from authbroker_client.backends import AuthbrokerBackend
 from core.sites import is_view_a_licence_site
 from django.contrib.auth import get_user_model
+from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import HttpRequest
 
-from . import types
 from .constants import ONE_LOGIN_UNSET_NAME
-
-if TYPE_CHECKING:
-    from django.contrib.auth.models import User
+from .types import UserCreateData, UserInfo
+from .utils import get_client, get_userinfo
 
 UserModel = get_user_model()
 
 
-class OneLoginBackend:
+class OneLoginBackend(BaseBackend):
     def authenticate(self, request: HttpRequest, **credentials: Any) -> User | None:
-        # GOV.UK One Login is only enabled on the  sites.
+        # GOV.UK One Login is only enabled on the apply-for-a-licence sites.
         if is_view_a_licence_site(request.site):
             return None
 
-        user = None
         client = get_client(request)
 
-        if has_valid_token(client):
+        if client.token:
             userinfo = get_userinfo(client)
 
             user = self.get_or_create_user(userinfo)
-
-        if user and self.user_can_authenticate(user):
             return user
 
         return None
 
-    def get_or_create_user(self, profile: OneLoginUserInfo) -> User:
-        id_key = self.get_profile_id_name()
-        id_value = profile[id_key]
-        user_data = self.user_create_mapping(profile)
+    def get_or_create_user(self, profile: UserInfo) -> User:
+        """Get or create a user based on the OneLogin profile data."""
 
-        user, created = get_or_create_icms_user(id_value, user_data)
-        return user
-
-    def user_create_mapping(self, userinfo: types.UserInfo) -> types.UserCreateData:
-        return {
-            "email": userinfo["email"],
+        one_login_user_id = profile["sub"]
+        user_data: UserCreateData = {
+            "email": profile["email"],
+            "username": one_login_user_id,
             "first_name": ONE_LOGIN_UNSET_NAME,
             "last_name": ONE_LOGIN_UNSET_NAME,
+            "is_active": True,
         }
 
-    @staticmethod
-    def get_profile_id_name() -> Literal["sub"]:
-        return "sub"
+        user, created = User.objects.get_or_create(username=one_login_user_id, defaults=user_data)
 
-    def get_user(self, user_id: int) -> "User | None":
-        user_cls = get_user_model()
+        if created:
+            # if the user is created, set an unusable password
+            user.set_unusable_password()
+            user.save()
+
+        return user
+
+    def get_user(self, user_id: int) -> User | None:
+        """Get a user by the ID stored in their session"""
 
         try:
-            return user_cls.objects.get(pk=user_id)
-
-        except user_cls.DoesNotExist:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
             return None
-
-    def user_can_authenticate(self, user: "User") -> bool:
-        """Reject users with is_active=False.
-
-        Custom user models that don't have that attribute are allowed.
-        """
-
-        is_active = getattr(user, "is_active", None)
-
-        return is_active or is_active is None
 
 
 class StaffSSOBackend(AuthbrokerBackend):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
     def get_or_create_user(self, profile: dict[str, Any]) -> User:
         with transaction.atomic():
             try:

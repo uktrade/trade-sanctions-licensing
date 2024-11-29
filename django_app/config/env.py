@@ -72,6 +72,10 @@ class BaseSettings(PydanticBaseSettings):
     mock_sso_email_user_id: str = ""
     oauthlib_insecure_transport: int = 0
 
+    # GOV.UK One Login
+    gov_uk_one_login_client_id: str
+    gov_uk_one_login_client_secret: str
+
     # Redis
     redis_host: str = ""
     redis_port: int = 6379

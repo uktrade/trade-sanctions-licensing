@@ -43,7 +43,7 @@ def require_view_a_licence() -> Any:
 
 
 def is_apply_for_a_licence_site(site: Site) -> bool:
-    return site.name == SiteName.apply_for_a_licence
+    return site.name == SiteName.apply_for_a_licence or site.name == "localhost:8000"
 
 
 def is_view_a_licence_site(site: Site) -> bool:
