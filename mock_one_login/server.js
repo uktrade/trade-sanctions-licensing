@@ -5,7 +5,6 @@ const camelCase = require('camelcase');
 
 const Provider = require('oidc-provider');
 const configLoader = require("./configLoader");
-const personRepo = require("./personHelper");
 
 
 const host = process.env.HOST || 'localhost';
@@ -18,7 +17,6 @@ const config = ['CLIENT_ID', 'CLIENT_SECRET', 'CLIENT_REDIRECT_URI', 'CLIENT_LOG
 }, {});
 
 const people_config = configLoader.getConfig('./mock-people.yaml');
-personRepo.init(people_config.people);
 
 
 const oidcConfig = {
@@ -34,7 +32,29 @@ const oidcConfig = {
             AccessToken: 'jwt',
             RefreshToken: 'jwt'
     },
-
+    claims: {
+        acr: null,
+        sid: null,
+        auth_time: null,
+        iss: null,
+        openid: ['sub', 'name', 'email']
+    },
+    findById: function (ctx, id) {
+        console.log("findById called with id ", id)
+        if (people_config.people[id]) {
+            let person = people_config.people[id];
+            return {
+                accountId: id,
+                async claims(use, scope) {
+                    return {
+                        sub: id,
+                        name: person.name,
+                        email: person.email,
+                    };
+                },
+            };
+        }
+    }
 };
 
 const oidc = new Provider(`http://${host}:${port}`, oidcConfig);
