@@ -84,7 +84,6 @@ const clients = [
 let server;
 (async () => {
     await oidc.initialize({clients});
-    console.log("starting server with config ", config)
     server = oidc.listen(port, () => {
         console.log(
             `mock-oidc-user-server listening on port ${port}, check http://${host}:${port}/.well-known/openid-configuration`

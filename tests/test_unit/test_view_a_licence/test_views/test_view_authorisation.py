@@ -1,9 +1,10 @@
 from unittest.mock import patch
 
 import pytest
-from django.contrib.auth.mixins import LoginRequiredMixin
+from authentication.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.urls import reverse
+from view_a_licence.mixins import ActiveUserRequiredMixin, StaffUserOnlyMixin
 
 from tests.factories import LicenceFactory
 
@@ -136,3 +137,9 @@ def test_all_views_require_login():
 
     for view in views:
         assert issubclass(view, LoginRequiredMixin)
+
+        staff_only = issubclass(view, StaffUserOnlyMixin)
+        active_only = issubclass(view, ActiveUserRequiredMixin)
+
+        # we need at least one of the above as well
+        assert staff_only or active_only

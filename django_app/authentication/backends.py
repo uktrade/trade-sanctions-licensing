@@ -81,6 +81,7 @@ class StaffSSOBackend(AuthbrokerBackend):
                     first_name=profile["first_name"],
                     last_name=profile["last_name"],
                     username=profile["email_user_id"],
+                    # the user is created as inactive and not staff, so they can be approved by staff members
                     is_active=False,
                     is_staff=False,
                 )
