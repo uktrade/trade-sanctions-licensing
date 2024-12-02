@@ -41,3 +41,27 @@ services:
       image: redis
       ports:
         - "26379:6379"
+
+    mock-one-login:
+      build:
+          context: ./mock_one_login
+          dockerfile: Dockerfile
+      ports:
+          - "28081:9090"
+      environment:
+        - PORT=9090
+        - HOST=localhost
+        - CLIENT_ID=my-client
+        - CLIENT_SECRET=my-secret
+        - CLIENT_REDIRECT_URI=http://apply-for-a-licence:8000/authentication/callback/
+        - CLIENT_LOGOUT_REDIRECT_URI=http://localhost:8080
+        - DEBUG=oidc-provider:*
+
+    new-mock-one-login:
+      image: https://code.vt.edu/devcom/mock-oidc-provider
+      ports:
+          - "28081:9090"
+      volumes:
+        - ./mock-one-login-config.yaml:/tmp/config.yaml
+      environment:
+        CONFIG_FILE_PATH: /tmp/config.yaml

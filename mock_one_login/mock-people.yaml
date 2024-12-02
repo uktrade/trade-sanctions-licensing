@@ -1,0 +1,7 @@
+people:
+  test:
+    name: Johnny Appleseed
+    email: johnny.appleseed@example.com
+    groups:
+      - admin
+      - editor

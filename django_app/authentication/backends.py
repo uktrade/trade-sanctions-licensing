@@ -2,13 +2,13 @@ from typing import Any
 
 from authbroker_client.backends import AuthbrokerBackend
 from core.sites import is_view_a_licence_site
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import HttpRequest
 
-from .constants import ONE_LOGIN_UNSET_NAME
 from .types import UserCreateData, UserInfo
 from .utils import get_client, get_userinfo
 
@@ -35,13 +35,7 @@ class OneLoginBackend(BaseBackend):
         """Get or create a user based on the OneLogin profile data."""
 
         one_login_user_id = profile["sub"]
-        user_data: UserCreateData = {
-            "email": profile["email"],
-            "username": one_login_user_id,
-            "first_name": ONE_LOGIN_UNSET_NAME,
-            "last_name": ONE_LOGIN_UNSET_NAME,
-            "is_active": True,
-        }
+        user_data: UserCreateData = settings.GOV_UK_ONE_LOGIN_CONFIG.get_user_create_mapping(profile)
 
         user, created = User.objects.get_or_create(username=one_login_user_id, defaults=user_data)
 

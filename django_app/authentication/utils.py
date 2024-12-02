@@ -1,16 +1,13 @@
 import base64
-import json
 import logging
 from typing import Any
 
-import requests
 from authlib.integrations.requests_client import OAuth2Session
 from authlib.jose import jwt
 from authlib.oauth2.rfc7523 import PrivateKeyJWT
 from authlib.oidc.core import IDToken
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.cache import cache
 from django.http import HttpRequest, QueryDict
 from django.urls import reverse
 
@@ -43,74 +40,9 @@ def get_client(request: HttpRequest) -> OAuth2Session:
     return session
 
 
-class OneLoginConfig:
-    CACHE_KEY = "one_login_metadata_cache"
-    CACHE_EXPIRY = 60 * 60  # seconds
-
-    def __init__(self) -> None:
-        self._conf: dict[str, Any] = {}
-
-    def get_public_keys(self) -> list[dict[str, str]]:
-        # https://docs.sign-in.service.gov.uk/integrate-with-integration-environment/authenticate-your-user/#validate-your-id-token
-        resp = requests.get(self.openid_config["jwks_uri"])
-        resp.raise_for_status()
-        data = resp.json()
-
-        return data["keys"]
-
-    @property
-    def openid_config(self) -> dict[str, Any]:
-        # Cached on instance
-        if self._conf:
-            logger.debug("one login conf: using instance attribute")
-            return self._conf
-
-        # Cached in redis store
-        cache_config = cache.get(self.CACHE_KEY)
-        if cache_config:
-            logger.debug("one login conf: using cache value")
-            self._conf = json.loads(cache_config)
-            return self._conf
-
-        # Retrieve and store value
-        config = self._get_configuration()
-        cache.set(self.CACHE_KEY, json.dumps(config), timeout=self.CACHE_EXPIRY)
-        self._conf = config
-        logger.debug("one login conf: using fresh value")
-
-        return self._conf
-
-    def _get_configuration(self) -> dict[str, Any]:
-        resp = requests.get("https://oidc.integration.account.gov.uk/.well-known/openid-configuration")
-        resp.raise_for_status()
-        metadata = resp.json()
-
-        return metadata
-
-    @property
-    def authorise_url(self) -> str:
-        return self.openid_config["authorization_endpoint"]
-
-    @property
-    def token_url(self) -> str:
-        return self.openid_config["token_endpoint"]
-
-    @property
-    def userinfo_url(self) -> str:
-        return self.openid_config["userinfo_endpoint"]
-
-    @property
-    def end_session_url(self) -> str:
-        return self.openid_config["end_session_endpoint"]
-
-    @property
-    def issuer(self) -> str:
-        return self.openid_config["issuer"]
-
-
 def get_token(request: HttpRequest, auth_code: str) -> dict:
     client = get_client(request)
-    config = OneLoginConfig()
+    config = settings.GOV_UK_ONE_LOGIN_CONFIG()
 
     client.register_client_auth_method(PrivateKeyJWT(token_endpoint=config.token_url))
 
@@ -123,7 +55,7 @@ def get_token(request: HttpRequest, auth_code: str) -> dict:
         grant_type="authorization_code",
         # https://docs.sign-in.service.gov.uk/integrate-with-integration-environment/authenticate-your-user/#make-a-post-request-to-the-token-endpoint
         # Required value when using private_key_jwt auth.
-        client_assertion_type="urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        # client_assertion_type="urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
     )
 
     validate_token(request, token)
@@ -132,7 +64,7 @@ def get_token(request: HttpRequest, auth_code: str) -> dict:
 
 
 def validate_token(request: HttpRequest, token: dict[str, Any]) -> None:
-    config = OneLoginConfig()
+    config = settings.GOV_UK_ONE_LOGIN_CONFIG()
     stored_nonce = request.session.get(f"{TOKEN_SESSION_KEY}_oauth_nonce", None)
 
     # id_token contents:
@@ -151,7 +83,7 @@ def validate_token(request: HttpRequest, token: dict[str, Any]) -> None:
 
 
 def get_userinfo(client: OAuth2Session) -> types.UserInfo:
-    config = OneLoginConfig()
+    config = settings.GOV_UK_ONE_LOGIN_CONFIG()
     resp = client.get(config.userinfo_url)
     resp.raise_for_status()
 
@@ -167,7 +99,7 @@ def get_one_login_logout_url(request: HttpRequest, post_logout_redirect_uri: str
     :param post_logout_redirect_uri: Optional redirect url
     """
 
-    url = OneLoginConfig().end_session_url
+    url = settings.GOV_UK_ONE_LOGIN_CONFIG().end_session_url
 
     if post_logout_redirect_uri:
         qd = QueryDict(mutable=True)

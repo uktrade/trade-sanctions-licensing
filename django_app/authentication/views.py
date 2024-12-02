@@ -4,7 +4,7 @@ from typing import Any
 from authlib.common.security import generate_token
 from authlib.jose.errors import InvalidClaimError
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME, login
+from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest
 from django.shortcuts import redirect
@@ -12,9 +12,8 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic.base import RedirectView, View
 
-from .authenticator import authenticate
 from .constants import AUTHENTICATION_LEVEL, CONFIDENCE_LEVEL
-from .utils import TOKEN_SESSION_KEY, OneLoginConfig, get_client, get_token
+from .utils import TOKEN_SESSION_KEY, get_client, get_token
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +42,7 @@ def get_next_url(request):
 class AuthView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         client = get_client(self.request)
-        config = OneLoginConfig()
+        config = settings.GOV_UK_ONE_LOGIN_CONFIG()
 
         nonce = generate_token()
         trust_vector = get_trust_vector(

@@ -15,6 +15,7 @@ from pathlib import Path
 
 import dj_database_url
 import sentry_sdk
+from authentication.config import OneLoginConfig
 from config.env import env
 from django.conf.locale.en import formats as en_formats
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -233,6 +234,12 @@ EMAIL_VERIFY_TIMEOUT_SECONDS = env.email_verify_timeout_seconds
 GTM_ENABLED = env.gtm_enabled
 GTM_ID = env.gtm_id
 
+# Authentication
+AUTHENTICATION_BACKENDS = [
+    "authentication.backends.StaffSSOBackend",
+    "authentication.backends.OneLoginBackend",
+]
+
 # Staff SSO
 AUTHBROKER_URL = env.authbroker_url
 AUTHBROKER_CLIENT_ID = env.authbroker_client_id
@@ -244,6 +251,7 @@ OAUTHLIB_INSECURE_TRANSPORT = env.oauthlib_insecure_transport
 # GOV.UK One Login
 GOV_UK_ONE_LOGIN_CLIENT_ID = env.gov_uk_one_login_client_id
 GOV_UK_ONE_LOGIN_CLIENT_SECRET = env.gov_uk_one_login_client_secret
+GOV_UK_ONE_LOGIN_CONFIG = OneLoginConfig
 
 TRUNCATE_WORDS_LIMIT = 30
 
