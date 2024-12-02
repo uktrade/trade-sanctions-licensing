@@ -7,13 +7,11 @@ from authlib.jose import jwt
 from authlib.oauth2.rfc7523 import PrivateKeyJWT
 from authlib.oidc.core import IDToken
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.http import HttpRequest, QueryDict
+from django.http import HttpRequest
 from django.urls import reverse
 
 from . import types
 from .constants import LOGIN_SCOPE
-from .types import UserCreateData
 
 logger = logging.getLogger(__name__)
 TOKEN_SESSION_KEY = "_one_login_token"
@@ -88,44 +86,3 @@ def get_userinfo(client: OAuth2Session) -> types.UserInfo:
     resp.raise_for_status()
 
     return resp.json()
-
-
-def get_one_login_logout_url(request: HttpRequest, post_logout_redirect_uri: str | None = None) -> str:
-    """Get logout url for logging a user out of GOV.UK One Login.
-
-    https://docs.sign-in.service.gov.uk/integrate-with-integration-environment/managing-your-users-sessions/#log-your-user-out-of-gov-uk-one-login
-
-    :param request: Django HttpRequest instance
-    :param post_logout_redirect_uri: Optional redirect url
-    """
-
-    url = settings.GOV_UK_ONE_LOGIN_CONFIG().end_session_url
-
-    if post_logout_redirect_uri:
-        qd = QueryDict(mutable=True)
-        qd.update(
-            {
-                "id_token_hint": request.session[TOKEN_SESSION_KEY]["id_token"],
-                "post_logout_redirect_uri": post_logout_redirect_uri,
-            }
-        )
-        url = f"{url}?{qd.urlencode()}"
-
-    return url
-
-
-def get_or_create_user(id_value: str, user_data: UserCreateData) -> tuple[User, bool]:
-    provider_email = user_data["email"]
-    created = False
-
-    try:
-        # A legacy user is a user who has an email address as a username.
-        user = User.objects.get(username=provider_email)
-    except User.DoesNotExist:
-        user, created = User.objects.get_or_create(username=id_value, defaults=user_data)
-
-        if created:
-            user.set_unusable_password()
-            user.save()
-
-    return user, created

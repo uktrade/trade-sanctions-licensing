@@ -1,7 +1,7 @@
 from typing import Any
 
 from authbroker_client.backends import AuthbrokerBackend
-from core.sites import is_view_a_licence_site
+from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth.models import User
@@ -62,6 +62,13 @@ class OneLoginBackend(BaseBackend):
 
 
 class StaffSSOBackend(AuthbrokerBackend):
+    def authenticate(self, request: HttpRequest, **credentials: Any) -> User | None:
+        # GOV.UK One Login is only enabled on the apply-for-a-licence sites.
+        if is_apply_for_a_licence_site(request.site):
+            return None
+
+        return super().authenticate(request, **credentials)
+
     def get_or_create_user(self, profile: dict[str, Any]) -> User:
         with transaction.atomic():
             try:

@@ -1,4 +1,4 @@
-from authentication.config import OneLoginConfig
+from authentication.config import LocalOneLoginConfig
 
 from .base import *  # noqa
 
@@ -30,12 +30,6 @@ TEST_SSO_PROVIDER_SET_RETURNED_ACCESS_TOKEN = env.mock_sso_token
 os.environ["AWS_ENDPOINT_URL"] = f"http://localhost:{env.localstack_port}"
 
 PROTOCOL = "http://"
-
-
-class LocalOneLoginConfig(OneLoginConfig):
-    CONFIGURATION_ENDPOINT = "http://localhost:28081/.well-known/openid-configuration"
-    CACHE_KEY = "one_login_metadata_cache_local2"
-
 
 GOV_UK_ONE_LOGIN_CLIENT_ID = "my-client"
 GOV_UK_ONE_LOGIN_CONFIG = LocalOneLoginConfig

@@ -85,3 +85,10 @@ class OneLoginConfig:
     @property
     def issuer(self) -> str:
         return self.openid_config["issuer"]
+
+
+class LocalOneLoginConfig(OneLoginConfig):
+    """Local configuration for OneLogin mock server."""
+
+    CONFIGURATION_ENDPOINT = "http://localhost:28081/.well-known/openid-configuration"
+    CACHE_KEY = "one_login_metadata_cache_local"

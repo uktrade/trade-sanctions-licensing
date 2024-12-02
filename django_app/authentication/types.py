@@ -7,7 +7,6 @@ class UserInfo(TypedDict):
     sub: str
     # email scope
     email: str
-    email_verified: bool
 
 
 class UserCreateData(TypedDict):

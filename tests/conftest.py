@@ -90,3 +90,15 @@ def licence_request_object(request_object):
 @pytest.fixture()
 def licence():
     return LicenceFactory()
+
+
+@pytest.fixture()
+def apply_rf(request_object):
+    request_object.site = Site.objects.get(name=SiteName.apply_for_a_licence)
+    return request_object
+
+
+@pytest.fixture()
+def viewer_rf(request_object):
+    request_object.site = Site.objects.get(name=SiteName.view_a_licence)
+    return request_object
