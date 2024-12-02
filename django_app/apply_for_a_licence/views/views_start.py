@@ -3,7 +3,6 @@ import uuid
 from typing import Any
 
 from apply_for_a_licence.forms import forms_start as forms
-from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import GenericForm
 from core.utils import update_last_activity_session_timestamp
 from core.views.base_views import BaseFormView
@@ -17,7 +16,7 @@ from utils.notifier import verify_email
 logger = logging.getLogger(__name__)
 
 
-class StartView(LoginRequiredMixin, BaseFormView):
+class StartView(BaseFormView):
     form_class = forms.StartForm
 
     def dispatch(self, request, *args, **kwargs):

@@ -6,7 +6,7 @@ LABEL source="https://github.com/appvia/mock-oidc-user-server"
 WORKDIR /app
 
 # Update packages in base image
-RUN apk update && apk upgrade && apk add git
+RUN apk update && apk upgrade
 
 COPY . .
 

@@ -95,6 +95,7 @@ jobs:
             POSTGRES_PASSWORD: password
         - image: localstack/localstack
 
+
       steps:
         - checkout
         - restore_dependency_cache
