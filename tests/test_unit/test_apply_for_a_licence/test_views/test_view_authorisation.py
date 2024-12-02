@@ -3,7 +3,7 @@ from authentication.mixins import LoginRequiredMixin
 
 def test_all_views_require_login():
     # gets all views from apply_for_a_licence and asserts that they all require login
-    from view_a_licence.urls import urlpatterns
+    from apply_for_a_licence.urls import urlpatterns
 
     views = []
     for pattern in urlpatterns:
