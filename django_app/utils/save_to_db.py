@@ -64,6 +64,7 @@ class SaveToDB:
             is_third_party=self.is_third_party,
             user_email_verification=self.email_verification,
             who_do_you_want_the_licence_to_cover=self.data["start"]["who_do_you_want_the_licence_to_cover"],
+            user=self.request.user,
         )
 
         if self.data["start"]["who_do_you_want_the_licence_to_cover"] == "myself":
