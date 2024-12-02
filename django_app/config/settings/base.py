@@ -17,7 +17,6 @@ import dj_database_url
 import sentry_sdk
 from config.env import env
 from django.conf.locale.en import formats as en_formats
-from django.urls import reverse_lazy
 from sentry_sdk.integrations.django import DjangoIntegration
 
 is_dbt_platform = "COPILOT_ENVIRONMENT_NAME" in os.environ
@@ -42,7 +41,7 @@ DJANGO_APPS = [
     "django.contrib.sites",
 ]
 
-OUR_APPS = ["config", "core", "one_login", "healthcheck", "feedback", "apply_for_a_licence", "view_a_licence"]
+OUR_APPS = ["config", "core", "authentication", "healthcheck", "feedback", "apply_for_a_licence", "view_a_licence"]
 
 THIRD_PARTY_APPS = [
     "crispy_forms",
@@ -234,27 +233,15 @@ EMAIL_VERIFY_TIMEOUT_SECONDS = env.email_verify_timeout_seconds
 GTM_ENABLED = env.gtm_enabled
 GTM_ID = env.gtm_id
 
-# Authentication - SSO
-AUTHENTICATION_BACKENDS = [
-    # "view_a_licence.auth_backends.StaffSSOBackend",
-    "one_login.backends.OneLoginBackend",
-]
+# Staff SSO
 AUTHBROKER_URL = env.authbroker_url
 AUTHBROKER_CLIENT_ID = env.authbroker_client_id
 AUTHBROKER_CLIENT_SECRET = env.authbroker_client_secret
 AUTHBROKER_TOKEN_SESSION_KEY = env.authbroker_token_session_key
 AUTHBROKER_STAFF_SSO_SCOPE = env.authbroker_staff_sso_scope
-
 OAUTHLIB_INSECURE_TRANSPORT = env.oauthlib_insecure_transport
 
-# Staff SSO
-LOGIN_URL = reverse_lazy("authbroker_client:login")
-LOGIN_REDIRECT_URL = reverse_lazy("view_a_licence:application_list")
-
 # GOV.UK One Login
-LOGIN_URL = reverse_lazy("one_login:login")
-LOGIN_REDIRECT_URL = reverse_lazy("initial_redirect_view")
-
 GOV_UK_ONE_LOGIN_CLIENT_ID = env.gov_uk_one_login_client_id
 GOV_UK_ONE_LOGIN_CLIENT_SECRET = env.gov_uk_one_login_client_secret
 

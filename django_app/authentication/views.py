@@ -4,7 +4,7 @@ from typing import Any
 from authlib.common.security import generate_token
 from authlib.jose.errors import InvalidClaimError
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login
+from django.contrib.auth import REDIRECT_FIELD_NAME, login
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest
 from django.shortcuts import redirect
@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic.base import RedirectView, View
 
+from .authenticator import authenticate
 from .constants import AUTHENTICATION_LEVEL, CONFIDENCE_LEVEL
 from .utils import TOKEN_SESSION_KEY, OneLoginConfig, get_client, get_token
 
@@ -90,7 +91,7 @@ class AuthCallbackView(View):
         request.session.delete(f"{TOKEN_SESSION_KEY}_oauth_nonce")
 
         # Get or create the user
-        user = authenticate(request)
+        user = authenticate(request=request)
 
         if user:
             login(request, user)

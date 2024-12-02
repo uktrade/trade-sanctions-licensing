@@ -24,7 +24,7 @@ urlpatterns = [
     path("accessibility-statement", generic_views.AccessibilityStatementView.as_view(), name="accessibility_statement"),
     path("download_application/", DownloadPDFView.as_view(), name="download_application"),
     path("staff-sso/", include("authbroker_client.urls")),
-    path("one-login/", include("one_login.urls")),
+    path("authentication/", include("authentication.urls")),
 ]
 
 if "debug_toolbar" in settings.INSTALLED_APPS:

@@ -28,7 +28,7 @@ def get_client_secret() -> bytes:
 
 
 def get_client(request: HttpRequest) -> OAuth2Session:
-    callback_url = reverse("one_login:callback")
+    callback_url = reverse("authentication:callback")
     redirect_uri = request.build_absolute_uri(callback_url)
 
     session = OAuth2Session(

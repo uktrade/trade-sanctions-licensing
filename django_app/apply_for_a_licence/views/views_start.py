@@ -3,11 +3,11 @@ import uuid
 from typing import Any
 
 from apply_for_a_licence.forms import forms_start as forms
+from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import GenericForm
 from core.utils import update_last_activity_session_timestamp
 from core.views.base_views import BaseFormView
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
