@@ -19,11 +19,10 @@ class TestCollectFeedback(PlaywrightTestBase):
             conditional_field = new_page.get_by_label("I did not experience any")
             assert conditional_field.is_visible()
             conditional_field.click()
-            new_page.get_by_label("Very satisfied").click()
-            assert conditional_field.is_hidden()
             new_page.get_by_role("button", name="Submit").click()
 
         assert FeedbackItem.objects.count() == 1
         feedback_item = FeedbackItem.objects.first()
-        assert feedback_item.rating == 5
+        assert feedback_item.rating == 1
+        assert feedback_item.did_you_experience_any_issues == ["no"]
         assert feedback_item.url == "/apply/"
