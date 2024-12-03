@@ -67,8 +67,8 @@ class BaseSettings(PydanticBaseSettings):
     authbroker_staff_sso_scope: str = "read"
 
     # GOV.UK One Login
-    gov_uk_one_login_client_id: str
-    gov_uk_one_login_client_secret: str
+    gov_uk_one_login_client_id: str = ""
+    gov_uk_one_login_client_secret: str = ""
 
     # Redis
     redis_host: str = ""
