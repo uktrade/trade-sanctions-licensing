@@ -193,9 +193,13 @@
                             Beta
                         </strong>
                         <span class="govuk-phase-banner__text">
-                            This is a new service – your
-                            <a class="govuk-link" target="_blank" href="{% url 'feedback:collect_full_feedback' %}">feedback</a>
-                            will help us to improve it.
+                            This is a new service
+	                        {# don't show the feedback text whilst on a feedback page #}
+                            {% if request.resolver_match.app_name != "feedback" %}
+                                – your
+                                <a class="govuk-link" data-testid="collect_feedback_link" target="_blank" href="{% url 'feedback:collect_full_feedback' %}?url={{ request.get_full_path|urlencode }}">feedback</a>
+                                will help us to improve it (opens in a new tab).
+                            {% endif %}
                         </span>
                     </p>
                 </div>
