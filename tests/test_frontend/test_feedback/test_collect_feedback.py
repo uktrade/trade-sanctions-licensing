@@ -16,10 +16,11 @@ class TestCollectFeedback(PlaywrightTestBase):
 
             new_page = new_page_info.value
             new_page.get_by_label("Very dissatisfied").click()
-            assert new_page.get_by_label("I did not experience any").is_visible()
+            conditional_field = new_page.get_by_label("I did not experience any")
+            assert conditional_field.is_visible()
             new_page.get_by_label("I did not experience any").click()
             new_page.get_by_label("Very satisfied").click()
-            assert new_page.get_by_label("I did not experience any").is_hidden()
+            assert conditional_field.is_hidden()
             new_page.get_by_role("button", name="Submit").click()
 
         assert FeedbackItem.objects.count() == 1
