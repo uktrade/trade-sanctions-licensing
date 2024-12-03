@@ -18,7 +18,7 @@ class TestCollectFeedback(PlaywrightTestBase):
             new_page.get_by_label("Very dissatisfied").click()
             conditional_field = new_page.get_by_label("I did not experience any")
             assert conditional_field.is_visible()
-            new_page.get_by_label("I did not experience any").click()
+            conditional_field.click()
             new_page.get_by_label("Very satisfied").click()
             assert conditional_field.is_hidden()
             new_page.get_by_role("button", name="Submit").click()
