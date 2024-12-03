@@ -54,7 +54,7 @@ pytest-cov = "*"
 django-debug-toolbar = "~=4.4.2"
 pyinstrument = "*"
 factory-boy = "*"
-mypy = "~=1.9"
+mypy = "*"
 freezegun = "*"
 
 [requires]

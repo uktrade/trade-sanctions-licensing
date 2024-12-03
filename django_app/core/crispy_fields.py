@@ -12,7 +12,7 @@ class HTMLTemplate(HTML):
 
     This is useful for rendering custom HTML as part of a form without having to define the HTML in Python."""
 
-    def __init__(self, html_template_path: str, html_context: str | None = None) -> None:
+    def __init__(self, html_template_path: str, html_context: dict[str | None, str | None] | None = None) -> None:
         if not html_context:
             html_context = {}
 

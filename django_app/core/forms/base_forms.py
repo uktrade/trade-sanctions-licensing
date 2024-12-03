@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Layout, Size, Submit
@@ -18,11 +18,11 @@ class BaseForm(forms.Form):
     single_question_form = False
     show_back_button = True
     # fields that you don't want to display (optional) next to the label if they're not required
-    hide_optional_label_fields = []
+    hide_optional_label_fields: List[str | None] = []
     # if we're using a BaseForm and NOT a BaseModelForm, then we need to implement our own labels dictionary to set the labels
-    labels = {}
+    labels: dict[str, str] = {}
     # same for help_texts
-    help_texts = {}
+    help_texts: dict[str, str] = {}
     # do we want this form to be revalidated when the user clicks Done
     revalidate_on_done = True
     # the submit button text
