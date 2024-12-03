@@ -42,4 +42,4 @@ def test_hide_cookies_view(al_client):
     session.save()
 
     response = al_client.post(reverse("hide_cookies"))
-    assert response.url == "/test_page"
+    assert response.url == "/test_page?removed_cookies_set=true"
