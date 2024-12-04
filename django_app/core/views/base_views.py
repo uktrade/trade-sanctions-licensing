@@ -1,6 +1,7 @@
 import datetime
 
 from apply_for_a_licence.utils import get_dirty_form_data
+from authentication.mixins import LoginRequiredMixin
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from django import forms
 from django.conf import settings
@@ -13,7 +14,7 @@ from django.views.generic import FormView, RedirectView
 from django_ratelimit.exceptions import Ratelimited
 
 
-class BaseFormView(FormView):
+class BaseFormView(LoginRequiredMixin, FormView):
     template_name = "core/base_form_step.html"
 
     # do we want to redirect the user to the redirect_to query parameter page after this form is submitted?

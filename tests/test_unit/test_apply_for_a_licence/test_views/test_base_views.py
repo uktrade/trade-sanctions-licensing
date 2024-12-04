@@ -49,13 +49,13 @@ class ThingForm(BaseForm):
     name = forms.CharField()
 
 
-def test_add_a_thing_view(al_client):
+def test_add_a_thing_view(authenticated_al_client):
     thing_1_uuid = uuid.uuid4()
     thing_2_uuid = uuid.uuid4()
 
-    al_client.post(reverse("add_a_thing", kwargs={"entity_uuid": thing_1_uuid}), data={"name": "an entity"})
+    authenticated_al_client.post(reverse("add_a_thing", kwargs={"entity_uuid": thing_1_uuid}), data={"name": "an entity"})
 
-    entities = al_client.session["entities"]
+    entities = authenticated_al_client.session["entities"]
     assert len(entities) == 1
     entity_uuid = list(entities.keys())[0]
 
@@ -63,29 +63,29 @@ def test_add_a_thing_view(al_client):
     assert entities[entity_uuid]["dirty_data"]["name"] == "an entity"
 
     # test creation
-    al_client.post(reverse("add_a_thing", kwargs={"entity_uuid": thing_2_uuid}), data={"name": "Another entity"})
-    entities = al_client.session["entities"]
+    authenticated_al_client.post(reverse("add_a_thing", kwargs={"entity_uuid": thing_2_uuid}), data={"name": "Another entity"})
+    entities = authenticated_al_client.session["entities"]
     assert len(entities) == 2
     entity_uuid = list(entities.keys())[1]
     assert entities[entity_uuid]["cleaned_data"]["name"] == "Another entity"
     assert entities[entity_uuid]["dirty_data"]["name"] == "Another entity"
 
 
-def test_delete_a_thing_view(al_client):
+def test_delete_a_thing_view(authenticated_al_client):
     # adding an entity to the session
-    session = al_client.session
+    session = authenticated_al_client.session
     entity_uuid = str(uuid.uuid4())
     session["entities"] = {entity_uuid: {"cleaned_data": {"name": "an entity"}, "dirty_data": {"name": "an entity"}}}
     session.save()
 
-    al_client.post(reverse("delete_a_thing"), data={"entity_uuid": entity_uuid})
+    authenticated_al_client.post(reverse("delete_a_thing"), data={"entity_uuid": entity_uuid})
 
     # shouldn't be deleted as allow_zero_things is False
-    entities = al_client.session["entities"]
+    entities = authenticated_al_client.session["entities"]
     assert len(entities) == 1
 
     # now try normal deletion, create 2 entities
-    session = al_client.session
+    session = authenticated_al_client.session
     entity_uuid = str(uuid.uuid4())
     another_entity_uuid = str(uuid.uuid4())
     session["entities"] = {
@@ -94,24 +94,24 @@ def test_delete_a_thing_view(al_client):
     }
     session.save()
 
-    al_client.post(reverse("delete_a_thing"), data={"entity_uuid": entity_uuid})
+    authenticated_al_client.post(reverse("delete_a_thing"), data={"entity_uuid": entity_uuid})
 
     # shouldn't be deleted as allow_zero_things is False
-    entities = al_client.session["entities"]
+    entities = authenticated_al_client.session["entities"]
     assert len(entities) == 1
 
     urlpatterns.pop()
 
 
-def test_delete_a_thing_and_change_success_url_view(al_client):
+def test_delete_a_thing_and_change_success_url_view(authenticated_al_client):
     # adding an entity to the session
-    session = al_client.session
+    session = authenticated_al_client.session
     entity_uuid = str(uuid.uuid4())
     session["entities"] = {entity_uuid: {"cleaned_data": {"name": "an entity"}, "dirty_data": {"name": "an entity"}}}
     session.save()
 
     # create 3 entities
-    session = al_client.session
+    session = authenticated_al_client.session
     entity_uuid = str(uuid.uuid4())
     another_entity_uuid = str(uuid.uuid4())
     third_entity_uuid = str(uuid.uuid4())
@@ -123,15 +123,17 @@ def test_delete_a_thing_and_change_success_url_view(al_client):
     session.save()
 
     # delete an entity with a different success_url
-    response = al_client.post(reverse("delete_a_thing"), data={"entity_uuid": entity_uuid, "success_url": "check_your_answers"})
+    response = authenticated_al_client.post(
+        reverse("delete_a_thing"), data={"entity_uuid": entity_uuid, "success_url": "check_your_answers"}
+    )
 
-    entities = al_client.session["entities"]
+    entities = authenticated_al_client.session["entities"]
     assert len(entities) == 2
     assert response.status_code == 302
     assert response.url == reverse("check_your_answers")
 
-    response = al_client.post(reverse("delete_a_thing"), data={"entity_uuid": third_entity_uuid})
-    entities = al_client.session["entities"]
+    response = authenticated_al_client.post(reverse("delete_a_thing"), data={"entity_uuid": third_entity_uuid})
+    entities = authenticated_al_client.session["entities"]
 
     assert len(entities) == 1
     assert response.status_code == 302

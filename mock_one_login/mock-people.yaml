@@ -1,0 +1,7 @@
+people:
+  admin:
+    name: Admin User
+    email: admin@example.com
+  test:
+    name: Johnny Appleseed
+    email: johnny.appleseed@example.com

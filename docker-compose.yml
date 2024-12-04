@@ -41,3 +41,19 @@ services:
       image: redis
       ports:
         - "26379:6379"
+
+    mock-one-login:
+      build:
+          context: ./mock_one_login
+          dockerfile: Dockerfile
+      ports:
+          - "28081:9090"
+      environment:
+        - PORT=9090
+        - HOST=localhost
+        - CLIENT_ID=my-client
+        - CLIENT_SECRET=my-secret
+        - CLIENT_REDIRECT_URI=http://apply-for-a-licence:8000/authentication/callback/
+        - CLIENT_LOGOUT_REDIRECT_URI=http://localhost:8080
+        # uncomment the following line to enable debug logging
+        #- DEBUG=oidc-provider:*

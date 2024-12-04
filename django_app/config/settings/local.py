@@ -1,3 +1,5 @@
+from authentication.config import LocalOneLoginConfig
+
 from .base import *  # noqa
 
 ENVIRONMENT = "local"
@@ -22,9 +24,13 @@ if env.profiling_enabled:
         "pyinstrument.middleware.ProfilerMiddleware",
     ]
 
-TEST_SSO_PROVIDER_SET_RETURNED_ACCESS_TOKEN = env.mock_sso_token
+TEST_SSO_PROVIDER_SET_RETURNED_ACCESS_TOKEN = "test_access_token"
+OAUTHLIB_INSECURE_TRANSPORT = True
 
 # we need to override AWS_ENDPOINT_URL environment variable to use localstack
 os.environ["AWS_ENDPOINT_URL"] = f"http://localhost:{env.localstack_port}"
 
 PROTOCOL = "http://"
+
+GOV_UK_ONE_LOGIN_CLIENT_ID = "my-client"
+GOV_UK_ONE_LOGIN_CONFIG = LocalOneLoginConfig
