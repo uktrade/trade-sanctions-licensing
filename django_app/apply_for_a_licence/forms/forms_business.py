@@ -196,9 +196,9 @@ class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
         fields = (
             "name",
             "country",
-            "town_or_city",
             "address_line_1",
             "address_line_2",
+            "town_or_city",
             "county",
             "postcode",
         )
