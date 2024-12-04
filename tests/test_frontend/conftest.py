@@ -177,8 +177,8 @@ class PlaywrightTestBase(LiveServerTestCase):
 
     @staticmethod
     def cya_recipients(page):
-        expect(page.get_by_test_id("recipient-name-and-address")).to_have_text("business\nA1, Town, AA0 0AA, United Kingdom")
-        expect(page.get_by_test_id("recipient-relationship")).to_have_text("Test relationship")
+        expect(page.get_by_test_id("recipient-name-and-address-1")).to_have_text("business\nA1, Town, AA0 0AA, United Kingdom")
+        expect(page.get_by_test_id("recipient-relationship-1")).to_have_text("Test relationship")
 
     @staticmethod
     def cya_purposes(page):
