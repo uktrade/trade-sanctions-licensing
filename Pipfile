@@ -37,6 +37,7 @@ playwright = "~=1.47.0"
 django-permissions-policy = "*"
 ddtrace = "*"
 django-requestlogs = "==0.8"
+bytecode = "*"
 
 [dev-packages]
 black = "~=24.3"
