@@ -72,11 +72,12 @@ def vl_client_logged_in(vl_client, staff_user) -> Client:
 
 
 @pytest.fixture()
-def request_object(al_client: Client):
+def request_object(al_client: Client, test_apply_user: User):
     """Fixture to create a request object."""
     request_object = RequestFactory()
     request_object.session = al_client.session
     request_object.method = "GET"
+    request_object.user = test_apply_user
     request_object.GET = {}
     request_object.POST = {}
     return request_object
