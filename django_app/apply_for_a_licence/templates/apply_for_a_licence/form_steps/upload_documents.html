@@ -9,8 +9,7 @@
 
 {% block extra_js %}
     <script src="{% static "core/javascript/moj-multi-file-upload.js" %}"></script>
-    <script>
-
+    <script nonce="{{ request.csp_nonce }}">
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
         $(document).ready(function () {

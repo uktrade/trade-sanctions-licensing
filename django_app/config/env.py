@@ -34,7 +34,6 @@ class BaseSettings(PydanticBaseSettings):
 
     sentry_dsn: str = ""
     sentry_environment: str = ""
-    sentry_enabled: bool = True
     sentry_enable_tracing: bool = False
     sentry_traces_sample_rate: float = 0.0
 
@@ -76,9 +75,6 @@ class BaseSettings(PydanticBaseSettings):
     # Redis
     redis_host: str = ""
     redis_port: int = 6379
-
-    # Application-specific settings
-    otsi_email: str = "email@example.com"
 
     # CSP settings
     csp_report_only: bool = True

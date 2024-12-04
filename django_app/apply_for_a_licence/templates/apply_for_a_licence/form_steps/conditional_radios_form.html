@@ -5,7 +5,7 @@
 
 
 {% block extra_js %}
-    <script>
+    <script nonce="{{ request.csp_nonce }}">
         document.addEventListener("DOMContentLoaded", function (event) {
             const noRadio = document.querySelector('input[value="no"]');
             if (noRadio) {

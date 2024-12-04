@@ -6,6 +6,20 @@
 <!DOCTYPE html>
 <html lang="en" class="govuk-template">
     <head>
+        {% if SENTRY_ENABLED %}
+            <script
+                src="{% static 'core/javascript/sentry.js' %}"
+                data-lazy="no"
+            ></script>
+            <script nonce="{{ request.csp_nonce }}">
+                Sentry.init({
+                    dsn: "{{ SENTRY_DSN }}",
+                    environment: "{{ SENTRY_ENVIRONMENT }}",
+                    enableTracing: {% if SENTRY_ENABLE_TRACING %}true{% else %}false{% endif %},
+                    tracesSampleRate: {{ SENTRY_TRACES_SAMPLE_RATE }},
+                });
+            </script>
+        {% endif %}
         {% if gtm_enabled %}
 			<!-- Google Tag Manager -->
             <script nonce="{{ request.csp_nonce }}">
@@ -52,7 +66,7 @@
                             </div>
                             <div class="govuk-button-group">
                                 <form method="post"
-                                      action="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">
+                                      action="{% url 'cookies_consent' %}?redirect_back_to={{ request.get_full_path|urlencode }}">
                                     {% csrf_token %}
                                     <button type="submit" class="govuk-button" data-module="govuk-button"
                                             name="do_you_want_to_accept_analytics_cookies" value="True">
@@ -63,7 +77,7 @@
                                         Reject analytics cookies
                                     </button>
                                     <a class="govuk-link"
-                                       href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">View
+                                       href="{% url 'cookies_consent' %}?redirect_back_to={{ request.get_full_path|urlencode }}">View
                                         cookies</a>
                                 </form>
                             </div>
@@ -82,12 +96,12 @@
                                             {% if request.COOKIES.accepted_ga_cookies == "true" %}
                                                 <p class="govuk-body">You’ve accepted analytics cookies. You can <a
                                                     class="govuk-link"
-                                                    href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">change
+                                                    href="{% url 'cookies_consent' %}?redirect_back_to={{ request.get_full_path|urlencode }}">change
                                                     your cookie settings</a> at any time.</p>
                                             {% elif request.COOKIES.accepted_ga_cookies == "false" %}
                                                 <p class="govuk-body">You’ve rejected analytics cookies. You can <a
                                                     class="govuk-link"
-                                                    href="{% url 'cookies_consent' %}?redirect_back_to={{ request.path }}">change
+                                                    href="{% url 'cookies_consent' %}?redirect_back_to={{ request.get_full_path|urlencode }}">change
                                                     your cookie settings</a> at any time.</p>
                                             {% endif %}
                                         </div>
@@ -179,9 +193,13 @@
                             Beta
                         </strong>
                         <span class="govuk-phase-banner__text">
-                            This is a new service – your
-                            <a class="govuk-link" target="_blank" href="{% url 'feedback:collect_full_feedback' %}">feedback</a>
-                            will help us to improve it.
+                            This is a new service
+	                        {# don't show the feedback text whilst on a feedback page #}
+                            {% if request.resolver_match.app_name != "feedback" %}
+                                – your
+                                <a class="govuk-link" data-testid="collect_feedback_link" target="_blank" href="{% url 'feedback:collect_full_feedback' %}?url={{ request.get_full_path|urlencode }}">feedback</a>
+                                will help us to improve it (opens in a new tab).
+                            {% endif %}
                         </span>
                     </p>
                 </div>
@@ -231,7 +249,7 @@
                         <h2 class="govuk-visually-hidden">Support links</h2>
                         <ul class="govuk-footer__inline-list">
                             <li class="govuk-footer__inline-list-item hide-on-print">
-                                <a class="govuk-footer__link" href="{% url 'cookies_consent' %}">Cookies</a>
+                                <a class="govuk-footer__link" href="{% url 'cookies_consent' %}?redirect_back_to={{ request.get_full_path|urlencode }}">Cookies</a>
                             </li>
                             <li class="govuk-footer__inline-list-item hide-on-print">
                                 <a class="govuk-footer__link"
@@ -276,8 +294,8 @@
                     </div>
                 </div>
             </div>
-            <script src="{% static 'core/javascript/jquery-3.7.1.js' %}"></script>
-            <script type="module" src="{% static "core/javascript/govuk-frontend-5.3.0.min.js" %}"></script>
+            <script src="{% static 'core/javascript/jquery-3.7.1.js' %}" nonce="{{ request.csp_nonce }}"></script>
+            <script type="module" src="{% static "core/javascript/govuk-frontend-5.3.0.min.js" %}" nonce="{{ request.csp_nonce }}"></script>
             <script type="module" nonce="{{ request.csp_nonce }}">
                 import {initAll} from "{% static "core/javascript/govuk-frontend-5.3.0.min.js" %}"
 

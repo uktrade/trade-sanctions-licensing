@@ -22,7 +22,14 @@ class TestIsTheBusinessRegisteredWithCompaniesHouse:
 
 class TestDoYouKnowTheRegisteredCompanyNumber:
     def test_know_the_registered_company_number_successful_post(self, al_client):
-        pass
+        response = al_client.post(
+            reverse("do_you_know_the_registered_company_number"),
+            data={"do_you_know_the_registered_company_number": "yes", "registered_company_number": "12345678"},
+        )
+        assert (
+            reverse("do_you_know_the_registered_company_number", kwargs=response.resolver_match.kwargs)
+            in response.wsgi_request.path
+        )
 
     def test_do_not_know_the_registered_company_number_successful_post(self, al_client):
         response = al_client.post(
@@ -113,3 +120,32 @@ class TestDeleteBusinessView:
         assert al_client.session["businesses"] == data.businesses
         assert response.url == "/apply/add-business"
         assert response.status_code == 302
+
+
+class TestCheckCompanyDetailsView:
+    def test_check_successful_post(self, request_object, al_client):
+        request_object.session = al_client.session
+        request_object.session["businesses"] = data.businesses
+        request_object.session["companies_house_businesses"] = data.companies_house_business
+        request_object.session.save()
+
+        response = al_client.post(reverse("check_company_details", kwargs={"business_uuid": "companieshouse1"}))
+        businesses = al_client.session["businesses"]
+        assert response.url == "/apply/add-business"
+        assert len(businesses) == 4
+        assert "companieshouse1" in businesses.keys()
+
+    def test_get_context_data(self, request_object, al_client):
+        request_object.session = al_client.session
+        request_object.session["businesses"] = data.businesses
+        request_object.session["companies_house_businesses"] = data.companies_house_business
+        request_object.session.save()
+
+        response = al_client.get(reverse("check_company_details", kwargs={"business_uuid": "companieshouse1"}))
+        assert response.context["company_details"] == {
+            "companies_house": True,
+            "company_number": "1234567",
+            "name": "Company 1",
+            "readable_address": "AL1, United Kingdom",
+        }
+        assert response.context["business_uuid"] == "companieshouse1"

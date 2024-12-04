@@ -87,8 +87,6 @@ function setup_session_dialog(session_expiry_seconds, ping_session_url, session_
                 dialog_element.close();
             },
             error: function (request, error) {
-                // log to sentry - DST-785
-                console.error("Error: " + error);
             }
         });
     });

@@ -8,9 +8,10 @@
 {% block extra_js %}
     {{ form.media.js }}
 {% endblock extra_js %}
+
 {% block title %}Give feedback on the Apply for a Licence service{% endblock title %}
 {% block column_content %}
-    <form action="{% url 'feedback:collect_feedback' %}" method="post" enctype='multipart/form-data' novalidate>
+    <form action="{% url 'feedback:collect_full_feedback' %}?url={{ request.GET.url }}" method="post" enctype='multipart/form-data' novalidate>
         <h1 class="govuk-heading-l">Give feedback on the Apply for a Licence service</h1>
         {% csrf_token %}
         {% crispy form %}
