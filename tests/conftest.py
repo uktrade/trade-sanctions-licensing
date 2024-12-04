@@ -11,13 +11,30 @@ from tests.helpers import get_test_client
 
 
 @pytest.fixture()
-def al_client(db) -> Client:
+def test_apply_user(db) -> User:
+    user = User.objects.create(
+        username="urn:fdc:test_apply_user",
+        first_name="Test",
+        last_name="User",
+        email="apply_test_user@example.com",
+        is_active=True,
+        is_staff=False,
+        password="test",
+    )
+    return user
+
+
+@pytest.fixture()
+def al_client(db, test_apply_user) -> Client:
     """Client used to access the apply-for-a-licence site.
 
     No user is logged in with this client.
     """
     al_site = Site.objects.get(name=SiteName.apply_for_a_licence)
     al_client = get_test_client(al_site.domain)
+    al_client.force_login(test_apply_user, backend="authentication.backends.OneLoginBackend")
+
+    # setting the last_activity key in the session to prevent the session from expiring
     session = al_client.session
     session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
     session.save()
