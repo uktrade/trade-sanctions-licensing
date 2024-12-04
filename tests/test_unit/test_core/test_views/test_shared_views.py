@@ -23,11 +23,11 @@ def patched_playwright(monkeypatch):
 
 
 class TestDownloadPDFView:
-    def test_successful_get(self, patched_playwright, al_client):
+    def test_successful_get(self, patched_playwright, authenticated_al_client):
         mock_sync_playwright, mock_browser, mock_page = patched_playwright
         test_reference = "DE1234"
 
-        response = al_client.get(reverse("download_application") + f"?reference={test_reference}")
+        response = authenticated_al_client.get(reverse("download_application") + f"?reference={test_reference}")
 
         assert response.status_code == 200
         assert response.context["reference"] == test_reference

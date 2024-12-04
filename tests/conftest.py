@@ -25,19 +25,24 @@ def test_apply_user(db) -> User:
 
 
 @pytest.fixture()
-def al_client(db, test_apply_user) -> Client:
-    """Client used to access the apply-for-a-licence site.
-
-    No user is logged in with this client.
-    """
+def al_client(db) -> Client:
     al_site = Site.objects.get(name=SiteName.apply_for_a_licence)
     al_client = get_test_client(al_site.domain)
-    al_client.force_login(test_apply_user, backend="authentication.backends.OneLoginBackend")
 
     # setting the last_activity key in the session to prevent the session from expiring
     session = al_client.session
     session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
     session.save()
+    return al_client
+
+
+@pytest.fixture()
+def authenticated_al_client(al_client, test_apply_user) -> Client:
+    """Client used to access the apply-for-a-licence site.
+
+    No user is logged in with this client.
+    """
+    al_client.force_login(test_apply_user, backend="authentication.backends.OneLoginBackend")
     return al_client
 
 
@@ -72,10 +77,10 @@ def vl_client_logged_in(vl_client, staff_user) -> Client:
 
 
 @pytest.fixture()
-def request_object(al_client: Client, test_apply_user: User):
+def request_object(authenticated_al_client: Client, test_apply_user: User):
     """Fixture to create a request object."""
     request_object = RequestFactory()
-    request_object.session = al_client.session
+    request_object.session = authenticated_al_client.session
     request_object.method = "GET"
     request_object.user = test_apply_user
     request_object.GET = {}
