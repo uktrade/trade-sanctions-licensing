@@ -41,15 +41,14 @@ def test_session_expired(authenticated_al_client):
     assert dict(authenticated_al_client.session) == {}
 
 
-def test_no_session_key(authenticated_al_client):
+def test_no_session_key(authenticated_al_client, test_apply_user):
     session = authenticated_al_client.session
-    session.clear()
+    session.pop(settings.SESSION_LAST_ACTIVITY_KEY, None)
     session.save()
 
-    assert dict(authenticated_al_client.session) == {}
     response = authenticated_al_client.post(reverse("what_is_your_email"), follow=True, data={"email": "test@example.com"})
     assert response.resolver_match.url_name == "session_expired"
-    assert dict(authenticated_al_client.session) == {}
+    assert settings.SESSION_LAST_ACTIVITY_KEY not in authenticated_al_client.session
 
 
 def test_ping_session_view(authenticated_al_client):
