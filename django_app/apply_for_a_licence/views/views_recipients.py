@@ -1,6 +1,7 @@
 import logging
 import urllib.parse
 import uuid
+from typing import Any, Type
 
 from apply_for_a_licence.choices import TypeOfServicesChoices
 from apply_for_a_licence.forms import forms_recipients as forms
@@ -97,9 +98,9 @@ class AddARecipientView(AddAnEntityView):
 
         return form
 
-    def get_form_class(self) -> forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm:
+    def get_form_class(self) -> Any:
         if self.location == "in-uk":
-            form_class = forms.AddAUKRecipientForm
+            form_class: Type[forms.AddAUKRecipientForm] | Type[forms.AddANonUKRecipientForm] = forms.AddAUKRecipientForm
         else:
             form_class = forms.AddANonUKRecipientForm
         return form_class

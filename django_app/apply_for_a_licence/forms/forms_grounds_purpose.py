@@ -1,5 +1,5 @@
 from apply_for_a_licence import choices
-from apply_for_a_licence.models import Licence
+from apply_for_a_licence.models_types import Licence
 from apply_for_a_licence.utils import get_cleaned_data_for_step
 from core.crispy_fields import get_field_with_label_id
 from core.forms.base_forms import BaseForm, BaseModelForm

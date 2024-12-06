@@ -1,4 +1,4 @@
-from apply_for_a_licence.models import Individual, Organisation
+from apply_for_a_licence.models_types import Individual, Organisation
 from core.forms.base_forms import (
     BaseBusinessDetailsForm,
     BaseForm,

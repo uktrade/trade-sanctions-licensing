@@ -11,7 +11,7 @@ urlpatterns = [
     path("", RedirectBaseDomainView.as_view(), name="initial_redirect_view"),
     path("feedback/", include("feedback.urls")),
     path("healthcheck/", include("healthcheck.urls")),
-    path("throw_error/", lambda x: 1 / 0),
+    path("throw_error/", lambda x: 1 / 0),  # type: ignore[return-value, arg-type]
     path("admin/", admin.site.urls),
     path("apply/", include("apply_for_a_licence.urls")),
     path("view/", include("view_a_licence.urls")),

@@ -4,7 +4,6 @@ from typing import Any, Dict, List
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Layout, Size, Submit
 from django import forms
-from django.http import HttpRequest
 from utils.companies_house import get_formatted_address
 
 
@@ -13,25 +12,25 @@ class EmptyForm(forms.Form):
 
 
 class BaseForm(forms.Form):
-    bold_labels = True
-    form_h1_header = None
-    single_question_form = False
-    show_back_button = True
+    bold_labels: bool = True
+    form_h1_header: str | None = None
+    single_question_form: bool = False
+    show_back_button: bool = True
     # fields that you don't want to display (optional) next to the label if they're not required
-    hide_optional_label_fields: List[str | None] = []
+    hide_optional_label_fields: List[str] = []
     # if we're using a BaseForm and NOT a BaseModelForm, then we need to implement our own labels dictionary to set the labels
-    labels: dict[str, str] = {}
+    labels: Dict[str, str] = {}
     # same for help_texts
-    help_texts: dict[str, str] = {}
+    help_texts: Dict[str, str] = {}
     # do we want this form to be revalidated when the user clicks Done
-    revalidate_on_done = True
+    revalidate_on_done: bool = True
     # the submit button text
-    submit_button_text = "Continue"
+    submit_button_text: str = "Continue"
 
-    def __init__(self, *args: object, **kwargs: Dict[str, Any]) -> None:
-        self.request: HttpRequest | None = kwargs.pop("request", None)
+    def __init__(self, *args, **kwargs) -> None:
+        self.request = kwargs.pop("request", None)
         self.form_h1_header = kwargs.pop("form_h1_header", self.form_h1_header)
-        self.should_be_bound: bool = kwargs.pop("should_be_bound", False)
+        self.should_be_bound = kwargs.pop("should_be_bound", False)
         super().__init__(*args, **kwargs)
 
         if len(self.fields) == 1:
@@ -186,7 +185,7 @@ class BaseNonUKBusinessDetailsForm(BaseBusinessDetailsForm):
         super().__init__(*args, **kwargs)
 
         self.fields["country"].required = True
-        self.fields["country"].empty_label = "Select country"
+        self.fields["country"].empty_label = "Select country"  # type: ignore[attr-defined]
 
         self.helper.label_size = None
 

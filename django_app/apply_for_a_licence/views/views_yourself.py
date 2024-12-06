@@ -1,6 +1,7 @@
 import logging
 import urllib.parse
 import uuid
+from typing import Any, Type
 
 from apply_for_a_licence.choices import NationalityAndLocation
 from apply_for_a_licence.forms import forms_individual as individual_forms
@@ -53,8 +54,10 @@ class AddYourselfView(BaseFormView):
 class AddYourselfAddressView(BaseFormView):
     success_url = reverse_lazy("yourself_and_individual_added")
 
-    def get_form_class(self) -> forms.AddYourselfUKAddressForm | forms.AddYourselfNonUKAddressForm:
-        form_class = forms.AddYourselfNonUKAddressForm
+    def get_form_class(self) -> Any:
+        form_class: Type[forms.AddYourselfUKAddressForm] | Type[forms.AddYourselfNonUKAddressForm] = (
+            forms.AddYourselfNonUKAddressForm
+        )
 
         if add_yourself_view := self.request.session.get("add_yourself", False):
             if add_yourself_view.get("nationality_and_location") in [

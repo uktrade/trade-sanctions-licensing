@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import pytest
 from apply_for_a_licence.forms import forms_start as forms
-from apply_for_a_licence.models import UserEmailVerification
+from apply_for_a_licence.models_types import UserEmailVerification
 from django import forms as django_forms
 from django.test import RequestFactory
 

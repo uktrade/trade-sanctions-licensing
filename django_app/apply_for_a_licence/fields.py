@@ -5,13 +5,13 @@ from django.core.files.uploadedfile import UploadedFile
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
 
-    def __init__(self, *args: object, **kwargs: object) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.__class__.__name__ = "ClearableFileInput"
 
 
 class MultipleFileField(forms.FileField):
-    def __init__(self, *args: object, **kwargs: object) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("widget", MultipleFileInput())
         super().__init__(*args, **kwargs)
 

@@ -1,7 +1,8 @@
 import os
+from typing import List
 
 from apply_for_a_licence.fields import MultipleFileField
-from apply_for_a_licence.models import Document
+from apply_for_a_licence.models_types import Document
 from core.document_storage import TemporaryDocumentStorage
 from core.forms.base_forms import BaseForm
 from core.utils import get_mime_type
@@ -29,7 +30,7 @@ class UploadDocumentsForm(BaseForm):
         self.helper.layout = Layout("document")
 
     def clean_document(self) -> list[Document]:
-        documents = self.cleaned_data.get("document")
+        documents: List[Document] = self.cleaned_data.get("document")
         for document in documents:
 
             # does the document contain a virus?

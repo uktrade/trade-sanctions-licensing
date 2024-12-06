@@ -1,6 +1,6 @@
 from apply_for_a_licence import choices
 from apply_for_a_licence.choices import TypeOfServicesChoices
-from apply_for_a_licence.models import Licence
+from apply_for_a_licence.models_types import Licence
 from core.crispy_fields import get_field_with_label_id
 from core.forms.base_forms import BaseForm, BaseModelForm
 from crispy_forms_gds.choices import Choice
@@ -69,7 +69,7 @@ class WhichSanctionsRegimeForm(BaseForm):
 
 class ProfessionalOrBusinessServicesForm(BaseModelForm):
     professional_or_business_services = forms.MultipleChoiceField(
-        label=False,
+        label=False,  # type: ignore[arg-type]
         help_text=("Select all that apply"),
         widget=forms.CheckboxSelectMultiple,
         choices=choices.ProfessionalOrBusinessServicesChoices.choices,

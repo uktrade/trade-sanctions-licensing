@@ -27,9 +27,12 @@ class StartView(BaseFormView):
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["who_do_you_want_the_licence_to_cover"]
         if answer in ["business", "individual"]:
-            return reverse("are_you_third_party")
+            success_url = reverse("are_you_third_party")
         elif answer == "myself":
-            return reverse("what_is_your_email")
+            success_url = reverse("what_is_your_email")
+        else:
+            success_url = reverse("start")
+        return success_url
 
 
 class ThirdPartyView(BaseFormView):

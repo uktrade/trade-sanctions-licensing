@@ -1,5 +1,5 @@
 from apply_for_a_licence import choices
-from apply_for_a_licence.models import Licence
+from apply_for_a_licence.models_types import Licence
 
 from tests.test_frontend.conftest import (
     LicensingGroundsBase,

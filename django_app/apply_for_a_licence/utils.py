@@ -7,7 +7,7 @@ def get_dirty_form_data(request: HttpRequest, step_name: str) -> dict:
     return request.session.get(step_name, {})
 
 
-def get_cleaned_data_for_step(request: HttpRequest | None, step_name: str) -> dict:
+def get_cleaned_data_for_step(request: HttpRequest, step_name: str) -> dict:
     """Helper function to get the cleaned data for a particular step"""
     from apply_for_a_licence.urls import step_to_view_dict
 

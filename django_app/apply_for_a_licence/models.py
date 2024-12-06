@@ -1,3 +1,4 @@
+# mypy: disable-error-code="var-annotated"
 import uuid
 
 from core.document_storage import PermanentDocumentStorage
@@ -11,7 +12,7 @@ from django_countries.fields import CountryField
 from utils.companies_house import get_formatted_address
 
 from . import choices
-from .types import Licensee
+from .models_types import Licensee
 
 
 class Licence(BaseModel):

@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 from apply_for_a_licence.choices import TypeOfRelationshipChoices
-from apply_for_a_licence.models import (
+from apply_for_a_licence.models_types import (
     Document,
     Individual,
     Organisation,

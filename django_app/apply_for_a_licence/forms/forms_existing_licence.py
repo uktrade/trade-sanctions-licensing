@@ -1,6 +1,6 @@
 from typing import Any
 
-from apply_for_a_licence.models import Licence
+from apply_for_a_licence.models_types import Licence
 from apply_for_a_licence.utils import get_cleaned_data_for_step
 from core.forms.base_forms import BaseModelForm
 from crispy_forms_gds.layout import (
@@ -81,11 +81,14 @@ class ExistingLicencesForm(BaseModelForm):
                 "services or export sanctioned goods"
             )
 
-    def clean(self) -> dict[str, Any]:
+    def clean(self) -> dict[str, Any] | None:
         cleaned_data = super().clean()
-        if cleaned_data.get("held_existing_licence") == "yes" and not cleaned_data["existing_licences"]:
-            self.add_error("existing_licences", forms.ValidationError(code="required", message="Enter previous licence numbers"))
+        if cleaned_data:
+            if cleaned_data.get("held_existing_licence") == "yes" and not cleaned_data["existing_licences"]:
+                self.add_error(
+                    "existing_licences", forms.ValidationError(code="required", message="Enter previous licence numbers")
+                )
 
-        if cleaned_data.get("held_existing_licence") == "no":
-            cleaned_data["existing_licences"] = None
+            if cleaned_data.get("held_existing_licence") == "no":
+                cleaned_data["existing_licences"] = None
         return cleaned_data

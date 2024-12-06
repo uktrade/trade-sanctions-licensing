@@ -2,7 +2,7 @@ import random
 import string
 
 import factory
-from apply_for_a_licence.models import Individual, Licence, Organisation
+from apply_for_a_licence.models_types import Individual, Licence, Organisation
 from django.contrib.auth.models import User
 from factory.fuzzy import FuzzyText
 from feedback.models import FeedbackItem

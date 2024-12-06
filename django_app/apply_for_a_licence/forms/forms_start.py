@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from apply_for_a_licence import choices
-from apply_for_a_licence.models import Licence, UserEmailVerification
+from apply_for_a_licence.models_types import Licence, UserEmailVerification
 from core.crispy_fields import HTMLTemplate
 from core.forms.base_forms import BaseForm, BaseModelForm
 from core.utils import is_request_ratelimited
@@ -128,7 +128,7 @@ class EmailVerifyForm(BaseForm):
 
         verification_objects = UserEmailVerification.objects.filter(user_session=self.request.session.session_key).latest(
             "date_created"
-        )
+        )  # type: ignore[attr-defined]
         verify_code = verification_objects.email_verification_code
         if email_verification_code != verify_code:
             raise forms.ValidationError("Code is incorrect. Enter the 6 digit security code we sent to your email")

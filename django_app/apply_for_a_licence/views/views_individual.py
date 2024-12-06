@@ -1,11 +1,12 @@
 import logging
 import urllib.parse
 import uuid
-from typing import Any
+from typing import Any, Type
 
 from apply_for_a_licence.choices import NationalityAndLocation
 from apply_for_a_licence.forms import forms_individual as forms
 from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
+from core.forms.base_forms import BaseForm
 from core.views.base_views import BaseFormView
 from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
@@ -19,7 +20,7 @@ class AddAnIndividualView(AddAnEntityView):
     session_key = "individuals"
     url_parameter_key = "individual_uuid"
 
-    def set_session_data(self, form: forms.AddAnIndividualForm) -> dict[str, Any]:
+    def set_session_data(self, form: BaseForm) -> dict[str, Any]:
         return {
             "name_data": {
                 "cleaned_data": form.cleaned_data,
@@ -30,7 +31,7 @@ class AddAnIndividualView(AddAnEntityView):
     def get_session_data(self, session_data: dict[str, Any]) -> dict[str, Any]:
         return session_data["name_data"]["dirty_data"]
 
-    def form_valid(self, form: forms.AddAnIndividualForm) -> HttpResponse:
+    def form_valid(self, form: BaseForm) -> HttpResponse:
         # is it a UK address?
         self.is_uk_individual = form.cleaned_data["nationality_and_location"] in [
             NationalityAndLocation.uk_national_uk_location.value,
@@ -62,7 +63,7 @@ class WhatIsIndividualsAddressView(AddAnEntityView):
     url_parameter_key = "individual_uuid"
     session_key = "individuals"
 
-    def set_session_data(self, form: forms.AddAnIndividualForm) -> dict[str, Any]:
+    def set_session_data(self, form: BaseForm) -> dict[str, Any]:
         return {
             "address_data": {
                 "cleaned_data": form.cleaned_data,
@@ -77,9 +78,11 @@ class WhatIsIndividualsAddressView(AddAnEntityView):
         self.location = kwargs["location"]
         return super().setup(request, *args, **kwargs)
 
-    def get_form_class(self) -> forms.IndividualUKAddressForm | forms.IndividualNonUKAddressForm:
+    def get_form_class(self) -> Any:
         if self.location == "in-uk":
-            form_class = forms.IndividualUKAddressForm
+            form_class: Type[forms.IndividualUKAddressForm] | Type[forms.IndividualNonUKAddressForm] = (
+                forms.IndividualUKAddressForm
+            )
         else:
             form_class = forms.IndividualNonUKAddressForm
         return form_class

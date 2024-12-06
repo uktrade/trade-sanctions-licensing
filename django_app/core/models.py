@@ -5,16 +5,16 @@ from simple_history.models import HistoricalRecords
 
 
 class BaseModel(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True)
-    history = HistoricalRecords(inherit=True)
+    created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
+    modified_at: models.DateTimeField = models.DateTimeField(auto_now=True)
+    history: HistoricalRecords = HistoricalRecords(inherit=True)
 
     class Meta:
-        abstract = True
+        abstract: bool = True
 
 
 class BaseModelID(BaseModel):
-    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+    id: models.UUIDField = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
 
     class Meta:
-        abstract = True
+        abstract: bool = True

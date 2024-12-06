@@ -20,7 +20,7 @@ class BaseFormView(FormView):
     redirect_after_post = True
 
     @property
-    def step_name(self) -> str:
+    def step_name(self) -> str | None:
         """Get the step name from the view class name."""
         from apply_for_a_licence.urls import view_to_step_dict
 
@@ -114,7 +114,7 @@ class RedirectBaseDomainView(RedirectView):
     """Redirects base url visits to either apply-for-a-licence or view-a-licence default view"""
 
     @property
-    def url(self) -> str:
+    def url(self) -> str | None:  # type: ignore[override]
         if is_apply_for_a_licence_site(self.request.site):
             return reverse("start")
         elif is_view_a_licence_site(self.request.site):

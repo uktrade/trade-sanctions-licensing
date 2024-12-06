@@ -1,7 +1,7 @@
 from typing import Any
 
 import sentry_sdk
-from apply_for_a_licence.models import UserEmailVerification
+from apply_for_a_licence.models_types import UserEmailVerification
 from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.http import HttpRequest, HttpResponse

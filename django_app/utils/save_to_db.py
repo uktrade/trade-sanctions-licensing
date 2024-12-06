@@ -3,7 +3,7 @@ from typing import Any
 from apply_for_a_licence import choices
 from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.exceptions import EmailNotVerifiedException
-from apply_for_a_licence.models import (
+from apply_for_a_licence.models_types import (
     Document,
     Individual,
     Licence,
@@ -54,7 +54,7 @@ class SaveToDB:
             business_registered_on_companies_house="Yes" if self.is_on_companies_house else "No",
             regimes=sanctions_regimes,
             type_of_service=self.data["type_of_service"]["type_of_service"],
-            professional_or_business_services=self.data.get("professional_or_business_services").get(
+            professional_or_business_services=self.data.get("professional_or_business_services", None).get(
                 "professional_or_business_services"
             ),
             service_activities=self.data["service_activities"]["service_activities"],

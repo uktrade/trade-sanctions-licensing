@@ -62,7 +62,7 @@ def get_user_uploaded_files(session: SessionBase) -> List[str]:
 
     Files are uploaded to the session's key in the cache, so we scan the entire redis cache for all keys that
     start with the session key and return a list of the values."""
-    cache_keys = list(cache.iter_keys(f"{session.session_key}*"))
+    cache_keys = list(cache.iter_keys(f"{session.session_key}*"))  # type: ignore[attr-defined]
     uploaded_files = [file_name for key, file_name in cache.get_many(cache_keys).items()]
     return uploaded_files
 

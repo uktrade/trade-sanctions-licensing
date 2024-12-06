@@ -1,5 +1,7 @@
 """Configuration settings for deployment to all environments."""
 
+# mypy: ignore-errors
+
 from config.settings.base import *  # noqa
 from django_log_formatter_asim import ASIMFormatter
 

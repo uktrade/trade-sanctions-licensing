@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 
-from apply_for_a_licence.models import Licence
+from apply_for_a_licence.models_types import Licence
 from core.sites import require_view_a_licence
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
@@ -21,16 +21,16 @@ logger = logging.getLogger(__name__)
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class RedirectBaseViewerView(LoginRequiredMixin, ActiveUserRequiredMixin, RedirectView):
+class RedirectBaseViewerView(LoginRequiredMixin, ActiveUserRequiredMixin, RedirectView):  # type: ignore[misc]
     """Redirects view_a_licence base site visits to view-all-reports view"""
 
     @property
-    def url(self) -> str:
+    def url(self) -> str | None:  # type: ignore[override]
         return reverse("view_a_licence:application_list")
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class ApplicationListView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView):
+class ApplicationListView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView):  # type: ignore[misc]
     template_name = "view_a_licence/application_list.html"
     success_url = reverse_lazy("view_a_licence:application_list")
     model = Licence
@@ -41,20 +41,20 @@ class ApplicationListView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView)
         return super().get(request, **kwargs)
 
     def get_queryset(self) -> "QuerySet[Licence]":
-        queryset = super().get_queryset()
+        queryset: QuerySet[Any, Any] | reverse[Any] = super().get_queryset()
         sort = self.request.session.get("sort", "newest")
         if sort == "oldest":
             queryset = reversed(queryset)
         return queryset
 
-    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["selected_sort"] = self.request.session.pop("sort", "newest")
         return context
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class ManageUsersView(LoginRequiredMixin, StaffUserOnlyMixin, TemplateView):
+class ManageUsersView(LoginRequiredMixin, StaffUserOnlyMixin, TemplateView):  # type: ignore[misc]
     template_name = "view_a_licence/manage_users.html"
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
@@ -85,7 +85,7 @@ class ManageUsersView(LoginRequiredMixin, StaffUserOnlyMixin, TemplateView):
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class ViewALicenceApplicationView(LoginRequiredMixin, ActiveUserRequiredMixin, DetailView):
+class ViewALicenceApplicationView(LoginRequiredMixin, ActiveUserRequiredMixin, DetailView):  # type: ignore[misc]
     template_name = "view_a_licence/view_a_licence_application.html"
     context_object_name = "licence"
     model = Licence
@@ -99,7 +99,7 @@ class ViewALicenceApplicationView(LoginRequiredMixin, ActiveUserRequiredMixin, D
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class ViewFeedbackView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView):
+class ViewFeedbackView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView):  # type: ignore[misc]
     context_object_name = "feedback"
     model = FeedbackItem
     template_name = "view_a_licence/view_feedback.html"

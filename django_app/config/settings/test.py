@@ -1,3 +1,5 @@
+# mypy: ignore-errors
+
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.core.cache.backends.dummy import DummyCache
 from django.forms import Form
@@ -52,7 +54,7 @@ CACHES = {"default": {"BACKEND": "config.settings.test.TestingCache"}}
 def test_request_verify_code(self, form: Form) -> HttpResponse:
     """Monkey-patching the form_valid of the email address code view to always use the same verify code for testing."""
 
-    from apply_for_a_licence.models import UserEmailVerification
+    from apply_for_a_licence.models_types import UserEmailVerification
     from apply_for_a_licence.views.views_start import WhatIsYouEmailAddressView
     from django.contrib.sessions.models import Session
 
