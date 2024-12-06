@@ -62,6 +62,7 @@ def test_save_individuals(request_object):
     assert licence_individuals[1].nationality_and_location == "uk_national_non_uk_location"
     assert licence_individuals[2].last_name == "3"
     assert licence_individuals[2].nationality_and_location == "non_uk_national_uk_location"
+    assert not licence_individuals[1].relationship_provider
 
 
 @pytest.mark.django_db
@@ -93,6 +94,7 @@ def test_save_myself(request_object):
     assert licence_individuals[2].nationality_and_location == "non_uk_national_uk_location"
     assert licence_individuals[3].last_name == "Doe"
     assert licence_individuals[3].address_line_1 == "Myself Address"
+    assert not licence_individuals[1].relationship_provider
 
 
 @pytest.mark.django_db
@@ -131,6 +133,7 @@ def test_save_business(request_object):
     assert licence_business[2].name == "Companies House Business"
     assert licence_business[2].registered_company_number == "12345678"
     assert licence_business[2].registered_office_address == "Address Line 1, GB"
+    assert not licence_business[1].relationship_provider
 
 
 @pytest.mark.django_db

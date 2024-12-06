@@ -152,18 +152,20 @@
                 Previous licence
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ licence.held_existing_licence|yesno:"Yes,No" }}
+                {{ licence.held_existing_licence|capfirst }}
             </dd>
 
         </div>
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                Previous licence numbers
-            </dt>
-            <dd class="govuk-summary-list__value">
-                {{ licence.existing_licences|linebreaksbr }}
-            </dd>
-        </div>
+        {% if licence.held_existing_licence == "yes" %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    Previous licence numbers
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ licence.existing_licences|linebreaksbr }}
+                </dd>
+            </div>
+        {% endif %}
     </dl>
     <h2 class="govuk-heading-m">Overview of the services</h2>
     <dl class="govuk-summary-list">

@@ -10,8 +10,9 @@ class FeedbackItem(BaseModel):
     did_you_experience_any_issues: ArrayField = ArrayField(
         base_field=models.CharField(max_length=32, choices=DidYouExperienceAnyIssues.choices), blank=True, null=True
     )
-    how_we_could_improve_the_service: models.TextField = models.TextField(null=True, blank=True)
-    url: models.URLField = models.URLField(null=True, blank=True)
+
+    how_we_could_improve_the_service = models.TextField(null=True, blank=True)
+    url = models.URLField(null=True, blank=True)
 
     def get_did_you_experience_any_issues_display(self) -> str:
         display = []
