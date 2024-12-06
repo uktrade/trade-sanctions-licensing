@@ -52,7 +52,7 @@ def delete_session_files(s3_storage: S3Boto3Storage, session: SessionBase) -> No
     s3_client = get_s3_client_from_storage(s3_storage=s3_storage)
 
     response = s3_client.list_objects_v2(Bucket=s3_storage.bucket.name, Prefix=session.session_key)
-    delete_keys = {"Objects": []}
+    delete_keys: dict[str, Any] = {"Objects": []}
     delete_keys["Objects"] = [{"Key": k} for k in [obj["Key"] for obj in response.get("Contents", [])]]
     s3_client.delete_objects(Bucket=s3_storage.bucket.name, Delete=delete_keys)
 

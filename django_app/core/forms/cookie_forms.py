@@ -18,7 +18,7 @@ class CookiesConsentForm(BaseForm):
         required=True,
     )
 
-    def __init__(self, *args: object, **kwargs: object) -> None:
+    def __init__(self, *args: object, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.add_input(Submit("save cookie settings", "Save cookie settings", css_class="govuk-button"))

@@ -126,9 +126,10 @@ class EmailVerifyForm(BaseForm):
 
         verify_timeout_seconds = settings.EMAIL_VERIFY_TIMEOUT_SECONDS
 
-        verification_objects = UserEmailVerification.objects.filter(user_session=self.request.session.session_key).latest(
-            "date_created"
-        )
+        verification_objects = UserEmailVerification.objects.filter(
+            user_session=self.request.session.session_key  # type: ignore[attr-defined]
+        ).latest("date_created")
+
         verify_code = verification_objects.email_verification_code
         if email_verification_code != verify_code:
             raise forms.ValidationError("Code is incorrect. Enter the 6 digit security code we sent to your email")

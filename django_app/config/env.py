@@ -1,9 +1,9 @@
+# mypy: disable-error-code="attr-defined,misc"
 import os
-from typing import Any
 
 from dbt_copilot_python.database import database_url_from_env
 from dbt_copilot_python.network import setup_allowed_hosts
-from pydantic import BaseModel, ConfigDict, Field, computed_field
+from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings as PydanticBaseSettings
 from pydantic_settings import SettingsConfigDict
 
@@ -92,7 +92,7 @@ class BaseSettings(PydanticBaseSettings):
 
     @computed_field
     @property
-    def temporary_s3_bucket_configuration(self) -> dict[str, str]:
+    def temporary_s3_bucket_configuration(self) -> dict[str, str | None]:
         return {
             "bucket_name": self.temporary_s3_bucket_name,
             "access_key_id": self.temporary_s3_bucket_access_key_id,
@@ -101,7 +101,7 @@ class BaseSettings(PydanticBaseSettings):
 
     @computed_field
     @property
-    def permanent_s3_bucket_configuration(self) -> dict[str, str]:
+    def permanent_s3_bucket_configuration(self) -> dict[str, str | None]:
         return {
             "bucket_name": self.permanent_s3_bucket_name,
             "access_key_id": self.permanent_s3_bucket_access_key_id,
@@ -118,53 +118,6 @@ class LocalSettings(BaseSettings):
 class TestSettings(LocalSettings):
     headless: bool = False
     save_videos: bool = False  # Save videos of the tests
-
-
-class GovPaasSettings(BaseSettings):
-    class VCAPServices(BaseModel):
-        model_config = ConfigDict(extra="ignore")
-
-        postgres: list[dict[str, Any]]
-        aws_s3_bucket: list[dict[str, Any]] = Field(alias="aws-s3-bucket")
-        redis: list[dict[str, Any]]
-
-    vcap_services: VCAPServices | None = VCAPServices
-
-    @computed_field
-    @property
-    def database_uri(self) -> dict[str, str]:
-        return self.vcap_services.postgres[0]["credentials"]["uri"]
-
-    @property
-    def get_temporary_bucket_vcap(self) -> dict[str, Any]:
-        return next((each["credentials"] for each in self.vcap_services.aws_s3_bucket if "temporary" in each["name"]), {})
-
-    @property
-    def get_permanent_bucket_vcap(self) -> dict[str, Any]:
-        return next((each["credentials"] for each in self.vcap_services.aws_s3_bucket if "permanent" in each["name"]), {})
-
-    @computed_field
-    @property
-    def temporary_s3_bucket_configuration(self) -> dict[str, str]:
-        return {
-            "bucket_name": self.get_temporary_bucket_vcap["bucket_name"],
-            "access_key_id": self.get_temporary_bucket_vcap["aws_access_key_id"],
-            "secret_access_key": self.get_temporary_bucket_vcap["aws_secret_access_key"],
-        }
-
-    @computed_field
-    @property
-    def permanent_s3_bucket_configuration(self) -> dict[str, str]:
-        return {
-            "bucket_name": self.get_permanent_bucket_vcap["bucket_name"],
-            "access_key_id": self.get_permanent_bucket_vcap["aws_access_key_id"],
-            "secret_access_key": self.get_permanent_bucket_vcap["aws_secret_access_key"],
-        }
-
-    @computed_field
-    @property
-    def redis_url(self) -> str:
-        return self.vcap_services.redis[0]["credentials"]["uri"]
 
 
 class DBTPlatformSettings(BaseSettings):
@@ -191,7 +144,7 @@ class DBTPlatformSettings(BaseSettings):
 
     @computed_field
     @property
-    def temporary_s3_bucket_configuration(self) -> dict[str, str]:
+    def temporary_s3_bucket_configuration(self) -> dict[str, str | None]:
         if self.in_build_step:
             return {
                 "bucket_name": "",
@@ -207,7 +160,7 @@ class DBTPlatformSettings(BaseSettings):
 
     @computed_field
     @property
-    def permanent_s3_bucket_configuration(self) -> dict[str, str]:
+    def permanent_s3_bucket_configuration(self) -> dict[str, str | None]:
         if self.in_build_step:
             return {
                 "bucket_name": "",
@@ -230,22 +183,22 @@ class DBTPlatformSettings(BaseSettings):
         return self.redis_endpoint
 
 
+env: LocalSettings | TestSettings | DBTPlatformSettings
 if "CIRCLECI" in os.environ:
     # CircleCI, don't validate
     # There's a funny issue with capitalisation here, so we casefold() everything in the environ, so we can match it to
     # the properties in the settings models. Everything except for DATABASE_URL which is case-sensitive.
     env = TestSettings.model_construct(
-        **{key if key == "DATABASE_URL" else key.casefold(): value for key, value in os.environ.items()}
+        **{key if key == "DATABASE_URL" else key.casefold(): value for key, value in os.environ.items()}  # type: ignore[arg-type]
     )
 elif os.environ.get("DJANGO_SETTINGS_MODULE", "") == "config.settings.local":
     # Local development
-    env = LocalSettings()
+    env = LocalSettings()  # type: ignore[call-arg]
 elif os.environ.get("DJANGO_SETTINGS_MODULE", "") == "config.settings.test":
     # Testing
-    env = TestSettings()
+    env = TestSettings()  # type: ignore[call-arg]
 elif "COPILOT_ENVIRONMENT_NAME" in os.environ:
     # Deployed on DBT Platform
-    env = DBTPlatformSettings()
+    env = DBTPlatformSettings()  # type: ignore[call-arg]
 else:
-    # Deployed on GOV.PaaS
-    env = GovPaasSettings()
+    raise ValueError("Unknown environment")

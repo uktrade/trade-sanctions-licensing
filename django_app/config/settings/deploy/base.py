@@ -4,9 +4,9 @@ from config.settings.base import *  # noqa
 from django_log_formatter_asim import ASIMFormatter
 
 # PRODUCTION LOGGING CONFIGURATION
-INSTALLED_APPS += ["django_audit_log_middleware"]
+INSTALLED_APPS += ["django_audit_log_middleware"]  # type: ignore[name-defined]
 
-MIDDLEWARE += ["django_audit_log_middleware.AuditLogMiddleware"]
+MIDDLEWARE += ["django_audit_log_middleware.AuditLogMiddleware"]  # type: ignore[name-defined]
 
 LOGGING = {
     "formatters": {

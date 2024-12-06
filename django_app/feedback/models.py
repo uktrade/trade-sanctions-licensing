@@ -13,9 +13,9 @@ class FeedbackItem(BaseModel):
     how_we_could_improve_the_service = models.TextField(null=True, blank=True)
     url = models.URLField(null=True, blank=True)
 
-    def get_did_you_experience_any_issues_display(self) -> list[str]:
-        display = []
+    def get_did_you_experience_any_issues_display(self) -> str:
+        display_list = []
         if self.did_you_experience_any_issues:
-            display += [dict(DidYouExperienceAnyIssues.choices)[value] for value in self.did_you_experience_any_issues]
-        display = ",\n".join(display)
+            display_list += [dict(DidYouExperienceAnyIssues.choices)[value] for value in self.did_you_experience_any_issues]
+        display = ",\n".join(display_list)
         return display

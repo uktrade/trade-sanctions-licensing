@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 from .base import *  # noqa
 
 ENVIRONMENT = "local"
@@ -5,6 +6,7 @@ ENVIRONMENT = "local"
 # DJANGO DEBUG TOOLBAR
 INSTALLED_APPS += ["debug_toolbar"]
 
+#  type: ignore[used-before-def]
 MIDDLEWARE += [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
