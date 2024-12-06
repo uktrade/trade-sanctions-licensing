@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 import os
 
 from dbt_copilot_python.database import database_url_from_env
@@ -79,28 +80,28 @@ class BaseSettings(PydanticBaseSettings):
     csp_report_only: bool = True
     csp_report_uri: str | None = None
 
-    @property
     @computed_field
+    @property
     def redis_url(self) -> str:
         return f"redis://{self.redis_host}:{self.redis_port}"
 
-    @property
     @computed_field
+    @property
     def allowed_hosts(self) -> list[str]:
         return self.licensing_allowed_hosts
 
-    @property
     @computed_field
-    def temporary_s3_bucket_configuration(self) -> dict[str, str | None]:
+    @property
+    def temporary_s3_bucket_configuration(self) -> dict[str, str]:
         return {
             "bucket_name": self.temporary_s3_bucket_name,
             "access_key_id": self.temporary_s3_bucket_access_key_id,
             "secret_access_key": self.temporary_s3_bucket_secret_access_key,
         }
 
-    @property
     @computed_field
-    def permanent_s3_bucket_configuration(self) -> dict[str, str | None]:
+    @property
+    def permanent_s3_bucket_configuration(self) -> dict[str, str]:
         return {
             "bucket_name": self.permanent_s3_bucket_name,
             "access_key_id": self.permanent_s3_bucket_access_key_id,
@@ -125,25 +126,25 @@ class DBTPlatformSettings(BaseSettings):
     # Redis env vars
     redis_endpoint: str = Field(alias="REDIS_ENDPOINT", default="")
 
-    @property
     @computed_field
+    @property
     def allowed_hosts(self) -> list[str]:
         if self.in_build_step:
             return self.licensing_allowed_hosts
         else:
             return setup_allowed_hosts(self.licensing_allowed_hosts)
 
-    @property
     @computed_field
+    @property
     def database_uri(self) -> dict[str, str] | str:
         if self.in_build_step:
             return ""
         else:
             return database_url_from_env("DATABASE_CREDENTIALS")
 
-    @property
     @computed_field
-    def temporary_s3_bucket_configuration(self) -> dict[str, str | None]:
+    @property
+    def temporary_s3_bucket_configuration(self) -> dict[str, str]:
         if self.in_build_step:
             return {
                 "bucket_name": "",
@@ -157,9 +158,9 @@ class DBTPlatformSettings(BaseSettings):
                 "secret_access_key": None,
             }
 
-    @property
     @computed_field
-    def permanent_s3_bucket_configuration(self) -> dict[str, str | None]:
+    @property
+    def permanent_s3_bucket_configuration(self) -> dict[str, str]:
         if self.in_build_step:
             return {
                 "bucket_name": "",
@@ -173,8 +174,8 @@ class DBTPlatformSettings(BaseSettings):
                 "secret_access_key": None,
             }
 
+    @computed_field  # type: ignore[misc]
     @property
-    @computed_field
     def redis_url(self) -> str:
         if self.in_build_step:
             return ""

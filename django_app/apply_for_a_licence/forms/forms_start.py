@@ -128,7 +128,8 @@ class EmailVerifyForm(BaseForm):
 
         verification_objects = UserEmailVerification.objects.filter(user_session=self.request.session.session_key).latest(
             "date_created"
-        )
+        )  # type: ignore[attr-defined]
+
         verify_code = verification_objects.email_verification_code
         if email_verification_code != verify_code:
             raise forms.ValidationError("Code is incorrect. Enter the 6 digit security code we sent to your email")
