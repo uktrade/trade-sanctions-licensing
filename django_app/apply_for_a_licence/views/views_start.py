@@ -30,6 +30,8 @@ class StartView(BaseFormView):
             return reverse("are_you_third_party")
         elif answer == "myself":
             return reverse("what_is_your_email")
+        else:
+            return reverse("start")
 
 
 class ThirdPartyView(BaseFormView):
