@@ -29,6 +29,10 @@ class TypeOfServiceView(BaseFormView):
         if type_of_service := self.changed_fields.get("type_of_service", False):
             self.redirect_after_post = False
 
+            # we want to clear the service_activities and the purpose_of_provision if the type of service has changed
+            self.request.session["service_activities"] = {}
+            self.request.session["purpose_of_provision"] = {}
+
             # changed from Professional or Business Services to other service
             if type_of_service == "professional_and_business":
                 # delete form data for professional business services and licensing grounds
