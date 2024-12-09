@@ -50,3 +50,36 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.page.get_by_role("button", name="Remove recipient 1").click()
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         expect(self.page.get_by_role("heading", name="You've added 1 recipient")).to_be_visible()
+
+    def test_changing_recipient_same_location(self):
+        self.page.goto(self.base_url)
+        self.business_third_party(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/your-details"))
+        self.provider_business_located_in_uk(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/add-business"))
+        self.no_more_additions(self.page)
+        self.recipient_simple(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
+        self.page.get_by_text("Change").click()
+        self.page.get_by_text("In the UK").click()
+        self.page.get_by_role("button", name="Continue").click()
+        assert self.page.locator("input[name='name']").input_value() == "business"  # checking pre-fill
+        self.page.get_by_role("button", name="Continue").click()
+        assert self.page.locator("input[name='relationship']").input_value() == "Test relationship"  # checking pre-fill
+        self.page.get_by_role("button", name="Continue").click()
+        expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
+        expect(self.page.get_by_role("heading", name="You've added 1 recipient")).to_be_visible()
+
+    def test_changing_recipient_different_location(self):
+        self.page.goto(self.base_url)
+        self.business_third_party(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/your-details"))
+        self.provider_business_located_in_uk(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/add-business"))
+        self.no_more_additions(self.page)
+        self.recipient_simple(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
+        self.page.get_by_text("Change").click()
+        self.page.get_by_text("Outside the UK").click()
+        self.page.get_by_role("button", name="Continue").click()
+        assert self.page.locator("input[name='name']").input_value() == ""  # should be wiped

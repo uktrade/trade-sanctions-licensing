@@ -39,6 +39,13 @@ class BaseFormView(FormView):
                 kwargs["data"] = previous_data
         return kwargs
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if self.request.method == "GET" and self.request.GET.get("new"):
+            # if we want a new form, we don't want it to be bound
+            form.is_bound = False
+        return form
+
     def post(self, request, *args, **kwargs):
         # checking for session expiry
         if last_activity := request.session.get(settings.SESSION_LAST_ACTIVITY_KEY, None):
