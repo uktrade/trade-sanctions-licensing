@@ -36,6 +36,7 @@
                     <th scope="col" class="govuk-table__header">Rating</th>
                     <th scope="col" class="govuk-table__header">Did you experience any issues? </th>
                     <th scope="col" class="govuk-table__header">How could we improve the service? </th>
+                    <th scope="col" class="govuk-table__header">URL </th>
                 </tr>
 
             </thead>
@@ -49,6 +50,7 @@
                         <td class="govuk-table__cell">{{ feedback_item.get_rating_display}} </td>
                         <td class="govuk-table__cell">{{ feedback_item.get_did_you_experience_any_issues_display | linebreaksbr }}</td>
                         <td class="govuk-table__cell">{{ feedback_item.how_we_could_improve_the_service }}</td>
+                        <td class="govuk-table__cell">{{ feedback_item.url }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
