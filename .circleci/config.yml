@@ -106,6 +106,7 @@ jobs:
         - run:
             name: Spin up local mock OneLogin server
             command: |
+              grep -o '^[^#]*' .env.example > .env
               docker-compose up mock-one-login
 
         - run:
