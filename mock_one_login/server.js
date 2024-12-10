@@ -1,69 +1,58 @@
 /* eslint-disable no-console */
 
-const assert = require('assert');
-const camelCase = require('camelcase');
+import assert from 'assert'
+import camelCase from 'camelcase'
 
-const Provider = require('oidc-provider');
-const configLoader = require("./configLoader");
+import Provider from 'oidc-provider'
+
+import fs from "fs"
+import yaml from "js-yaml"
+
+import wildcard from 'wildcard';
+import psl from 'psl';
+
+function getConfig(configSource) {
+    const config = _getData(configSource);
+    console.log(`Loaded config with ${config.people.length} people`);
+    return config;
+}
+
+function _getData(configSource) {
+    const data = fs.readFileSync(configSource).toString();
+    if (configSource.endsWith(".yaml") || configSource.endsWith(".yml"))
+        return yaml.safeLoad(data);
+    else return JSON.parse(data);
+}
 
 
 const host = process.env.HOST || 'localhost';
 const port = process.env.PORT || 3000;
 
-const config = ['CLIENT_ID', 'CLIENT_SECRET', 'CLIENT_REDIRECT_URI', 'CLIENT_LOGOUT_REDIRECT_URI'].reduce((acc, v) => {
+const config = ['CLIENT_ID', 'CLIENT_SECRET', 'CLIENT_REDIRECT_URI', 'CLIENT_LOGOUT_REDIRECT_URI', 'DJANGO_SERVER_PORT'].reduce((acc, v) => {
     assert(process.env[v], `${v} config missing`);
     acc[camelCase(v)] = process.env[v];
     return acc;
 }, {});
 
-const people_config = configLoader.getConfig('./mock-people.yaml');
+const people_config = getConfig('./mock-people.yaml');
 
+// Generate a bunch of redirect URIs from 50000-60000 and the actual one to take into account the DjangoLiveServerTestCase potential ports
+let redirect_uris = []
+var i = 50000, max = 60000;
+while (i < max) {
+    let new_uri = config.clientRedirectUri.replace("{port}", i)
+    redirect_uris.push(new_uri)
+    i++
+}
 
-const oidcConfig = {
-    features: {
-        devInteractions: true,
-        discovery: true,
-        registration: false,
-        revocation: true,
-        sessionManagement: false
-    },
-    format: {
-        default: 'jwt',
-            AccessToken: 'jwt',
-            RefreshToken: 'jwt'
-    },
-    claims: {
-        acr: null,
-        sid: null,
-        auth_time: null,
-        iss: null,
-        openid: ['sub', 'name', 'email']
-    },
-    findById: function (ctx, id) {
-        console.log("findById called with id ", id)
-        if (people_config.people[id]) {
-            let person = people_config.people[id];
-            return {
-                accountId: id,
-                async claims(use, scope) {
-                    return {
-                        sub: id,
-                        name: person.name,
-                        email: person.email,
-                    };
-                },
-            };
-        }
-    }
-};
+let actual_uri = config.clientRedirectUri.replace("{port}", config.djangoServerPort)
+redirect_uris.push(actual_uri)
 
-const oidc = new Provider(`http://${host}:${port}`, oidcConfig);
-
-const clients = [
+let clients = [
     {
         client_id: config.clientId,
         client_secret: config.clientSecret,
-        redirect_uris: [config.clientRedirectUri],
+        redirect_uris: redirect_uris,
         post_logout_redirect_uris: [config.clientLogoutRedirectUri],
         token_endpoint_auth_method: 'private_key_jwt',
         jwks: {
@@ -79,11 +68,55 @@ const clients = [
             ],
         }
     }
-];
+]
+console.log(clients)
+
+const oidcConfig = {
+    features: {
+        devInteractions: {enabled: true},
+        registration: {enabled: false},
+        revocation: {enabled: true},
+    },
+    format: {
+        default: 'jwt',
+            AccessToken: 'jwt',
+            RefreshToken: 'jwt'
+    },
+    pkce: {
+        required: function () {
+            return false
+        }
+    },
+    claims: {
+        acr: null,
+        sid: null,
+        auth_time: null,
+        iss: null,
+        openid: ['sub', 'name', 'email']
+    },
+    findAccount: function (ctx, sub, token) {
+        console.log("findAccount called with id ", sub)
+        if (people_config.people[sub]) {
+            let person = people_config.people[sub];
+            return {
+                accountId: sub,
+                async claims(use, scope) {
+                    return {
+                        sub: sub,
+                        name: person.name,
+                        email: person.email,
+                    };
+                },
+            };
+        }
+    },
+    clients: clients,
+};
+
+const oidc = new Provider(`http://${host}:${port}`, oidcConfig);
 
 let server;
 (async () => {
-    await oidc.initialize({clients});
     server = oidc.listen(port, () => {
         console.log(
             `mock-oidc-user-server listening on port ${port}, check http://${host}:${port}/.well-known/openid-configuration`

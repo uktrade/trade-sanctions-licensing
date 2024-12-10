@@ -187,3 +187,5 @@ fabric.properties
 /video-test-results/
 
 .DS_Store
+node_modules/
+video-test-results/

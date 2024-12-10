@@ -6,16 +6,18 @@
   "author": "Jiten Bhagat",
   "license": "MIT",
   "engines": {
-    "node": ">=10.15.0 <12"
+    "node": ">=18.0.0 <19"
   },
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "camelcase": "^5.0.0",
     "js-yaml": "^3.14.0",
-    "oidc-provider": "^5.5.2"
-
+    "oidc-provider": "^8.0.0",
+    "wildcard": "^2.0.0",
+    "psl": "^1.8.0"
   },
   "devDependencies": {
     "postinstall-prepare": "^1.0.1"

@@ -1,4 +1,4 @@
-FROM node:10.15-alpine
+FROM node:18.0-alpine
 
 LABEL maintainer="info@appvia.io"
 LABEL source="https://github.com/appvia/mock-oidc-user-server"

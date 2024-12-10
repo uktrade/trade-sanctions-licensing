@@ -104,6 +104,11 @@ jobs:
         - aws-cli/setup
 
         - run:
+            name: Spin up local mock OneLogin server
+            command: |
+              docker-compose up mock-one-login
+
+        - run:
             name: Create S3 Buckets
             command: |
               pipenv run awslocal s3 mb s3://temporary-document-bucket
