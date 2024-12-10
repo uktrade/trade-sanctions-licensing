@@ -94,6 +94,7 @@ jobs:
             POSTGRES_DB: apply_for_a_licence
             POSTGRES_PASSWORD: password
         - image: localstack/localstack
+        - image: docker:20.10.11
 
 
       steps:
