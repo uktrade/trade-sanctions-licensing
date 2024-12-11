@@ -127,15 +127,13 @@ jobs:
 
         - run:
             name: Spin up local mock OneLogin server
+            # first we need to remove the env configuration from the docker-compose file as otherwise it complains it
+            # doesn't exist
             command: |
-              grep -o '^[^#]*' .env.example > .env
+              sed '/env_file:/d' ./infile
+              sed '/- .env/d' ./infile
               docker-compose up mock-one-login
             background: true
-
-        - run:
-            name: Deleting the .env file as no longer needed
-            command: |
-              rm .env
 
         - run:
             name: Run front-end tests
