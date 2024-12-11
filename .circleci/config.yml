@@ -121,7 +121,7 @@ jobs:
               apt-get update
               DEBIAN_FRONTEND=noninteractive apt-get install docker-ce-cli docker-buildx-plugin docker-compose-plugin
 
-              - setup_remote_docker #activate the remote docker environment
+        - setup_remote_docker
 
         - run:
             name: Spin up local mock OneLogin server
