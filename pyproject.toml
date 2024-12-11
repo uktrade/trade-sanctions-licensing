@@ -81,3 +81,6 @@ addopts = """
 """
 django_find_project = false
 pythonpath = "django_app"
+
+[tool.mypy]
+ignore_missing_imports = true

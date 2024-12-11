@@ -25,7 +25,7 @@ class ActiveUserRequiredMixin:
                 )
             return render(request, "view_a_licence/unauthorised.html", status=401)
 
-        return super().dispatch(request, **kwargs)
+        return super().dispatch(request, **kwargs)  # type: ignore[misc]
 
 
 class StaffUserOnlyMixin(ActiveUserRequiredMixin):

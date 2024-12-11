@@ -88,7 +88,7 @@ class AddARecipientView(AddAnEntityView):
 
         return form
 
-    def get_form_class(self) -> [forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm]:
+    def get_form_class(self) -> forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm:
         if self.location == "in-uk":
             form_class = forms.AddAUKRecipientForm
         else:

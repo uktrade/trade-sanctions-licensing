@@ -24,12 +24,13 @@ class StartView(BaseFormView):
         update_last_activity_session_timestamp(request)
         return super().dispatch(request, *args, **kwargs)
 
-    def get_success_url(self) -> str:
+    def get_success_url(self) -> str | None:
         answer = self.form.cleaned_data["who_do_you_want_the_licence_to_cover"]
         if answer in ["business", "individual"]:
             return reverse("are_you_third_party")
         elif answer == "myself":
             return reverse("what_is_your_email")
+        return None
 
 
 class ThirdPartyView(BaseFormView):
