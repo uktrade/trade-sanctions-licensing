@@ -133,6 +133,11 @@ jobs:
             background: true
 
         - run:
+            name: Deleting the .env file as no longer needed
+            command: |
+              rm .env
+
+        - run:
             name: Run front-end tests
             # we don't run frontend tests with coverage as only unit tests should affect coverage
             command: |
