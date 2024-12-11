@@ -94,7 +94,7 @@ jobs:
             POSTGRES_DB: apply_for_a_licence
             POSTGRES_PASSWORD: password
         - image: localstack/localstack
-
+        - image: docker:27.4
 
       steps:
         - checkout
@@ -102,13 +102,6 @@ jobs:
         - install_dependencies
         - save_dependency_cache
         - aws-cli/setup
-
-        - run:
-            name: Install `docker-compose`
-            command: |
-              curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
-              chmod +x ~/docker-compose
-              sudo mv ~/docker-compose /usr/local/bin/docker-compose
 
         - setup_remote_docker
 
