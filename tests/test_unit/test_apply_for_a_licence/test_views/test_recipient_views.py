@@ -89,10 +89,12 @@ class TestAddRecipientView:
     def test_get_form_is_bound_same_location(self, al_client):
         recipient_uuid = uuid.uuid4()
         session = al_client.session
-        session["recipient_locations"] = {
+        session["recipients"] = {
             str(recipient_uuid): {
-                "location": "in-uk",
-                "changed": False,
+                "cleaned_data": {
+                    "url_location": "in-uk",
+                },
+                "dirty_data": {"address_line_1": "test address"},
             }
         }
         session.save()
@@ -101,15 +103,22 @@ class TestAddRecipientView:
             reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid}) + "?change=yes"
         )
         assert response.context["form"].is_bound
+
+        response = al_client.get(
+            reverse("add_a_recipient", kwargs={"location": "outside-uk", "recipient_uuid": recipient_uuid}) + "?change=yes"
+        )
+        assert not response.context["form"].is_bound
         assert response.status_code == 200
 
     def test_post_form_complete_change(self, al_client):
         recipient_uuid = uuid.uuid4()
         session = al_client.session
-        session["recipient_locations"] = {
+        session["recipients"] = {
             str(recipient_uuid): {
-                "location": "in-uk",
-                "changed": True,
+                "cleaned_data": {
+                    "url_location": "in-uk",
+                },
+                "dirty_data": {"address_line_1": "test address"},
             }
         }
         session.save()
@@ -128,7 +137,7 @@ class TestAddRecipientView:
         )
 
         assert response.status_code == 302
-        assert al_client.session["recipient_locations"][str(recipient_uuid)]["changed"] is False
+        assert al_client.session["recipients"][str(recipient_uuid)]["cleaned_data"]["name"] == "COOL BEANS LTD"
 
 
 class TestDeleteRecipientView:
