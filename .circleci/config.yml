@@ -88,6 +88,7 @@ jobs:
             HEADLESS: true
             DJANGO_ALLOW_ASYNC_UNSAFE: true
             SAVE_VIDEOS: true
+            SENTRY_DSN: ""
         - image: cimg/postgres:16.1
           environment:
             POSTGRES_USER: postgres
