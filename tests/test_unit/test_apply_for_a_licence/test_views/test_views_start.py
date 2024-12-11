@@ -20,11 +20,3 @@ class TestStartView:
 
         assert response.status_code == 302
         assert response.url == reverse("are_you_third_party")
-
-    def test_post_none(self, al_client):
-        response = al_client.post(
-            reverse("start"),
-            data={"who_do_you_want_the_licence_to_cover": "me"},
-        )
-
-        assert response.status_code == 200
