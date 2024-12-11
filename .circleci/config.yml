@@ -101,15 +101,7 @@ jobs:
         - install_dependencies
         - save_dependency_cache
         - aws-cli/setup
-
         - setup_remote_docker
-
-        - run:
-            name: Spin up local mock OneLogin server
-            command: |
-              grep -o '^[^#]*' .env.example > .env
-              docker-compose up mock-one-login
-            background: true
 
         - run:
             name: Create S3 Buckets
@@ -131,6 +123,13 @@ jobs:
               pipenv run pytest tests/test_unit --cov=django_app --cov-branch --cov-report=json --junitxml=test-results/unit/results.xml
 
         - codecov/upload
+
+        - run:
+            name: Spin up local mock OneLogin server
+            command: |
+              grep -o '^[^#]*' .env.example > .env
+              docker-compose up mock-one-login
+            background: true
 
         - run:
             name: Run front-end tests
