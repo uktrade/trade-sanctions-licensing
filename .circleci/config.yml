@@ -94,7 +94,6 @@ jobs:
             POSTGRES_DB: apply_for_a_licence
             POSTGRES_PASSWORD: password
         - image: localstack/localstack
-        - image: docker:27.4
 
       steps:
         - checkout
@@ -110,6 +109,7 @@ jobs:
             command: |
               grep -o '^[^#]*' .env.example > .env
               docker-compose up mock-one-login
+            background: true
 
         - run:
             name: Create S3 Buckets
