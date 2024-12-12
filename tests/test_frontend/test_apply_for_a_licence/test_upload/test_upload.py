@@ -57,3 +57,4 @@ class TestUpload(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
         self.page.get_by_role("button", name="Continue").click()
         expect(self.page.get_by_text("mock_malware_file.txt")).not_to_be_visible()
         expect(self.page).to_have_url(re.compile(r".*/upload-documents"))
+        self.page.get_by_text("Reset session").click()
