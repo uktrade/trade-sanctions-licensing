@@ -390,6 +390,7 @@
                 "sha256:6b56d834cc94c8b21a8f4e775064896be3b4a4ca387f2612d4406a5927cd2fdc"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.8'",
             "version": "==4.2.17"
         },
         "django-audit-log-middleware": {
@@ -462,6 +463,7 @@
                 "sha256:54e67d50fce3f93e5288e0e56a4292731b5dd1afe8c1322ec001b236eb21ecbe"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.9'",
             "version": "==4.23.0"
         },
         "django-ratelimit": {

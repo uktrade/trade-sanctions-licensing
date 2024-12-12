@@ -1,5 +1,7 @@
 # End-to-End tests
 We use playwright for end-to-end testing.
+The command to start the test server:\
+`invoke testserver`
 To run the end-to-end tests for licensing:\
 `invoke frontendtests`
 
