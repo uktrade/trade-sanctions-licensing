@@ -325,6 +325,7 @@ def patched_send_email(monkeypatch):
 
 @pytest.fixture
 def patched_clean_document(monkeypatch):
+    """Force the VirusFound exception to allow us to test the frontend implementation"""
     mock_document = MagicMock()
     mock_document.readline.side_effect = VirusFoundInFileException
     original_clean_document = UploadDocumentsForm.clean_document
