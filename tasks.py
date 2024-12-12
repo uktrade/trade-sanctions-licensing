@@ -19,6 +19,11 @@ def frontendtests(context: Any) -> None:
 
 
 @task
+def testserver(context: Any) -> None:
+    context.run("pipenv run python django_app/manage.py runserver --settings=config.settings.test")
+
+
+@task
 def makemigrations(context: Any) -> None:
     print("Running manage.py makemigrations")
     context.run("pipenv run python django_app/manage.py makemigrations")

@@ -1,14 +1,17 @@
 import os
 import re
 from unittest import mock
+from unittest.mock import MagicMock
 
 import notifications_python_client
 import pytest
+from apply_for_a_licence.forms.forms_documents import UploadDocumentsForm
 from core.sites import SiteName
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import override_settings
 from django.test.testcases import LiveServerTestCase
+from django_chunk_upload_handlers.clam_av import VirusFoundInFileException
 from playwright.sync_api import expect, sync_playwright
 from utils import notifier
 
@@ -318,3 +321,17 @@ def patched_send_email(monkeypatch):
     """We don't want to send emails when running front-end tests"""
     mock_notifications_api_client = mock.create_autospec(notifications_python_client.notifications.NotificationsAPIClient)
     monkeypatch.setattr(notifier, "NotificationsAPIClient", mock_notifications_api_client)
+
+
+@pytest.fixture
+def patched_clean_document(monkeypatch):
+    """Force the VirusFound exception to allow us to test the frontend implementation"""
+    mock_document = MagicMock()
+    mock_document.readline.side_effect = VirusFoundInFileException
+    original_clean_document = UploadDocumentsForm.clean_document
+
+    def mock_clean_document(self):
+        self.cleaned_data["document"] = [mock_document]
+        return original_clean_document(self)
+
+    monkeypatch.setattr(UploadDocumentsForm, "clean_document", mock_clean_document)
