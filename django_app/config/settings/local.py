@@ -30,3 +30,5 @@ TEST_SSO_PROVIDER_SET_RETURNED_ACCESS_TOKEN = env.mock_sso_token
 os.environ["AWS_ENDPOINT_URL"] = f"http://localhost:{env.localstack_port}"
 
 PROTOCOL = "http://"
+
+CURRENT_BRANCH = env.git_current_branch
