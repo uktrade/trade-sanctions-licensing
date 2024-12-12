@@ -153,6 +153,7 @@ TEMPLATES = [
                 "core.context_processors.back_button",
                 "core.context_processors.session_expiry_times",
                 "core.context_processors.sentry_configuration_options",
+                "core.context_processors.environment_information",
             ],
         },
     },
@@ -352,3 +353,5 @@ PERMISSIONS_POLICY = {
     "payment": [],
     "usb": [],
 }
+
+CURRENT_BRANCH = env.current_branch

@@ -156,7 +156,15 @@
         {% block skip_link %}
             <a href="#main-content" class="govuk-skip-link">{% trans 'Skip to main content' %}</a>
         {% endblock %}
-
+        {% if current_environment != "production" %}
+            <div class="govuk-phase-banner hide-on-print" style="background-color: orange;">
+                <p class="govuk-phase-banner__content" style="margin: 0 auto;">
+                    <span class="govuk-phase-banner__text">
+                        Environment: <strong>{{ current_environment }}</strong><br>Branch: <strong>{{ current_branch }}</strong>
+                    </span>
+                </p>
+            </div>
+        {% endif %}
         <header class="govuk-header" role="banner" data-module="govuk-header">
             <div class="govuk-header__container govuk-width-container">
                 <div class="govuk-header__logo hide-on-print">
@@ -197,7 +205,8 @@
 	                        {# don't show the feedback text whilst on a feedback page #}
                             {% if request.resolver_match.app_name != "feedback" %}
                                 – your
-                                <a class="govuk-link" data-testid="collect_feedback_link" target="_blank" href="{% url 'feedback:collect_full_feedback' %}?url={{ request.get_full_path|urlencode }}">feedback</a>
+                                <a class="govuk-link" data-testid="collect_feedback_link" target="_blank"
+                                   href="{% url 'feedback:collect_full_feedback' %}?url={{ request.get_full_path|urlencode }}">feedback</a>
                                 will help us to improve it (opens in a new tab).
                             {% endif %}
                         </span>
@@ -249,7 +258,8 @@
                         <h2 class="govuk-visually-hidden">Support links</h2>
                         <ul class="govuk-footer__inline-list">
                             <li class="govuk-footer__inline-list-item hide-on-print">
-                                <a class="govuk-footer__link" href="{% url 'cookies_consent' %}?redirect_back_to={{ request.get_full_path|urlencode }}">Cookies</a>
+                                <a class="govuk-footer__link"
+                                   href="{% url 'cookies_consent' %}?redirect_back_to={{ request.get_full_path|urlencode }}">Cookies</a>
                             </li>
                             <li class="govuk-footer__inline-list-item hide-on-print">
                                 <a class="govuk-footer__link"
@@ -295,7 +305,8 @@
                 </div>
             </div>
             <script src="{% static 'core/javascript/jquery-3.7.1.js' %}" nonce="{{ request.csp_nonce }}"></script>
-            <script type="module" src="{% static "core/javascript/govuk-frontend-5.3.0.min.js" %}" nonce="{{ request.csp_nonce }}"></script>
+            <script type="module" src="{% static "core/javascript/govuk-frontend-5.3.0.min.js" %}"
+                    nonce="{{ request.csp_nonce }}"></script>
             <script type="module" nonce="{{ request.csp_nonce }}">
                 import {initAll} from "{% static "core/javascript/govuk-frontend-5.3.0.min.js" %}"
 
