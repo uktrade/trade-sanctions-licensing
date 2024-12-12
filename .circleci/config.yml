@@ -95,7 +95,21 @@ jobs:
             POSTGRES_DB: apply_for_a_licence
             POSTGRES_PASSWORD: password
         - image: localstack/localstack
-
+        - image: node:18.0-alpine
+          environment:
+            PORT: 9090
+            HOST: localhost
+            CLIENT_ID: my-client
+            CLIENT_SECRET: my-secret
+            CLIENT_REDIRECT_URI: http://apply-for-a-licence:{port}/authentication/callback/
+            DJANGO_SERVER_PORT: 8000
+            CLIENT_LOGOUT_REDIRECT_URI: http://localhost:8080
+            DEBUG: oidc-provider:*
+          command: |
+            cd mock_one_login
+            apk update && apk upgrade
+            yarn install --force
+            yarn start
       steps:
         - checkout
         - restore_dependency_cache
@@ -124,16 +138,6 @@ jobs:
               pipenv run pytest tests/test_unit --cov=django_app --cov-branch --cov-report=json --junitxml=test-results/unit/results.xml
 
         - codecov/upload
-
-        - run:
-            name: Spin up local mock OneLogin server
-            # first we need to remove the env configuration from the docker-compose file as otherwise it complains it
-            # doesn't exist
-            command: |
-              grep -v "env_file" docker-compose.yml > docker-compose-1.yml && mv docker-compose-1.yml docker-compose.yml
-              grep -v "- .env" docker-compose.yml > docker-compose-1.yml && mv docker-compose-1.yml docker-compose.yml
-              docker-compose up mock-one-login
-            background: true
 
         - run:
             name: Run front-end tests
