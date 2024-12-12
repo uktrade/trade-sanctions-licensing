@@ -92,7 +92,7 @@
                         Business name
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        {{ licence.business_employing_individual.name }}
+                        {{ business_individuals_work_for.name }}
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -100,7 +100,7 @@
                         Address
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=licence.readable_address|linebreaksbr %}
+                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=business_individuals_work_for.readable_address|linebreaksbr %}
                     </dd>
                 </div>
             </dl>
