@@ -156,11 +156,15 @@
         {% block skip_link %}
             <a href="#main-content" class="govuk-skip-link">{% trans 'Skip to main content' %}</a>
         {% endblock %}
-        {% if current_environment != "production" %}
-            <div class="govuk-phase-banner hide-on-print" style="background-color: orange;">
+        {% if current_environment != "production" and is_debug_mode %}
+            <div class="govuk-phase-banner hide-on-print" data-testid="environment_banner" style="background-color: orange;">
                 <p class="govuk-phase-banner__content" style="margin: 0 auto;">
                     <span class="govuk-phase-banner__text">
-                        Environment: <strong>{{ current_environment }}</strong><br>Branch: <strong>{{ current_branch }}</strong>
+                        Environment: <strong>{{ current_environment }}</strong><br>
+                        Branch: <strong>{{ current_branch }}</strong><br>
+                        {% if current_tag %}
+                            Tag: <strong>{{ current_tag }}</strong>
+                        {% endif %}
                     </span>
                 </p>
             </div>

@@ -44,4 +44,5 @@ def environment_information(request: HttpRequest) -> dict[str, str]:
     return {
         "current_environment": settings.ENVIRONMENT,
         "current_branch": settings.CURRENT_BRANCH,
+        "current_tag": settings.CURRENT_TAG,
     }

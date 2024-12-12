@@ -82,6 +82,7 @@ class BaseSettings(PydanticBaseSettings):
     csp_report_uri: str | None = None
 
     current_branch: str = Field(alias="GIT_BRANCH", default="unknown")
+    current_tag: str = Field(alias="GIT_TAG", default="")
 
     @computed_field
     @property

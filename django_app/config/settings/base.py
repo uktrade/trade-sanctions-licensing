@@ -354,4 +354,6 @@ PERMISSIONS_POLICY = {
     "usb": [],
 }
 
+# Information about the current environment
 CURRENT_BRANCH = env.current_branch
+CURRENT_TAG = env.current_tag
