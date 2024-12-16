@@ -313,8 +313,7 @@ class LicensingGroundsBase(PlaywrightTestBase):
 
         # now we're on the upload documents page
         expect(page).to_have_url(re.compile(r".*/upload-documents"))
-        # page.get_by_test_id("upload-documents-continue").click()
-        page.get_by_role("button", name="Continue").click()
+        page.get_by_role("link", name="Continue").click()
 
 
 @pytest.fixture(autouse=True)
