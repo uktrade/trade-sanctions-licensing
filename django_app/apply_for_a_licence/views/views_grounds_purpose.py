@@ -72,6 +72,7 @@ class LicensingGroundsLegalAdvisoryView(BaseFormView):
         return kwargs
 
 
+# test
 class PurposeOfProvisionView(BaseFormView):
     form_class = forms.PurposeOfProvisionForm
     success_url = reverse_lazy("upload_documents")
