@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 class LicensingGroundsView(BaseFormView):
     form_class = forms.LicensingGroundsForm
-    success_url = reverse_lazy("purpose_of_provision")
     redirect_after_post = False
 
     def get_form_kwargs(self):
