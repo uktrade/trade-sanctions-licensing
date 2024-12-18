@@ -8,6 +8,7 @@ from tests.test_frontend.conftest import (
     RecipientBase,
     StartBase,
 )
+from tests.test_frontend.fixtures.data import LEGAL_GROUNDS_HEADERS
 
 
 class TestLicensingGrounds(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
@@ -24,6 +25,13 @@ class TestLicensingGrounds(StartBase, ProviderBase, RecipientBase, LicensingGrou
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.no_more_additions(self.page)
         expect(self.page).to_have_url(re.compile(r".*/licensing-grounds"))
+        expect(self.page).to_have_title(LEGAL_GROUNDS_HEADERS["legal_only"])
+        self.page.get_by_label("Civil society activities that").check()
+        self.page.get_by_role("button", name="Continue").click()
+        expect(self.page).to_have_url(re.compile(r".*/services-purpose"))
+        self.page.get_by_label("What is your purpose").fill("test")
+        self.page.get_by_role("button", name="Continue").click()
+        expect(self.page).to_have_url(re.compile(r".*/upload-documents"))
 
     def test_non_legal(self):
         self.page.goto(self.base_url)
@@ -36,6 +44,13 @@ class TestLicensingGrounds(StartBase, ProviderBase, RecipientBase, LicensingGrou
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.no_more_additions(self.page)
         expect(self.page).to_have_url(re.compile(r".*/licensing-grounds"))
+        expect(self.page).to_have_title(LEGAL_GROUNDS_HEADERS["non_legal"])
+        self.page.get_by_label("The delivery of humanitarian").check()
+        self.page.get_by_role("button", name="Continue").click()
+        expect(self.page).to_have_url(re.compile(r".*/services-purpose"))
+        self.page.get_by_label("What is your purpose").fill("test")
+        self.page.get_by_role("button", name="Continue").click()
+        expect(self.page).to_have_url(re.compile(r".*/upload-documents"))
 
     def test_legal_and_other(self):
         self.page.goto(self.base_url)
@@ -48,6 +63,14 @@ class TestLicensingGrounds(StartBase, ProviderBase, RecipientBase, LicensingGrou
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.no_more_additions(self.page)
         expect(self.page).to_have_url(re.compile(r".*/licensing-grounds"))
+        expect(self.page).to_have_title(LEGAL_GROUNDS_HEADERS["legal_only"])
         self.page.get_by_label("Civil society activities that").check()
         self.page.get_by_role("button", name="Continue").click()
         expect(self.page).to_have_url(re.compile(r".*/other-licensing-grounds"))
+        expect(self.page).to_have_title(LEGAL_GROUNDS_HEADERS["legal_excluded"])
+        self.page.get_by_label("The delivery of humanitarian").check()
+        self.page.get_by_role("button", name="Continue").click()
+        expect(self.page).to_have_url(re.compile(r".*/services-purpose"))
+        self.page.get_by_label("What is your purpose").fill("test")
+        self.page.get_by_role("button", name="Continue").click()
+        expect(self.page).to_have_url(re.compile(r".*/upload-documents"))
