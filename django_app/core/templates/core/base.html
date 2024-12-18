@@ -12,12 +12,16 @@
                 data-lazy="no"
             ></script>
             <script nonce="{{ request.csp_nonce }}">
-                Sentry.init({
-                    dsn: "{{ SENTRY_DSN }}",
-                    environment: "{{ SENTRY_ENVIRONMENT }}",
-                    enableTracing: {% if SENTRY_ENABLE_TRACING %}true{% else %}false{% endif %},
-                    tracesSampleRate: {{ SENTRY_TRACES_SAMPLE_RATE }},
-                });
+                try {
+                    Sentry.init({
+                        dsn: "{{ SENTRY_DSN }}",
+                        environment: "{{ SENTRY_ENVIRONMENT }}",
+                        enableTracing: {% if SENTRY_ENABLE_TRACING %}true{% else %}false{% endif %},
+                        tracesSampleRate: {{ SENTRY_TRACES_SAMPLE_RATE }},
+                    });
+                } catch (err) {
+                    Sentry.captureException(err);
+                }
             </script>
         {% endif %}
         {% if gtm_enabled %}
