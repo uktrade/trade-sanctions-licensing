@@ -27,3 +27,13 @@ NON_UK_ADDRESS_DETAILS = {
     "county": "County",
     "country": "DE",
 }
+
+LEGAL_GROUNDS_HEADERS = {
+    "legal_only": "Which of these licensing grounds describes the purpose of the relevant activity for which the "
+    "legal advice is being given? - Apply for a licence to provide sanctioned trade services - GOV.UK",
+    "legal_excluded": "For the other services you want to provide (excluding legal advisory), which of these "
+    "licensing grounds describes your purpose for providing them? - Apply for a licence to "
+    "provide sanctioned trade services - GOV.UK",
+    "non_legal": "Which of these licensing grounds describes your purpose for providing the sanctioned services? - "
+    "Apply for a licence to provide sanctioned trade services - GOV.UK",
+}
