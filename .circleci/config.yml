@@ -123,7 +123,7 @@ jobs:
         - run:
             name: Run tests and save coverage report
             command: |
-              pipenv run pytest tests/test_unit --cov=django_app --cov-branch --cov-report=json --junitxml=test-results/unit/results.xml
+              pipenv run pytest tests/test_unit --cov=django_app --cov-branch --cov-report=json --junitxml=test-results/unit/results.xml --create-db
 
         - codecov/upload
 
