@@ -84,7 +84,7 @@ class TestCYARemove(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.page.goto(self.base_url)
         self.individual_third_party(self.page)
         expect(self.page).to_have_url(re.compile(r".*/your-details"))
-        # Add 3 individuals
+        # Add 3 individuals.
 
         self.provider_individual_located_in_uk(self.page, first_individual_added=True)
         expect(self.page).to_have_url(re.compile(r".*/add-individual"))
@@ -100,7 +100,7 @@ class TestCYARemove(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.no_more_additions(self.page)
         self.licensing_grounds_simple(self.page)
         self.check_your_answers(self.page, type="individual")
-        # Delete individuals
+        # Delete individuals.
 
         self.page.get_by_role("button", name="Remove Individual 3").click()
         expect(self.page.get_by_role("button", name="Remove Individual 1")).to_be_visible()

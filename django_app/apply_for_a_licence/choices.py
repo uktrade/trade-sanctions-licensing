@@ -115,4 +115,3 @@ class TypeOfRelationshipChoices(models.TextChoices):
     recipient = "recipient", "Recipient"
     business = "business", "Business"
     named_individuals = "named_individuals", "Named Individuals"
-    sole_individual = "sole_individual", "Sole Individual"
