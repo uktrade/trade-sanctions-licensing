@@ -100,7 +100,7 @@ class TestCYARemove(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.no_more_additions(self.page)
         self.licensing_grounds_simple(self.page)
         self.check_your_answers(self.page, type="individual")
-        # Delete individuals
+        # Delete individuals.
 
         self.page.get_by_role("button", name="Remove Individual 3").click()
         expect(self.page.get_by_role("button", name="Remove Individual 1")).to_be_visible()
