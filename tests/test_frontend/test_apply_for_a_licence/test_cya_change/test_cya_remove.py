@@ -84,7 +84,7 @@ class TestCYARemove(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.page.goto(self.base_url)
         self.individual_third_party(self.page)
         expect(self.page).to_have_url(re.compile(r".*/your-details"))
-        # Add 3 individuals
+        # Add 3 individuals.
 
         self.provider_individual_located_in_uk(self.page, first_individual_added=True)
         expect(self.page).to_have_url(re.compile(r".*/add-individual"))
