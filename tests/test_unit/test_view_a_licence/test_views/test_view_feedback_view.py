@@ -8,7 +8,7 @@ from tests.factories import FeedbackFactory
 class TestViewFeedbackView:
     def test_get_queryset(self, vl_client_logged_in):
         FeedbackFactory.create_batch(3)
-        response = vl_client_logged_in.get(reverse("view_a_licence:view_feedback"))
+        response = vl_client_logged_in.get(reverse("view_a_licence:view_all_feedback"))
         objects = response.context["object_list"]
         assert objects.count() == 3
 
@@ -24,7 +24,7 @@ class TestViewFeedbackView:
         # date_max query parameter
         query_params = {"date_max": datetime.datetime.now().date() - datetime.timedelta(days=1)}
 
-        response = vl_client_logged_in.get(reverse("view_a_licence:view_feedback"), data=query_params)
+        response = vl_client_logged_in.get(reverse("view_a_licence:view_all_feedback"), data=query_params)
         objects = response.context["object_list"]
         assert objects.count() == 2
         object_ids = list(objects.values_list("id", flat=True))
@@ -35,7 +35,7 @@ class TestViewFeedbackView:
         # date_min query parameter
         query_params = {"date_min": datetime.datetime.now().date() - datetime.timedelta(days=5)}
 
-        response = vl_client_logged_in.get(reverse("view_a_licence:view_feedback"), data=query_params)
+        response = vl_client_logged_in.get(reverse("view_a_licence:view_all_feedback"), data=query_params)
         objects = response.context["object_list"]
         assert objects.count() == 2
         object_ids = list(objects.values_list("id", flat=True))
@@ -50,7 +50,7 @@ class TestViewFeedbackView:
             "date_min": datetime.datetime.now().date() - datetime.timedelta(days=6),
         }
 
-        response = vl_client_logged_in.get(reverse("view_a_licence:view_feedback"), data=query_params)
+        response = vl_client_logged_in.get(reverse("view_a_licence:view_all_feedback"), data=query_params)
         objects = response.context["object_list"]
         assert objects.count() == 1
         object_ids = list(objects.values_list("id", flat=True))

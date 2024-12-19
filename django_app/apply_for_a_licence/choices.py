@@ -12,10 +12,10 @@ YES_NO_CHOICES = (
 class BaseChoices(models.TextChoices):
     @classmethod
     def active_choices(cls):
-        return [choice for choice in cls.choices if choice[0] not in cls.deactive_choices()]
+        return [choice for choice in cls.choices if choice[0] not in cls.inactive_choices()]
 
     @classmethod
-    def deactive_choices(cls):
+    def inactive_choices(cls):
         pass
 
 
@@ -79,7 +79,7 @@ class ProfessionalOrBusinessServicesChoices(models.TextChoices):
 
 class LicensingGroundsChoices(BaseChoices):
     @classmethod
-    def deactive_choices(cls) -> List[str]:
+    def inactive_choices(cls) -> List[str]:
         return ["parent_or_subsidiary_company"]
 
     civil_society = (
