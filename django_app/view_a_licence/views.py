@@ -1,6 +1,10 @@
 import logging
 from typing import Any
 
+from apply_for_a_licence.choices import (
+    TypeOfRelationshipChoices,
+    WhoDoYouWantTheLicenceToCoverChoices,
+)
 from apply_for_a_licence.models import Licence
 from core.sites import require_view_a_licence
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -96,6 +100,12 @@ class ViewALicenceApplicationView(LoginRequiredMixin, ActiveUserRequiredMixin, D
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["back_button_text"] = "View all licence applications"
+
+        if self.object.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.individual.value:
+            context["business_individuals_work_for"] = self.object.organisations.get(
+                type_of_relationship=TypeOfRelationshipChoices.named_individuals
+            )
+
         return context
 
 
