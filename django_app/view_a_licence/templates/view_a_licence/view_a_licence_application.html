@@ -264,7 +264,7 @@
     <h2 class="govuk-heading-m">Purpose of the services</h2>
     <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular" data-testid="">
                 Licensing grounds
             </dt>
             <dd class="govuk-summary-list__value">
@@ -276,8 +276,8 @@
                 {% endfor %}
             </dd>
         </div>
-        {% if form_data.licensing_grounds_legal_advisory %}
-            <div class="govuk-summary-list__row">
+        {% if licence.licensing_grounds_legal_advisory %}
+            <div class="govuk-summary-list__row" data-testid="licensing-grounds-legal-advisory-box">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                     Licensing grounds (excluding legal advisory)
                 </dt>
