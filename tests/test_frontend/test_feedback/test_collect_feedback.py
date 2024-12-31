@@ -14,7 +14,7 @@ class TestCollectFeedback(PlaywrightTestBase):
 
             new_page = new_page_info.value
             new_page.get_by_label("Very dissatisfied").click()
-            new_page.get_by_text("I did not find what I was looking for").click()
+            new_page.get_by_text("I did not find what I was looking for", exact=False).click()
             new_page.get_by_role("button", name="Submit").click()
 
         assert FeedbackItem.objects.count() == 1
