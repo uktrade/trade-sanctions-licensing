@@ -22,6 +22,14 @@ def test_successful_healthcheck(mock_s3_client, al_client):
     assert response.status_code == 200
 
 
+@patch("healthcheck.views.s3_check", return_value=False)
+def test_s3_broken_healthcheck(mock_s3_check, al_client):
+    response = al_client.get(reverse("healthcheck:healthcheck_ping"))
+    content = get_response_content(response)
+    assert "FAIL" in content
+    assert response.status_code == 200
+
+
 @patch("healthcheck.views.db_check", return_value=False)
 def test_db_broken_healthcheck(mock_db_check, al_client):
     response = al_client.get(reverse("healthcheck:healthcheck_ping"))
