@@ -121,6 +121,10 @@ jobs:
             command: pipenv run python django_app/manage.py makemigrations --check --dry-run --settings=config.settings.local
 
         - run:
+            name: Check missing migrations (changes to models that haven't been added to migrations)
+            command: pipenv run python django_app/manage.py migrate --settings=config.settings.local
+
+        - run:
             name: Run tests and save coverage report
             command: |
               pipenv run pytest tests/test_unit --cov=django_app --cov-branch --cov-report=json --junitxml=test-results/unit/results.xml --create-db
