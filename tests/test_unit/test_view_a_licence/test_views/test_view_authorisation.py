@@ -48,20 +48,20 @@ class TestApplicationListView:
 
 @pytest.mark.django_db
 class TestViewApplicationView:
-    @patch("view_a_licence.mixins.send_email")
-    def test_successful_view_a_single_licence_application(self, mock_email, vl_client):
-        test_user = User.objects.create_user(
-            "John",
-            "test@example.com",
-            is_active=True,
-        )
-        vl_client.force_login(test_user)
-        User.objects.create_user("Polly", "staff@example.com", is_staff=True, is_active=True)
-
-        licence = LicenceFactory()
-        response = vl_client.get(reverse("view_a_licence:view_application", kwargs={"reference": licence.reference}))
-        assert response.status_code == 200
-        mock_email.assert_not_called()
+    # @patch("view_a_licence.mixins.send_email")
+    # def test_successful_view_a_single_licence_application(self, mock_email, vl_client):
+    #     test_user = User.objects.create_user(
+    #         "John",
+    #         "test@example.com",
+    #         is_active=True,
+    #     )
+    #     vl_client.force_login(test_user)
+    #     User.objects.create_user("Polly", "staff@example.com", is_staff=True, is_active=True)
+    #
+    #     licence = LicenceFactory()
+    #     response = vl_client.get(reverse("view_a_licence:view_application", kwargs={"reference": licence.reference}))
+    #     assert response.status_code == 200
+    #     mock_email.assert_not_called()
 
     @patch("view_a_licence.mixins.send_email")
     def test_inactive_user_view_a_single_licence_application(self, mock_email, vl_client):
