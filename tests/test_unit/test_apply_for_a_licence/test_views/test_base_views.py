@@ -100,8 +100,6 @@ def test_delete_a_thing_view(authenticated_al_client):
     entities = authenticated_al_client.session["entities"]
     assert len(entities) == 1
 
-    urlpatterns.pop()
-
 
 def test_delete_a_thing_and_change_success_url_view(authenticated_al_client):
     # adding an entity to the session
@@ -138,5 +136,3 @@ def test_delete_a_thing_and_change_success_url_view(authenticated_al_client):
     assert len(entities) == 1
     assert response.status_code == 302
     assert response.url == "/"
-
-    urlpatterns.pop()
