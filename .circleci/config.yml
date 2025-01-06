@@ -99,17 +99,6 @@ jobs:
             POSTGRES_DB: apply_for_a_licence
             POSTGRES_PASSWORD: password
         - image: localstack/localstack
-        - image: node:18.0-alpine
-          environment:
-            PORT: 9090
-            HOST: localhost
-            CLIENT_ID: my-client
-            CLIENT_SECRET: my-secret
-            CLIENT_REDIRECT_URI: http://apply-for-a-licence:{port}/authentication/callback/
-            DJANGO_SERVER_PORT: 8000
-            CLIENT_LOGOUT_REDIRECT_URI: http://localhost:8080
-            DEBUG: oidc-provider:*
-          command: ./mock_one_login/run.sh
       steps:
         - checkout
         - restore_dependency_cache

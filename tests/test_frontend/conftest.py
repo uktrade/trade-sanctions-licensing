@@ -72,8 +72,6 @@ class PlaywrightTestBase(LiveServerTestCase):
             domain=f"{SiteName.view_a_licence}:{self.server_thread.port}",
         )
 
-        self.login(self.page)
-
     def tearDown(self) -> None:
         if settings.SAVE_VIDEOS:
             # Rename the video in the test results directory, so it's readable
@@ -102,16 +100,6 @@ class PlaywrightTestBase(LiveServerTestCase):
     @property
     def base_url(self) -> str:
         return f"http://{self.base_host}:{self.server_thread.port}"
-
-    def login(self, page):
-        page.goto(self.base_url)
-
-        page.locator("input[name='login']").fill(self.sso_login_user)
-        page.locator("input[name='password']").fill(self.sso_login_password)
-        page.locator("button[type='submit']").click()
-
-        # now we're on the authorise page
-        page.locator("button[type='submit']").click()
 
     def verify_email_details(self, page):
         self.email_details(page)
