@@ -71,7 +71,7 @@ class AuthCallbackView(View):
 
         if not auth_code:
             logger.error("No auth code returned from one_login")
-            return redirect(reverse("login-start"))
+            return redirect(reverse("authentication:login"))
 
         if state := request.session.get(f"{TOKEN_SESSION_KEY}_oauth_state", None):
             auth_service_state = self.request.GET.get("state")
@@ -93,7 +93,7 @@ class AuthCallbackView(View):
         user = authenticate(request=request)
 
         if user:
-            login(request, user)
+            login(request, user, backend="authentication.backends.OneLoginBackend")
 
         next_url = get_next_url(request) or getattr(settings, "LOGIN_REDIRECT_URL", "/")
 
