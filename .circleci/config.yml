@@ -105,7 +105,6 @@ jobs:
         - install_dependencies
         - save_dependency_cache
         - aws-cli/setup
-        - setup_remote_docker
 
         - run:
             name: Create S3 Buckets
