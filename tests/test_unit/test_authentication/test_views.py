@@ -13,9 +13,9 @@ def test_redirect_to_login(al_client):
 
 @patch("authentication.views.get_token")
 @patch("authentication.views.authenticate")
-@patch("authentication.views.get_client")
-def test_correct_authentication_flow(mocked_get_client, mocked_authenticate, mocked_get_token, test_apply_user, al_client):
-    mocked_get_client.return_value = MagicMock(create_authorization_url=MagicMock(return_value=("url", "12345")))
+@patch("authentication.views.settings.GOV_UK_ONE_LOGIN_CONFIG")
+def test_correct_authentication_flow(mocked_one_login_config, mocked_authenticate, mocked_get_token, test_apply_user, al_client):
+    mocked_one_login_config.return_value = MagicMock(authorise_url="http://test_url")
     response = al_client.get(reverse("authentication:login") + "?next=/test_url")
     state = al_client.session.get(f"{TOKEN_SESSION_KEY}_oauth_state", None)
     assert state
