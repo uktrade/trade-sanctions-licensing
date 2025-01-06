@@ -22,10 +22,8 @@ class LoginRequiredMixin(DjangoLoginRequiredMixin):
     def get_login_url(self):
         if is_apply_for_a_licence_site(self.request.site):
             # it's the public site, use GOV.UK One Login
-            print("apply for a licence site")
             return reverse("authentication:login")
         elif is_view_a_licence_site(self.request.site):
             # it's the view-a-licence site, use Staff SSO
-            print("view a licence site")
             return reverse("authbroker_client:login")
-        print("no site")
+        raise Exception("unknown site", self.request.site)
