@@ -1,5 +1,5 @@
 // Reset form on page reload
-$(window).bind("pageshow", function(event) {
+$(document).bind("pageshow", function(event) {
     $("#main-content").find("form")[0].reset()
 
     // hide the optional question by default
