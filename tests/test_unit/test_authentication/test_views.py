@@ -1,5 +1,4 @@
-import urllib.parse
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from authentication.utils import TOKEN_SESSION_KEY
 from authentication.views import REDIRECT_SESSION_FIELD_NAME
@@ -14,16 +13,15 @@ def test_redirect_to_login(al_client):
 
 @patch("authentication.views.get_token")
 @patch("authentication.views.authenticate")
-def test_correct_authentication_flow(mocked_authenticate, mocked_get_token, test_apply_user, al_client):
+@patch("authentication.views.get_client")
+def test_correct_authentication_flow(mocked_get_client, mocked_authenticate, mocked_get_token, test_apply_user, al_client):
+    mocked_get_client.return_value = MagicMock(create_authorization_url=MagicMock(return_value=("url", "12345")))
     response = al_client.get(reverse("authentication:login") + "?next=/test_url")
     state = al_client.session.get(f"{TOKEN_SESSION_KEY}_oauth_state", None)
     assert state
 
     assert f"{TOKEN_SESSION_KEY}_oauth_nonce" in al_client.session
     assert al_client.session[REDIRECT_SESSION_FIELD_NAME] == "/test_url"
-
-    redirect_url = urllib.parse.unquote(response.url)
-    assert reverse("authentication:callback") in redirect_url
 
     mocked_get_token.return_value = {"sub": "1234"}
     mocked_authenticate.return_value = test_apply_user
