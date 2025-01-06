@@ -33,7 +33,7 @@ def test_correct_authentication_flow(mocked_authenticate, mocked_get_token, test
 
 
 def test_callback_no_code(al_client):
-    response = al_client.get(reverse("authentication:callback") + "?state=1234")
+    response = al_client.get("/authentication/callback/?state=1234")
     assert response.url == reverse("authentication:login")
 
 
