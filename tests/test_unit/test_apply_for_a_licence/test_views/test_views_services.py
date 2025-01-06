@@ -32,41 +32,41 @@ class TestProfessionalOrBusinessServicesView:
 
 
 class TestTypeOfServiceView:
-    def test_get_success_url(self, al_client):
-        response = al_client.post(
+    def test_get_success_url(self, authenticated_al_client):
+        response = authenticated_al_client.post(
             reverse("type_of_service"),
             data={"type_of_service": TypeOfServicesChoices.interception_or_monitoring.value},
         )
         assert response.url == reverse("which_sanctions_regime")
 
-        response = al_client.post(
+        response = authenticated_al_client.post(
             reverse("type_of_service"),
             data={"type_of_service": TypeOfServicesChoices.professional_and_business.value},
         )
         assert response.url == reverse("professional_or_business_services")
 
-        response = al_client.post(
+        response = authenticated_al_client.post(
             reverse("type_of_service"),
             data={"type_of_service": TypeOfServicesChoices.ships_or_aircraft_related.value},
         )
         assert response.url == reverse("service_activities")
 
-    def test_session_cleared_if_changed(self, al_client):
-        session = al_client.session
+    def test_session_cleared_if_changed(self, authenticated_al_client):
+        session = authenticated_al_client.session
         session["service_activities"] = {"key": "value"}
         session["purpose_of_provision"] = {"key": "value"}
         session.save()
 
-        al_client.post(
+        authenticated_al_client.post(
             reverse("type_of_service") + "?redirect_to_url=check_your_answers",
             data={"type_of_service": TypeOfServicesChoices.interception_or_monitoring.value},
         )
 
         # duplicating the response as we're changing the value
-        al_client.post(
+        authenticated_al_client.post(
             reverse("type_of_service") + "?redirect_to_url=check_your_answers",
             data={"type_of_service": TypeOfServicesChoices.mining_manufacturing_or_computer.value},
         )
 
-        assert al_client.session["service_activities"] == {}
-        assert al_client.session["purpose_of_provision"] == {}
+        assert authenticated_al_client.session["service_activities"] == {}
+        assert authenticated_al_client.session["purpose_of_provision"] == {}
