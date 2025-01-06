@@ -22,9 +22,6 @@ from tests.test_frontend.fixtures import data
 class PlaywrightTestBase(LiveServerTestCase):
     """Base class for Playwright tests. Sets up the Playwright browser, page per test, and deals with the Site objects."""
 
-    sso_login_user = "test"
-    sso_login_password = "test"
-
     @classmethod
     def setUpClass(cls) -> None:
         os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
