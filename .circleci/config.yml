@@ -139,7 +139,7 @@ jobs:
               sudo tee -a /etc/hosts \<<<'127.0.0.1 apply-for-a-licence'
               sudo tee -a /etc/hosts \<<<'127.0.0.1 view-a-licence'
               pipenv run playwright install --with-deps firefox
-              pipenv run  pytest tests/test_frontend/test_business/test_business.py::TestAddBusiness::test_third_party_located_in_uk
+              pipenv run  pytest tests/test_frontend/test_apply_for_a_licence/test_business/test_business.py::TestAddBusiness::test_third_party_located_in_uk
 
         - store_test_results:
             path: test-results
