@@ -1,3 +1,4 @@
+# mypy: disable-error-code="attr-defined,misc"
 import uuid
 
 from core.document_storage import PermanentDocumentStorage

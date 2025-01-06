@@ -54,8 +54,8 @@ class SaveToDB:
             business_registered_on_companies_house="Yes" if self.is_on_companies_house else "No",
             regimes=sanctions_regimes,
             type_of_service=self.data["type_of_service"]["type_of_service"],
-            professional_or_business_services=self.data.get("professional_or_business_services").get(
-                "professional_or_business_services"
+            professional_or_business_services=self.data.get("professional_or_business_services", None).get(
+                "professional_or_business_services", None
             ),
             service_activities=self.data["service_activities"]["service_activities"],
             purpose_of_provision=self.data["purpose_of_provision"]["purpose_of_provision"],
@@ -94,7 +94,6 @@ class SaveToDB:
                 postcode=individual["address_data"]["cleaned_data"].get("postcode"),
                 country=individual["address_data"]["cleaned_data"]["country"],
                 town_or_city=individual["address_data"]["cleaned_data"]["town_or_city"],
-                relationship_provider="",  # todo: fix,
             )
 
         if self.data["start"]["who_do_you_want_the_licence_to_cover"] == choices.WhoDoYouWantTheLicenceToCoverChoices.myself:
@@ -111,7 +110,6 @@ class SaveToDB:
                 postcode=self.data["add_yourself_address"].get("postcode"),
                 country=self.data["add_yourself_address"]["country"],
                 town_or_city=self.data["add_yourself_address"].get("town_or_city"),
-                relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
             )
 
     def save_business(self) -> None:
@@ -128,7 +126,6 @@ class SaveToDB:
                 town_or_city=self.data["business_employing_individual"]["town_or_city"],
                 country=self.data["business_employing_individual"]["country"],
                 type_of_relationship=TypeOfRelationshipChoices.named_individuals,
-                relationship_provider=self.data["relationship_provider_recipient"]["relationship"],
             )
 
         # business journey company details

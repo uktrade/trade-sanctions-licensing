@@ -3,6 +3,7 @@ from core.sites import SiteName
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.db import IntegrityError
 from django.test import Client, RequestFactory
 from django.utils import timezone
 
@@ -58,12 +59,15 @@ def vl_client(db) -> Client:
 
 @pytest.fixture()
 def staff_user(db):
-    return User.objects.create_user(
-        "staff",
-        "staff@example.com",
-        is_active=True,
-        is_staff=True,
-    )
+    try:
+        return User.objects.create_user(
+            "staff",
+            "staff@example.com",
+            is_active=True,
+            is_staff=True,
+        )
+    except IntegrityError:
+        return User.objects.get(username="staff")
 
 
 @pytest.fixture()

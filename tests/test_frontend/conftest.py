@@ -1,14 +1,17 @@
 import os
 import re
 from unittest import mock
+from unittest.mock import MagicMock
 
 import notifications_python_client
 import pytest
+from apply_for_a_licence.forms.forms_documents import UploadDocumentsForm
 from core.sites import SiteName
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import override_settings
 from django.test.testcases import LiveServerTestCase
+from django_chunk_upload_handlers.clam_av import VirusFoundInFileException
 from playwright.sync_api import expect, sync_playwright
 from utils import notifier
 
@@ -192,8 +195,8 @@ class PlaywrightTestBase(LiveServerTestCase):
 
     @staticmethod
     def cya_recipients(page):
-        expect(page.get_by_test_id("recipient-name-and-address")).to_have_text("business\nA1, Town, AA0 0AA, United Kingdom")
-        expect(page.get_by_test_id("recipient-relationship")).to_have_text("Test relationship")
+        expect(page.get_by_test_id("recipient-name-and-address-1")).to_have_text("business\nA1, Town, AA0 0AA, United Kingdom")
+        expect(page.get_by_test_id("recipient-relationship-1")).to_have_text("Test relationship")
 
     @staticmethod
     def cya_purposes(page):
@@ -325,7 +328,7 @@ class LicensingGroundsBase(PlaywrightTestBase):
 
         # now we're on the upload documents page
         expect(page).to_have_url(re.compile(r".*/upload-documents"))
-        page.get_by_test_id("upload-documents-continue").click()
+        page.get_by_role("button", name="Continue").click()
 
 
 @pytest.fixture(autouse=True)
@@ -333,3 +336,17 @@ def patched_send_email(monkeypatch):
     """We don't want to send emails when running front-end tests"""
     mock_notifications_api_client = mock.create_autospec(notifications_python_client.notifications.NotificationsAPIClient)
     monkeypatch.setattr(notifier, "NotificationsAPIClient", mock_notifications_api_client)
+
+
+@pytest.fixture
+def patched_clean_document(monkeypatch):
+    """Force the VirusFound exception to allow us to test the frontend implementation"""
+    mock_document = MagicMock()
+    mock_document.readline.side_effect = VirusFoundInFileException
+    original_clean_document = UploadDocumentsForm.clean_document
+
+    def mock_clean_document(self):
+        self.cleaned_data["document"] = [mock_document]
+        return original_clean_document(self)
+
+    monkeypatch.setattr(UploadDocumentsForm, "clean_document", mock_clean_document)

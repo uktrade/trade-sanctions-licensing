@@ -1,6 +1,10 @@
 import logging
 from typing import Any
 
+from apply_for_a_licence.choices import (
+    TypeOfRelationshipChoices,
+    WhoDoYouWantTheLicenceToCoverChoices,
+)
 from apply_for_a_licence.models import Licence
 from authentication.mixins import LoginRequiredMixin
 from core.sites import require_view_a_licence
@@ -16,6 +20,7 @@ from feedback.models import FeedbackItem
 from .mixins import ActiveUserRequiredMixin, StaffUserOnlyMixin
 
 logger = logging.getLogger(__name__)
+
 
 # ALL VIEWS HERE MUST BE DECORATED WITH AT LEAST LoginRequiredMixin
 
@@ -95,14 +100,20 @@ class ViewALicenceApplicationView(LoginRequiredMixin, ActiveUserRequiredMixin, D
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["back_button_text"] = "View all licence applications"
+
+        if self.object.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.individual.value:
+            context["business_individuals_work_for"] = self.object.organisations.get(
+                type_of_relationship=TypeOfRelationshipChoices.named_individuals
+            )
+
         return context
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class ViewFeedbackView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView):
+class ViewAllFeedbackView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView):
     context_object_name = "feedback"
     model = FeedbackItem
-    template_name = "view_a_licence/view_feedback.html"
+    template_name = "view_a_licence/view_all_feedback.html"
 
     def get_queryset(self) -> "QuerySet[FeedbackItem]":
         queryset = super().get_queryset()
@@ -111,3 +122,10 @@ class ViewFeedbackView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView):
         if date_max := self.request.GET.get("date_max"):
             queryset = queryset.filter(created_at__date__lte=date_max)
         return queryset
+
+
+@method_decorator(require_view_a_licence(), name="dispatch")
+class ViewFeedbackView(LoginRequiredMixin, ActiveUserRequiredMixin, DetailView):
+    model = FeedbackItem
+    template_name = "view_a_licence/view_feedback.html"
+    context_object_name = "feedback"

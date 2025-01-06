@@ -48,10 +48,6 @@ class IsTheBusinessRegisteredWithCompaniesHouseForm(BaseModelForm):
         super().__init__(*args, **kwargs)
         self.fields["business_registered_on_companies_house"].choices.pop(0)
 
-        if self.request.method == "GET" and self.request.GET.get("change", None) == "yes":
-            # removing the 'I do not know' option
-            self.fields["business_registered_on_companies_house"].choices.pop(-1)
-
 
 class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
     hide_optional_label_fields = ["registered_company_number"]
@@ -196,9 +192,9 @@ class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
         fields = (
             "name",
             "country",
-            "town_or_city",
             "address_line_1",
             "address_line_2",
+            "town_or_city",
             "county",
             "postcode",
         )

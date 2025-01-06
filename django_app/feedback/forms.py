@@ -13,7 +13,7 @@ class FeedbackForm(BaseModelForm):
     submit_button_text = "Submit"
 
     did_you_experience_any_issues = forms.MultipleChoiceField(
-        choices=DidYouExperienceAnyIssues.choices,
+        choices=DidYouExperienceAnyIssues.active_choices(),
         widget=forms.CheckboxSelectMultiple,
         label="Did you experience any of the following issues?",
         required=False,
@@ -21,7 +21,7 @@ class FeedbackForm(BaseModelForm):
 
     class Meta:
         model = FeedbackItem
-        fields = ("rating", "did_you_experience_any_issues", "how_we_could_improve_the_service")
+        fields = ("rating", "did_you_experience_any_issues", "how_we_could_improve_the_service", "user_name", "user_email")
         labels = {
             "how_we_could_improve_the_service": "How could we improve the service?",
             "rating": "Overall, how satisfied did you feel with using this service?",
@@ -61,5 +61,9 @@ class FeedbackForm(BaseModelForm):
                 ),
                 css_class="optional_question",
             ),
-            HTMLTemplate("feedback/feedback_disclaimer.html"),
+            Fieldset(
+                HTMLTemplate("feedback/participate_in_user_research.html"),
+                Field("user_name", context={"label_size": None}),
+                Field("user_email", context={"label_size": None}),
+            ),
         )

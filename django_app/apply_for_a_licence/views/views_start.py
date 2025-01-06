@@ -24,12 +24,13 @@ class StartView(BaseFormView):
         update_last_activity_session_timestamp(request)
         return super().dispatch(request, *args, **kwargs)
 
-    def get_success_url(self) -> str:
+    def get_success_url(self) -> str | None:
         answer = self.form.cleaned_data["who_do_you_want_the_licence_to_cover"]
         if answer in ["business", "individual"]:
             return reverse("are_you_third_party")
         elif answer == "myself":
             return reverse("what_is_your_email")
+        return None
 
 
 class ThirdPartyView(BaseFormView):
@@ -71,11 +72,6 @@ class RequestVerifyCodeView(BaseFormView):
     form_class = GenericForm
     template_name = "apply_for_a_licence/form_steps/request_verify_code.html"
     success_url = reverse_lazy("email_verify")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["otsi_email"] = settings.OTSI_EMAIL
-        return context
 
     def form_valid(self, form: GenericForm) -> HttpResponse:
         user_email_address = self.request.session["user_email_address"]

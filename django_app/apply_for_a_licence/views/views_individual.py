@@ -77,7 +77,7 @@ class WhatIsIndividualsAddressView(AddAnEntityView):
         self.location = kwargs["location"]
         return super().setup(request, *args, **kwargs)
 
-    def get_form_class(self) -> [forms.IndividualUKAddressForm | forms.IndividualNonUKAddressForm]:
+    def get_form_class(self) -> forms.IndividualUKAddressForm | forms.IndividualNonUKAddressForm:
         if self.location == "in-uk":
             form_class = forms.IndividualUKAddressForm
         else:

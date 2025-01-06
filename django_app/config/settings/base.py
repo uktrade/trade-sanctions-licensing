@@ -153,6 +153,7 @@ TEMPLATES = [
                 "core.context_processors.back_button",
                 "core.context_processors.session_expiry_times",
                 "core.context_processors.sentry_configuration_options",
+                "core.context_processors.environment_information",
             ],
         },
     },
@@ -280,8 +281,6 @@ CACHES = {
     }
 }
 
-OTSI_EMAIL = env.otsi_email
-
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Session cookie age is set to 40 minutes
 SESSION_COOKIE_AGE = 40 * 60
@@ -336,7 +335,7 @@ CSP_INCLUDE_NONCE_IN = ["script-src"]
 CSP_REPORT_ONLY = env.csp_report_only
 
 # URL to send CSP violation reports to
-CSP_REPORT_URI = env.csp_report_uri
+# CSP_REPORT_URI = env.csp_report_uri
 
 # Permissions policy header
 PERMISSIONS_POLICY = {
@@ -357,3 +356,7 @@ PERMISSIONS_POLICY = {
     "payment": [],
     "usb": [],
 }
+
+# Information about the current environment
+CURRENT_BRANCH = env.current_branch
+CURRENT_TAG = env.current_tag

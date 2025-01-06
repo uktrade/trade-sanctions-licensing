@@ -92,7 +92,7 @@
                         Business name
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        {{ licence.business_employing_individual.name }}
+                        {{ business_individuals_work_for.name }}
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -100,7 +100,7 @@
                         Address
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=licence.readable_address|linebreaksbr %}
+                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=business_individuals_work_for.readable_address|linebreaksbr %}
                     </dd>
                 </div>
             </dl>
@@ -152,18 +152,20 @@
                 Previous licence
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ licence.held_existing_licence|yesno:"Yes,No" }}
+                {{ licence.held_existing_licence|capfirst }}
             </dd>
 
         </div>
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                Previous licence numbers
-            </dt>
-            <dd class="govuk-summary-list__value">
-                {{ licence.existing_licences|linebreaksbr }}
-            </dd>
-        </div>
+        {% if licence.held_existing_licence == "yes" %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    Previous licence numbers
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    {{ licence.existing_licences|linebreaksbr }}
+                </dd>
+            </div>
+        {% endif %}
     </dl>
     <h2 class="govuk-heading-m">Overview of the services</h2>
     <dl class="govuk-summary-list">
@@ -262,7 +264,7 @@
     <h2 class="govuk-heading-m">Purpose of the services</h2>
     <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+            <dt class="govuk-summary-list__key govuk-!-font-weight-regular" data-testid="">
                 Licensing grounds
             </dt>
             <dd class="govuk-summary-list__value">
@@ -274,8 +276,8 @@
                 {% endfor %}
             </dd>
         </div>
-        {% if form_data.licensing_grounds_legal_advisory %}
-            <div class="govuk-summary-list__row">
+        {% if licence.licensing_grounds_legal_advisory %}
+            <div class="govuk-summary-list__row" data-testid="licensing-grounds-legal-advisory-box">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                     Licensing grounds (excluding legal advisory)
                 </dt>

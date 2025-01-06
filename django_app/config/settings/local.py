@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 from authentication.config import LocalOneLoginConfig
 
 from .base import *  # noqa
@@ -7,6 +8,7 @@ ENVIRONMENT = "local"
 # DJANGO DEBUG TOOLBAR
 INSTALLED_APPS += ["debug_toolbar"]
 
+#  type: ignore[used-before-def]
 MIDDLEWARE += [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
@@ -31,6 +33,8 @@ OAUTHLIB_INSECURE_TRANSPORT = True
 os.environ["AWS_ENDPOINT_URL"] = f"http://localhost:{env.localstack_port}"
 
 PROTOCOL = "http://"
+
+CURRENT_BRANCH = env.git_current_branch
 
 GOV_UK_ONE_LOGIN_CLIENT_ID = "my-client"
 GOV_UK_ONE_LOGIN_CONFIG = LocalOneLoginConfig

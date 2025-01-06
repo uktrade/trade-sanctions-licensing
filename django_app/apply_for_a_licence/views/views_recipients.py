@@ -75,29 +75,20 @@ class AddARecipientView(AddAnEntityView):
         recipient_uuid = str(self.kwargs["recipient_uuid"])
 
         if self.request.method == "GET" and self.request.GET.get("change", ""):
-            if recipients := self.request.session.get("recipient_locations", {}):
-
-                # recipient location has changed, clear the form
-                if recipients.get(recipient_uuid, {}).get("changed", ""):
+            if recipient := self.request.session.get("recipients", {}).get(recipient_uuid, ""):
+                # we have a recipient in the session already, check if the location is the same, if it's different
+                # we need to clear the form
+                if recipient["cleaned_data"]["url_location"] != self.location:
                     form.is_bound = False
-
-                    # delete the recipients session data so we don't have conflicts before the save
-                    if self.request.session.get("recipients", {}).get(recipient_uuid, ""):
-                        del self.request.session["recipients"][recipient_uuid]
-
-                # recipient has not changed location choice
+                    # delete the recipients session data, so we don't have conflicts before the save
+                    del self.request.session["recipients"][recipient_uuid]
                 else:
+                    # recipient has not changed location choice
                     form.is_bound = True
-
-        # the user submitted the form, update "changed" in order to wipe the slate
-        elif self.request.method == "POST":
-            if recipients := self.request.session.get("recipient_locations", {}):
-                if recipients.get(recipient_uuid, {}):
-                    recipients[recipient_uuid]["changed"] = False
 
         return form
 
-    def get_form_class(self) -> [forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm]:
+    def get_form_class(self) -> forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm:
         if self.location == "in-uk":
             form_class = forms.AddAUKRecipientForm
         else:
@@ -119,7 +110,7 @@ class RecipientAddedView(BaseFormView):
     def get_success_url(self):
         add_recipient = self.form.cleaned_data["do_you_want_to_add_another_recipient"]
         if add_recipient:
-            return reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()}) + "?change=yes"
+            return reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()}) + "?new=yes"
         else:
             type_of_service_data = get_cleaned_data_for_step(self.request, "type_of_service")
             if type_of_service_data.get("type_of_service") == TypeOfServicesChoices.professional_and_business.value:
