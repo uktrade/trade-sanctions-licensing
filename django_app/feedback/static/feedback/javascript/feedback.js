@@ -1,5 +1,5 @@
 // Reset form on page reload
-$(document).bind("pageshow", function(event) {
+window.addEventListener("pageshow", function(event){
     $("#main-content").find("form")[0].reset()
 
     // hide the optional question by default
@@ -16,4 +16,5 @@ $(document).bind("pageshow", function(event) {
     })
 
     $("input[name='rating']:checked").trigger("change")
+
 });
