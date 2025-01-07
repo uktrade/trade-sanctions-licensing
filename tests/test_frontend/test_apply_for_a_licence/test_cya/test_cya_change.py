@@ -141,8 +141,11 @@ class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.page.get_by_label("Legal advisory").uncheck()
         self.page.get_by_role("button", name="Continue").click()
         self.page.locator("textarea").fill("test")
+        self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("The delivery of humanitarian").check()
+        self.page.get_by_role("button", name="Continue").click()
         self.page.locator("textarea").fill("test")
+        self.page.get_by_role("button", name="Continue").click()
         expect(self.page).to_have_url(re.compile(r".*/check-your-answers"))
         assert (
             "Licensing grounds for the relevant activity"
