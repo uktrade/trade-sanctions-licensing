@@ -96,3 +96,57 @@ class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.page.get_by_role("button", name="Continue").click()
         expect(self.page.get_by_test_id("recipient-relationship-1")).to_have_text("Enemies")
         expect(self.page.get_by_test_id("recipient-relationship-2")).to_have_text("Friendship")
+
+    def test_cya_change_licensing_grounds_content(self):
+        self.page.goto(self.base_url)
+        self.business_third_party(self.page)
+        self.provider_business_located_in_uk(self.page)
+        self.no_more_additions(self.page)
+        self.recipient_legal_and_other(self.page)
+        self.no_more_additions(self.page)
+        self.page.get_by_label("Civil society activities that").check()
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_label("The delivery of humanitarian").check()
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_label("What is your purpose").fill("test")
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_role("button", name="Continue").click()
+        assert (
+            "Licensing grounds for the relevant activity" in self.page.get_by_test_id("licensing_grounds_header").text_content()
+        )
+        assert (
+            "Licensing grounds for other services (not legal advisory)"
+            in self.page.get_by_test_id("licensing_other_grounds_header").text_content()
+        )
+
+        # now changing
+        self.page.get_by_test_id("change_professional_business_services_link").click()
+        self.page.get_by_label("Auditing").uncheck()
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.locator("textarea").fill("test")
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_label("The delivery of humanitarian").check()
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.locator("textarea").fill("test")
+        self.page.get_by_role("button", name="Continue").click()
+        expect(self.page).to_have_url(re.compile(r".*/check-your-answers"))
+        assert (
+            "Licensing grounds for the relevant activity" in self.page.get_by_test_id("licensing_grounds_header").text_content()
+        )
+        expect(self.page.get_by_test_id("licensing_other_grounds_header")).to_be_hidden()
+
+        # now changing again
+        self.page.get_by_test_id("change_professional_business_services_link").click()
+        self.page.get_by_label("Auditing").check()
+        self.page.get_by_label("Legal advisory").uncheck()
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.locator("textarea").fill("test")
+        self.page.get_by_label("The delivery of humanitarian").check()
+        self.page.locator("textarea").fill("test")
+        expect(self.page).to_have_url(re.compile(r".*/check-your-answers"))
+        assert (
+            "Licensing grounds for the relevant activity"
+            not in self.page.get_by_test_id("licensing_grounds_header").text_content()
+        )
+        assert "Licensing grounds" in self.page.get_by_test_id("licensing_grounds_header").text_content()
+        expect(self.page.get_by_test_id("licensing_other_grounds_header")).to_be_hidden()
