@@ -14,7 +14,7 @@ class TestCollectFeedback(PlaywrightTestBase):
 
             new_page = new_page_info.value
             new_page.get_by_label("Very dissatisfied").click()
-            new_page.get_by_role("checkbox", name="I did not find what I was looking for").click()
+            new_page.query_selector("#id_did_you_experience_any_issues_1").click()
             new_page.get_by_role("button", name="Submit").click()
 
         assert FeedbackItem.objects.count() == 1
