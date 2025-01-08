@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from apply_for_a_licence.choices import WhoDoYouWantTheLicenceToCoverChoices
 from authentication.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -59,7 +60,7 @@ class TestViewApplicationView:
         vl_client.force_login(test_user)
         User.objects.create_user("Polly", "staff@example.com", is_staff=True, is_active=True)
 
-        licence = LicenceFactory(who_do_you_want_the_licence_to_cover="myself")
+        licence = LicenceFactory(who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value)
         response = vl_client.get(reverse("view_a_licence:view_application", kwargs={"reference": licence.reference}))
         assert response.status_code == 200
         mock_email.assert_not_called()
