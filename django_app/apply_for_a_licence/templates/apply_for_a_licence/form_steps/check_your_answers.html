@@ -328,7 +328,7 @@
                     {{ forms.professional_or_business_services.get_professional_or_business_service_display | linebreaksbr }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link"
+                    <a class="govuk-link" data-testid="change_professional_business_services_link"
                        href="{% url 'professional_or_business_services' %}?redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">the services</span></a>
                 </dd>
             </div>
@@ -430,8 +430,8 @@
     <h2 class="govuk-heading-m">Purpose of the services</h2>
     <dl class="govuk-summary-list">
         {% if form_data.licensing_grounds %}
-            <div class="govuk-summary-list__row">
-                {% if form_data.professional_or_business_services.professional_or_business_services|length == 1 and form_data.professional_or_business_services.professional_or_business_services|first == 'legal_advisory' %}
+            <div class="govuk-summary-list__row" data-testid="licensing_grounds_header">
+                {% if "legal_advisory" in form_data.professional_or_business_services.professional_or_business_services %}
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Licensing grounds for the relevant activity</dt>
                 {% else %}
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Licensing grounds</dt>
@@ -440,7 +440,7 @@
                     {% include "apply_for_a_licence/partials/truncated_text.html" with text=forms.licensing_grounds.get_licensing_grounds_display|linebreaksbr %}
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    {% if form_data.professional_or_business_services.professional_or_business_services|length == 1 and form_data.professional_or_business_services.professional_or_business_services|first == 'legal_advisory' %}
+                    {% if "legal_advisory" in form_data.professional_or_business_services.professional_or_business_services %}
                         <a class="govuk-link"
                            href="{% url 'licensing_grounds' %}?redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">licensing grounds for the relevant activity</span></a>
                     {% else %}
@@ -450,9 +450,9 @@
                 </dd>
             </div>
         {% endif %}
-        {% if form_data.licensing_grounds_legal_advisory %}
+        {% if "legal_advisory" in form_data.professional_or_business_services.professional_or_business_services and form_data.professional_or_business_services.professional_or_business_services|length > 1 %}
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular" data-testid="licensing_other_grounds_header">
                     Licensing grounds for other services (not legal advisory)
                 </dt>
                 <dd class="govuk-summary-list__value">

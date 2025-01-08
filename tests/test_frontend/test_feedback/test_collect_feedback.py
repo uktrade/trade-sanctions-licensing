@@ -13,7 +13,7 @@ class TestCollectFeedback(PlaywrightTestBase):
             self.page.get_by_test_id("collect_feedback_link").click()
 
             new_page = new_page_info.value
-            new_page.get_by_label("Very dissatisfied").click()
+            new_page.get_by_label("Very dissatisfied").check()
             new_page.get_by_role("checkbox", name="I did not find what I was looking for").click()
             new_page.get_by_role("button", name="Submit").click()
 
