@@ -17,18 +17,43 @@ commands:
   restore_dependency_cache:
     description: "Restore dependency cache."
     steps:
+      - run:
+          name: get python version
+          command: python --version > python_version.txt
       - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: deps2-{{ checksum "Pipfile.lock" }}-{{ checksum "python_version.txt" }}
 
   save_dependency_cache:
     description: "Save dependency cache."
     steps:
+      - run:
+          name: get python version
+          command: python --version > python_version.txt
       - save_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: deps2-{{ checksum "Pipfile.lock" }}-{{ checksum "python_version.txt" }}
           paths:
             - "/home/circleci/.local/share/virtualenvs/project-zxI9dQ-Q"
 
 jobs:
+    install_dependencies:
+      docker:
+        - image: cimg/python:3.11.7
+      steps:
+          - checkout
+          - restore_dependency_cache
+          - install_dependencies
+          - run:
+              name: Install dependencies
+              command: pip install pipenv && pipenv install --dev
+          - save_dependency_cache
+
+          - persist_to_workspace:
+              root: .
+              paths:
+                - .venv
+                - .env
+                - static
+
     code_hygiene:
         docker:
             - image: cimg/python:3.11.7
@@ -41,12 +66,8 @@ jobs:
         steps:
           - checkout
 
-          - restore_dependency_cache
-          - install_dependencies
-          - save_dependency_cache
-          - run :
-              name: Install dependencies
-              command: pip install pipenv && pipenv install --dev
+          - attach_workspace:
+              at: .
 
           - run:
               name: run black (code formatting check)
@@ -150,5 +171,7 @@ jobs:
 workflows:
   build_and_test:
     jobs:
-      - code_hygiene
-      - run_tests
+      - install_dependencies
+      - code_hygiene:
+          requires:
+            - install_dependencies
