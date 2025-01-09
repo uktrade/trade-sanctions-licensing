@@ -57,4 +57,4 @@ services:
         - DJANGO_SERVER_PORT=8000
         - CLIENT_LOGOUT_REDIRECT_URI=http://localhost:8080
         # uncomment the following line to enable debug logging
-        - DEBUG=oidc-provider:*
+        # - DEBUG=oidc-provider:*
