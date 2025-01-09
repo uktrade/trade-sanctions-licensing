@@ -50,9 +50,7 @@ jobs:
           - persist_to_workspace:
               root: .
               paths:
-                - .venv
-                - .env
-                - static
+                - .
 
     code_hygiene:
         docker:
