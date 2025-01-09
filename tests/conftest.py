@@ -41,7 +41,7 @@ def al_client(db) -> Client:
 def authenticated_al_client(al_client, test_apply_user) -> Client:
     """Client used to access the apply-for-a-licence site.
 
-    No user is logged in with this client.
+    The test_apply_user user is logged in with this client.
     """
     al_client.force_login(test_apply_user, backend="authentication.backends.OneLoginBackend")
     return al_client
@@ -74,7 +74,7 @@ def staff_user(db):
 def vl_client_logged_in(vl_client, staff_user) -> Client:
     """Client used to access the view-a-licence site.
 
-    A user is logged in with this client"""
+    The staff_user user is logged in with this client"""
 
     vl_client.force_login(staff_user)
     return vl_client
