@@ -6,8 +6,8 @@ from apply_for_a_licence.choices import (
     WhoDoYouWantTheLicenceToCoverChoices,
 )
 from apply_for_a_licence.models import Licence
+from authentication.mixins import LoginRequiredMixin
 from core.sites import require_view_a_licence
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect

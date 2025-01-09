@@ -3,6 +3,7 @@ import uuid
 from typing import Any
 
 from apply_for_a_licence.forms import forms_documents as forms
+from authentication.mixins import LoginRequiredMixin
 from core.document_storage import TemporaryDocumentStorage
 from core.utils import is_ajax
 from core.views.base_views import BaseFormView
@@ -81,7 +82,7 @@ class UploadDocumentsView(BaseFormView):
             return super().form_invalid(form)
 
 
-class DeleteDocumentsView(View):
+class DeleteDocumentsView(LoginRequiredMixin, View):
     def post(self, *args: object, **kwargs: object) -> HttpResponse:
         if file_name := self.request.GET.get("file_name"):
             object_key = f"{self.request.session.session_key}/{file_name}"
@@ -97,7 +98,7 @@ class DeleteDocumentsView(View):
             return redirect(reverse("upload_documents"))
 
 
-class DownloadDocumentView(View):
+class DownloadDocumentView(LoginRequiredMixin, View):
     http_method_names = ["get"]
 
     def get(self, *args: object, file_name, **kwargs: object) -> HttpResponse:

@@ -3,6 +3,7 @@ import uuid
 
 from core.document_storage import PermanentDocumentStorage
 from core.models import BaseModel, BaseModelID
+from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.sessions.models import Session
 from django.db import models
@@ -56,6 +57,7 @@ class Licence(BaseModel):
     applicant_full_name = models.CharField(max_length=255, null=True, blank=False)
     applicant_business = models.CharField(max_length=300, verbose_name="Business you work for", blank=False, null=True)
     applicant_role = models.CharField(max_length=255, blank=False, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
     def assign_reference(self) -> str:
         """Assigns a unique reference to this Licence object"""

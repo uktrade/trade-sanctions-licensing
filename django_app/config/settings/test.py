@@ -64,3 +64,7 @@ def test_request_verify_code(self, form: Form) -> HttpResponse:
     )
 
     return super(WhatIsYouEmailAddressView, self).form_valid(form)
+
+
+GOV_UK_ONE_LOGIN_CLIENT_ID = "my-client"
+GOV_UK_ONE_LOGIN_CONFIG = LocalOneLoginConfig

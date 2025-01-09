@@ -12,16 +12,38 @@ from tests.helpers import get_test_client
 
 
 @pytest.fixture()
-def al_client(db) -> Client:
-    """Client used to access the apply-for-a-licence site.
+def test_apply_user(db) -> User:
+    user = User.objects.create(
+        username="urn:fdc:test_apply_user",
+        first_name="Test",
+        last_name="User",
+        email="apply_test_user@example.com",
+        is_active=True,
+        is_staff=False,
+        password="test",
+    )
+    return user
 
-    No user is logged in with this client.
-    """
+
+@pytest.fixture()
+def al_client(db) -> Client:
     al_site = Site.objects.get(name=SiteName.apply_for_a_licence)
     al_client = get_test_client(al_site.domain)
+
+    # setting the last_activity key in the session to prevent the session from expiring
     session = al_client.session
     session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
     session.save()
+    return al_client
+
+
+@pytest.fixture()
+def authenticated_al_client(al_client, test_apply_user) -> Client:
+    """Client used to access the apply-for-a-licence site.
+
+    The test_apply_user user is logged in with this client.
+    """
+    al_client.force_login(test_apply_user, backend="authentication.backends.OneLoginBackend")
     return al_client
 
 
@@ -52,18 +74,19 @@ def staff_user(db):
 def vl_client_logged_in(vl_client, staff_user) -> Client:
     """Client used to access the view-a-licence site.
 
-    A user is logged in with this client"""
+    The staff_user user is logged in with this client"""
 
     vl_client.force_login(staff_user)
     return vl_client
 
 
 @pytest.fixture()
-def request_object(al_client: Client):
+def request_object(authenticated_al_client: Client, test_apply_user: User):
     """Fixture to create a request object."""
     request_object = RequestFactory()
-    request_object.session = al_client.session
+    request_object.session = authenticated_al_client.session
     request_object.method = "GET"
+    request_object.user = test_apply_user
     request_object.GET = {}
     request_object.POST = {}
     return request_object
@@ -94,3 +117,15 @@ def licence_request_object(request_object):
 @pytest.fixture()
 def licence():
     return LicenceFactory()
+
+
+@pytest.fixture()
+def apply_rf(request_object):
+    request_object.site = Site.objects.get(name=SiteName.apply_for_a_licence)
+    return request_object
+
+
+@pytest.fixture()
+def viewer_rf(request_object):
+    request_object.site = Site.objects.get(name=SiteName.view_a_licence)
+    return request_object

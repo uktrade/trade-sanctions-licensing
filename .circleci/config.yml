@@ -40,10 +40,10 @@ jobs:
             DATABASE_URL: ""
         steps:
           - checkout
-
           - restore_dependency_cache
           - install_dependencies
           - save_dependency_cache
+
           - run :
               name: Install dependencies
               command: pip install pipenv && pipenv install --dev
@@ -92,13 +92,13 @@ jobs:
             HEADLESS: true
             DJANGO_ALLOW_ASYNC_UNSAFE: true
             SAVE_VIDEOS: true
+            SENTRY_DSN: ""
         - image: cimg/postgres:16.1
           environment:
             POSTGRES_USER: postgres
             POSTGRES_DB: apply_for_a_licence
             POSTGRES_PASSWORD: password
         - image: localstack/localstack
-
       steps:
         - checkout
         - restore_dependency_cache
@@ -113,6 +113,7 @@ jobs:
               pipenv run awslocal s3 mb s3://permanent-document-bucket
               pipenv run awslocal s3api put-bucket-cors --bucket temporary-document-bucket --cors-configuration file://./aws/cors.json
               pipenv run awslocal s3api put-bucket-cors --bucket permanent-document-bucket --cors-configuration file://./aws/cors.json
+
         - run: git submodule sync
         - run: git submodule update --init
 
