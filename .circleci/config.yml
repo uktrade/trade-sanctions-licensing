@@ -38,19 +38,28 @@ jobs:
     install_dependencies:
       docker:
         - image: cimg/python:3.11.7
+          environment:
+            - PIPENV_VENV_IN_PROJECT=1
       steps:
           - checkout
-          - restore_dependency_cache
-          - install_dependencies
+
+          - run:
+              name: get python version
+              command: python --version > python_version.txt
+
+          - restore_cache:
+              key: deps2-{{ checksum "Pipfile.lock" }}-{{ checksum "python_version.txt" }}
+
           - run:
               name: Install dependencies
               command: pip install pipenv && pipenv install --dev
+
           - save_dependency_cache
 
           - persist_to_workspace:
               root: .
               paths:
-                - .
+                - .venv
 
     code_hygiene:
         docker:
@@ -66,6 +75,10 @@ jobs:
 
           - attach_workspace:
               at: .
+
+          - run:
+              name: activate virtualenv
+              command: echo "source .venv/bin/activate" >> $BASH_ENV;
 
           - run:
               name: run black (code formatting check)
