@@ -4,6 +4,8 @@ orbs:
   codecov: codecov/codecov@4.1.0
   aws-cli: circleci/aws-cli@5.1
 
+# we share the django server configuration between the run_unit_tests and run_frontend_tests jobs
+
 django_server_configuration: &django_server_configuration
   docker:
     - image: cimg/python:3.11.7
@@ -30,6 +32,17 @@ django_server_configuration: &django_server_configuration
         POSTGRES_DB: apply_for_a_licence
         POSTGRES_PASSWORD: password
     - image: localstack/localstack
+
+setup_localstack_s3_buckets: &setup_localstack_s3_buckets
+    - aws-cli/setup
+    -
+    - run:
+        name: Create S3 Buckets
+        command: |
+          awslocal s3 mb s3://temporary-document-bucket
+          awslocal s3 mb s3://permanent-document-bucket
+          awslocal s3api put-bucket-cors --bucket temporary-document-bucket --cors-configuration file://./aws/cors.json
+          awslocal s3api put-bucket-cors --bucket permanent-document-bucket --cors-configuration file://./aws/cors.json
 
 commands:
   install_dependencies:
@@ -71,6 +84,10 @@ jobs:
       steps:
           - checkout
 
+          - run: git submodule sync
+
+          - run: git submodule update --init
+
           - run:
               name: get python version
               command: python --version > python_version.txt
@@ -90,7 +107,7 @@ jobs:
           - persist_to_workspace:
               root: .
               paths:
-                - .venv
+                - .
 
     code_hygiene:
         docker:
@@ -102,8 +119,6 @@ jobs:
             CIRCLECI: "True"
             DATABASE_URL: ""
         steps:
-          - checkout
-
           - attach_workspace:
               at: .
 
@@ -162,9 +177,6 @@ jobs:
               pipenv run awslocal s3api put-bucket-cors --bucket temporary-document-bucket --cors-configuration file://./aws/cors.json
               pipenv run awslocal s3api put-bucket-cors --bucket permanent-document-bucket --cors-configuration file://./aws/cors.json
 
-        - run: git submodule sync
-        - run: git submodule update --init
-
         - run:
             name: Run front-end tests
             # we don't run frontend tests with coverage as only unit tests should affect coverage
@@ -187,8 +199,6 @@ jobs:
       <<: *django_server_configuration
 
       steps:
-        - checkout
-
         - attach_workspace:
             at: .
 
@@ -206,16 +216,9 @@ jobs:
               pipenv run awslocal s3api put-bucket-cors --bucket temporary-document-bucket --cors-configuration file://./aws/cors.json
               pipenv run awslocal s3api put-bucket-cors --bucket permanent-document-bucket --cors-configuration file://./aws/cors.json
 
-        - run: git submodule sync
-        - run: git submodule update --init
-
         - run:
             name: Check missing migrations (changes to models that haven't been added to migrations)
             command: pipenv run python django_app/manage.py makemigrations --check --dry-run --settings=config.settings.local
-
-        - run:
-            name: Apply migrations
-            command: pipenv run python django_app/manage.py migrate --settings=config.settings.local
 
         - run:
             name: Run tests and save coverage report
@@ -235,8 +238,5 @@ workflows:
           requires:
             - install_dependencies
       - run_unit_tests:
-          requires:
-            - install_dependencies
-      - run_frontend_tests:
           requires:
             - install_dependencies
