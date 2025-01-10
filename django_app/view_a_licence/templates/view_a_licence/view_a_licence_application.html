@@ -265,7 +265,11 @@
     <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular" data-testid="">
-                Licensing grounds
+                {% if "legal_advisory" in licence.professional_or_business_services %}
+                    Licensing grounds for the relevant activity
+                {% else %}
+                    Licensing grounds
+                {% endif %}
             </dt>
             <dd class="govuk-summary-list__value">
                 {% for ground in licence.get_licensing_grounds_display %}
@@ -276,7 +280,7 @@
                 {% endfor %}
             </dd>
         </div>
-        {% if licence.licensing_grounds_legal_advisory %}
+        {% if "legal_advisory" in licence.professional_or_business_services and licence.professional_or_business_services|length > 1 %}
             <div class="govuk-summary-list__row" data-testid="licensing-grounds-legal-advisory-box">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                     Licensing grounds (excluding legal advisory)
