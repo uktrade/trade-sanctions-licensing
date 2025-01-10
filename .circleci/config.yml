@@ -238,3 +238,6 @@ workflows:
       - run_unit_tests:
           requires:
             - install_dependencies
+      - run_frontend_tests:
+          requires:
+            - install_dependencies
