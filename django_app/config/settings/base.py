@@ -358,3 +358,4 @@ SESSION_COOKIE_HTTPONLY = True
 # Information about the current environment
 CURRENT_BRANCH = env.current_branch
 CURRENT_TAG = env.current_tag
+CURRENT_COMMIT = env.current_commit
