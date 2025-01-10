@@ -13,10 +13,10 @@ class TestCollectFeedback(PlaywrightTestBase):
             self.page.get_by_test_id("collect_feedback_link").click()
 
             new_page = new_page_info.value
-            new_page.get_by_label("Very dissatisfied").check()
+            new_page.get_by_label("Very satisfied").check()
             new_page.get_by_role("button", name="Submit").click()
 
         assert FeedbackItem.objects.count() == 1
         feedback_item = FeedbackItem.objects.first()
-        assert feedback_item.rating == 1
+        assert feedback_item.rating == 5
         assert feedback_item.url == "/apply/"
