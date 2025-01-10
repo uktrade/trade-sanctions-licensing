@@ -5,7 +5,6 @@ orbs:
   aws-cli: circleci/aws-cli@5.1
 
 # we share the django server configuration between the run_unit_tests and run_frontend_tests jobs
-
 django_server_configuration: &django_server_configuration
   docker:
     - image: cimg/python:3.11.7
@@ -32,47 +31,6 @@ django_server_configuration: &django_server_configuration
         POSTGRES_DB: apply_for_a_licence
         POSTGRES_PASSWORD: password
     - image: localstack/localstack
-
-setup_localstack_s3_buckets: &setup_localstack_s3_buckets
-    - aws-cli/setup
-    -
-    - run:
-        name: Create S3 Buckets
-        command: |
-          awslocal s3 mb s3://temporary-document-bucket
-          awslocal s3 mb s3://permanent-document-bucket
-          awslocal s3api put-bucket-cors --bucket temporary-document-bucket --cors-configuration file://./aws/cors.json
-          awslocal s3api put-bucket-cors --bucket permanent-document-bucket --cors-configuration file://./aws/cors.json
-
-commands:
-  install_dependencies:
-    description: "Install Python dependencies"
-    steps:
-      - run:
-         name: Install Python dependencies
-         command: |
-             pip install pipenv
-             pipenv install --dev
-
-  restore_dependency_cache:
-    description: "Restore dependency cache."
-    steps:
-      - run:
-          name: get python version
-          command: python --version > python_version.txt
-      - restore_cache:
-          key: deps2-{{ checksum "Pipfile.lock" }}-{{ checksum "python_version.txt" }}
-
-  save_dependency_cache:
-    description: "Save dependency cache."
-    steps:
-      - run:
-          name: get python version
-          command: python --version > python_version.txt
-      - save_cache:
-          key: deps2-{{ checksum "Pipfile.lock" }}-{{ checksum "python_version.txt" }}
-          paths:
-            - "/home/circleci/.local/share/virtualenvs/project-zxI9dQ-Q"
 
 jobs:
     install_dependencies:
@@ -235,7 +193,7 @@ jobs:
         - codecov/upload
 
         - store_test_results:
-            path: test-results
+            path: test-results/unit
 
 workflows:
   build_and_test:
