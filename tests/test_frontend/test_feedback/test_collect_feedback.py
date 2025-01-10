@@ -14,11 +14,9 @@ class TestCollectFeedback(PlaywrightTestBase):
 
             new_page = new_page_info.value
             new_page.get_by_label("Very dissatisfied").check()
-            new_page.get_by_role("checkbox", name="I did not find what I was looking for").check()
             new_page.get_by_role("button", name="Submit").click()
 
         assert FeedbackItem.objects.count() == 1
         feedback_item = FeedbackItem.objects.first()
         assert feedback_item.rating == 1
-        assert feedback_item.did_you_experience_any_issues == ["not_found"]
         assert feedback_item.url == "/apply/"

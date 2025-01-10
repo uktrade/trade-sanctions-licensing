@@ -67,6 +67,7 @@ jobs:
         - image: cimg/python:3.11.7
           environment:
             PIPENV_VENV_IN_PROJECT: true
+            PIPENV_CACHE_DIR: /home/circleci/.cache/pipenv
       steps:
           - checkout
 
@@ -84,9 +85,7 @@ jobs:
           - save_cache:
               key: deps2-{{ checksum "Pipfile.lock" }}-{{ checksum "python_version.txt" }}
               paths:
-                - ".venv"
-                - "/usr/local/bin"
-                - "/usr/local/lib/python3.11/site-packages"
+                - "/home/circleci/.cache/pipenv"
 
           - persist_to_workspace:
               root: .
