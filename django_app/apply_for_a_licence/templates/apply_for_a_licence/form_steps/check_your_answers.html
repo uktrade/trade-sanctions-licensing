@@ -4,13 +4,23 @@
 {% block title %}
     Check your answers
 {% endblock title %}
+
+{% block extra_css %}
+    <style>
+        .change_business_details_link {
+            font-size: 19px;
+            text-align: right;
+        }
+    </style>
+{% endblock extra_css %}
+
 {% block column_content %}
     <div>
         <h1 class="govuk-heading-l">Check your answers</h1>
     </div>
     {% if form_data.start.who_do_you_want_the_licence_to_cover != "myself" %}
         <div class="action-wrapper">
-            <h2 class="govuk-heading-m" style="float:left">Your details</h2>
+            <h2 class="govuk-heading-m fl-left">Your details</h2>
             <dl class="govuk-summary-card__actions">
                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                     <a class="govuk-link" data-testid="change_your_details_link"
@@ -63,18 +73,14 @@
     {% if form_data.start.who_do_you_want_the_licence_to_cover == "business" %}
         {% for id, business in businesses.items %}
             <div class="action-wrapper">
-                <h3 class="govuk-heading-s" style="float:left">Business {{ forloop.counter }}</h3>
+                <h3 class="govuk-heading-s fl-left">Business {{ forloop.counter }}</h3>
                 <dl class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         {% if business.cleaned_data.companies_house %}
-                            <a class="govuk-link"
-                               style="font-size: 19px;
-                                      text-align:right"
+                            <a class="govuk-link change_business_details_link"
                                href="{% url 'do_you_know_the_registered_company_number' %}?business_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">business {{ forloop.counter }} details</span></a>
                         {% else %}
-                            <a class="govuk-link"
-                               style="font-size: 19px;
-                                      text-align:right"
+                            <a class="govuk-link change_business_details_link"
                                href="{% url 'add_a_business' location=business.cleaned_data.url_location business_uuid=id %}?redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">business {{ forloop.counter }} details</span></a>
                         {% endif %}
                     </dd>
@@ -118,7 +124,7 @@
     {% endif %}
     {% if form_data.start.who_do_you_want_the_licence_to_cover == "myself" %}
         <div class="action-wrapper">
-            <h3 class="govuk-heading-s" style="float:left">Your details</h3>
+            <h3 class="govuk-heading-s fl-left">Your details</h3>
             <dl class="govuk-summary-card__actions">
                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                     <a class="govuk-link"
@@ -151,7 +157,7 @@
                 {% if individual.address_data %}
                         {# we want to make sure that the object has been fully completed, name + address data is necessary #}
                     <div class="action-wrapper">
-                        <h3 class="govuk-heading-s" style="float:left">Individual {{ forloop.counter }}</h3>
+                        <h3 class="govuk-heading-s fl-left">Individual {{ forloop.counter }}</h3>
                         <dl class="govuk-summary-card__actions">
                             <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                                 <a class="govuk-link"
@@ -207,7 +213,7 @@
                 {% if individual.address_data %}
                         {# we want to make sure that the object has been fully completed, name + address data is necessary #}
                     <div class="action-wrapper">
-                        <h3 class="govuk-heading-s" style="float:left">Individual {{ forloop.counter }}</h3>
+                        <h3 class="govuk-heading-s fl-left">Individual {{ forloop.counter }}</h3>
                         <dl class="govuk-summary-card__actions">
                             <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                                 <a class="govuk-link"
@@ -261,7 +267,7 @@
     {% endif %}
     {% if form_data.start.who_do_you_want_the_licence_to_cover == "individual" %}
         <div class="action-wrapper">
-            <h2 class="govuk-heading-m" style="float:left">Business the individuals work for</h2>
+            <h2 class="govuk-heading-m fl-left">Business the individuals work for</h2>
             <dl class="govuk-summary-card__actions">
                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                     <a class="govuk-link"
@@ -285,7 +291,7 @@
         </dl>
     {% endif %}
     <div class="action-wrapper">
-        <h2 class="govuk-heading-m" style="float:left">Previous licence</h2>
+        <h2 class="govuk-heading-m fl-left">Previous licence</h2>
         <dl class="govuk-summary-card__actions">
             <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                 <a class="govuk-link"
@@ -362,7 +368,7 @@
     {% if request.session.recipients %}
         {% for id, recipient in request.session.recipients.items %}
             <div class="action-wrapper">
-                <h3 class="govuk-heading-s" style="float:left">Recipient {{ forloop.counter }}</h3>
+                <h3 class="govuk-heading-s fl-left">Recipient {{ forloop.counter }}</h3>
                 <dl class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         <a class="govuk-link"
