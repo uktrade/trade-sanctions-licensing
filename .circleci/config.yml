@@ -155,7 +155,7 @@ jobs:
     run_frontend_tests:
       <<: *django_server_configuration
 
-      parallelism: 10
+      parallelism: 5
 
       steps:
         - attach_workspace:
@@ -193,6 +193,9 @@ jobs:
             # save the frontend test videos
             path: video-test-results
 
+        - store_test_results:
+            path: test-results/frontend
+
     run_unit_tests:
       <<: *django_server_configuration
 
@@ -221,7 +224,13 @@ jobs:
         - run:
             name: Run tests and save coverage report
             command: |
-              pipenv run pytest tests/test_unit --cov=django_app --cov-branch --cov-report=json --junitxml=test-results/unit/results.xml --create-db
+              pipenv run pytest \
+              tests/test_unit \
+              --cov=django_app \
+              --cov-branch \
+              --cov-report=json \
+              --junitxml=test-results/unit/results.xml \
+              --create-db
 
         - codecov/upload
 
