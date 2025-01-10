@@ -8,7 +8,7 @@ class TestCollectFeedback(PlaywrightTestBase):
         assert FeedbackItem.objects.count() == 0
 
         self.page.goto(self.base_url)
-        # clicking the link will open a new tab, so we have to expect it
+        # clicking the link will open a new tab, so we have to expect it.
         with self.page.context.expect_page() as new_page_info:
             self.page.get_by_test_id("collect_feedback_link").click()
 

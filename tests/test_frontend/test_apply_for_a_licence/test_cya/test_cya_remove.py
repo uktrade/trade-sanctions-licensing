@@ -58,7 +58,7 @@ class TestCYARemove(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.no_more_additions(self.page)
         self.licensing_grounds_simple(self.page)
 
-        # Delete businesses
+        # Delete businesses.
         self.page.get_by_role("button", name="Remove Business 3").click()
         expect(self.page.get_by_role("button", name="Remove Business 1")).to_be_visible()
         expect(self.page.get_by_role("button", name="Remove Business 2")).to_be_visible()
