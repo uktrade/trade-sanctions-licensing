@@ -209,10 +209,11 @@
                             This is a new service
 	                        {# don't show the feedback text whilst on a feedback page #}
                             {% if request.resolver_match.app_name != "feedback" %}
-                                – your
-                                <a class="govuk-link" data-testid="collect_feedback_link" target="_blank"
-                                   href="{% url 'feedback:collect_full_feedback' %}?url={{ request.get_full_path|urlencode }}">feedback</a>
-                                will help us to improve it (opens in a new tab).
+                                – Help us improve it and
+                                <a class="govuk-link" target="_blank" data-testid="collect_feedback_link"
+                                   href="{% url 'feedback:collect_full_feedback' %}?url={{ request.get_full_path|urlencode }}">
+                                    give your feedback (opens in a new tab).
+                                </a>
                             {% endif %}
                         </span>
                     </p>

@@ -9,7 +9,7 @@ from .views.shared_views import DownloadPDFView
 
 urlpatterns = [
     path("", RedirectBaseDomainView.as_view(), name="initial_redirect_view"),
-    path("feedback/", include("feedback.urls")),
+    path("give-feedback/", include("feedback.urls")),
     path("healthcheck/", include("healthcheck.urls")),
     path("throw_error/", lambda x: 1 / 0),
     path("admin/", admin.site.urls),

@@ -15,7 +15,7 @@ class FeedbackForm(BaseModelForm):
     did_you_experience_any_issues = forms.MultipleChoiceField(
         choices=DidYouExperienceAnyIssues.active_choices(),
         widget=forms.CheckboxSelectMultiple,
-        label="Did you experience any of the following issues?",
+        label="Select all that apply",
         required=False,
     )
 
@@ -28,6 +28,10 @@ class FeedbackForm(BaseModelForm):
         }
         widgets = {
             "rating": forms.RadioSelect,
+        }
+
+        error_messages = {
+            "rating": {"required": "Select how satisfied you felt using this service"},
         }
 
     class Media:
