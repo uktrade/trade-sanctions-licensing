@@ -11,6 +11,7 @@ from apply_for_a_licence.models import (
     UserEmailVerification,
 )
 from core.document_storage import TemporaryDocumentStorage
+from django.conf import settings
 from django.http import HttpRequest
 
 from .s3 import get_all_session_files, store_document_in_permanent_bucket
@@ -64,8 +65,10 @@ class SaveToDB:
             is_third_party=self.is_third_party,
             user_email_verification=self.email_verification,
             who_do_you_want_the_licence_to_cover=self.data["start"]["who_do_you_want_the_licence_to_cover"],
-            user=self.request.user,
         )
+
+        if settings.GOV_UK_ONE_LOGIN_ENABLED:
+            licence.user = self.request.user
 
         if self.data["start"]["who_do_you_want_the_licence_to_cover"] == "myself":
             licence.applicant_full_name = f"{self.data['add_yourself']['first_name']} {self.data['add_yourself']['last_name']}"

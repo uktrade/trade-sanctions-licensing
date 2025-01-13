@@ -6,11 +6,6 @@ from authlib.jose.errors import InvalidClaimError
 from django.urls import reverse
 
 
-def test_redirect_to_login(al_client):
-    response = al_client.get(reverse("start"))
-    assert reverse("authentication:login") in response.url
-
-
 @patch("authentication.views.get_token")
 @patch("authentication.views.authenticate")
 @patch("authentication.views.settings.GOV_UK_ONE_LOGIN_CONFIG")

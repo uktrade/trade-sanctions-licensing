@@ -252,6 +252,7 @@ AUTHBROKER_STAFF_SSO_SCOPE = env.authbroker_staff_sso_scope
 GOV_UK_ONE_LOGIN_CLIENT_ID = env.gov_uk_one_login_client_id
 GOV_UK_ONE_LOGIN_CLIENT_SECRET = env.gov_uk_one_login_client_secret
 GOV_UK_ONE_LOGIN_CONFIG = OneLoginConfig
+GOV_UK_ONE_LOGIN_ENABLED = False
 
 TRUNCATE_WORDS_LIMIT = 30
 
