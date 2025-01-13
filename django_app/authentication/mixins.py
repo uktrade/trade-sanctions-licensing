@@ -14,9 +14,9 @@ class AuthenticatedAnonymousUser(AnonymousUser):
 class LoginRequiredMixin(DjangoLoginRequiredMixin):
     # todo - remove this mixin when we turn on one-login for the apply site
     def dispatch(self, request: HttpRequest, *args, **kwargs):
-        """if is_apply_for_a_licence_site(request.site):
-        # we're currently not enforcing one-login for the apply site
-        request.user = AuthenticatedAnonymousUser()"""
+        if is_apply_for_a_licence_site(request.site):
+            # we're currently not enforcing one-login for the apply site
+            request.user = AuthenticatedAnonymousUser()
         return super().dispatch(request, *args, **kwargs)
 
     def get_login_url(self):
