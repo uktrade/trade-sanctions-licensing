@@ -125,10 +125,6 @@ class UserEmailVerification(BaseModelID):
     date_created = models.DateTimeField(auto_now_add=True)
     verified = models.BooleanField(default=False)
 
-    @property
-    def _history_user(self):
-        return None
-
 
 class AddressMixin(models.Model):
     address_line_1 = models.CharField(max_length=200, blank=True, null=True)
