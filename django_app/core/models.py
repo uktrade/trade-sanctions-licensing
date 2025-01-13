@@ -12,6 +12,11 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+    @property
+    def _history_user(self):
+        # todo - remove when OneLogin is enabled
+        return None
+
 
 class BaseModelID(BaseModel):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
