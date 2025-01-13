@@ -4,6 +4,7 @@ from typing import Any
 
 from apply_for_a_licence.forms.forms_end import DeclarationForm
 from apply_for_a_licence.utils import get_all_cleaned_data, get_all_forms
+from authentication.mixins import LoginRequiredMixin
 from core.document_storage import TemporaryDocumentStorage
 from core.views.base_views import BaseFormView
 from django.conf import settings
@@ -22,7 +23,7 @@ from view_a_licence.utils import craft_view_a_licence_url
 logger = logging.getLogger(__name__)
 
 
-class CheckYourAnswersView(TemplateView):
+class CheckYourAnswersView(LoginRequiredMixin, TemplateView):
     """View for the 'Check your answers' page."""
 
     template_name = "apply_for_a_licence/form_steps/check_your_answers.html"
@@ -137,5 +138,5 @@ class DeclarationView(BaseFormView):
         return redirect(self.success_url)
 
 
-class CompleteView(TemplateView):
+class CompleteView(LoginRequiredMixin, TemplateView):
     template_name = "apply_for_a_licence/complete.html"

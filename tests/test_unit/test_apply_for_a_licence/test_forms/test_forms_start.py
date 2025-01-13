@@ -45,32 +45,32 @@ class TestEmailVerifyForm:
     verify_code = "123456"
 
     @pytest.fixture(autouse=True)
-    def user_email_verification_object(self, al_client):
+    def user_email_verification_object(self, authenticated_al_client):
         self.obj = UserEmailVerification.objects.create(
-            user_session=al_client.session._get_session_from_db(),
+            user_session=authenticated_al_client.session._get_session_from_db(),
             email_verification_code=self.verify_code,
         )
         user_request_object = RequestFactory().get("/")
-        user_request_object.session = al_client.session._get_session_from_db()
+        user_request_object.session = authenticated_al_client.session._get_session_from_db()
         self.request_object = user_request_object
 
-    def test_email_verify_form_correct(self, al_client):
+    def test_email_verify_form_correct(self, authenticated_al_client):
         form = forms.EmailVerifyForm(data={"email_verification_code": self.verify_code}, request=self.request_object)
         assert form.is_valid()
 
-    def test_email_verify_form_incorrect_code(self, al_client):
+    def test_email_verify_form_incorrect_code(self, authenticated_al_client):
         form = forms.EmailVerifyForm(data={"email_verification_code": "1"}, request=self.request_object)
         assert not form.is_valid()
         assert "email_verification_code" in form.errors
 
-    def test_email_verify_form_expired_code_2_hours(self, al_client):
+    def test_email_verify_form_expired_code_2_hours(self, authenticated_al_client):
         self.obj.date_created = self.obj.date_created - timedelta(days=1)
         self.obj.save()
         form = forms.EmailVerifyForm(data={"email_verification_code": self.verify_code}, request=self.request_object)
         assert not form.is_valid()
         assert form.has_error("email_verification_code", "invalid")
 
-    def test_email_verify_form_expired_code_1_hour(self, al_client):
+    def test_email_verify_form_expired_code_1_hour(self, authenticated_al_client):
         self.obj.date_created = self.obj.date_created - timedelta(minutes=61)
         self.obj.save()
         form = forms.EmailVerifyForm(data={"email_verification_code": self.verify_code}, request=self.request_object)
