@@ -53,6 +53,8 @@ class BaseSettings(PydanticBaseSettings):
     permanent_s3_bucket_name: str = "permanent-document-bucket"
     presigned_url_expiry_seconds: int = 3600
 
+    include_private_urls: bool = False
+
     # Django sites
     apply_for_a_licence_domain: str = "apply-for-a-licence:8000"
     view_a_licence_domain: str = "view-a-licence:8000"
@@ -60,18 +62,16 @@ class BaseSettings(PydanticBaseSettings):
     apply_for_a_licence_extra_domain: str = ""
     view_a_licence_extra_domain: str = ""
 
-    # SSO
+    # Staff SSO
     authbroker_url: str = ""
     authbroker_client_id: str = ""
     authbroker_client_secret: str = ""
     authbroker_token_session_key: str = ""
     authbroker_staff_sso_scope: str = "read"
 
-    mock_sso_token: str = ""
-    mock_sso_scope: str = "read"
-    mock_sso_username: str = ""
-    mock_sso_email_user_id: str = ""
-    oauthlib_insecure_transport: int = 0
+    # GOV.UK One Login
+    gov_uk_one_login_client_id: str = ""
+    gov_uk_one_login_client_secret: str = ""
 
     # Redis
     redis_host: str = ""

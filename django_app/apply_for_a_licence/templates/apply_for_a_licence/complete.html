@@ -21,7 +21,7 @@
         <p class="govuk-body">We have sent you a confirmation email.</p>
     {% endif %}
     <p class="govuk-body hide-on-js-disabled show-on-js-enabled hide-on-print">
-        <a class="govuk-link" onclick="window.print()" href=#>Print this screen</a>
+        <a class="govuk-link" onclick="window.print()" href=#>View and print your application</a>
         <p class="govuk-body">
 		{% comment %}
 		    TODO: remove comments and update dummy template when DST-798 is complete
@@ -36,6 +36,7 @@
                 Business and Trade (DBT).
             </p>
             <p class="govuk-body">OTSI will contact you once they've reviewed your application.</p>
+            <p class="govuk-body">OTSI cannot give a timescale for this due to the complexity of some applications.</p>
             <p class="govuk-body hide-on-print">
                 <a href="{% url 'feedback:collect_full_feedback' %}?url={{ request.get_full_path|urlencode }}" class="govuk-link">
                     What did you think of this service?</a> (takes 30 seconds)
