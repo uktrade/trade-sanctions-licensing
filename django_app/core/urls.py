@@ -11,7 +11,7 @@ from .views.shared_views import DownloadPDFView
 
 public_urls = [
     path("", RedirectBaseDomainView.as_view(), name="initial_redirect_view"),
-    path("feedback/", include("feedback.urls")),
+    path("give-feedback/", include("feedback.urls")),
     path("healthcheck/", include("healthcheck.urls")),
     path("throw_error/", lambda x: 1 / 0),
     path("admin/", admin.site.urls),
@@ -24,7 +24,8 @@ public_urls = [
     path("inactive-application-deleted/", SessionExpiredView.as_view(), name="session_expired"),
     path("accessibility-statement", generic_views.AccessibilityStatementView.as_view(), name="accessibility_statement"),
     path("download_application/", DownloadPDFView.as_view(), name="download_application"),
-    path("auth/", include("authbroker_client.urls")),
+    path("staff-sso/", include("authbroker_client.urls")),
+    path("authentication/", include("authentication.urls")),
 ]
 
 private_urls = [
