@@ -35,6 +35,8 @@ os.environ["AWS_ENDPOINT_URL"] = f"http://localhost:{env.localstack_port}"
 PROTOCOL = "http://"
 
 CURRENT_BRANCH = env.git_current_branch
+
+INCLUDE_PRIVATE_URLS = True
 CURRENT_COMMIT = env.git_current_commit
 
 GOV_UK_ONE_LOGIN_CLIENT_ID = "my-client"

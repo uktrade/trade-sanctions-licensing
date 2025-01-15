@@ -13,6 +13,8 @@ SAVE_VIDEOS = env.save_videos
 
 ENVIRONMENT = "test"
 
+INCLUDE_PRIVATE_URLS = True
+
 # we don't want to connect to ClamAV in testing, redefine and remove from list
 FILE_UPLOAD_HANDLERS = ("core.custom_upload_handler.CustomFileUploadHandler",)  # type: ignore[assignment]
 
