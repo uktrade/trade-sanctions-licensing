@@ -13,6 +13,20 @@ from django.urls import reverse_lazy
 from django.utils.timezone import now
 
 
+class SubmitterReferenceForm(BaseModelForm):
+    class Meta:
+        model = Licence
+        fields = ["submitter_reference"]
+        labels = {"submitter_reference": "Your application name"}
+        help_texts = {
+            "submitter_reference": "This is for you to keep track of your application. It will not be submitted.",
+        }
+        error_messages = {"submitter_reference": {"required": "Enter the name of the application"}}
+
+    form_h1_header = "Give your application a name"
+    bold_labels = False
+
+
 class StartForm(BaseModelForm):
     class Meta:
         model = Licence

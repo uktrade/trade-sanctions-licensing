@@ -3,18 +3,27 @@ import datetime
 from apply_for_a_licence.utils import get_dirty_form_data
 from authentication.mixins import LoginRequiredMixin
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
-from django import forms
 from django.conf import settings
+from django.db.models import Model
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.generic import FormView, RedirectView
+from django.views import View
+from django.views.generic import FormView, RedirectView, TemplateView
 from django_ratelimit.exceptions import Ratelimited
 
 
-class BaseFormView(LoginRequiredMixin, FormView):
+class BaseView(LoginRequiredMixin, View):
+    pass
+
+
+class BaseTemplateView(BaseView, TemplateView):
+    pass
+
+
+class BaseFormView(BaseView, FormView):
     template_name = "core/base_form_step.html"
 
     # do we want to redirect the user to the redirect_to query parameter page after this form is submitted?
@@ -68,29 +77,10 @@ class BaseFormView(LoginRequiredMixin, FormView):
         # we want to assign the form to the view ,so we can access it in the get_success_url method
         self.form = form
 
-        # we want to store the dirty form data in the session, so we can access it later on
-        form_data = dict(form.data.copy())
-
-        # first get rid of some useless cruft
-        form_data.pop("csrfmiddlewaretoken", None)
-        form_data.pop("encoding", None)
-
-        # Django QueryDict is a weird beast, we need to check if the key maps to a list of values (as it does with a
-        # multi-select field) and if it does, we need to convert it to a list. If not, we can just keep the value as is.
-        # We also need to keep the value as it is if the form is an ArrayField.
-        for key, value in form_data.items():
-            if not isinstance(form.fields.get(key), forms.MultipleChoiceField):
-                if len(value) == 1:
-                    form_data[key] = value[0]
-
         self.changed_fields = {}
-        if previous_data := get_dirty_form_data(self.request, self.step_name):
-            for key, value in previous_data.items():
-                if key in form_data and form_data[key] != value:
-                    self.changed_fields[key] = value
 
-        # now keep it in the session
-        self.request.session[self.step_name] = form_data
+        instance = self.form.save()
+        self.post_instance_creation_hook(instance)
 
         # get the success_url as this might change the value of redirect_after_post to avoid duplicating conditional
         # logic in the get_success_url method
@@ -113,6 +103,10 @@ class BaseFormView(LoginRequiredMixin, FormView):
         # debugging purposes so we can put breakpoints here
         return super().form_invalid(form)
 
+    def post_instance_creation_hook(self, instance: Model) -> None:
+        """Hook to run after the model instance is created."""
+        pass
+
 
 def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpResponse:
     return HttpResponse("You have made too many", status=429)
@@ -124,7 +118,7 @@ class RedirectBaseDomainView(RedirectView):
     @property
     def url(self) -> str:
         if is_apply_for_a_licence_site(self.request.site):
-            return reverse("start")
+            return reverse("dashboard")
         elif is_view_a_licence_site(self.request.site):
             return reverse("view_a_licence:application_list")
         return ""

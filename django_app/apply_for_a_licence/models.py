@@ -1,4 +1,5 @@
 # mypy: disable-error-code="attr-defined,misc"
+import datetime
 import uuid
 
 from core.document_storage import PermanentDocumentStorage
@@ -23,6 +24,7 @@ class Licence(BaseModel):
     licensing_grounds_legal_advisory = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
     regimes = ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
     reference = models.CharField(max_length=6)
+    submitter_reference = models.CharField(max_length=255, blank=True, null=True)
     business_registered_on_companies_house = models.CharField(
         choices=choices.YesNoDoNotKnowChoices.choices,
         max_length=11,
@@ -57,7 +59,9 @@ class Licence(BaseModel):
     applicant_full_name = models.CharField(max_length=255, null=True, blank=False)
     applicant_business = models.CharField(max_length=300, verbose_name="Business you work for", blank=False, null=True)
     applicant_role = models.CharField(max_length=255, blank=False, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="licence_applications")
+    status = models.CharField(max_length=10, choices=choices.StatusChoices.choices, default=choices.StatusChoices.draft)
+    submitted_at = models.DateTimeField(null=True, blank=True)
 
     def assign_reference(self) -> str:
         """Assigns a unique reference to this Licence object"""
@@ -117,6 +121,9 @@ class Licence(BaseModel):
             ]
         else:
             return []
+
+    def get_date_till_deleted(self) -> datetime.datetime:
+        return self.created_at + datetime.timedelta(days=30)
 
 
 class UserEmailVerification(BaseModelID):

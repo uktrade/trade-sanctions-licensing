@@ -7,6 +7,7 @@ from core.forms.base_forms import GenericForm
 from core.utils import update_last_activity_session_timestamp
 from core.views.base_views import BaseFormView
 from django.conf import settings
+from django.db.models import Model
 from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
@@ -16,13 +17,22 @@ from utils.notifier import verify_email
 logger = logging.getLogger(__name__)
 
 
-class StartView(BaseFormView):
-    form_class = forms.StartForm
+class SubmitterReferenceView(BaseFormView):
+    form_class = forms.SubmitterReferenceForm
+    success_url = reverse_lazy("start")
 
     def dispatch(self, request, *args, **kwargs):
         # refresh the session expiry timestamp. This is the start of the session
         update_last_activity_session_timestamp(request)
         return super().dispatch(request, *args, **kwargs)
+
+    def post_instance_creation_hook(self, instance: Model) -> None:
+        instance.user = self.request.user
+        instance.save()
+
+
+class StartView(BaseFormView):
+    form_class = forms.StartForm
 
     def get_success_url(self) -> str | None:
         answer = self.form.cleaned_data["who_do_you_want_the_licence_to_cover"]

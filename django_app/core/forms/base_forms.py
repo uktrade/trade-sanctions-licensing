@@ -26,7 +26,7 @@ class BaseForm(forms.Form):
     # do we want this form to be revalidated when the user clicks Done
     revalidate_on_done = True
     # the submit button text
-    submit_button_text = "Continue"
+    submit_button_text = "Save and continue"
 
     def __init__(self, *args: object, **kwargs) -> None:
         self.request: HttpRequest | None = kwargs.pop("request", None)
