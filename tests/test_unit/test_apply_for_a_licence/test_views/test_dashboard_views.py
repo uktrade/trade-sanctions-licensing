@@ -38,6 +38,17 @@ class TestDashboardView:
         assert response.status_code == 302
         assert response.url == reverse("new_application")
 
+    def test_date_in_template(self, authenticated_al_client, test_apply_user):
+        licence = LicenceFactory(user=test_apply_user, status="draft")
+        response = authenticated_al_client.get(reverse("dashboard"))
+        assert licence.get_date_till_deleted().strftime("%d %B %Y") in response.content.decode()
+        assert "Delete draft" in response.content.decode()
+
+    def test_only_show_actions_on_draft(self, authenticated_al_client, test_apply_user):
+        LicenceFactory(user=test_apply_user, status="submitted")
+        response = authenticated_al_client.get(reverse("dashboard"))
+        assert "Delete draft" not in response.content.decode()
+
 
 class TestDeleteApplicationView:
     def test_normal_delete(self, authenticated_al_client, test_apply_user):
