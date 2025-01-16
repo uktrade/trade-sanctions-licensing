@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 from apply_for_a_licence import choices
 from apply_for_a_licence.choices import (
@@ -5,6 +7,8 @@ from apply_for_a_licence.choices import (
     TypeOfRelationshipChoices,
 )
 from django.forms import model_to_dict
+from freezegun import freeze_time
+from freezegun.api import datetime_to_fakedatetime
 from utils.companies_house import get_formatted_address
 
 from tests.factories import IndividualFactory, LicenceFactory, OrganisationFactory
@@ -87,3 +91,10 @@ class TestLicenceModel:
             choices.ProfessionalOrBusinessServicesChoices.accounting.label,
             choices.ProfessionalOrBusinessServicesChoices.auditing.label,
         ]
+
+    @freeze_time("2020-01-01 12:00:00")
+    def test_get_date_till_deleted(self):
+        licence = LicenceFactory()
+        assert licence.get_date_till_deleted() == datetime_to_fakedatetime(
+            datetime.datetime(year=2020, month=1, day=31, hour=12, minute=0, second=0, tzinfo=datetime.timezone.utc)
+        )
