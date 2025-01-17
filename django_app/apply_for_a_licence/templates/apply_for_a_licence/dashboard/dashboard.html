@@ -2,6 +2,23 @@
 
 {% block back_button %}{% endblock %}
 
+{% block extra_css %}
+    <style>
+        .govuk-table__cell {
+            vertical-align: middle;
+        }
+
+        .govuk-table__cell  .govuk-button {
+            margin-bottom: 0;
+        }
+
+        .delete_draft_link {
+            margin-left: 10px;
+            display: inline;
+        }
+    </style>
+{% endblock extra_css %}
+
 {% block row_content %}
     <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-l">Your applications</h1>
@@ -28,10 +45,13 @@
                         </td>
                         <td class="govuk-table__cell">
                             {% if application.status == "draft" %}
-                                <div class="govuk-button-group">
-                                    <a class="govuk-button">Continue</a>
-                                    <a class="govuk-link" href="{% url 'delete_application' pk=application.pk %}">Delete draft</a>
+                                <a class="govuk-button">Continue</a>
+                                <div class="delete_draft_link">
+                                    <a class="govuk-link" href="{% url 'delete_application' pk=application.pk %}">Delete
+                                        draft</a>
                                 </div>
+                            {% else %}
+                                <a class="govuk-link" href="/">Download and view application (opens in new tab)</a>
                             {% endif %}
                         </td>
                     </tr>
@@ -51,7 +71,7 @@
                 </span>
             </summary>
             <div class="govuk-details__text">
-                Once you start a new application, you have 28 days to submit it or it will be deleted. You can amend
+                Once you start a new application, you have {{ DRAFT_APPLICATION_EXPIRY_DAYS }} days to submit it or it will be deleted. You can amend
                 your application at any time until you submit it.
             </div>
         </details>

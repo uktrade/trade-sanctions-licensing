@@ -1,3 +1,5 @@
+import datetime
+
 from apply_for_a_licence.models import Licence
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -48,6 +50,22 @@ class TestDashboardView:
         LicenceFactory(user=test_apply_user, status="submitted")
         response = authenticated_al_client.get(reverse("dashboard"))
         assert "Delete draft" not in response.content.decode()
+
+    def test_delete_expired_applications(self, authenticated_al_client, test_apply_user):
+        licence = LicenceFactory(user=test_apply_user, status="draft")
+        expired_licence = LicenceFactory(user=test_apply_user, status="draft")
+        expired_licence.created_at = datetime.datetime(
+            year=2020, month=1, day=29, hour=12, minute=0, second=0, tzinfo=datetime.timezone.utc
+        )
+        expired_licence.save()
+
+        response = authenticated_al_client.get(reverse("dashboard"))
+        assert response.status_code == 200
+        applications = response.context["applications"]
+        assert applications.count() == 1
+        assert applications.get() == licence
+
+        assert not Licence.objects.filter(pk=expired_licence.pk).exists()
 
 
 class TestDeleteApplicationView:

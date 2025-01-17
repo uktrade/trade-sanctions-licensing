@@ -5,7 +5,7 @@
 {% block column_content %}
     <h1 class="govuk-heading-l">Start a new application</h1>
     <p class="govuk-body">Your application will be saved as you go along</p>
-    <p class="govuk-body">Once you start, you have 28 days to submit it or it will be deleted. You can amend your application at any time until you submit it.</p>
-    <p class="govuk-body">If you do not do anything for 30 minutes, you will be logged out for your security.</p>
+    <p class="govuk-body">Once you start, you have {{ DRAFT_APPLICATION_EXPIRY_DAYS }} days to submit it or it will be deleted. You can amend your application at any time until you submit it.</p>
+    <p class="govuk-body">If you do not do anything for {{ SESSION_EXPIRY_MINUTES }} minutes, you will be logged out for your security.</p>
     <a class="govuk-button" href="{% url 'submitter_reference' %}">Start a new application</a>
 {% endblock column_content %}

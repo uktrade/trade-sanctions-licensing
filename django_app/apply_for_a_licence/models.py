@@ -4,12 +4,14 @@ import uuid
 
 from core.document_storage import PermanentDocumentStorage
 from core.models import BaseModel, BaseModelID
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.sessions.models import Session
 from django.db import models
 from django.db.models import QuerySet
 from django.forms import model_to_dict
+from django.utils import timezone
 from django_countries.fields import CountryField
 from utils.companies_house import get_formatted_address
 
@@ -123,7 +125,14 @@ class Licence(BaseModel):
             return []
 
     def get_date_till_deleted(self) -> datetime.datetime:
-        return self.created_at + datetime.timedelta(days=30)
+        return self.created_at + datetime.timedelta(days=settings.DRAFT_APPLICATION_EXPIRY_DAYS)
+
+    def is_expired(self) -> bool:
+        """Returns True if the licence has been in draft for more than the set expiry days"""
+        if self.status == choices.StatusChoices.draft:
+            return timezone.now() > self.get_date_till_deleted()
+        else:
+            return False
 
 
 class UserEmailVerification(BaseModelID):

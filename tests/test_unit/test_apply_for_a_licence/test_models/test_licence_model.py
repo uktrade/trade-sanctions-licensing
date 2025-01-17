@@ -96,5 +96,26 @@ class TestLicenceModel:
     def test_get_date_till_deleted(self):
         licence = LicenceFactory()
         assert licence.get_date_till_deleted() == datetime_to_fakedatetime(
-            datetime.datetime(year=2020, month=1, day=31, hour=12, minute=0, second=0, tzinfo=datetime.timezone.utc)
+            datetime.datetime(year=2020, month=1, day=29, hour=12, minute=0, second=0, tzinfo=datetime.timezone.utc)
         )
+
+    def test_is_expired(self):
+        licence = LicenceFactory(
+            status=choices.StatusChoices.draft,
+        )
+        licence.created_at = datetime.datetime(
+            year=2020, month=1, day=29, hour=12, minute=0, second=0, tzinfo=datetime.timezone.utc
+        )
+        licence.save()
+        assert licence.is_expired()
+
+        # submitted licences should never expire
+        licence.status = choices.StatusChoices.submitted
+        licence.save()
+        assert not licence.is_expired()
+
+        # new draft licences should not expire
+        licence = LicenceFactory(
+            status=choices.StatusChoices.draft,
+        )
+        assert not licence.is_expired()

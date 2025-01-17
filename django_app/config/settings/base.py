@@ -365,3 +365,6 @@ SESSION_COOKIE_HTTPONLY = True
 CURRENT_BRANCH = env.current_branch
 CURRENT_TAG = env.current_tag
 CURRENT_COMMIT = env.current_commit
+
+# Save & Return
+DRAFT_APPLICATION_EXPIRY_DAYS = 28  # the number of days a draft application is valid for
