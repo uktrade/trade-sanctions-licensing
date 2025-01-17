@@ -27,6 +27,12 @@ class SubmitterReferenceForm(BaseModelForm):
     bold_labels = False
     save_and_return = True
 
+    def save(self, commit=True) -> Licence:
+        instance = super().save(commit=False)
+        instance.user = self.request.user
+        instance.save()
+        return instance
+
 
 class StartForm(BaseModelForm):
     class Meta:

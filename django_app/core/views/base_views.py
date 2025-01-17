@@ -5,7 +5,6 @@ from authentication.mixins import LoginRequiredMixin
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from django import forms
 from django.conf import settings
-from django.db.models import Model
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -100,8 +99,7 @@ class BaseFormView(BaseView, FormView):
                     self.changed_fields[key] = value
 
         if self.form.save_and_return:
-            instance = self.form.save()
-            self.post_instance_creation_hook(instance)
+            self.instance = self.form.save()
 
         # now keep it in the session
         self.request.session[self.step_name] = form_data
@@ -126,10 +124,6 @@ class BaseFormView(BaseView, FormView):
     def form_invalid(self, form):
         # debugging purposes so we can put breakpoints here
         return super().form_invalid(form)
-
-    def post_instance_creation_hook(self, instance: Model) -> None:
-        """Hook to run after the model instance is created."""
-        pass
 
 
 def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpResponse:

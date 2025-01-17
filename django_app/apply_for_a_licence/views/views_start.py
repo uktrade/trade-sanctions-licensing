@@ -7,7 +7,6 @@ from core.forms.base_forms import GenericForm
 from core.utils import update_last_activity_session_timestamp
 from core.views.base_views import BaseFormView
 from django.conf import settings
-from django.db.models import Model
 from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
@@ -25,10 +24,6 @@ class SubmitterReferenceView(BaseFormView):
         # refresh the session expiry timestamp. This is the start of the session
         update_last_activity_session_timestamp(request)
         return super().dispatch(request, *args, **kwargs)
-
-    def post_instance_creation_hook(self, instance: Model) -> None:
-        instance.user = self.request.user
-        instance.save()
 
 
 class StartView(BaseFormView):

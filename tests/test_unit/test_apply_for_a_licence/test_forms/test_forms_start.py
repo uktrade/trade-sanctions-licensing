@@ -8,11 +8,12 @@ from django.test import RequestFactory
 
 
 class TestSubmitterReferenceForm:
-    def test_save(self, db):
-        form = forms.SubmitterReferenceForm(data={"submitter_reference": "123456"})
+    def test_save(self, request_object, test_apply_user):
+        form = forms.SubmitterReferenceForm(data={"submitter_reference": "123456"}, request=request_object)
         assert form.is_valid()
         instance = form.save()
         assert instance.submitter_reference == "123456"
+        assert instance.user == test_apply_user
 
 
 class TestStartForm:
