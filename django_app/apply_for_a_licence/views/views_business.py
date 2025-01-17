@@ -4,9 +4,12 @@ import uuid
 from typing import Any, Dict
 
 from apply_for_a_licence.forms import forms_business as forms
+from apply_for_a_licence.fsm import BusinessJourneyMachine
+from apply_for_a_licence.models import Licence, Organisation
 from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
 from core.views.base_views import BaseFormView
 from django.conf import settings
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
@@ -62,15 +65,24 @@ class DeleteBusinessView(DeleteAnEntityView):
 class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
     form_class = forms.IsTheBusinessRegisteredWithCompaniesHouseForm
     redirect_after_post = False
+    business_journey: BusinessJourneyMachine
+
+    def dispatch(self, request, *args, **kwargs):
+        # todo: get the licence object and organisation associated with user
+        licence_object = Licence.objects.first()
+        organisation = Organisation.objects.first()
+        self.business_journey = BusinessJourneyMachine(licence_object, organisation)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
+        kwargs = {}
         answer = self.form.cleaned_data["business_registered_on_companies_house"]
-
-        if answer == "yes":
-            success_url = reverse("do_you_know_the_registered_company_number")
-        else:
-            success_url = reverse("where_is_the_business_located", kwargs={"business_uuid": uuid.uuid4()})
-
+        self.business_journey.is_the_business_registered_with_companies_house_chosen()
+        redis_cache_key = f"{self.request.session.session_key}_business_journey"
+        cache.set(redis_cache_key, self.business_journey)
+        if not answer == "yes":
+            kwargs = {"business_uuid": uuid.uuid4()}
+        success_url = reverse(self.business_journey.state, kwargs=kwargs)
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
         return success_url
@@ -102,17 +114,23 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
+        redis_cache_key = f"{self.request.session.session_key}_business_journey"
+        business_journey = cache.get(redis_cache_key, None)
+        print(business_journey.state)
         do_you_know_the_registered_company_number = self.form.cleaned_data["do_you_know_the_registered_company_number"]
         registered_company_number = self.form.cleaned_data["registered_company_number"]
+        business_journey.do_you_know_the_registered_company_number_chosen()
+
+        kwargs = {}
         if do_you_know_the_registered_company_number == "yes" and registered_company_number:
-            if self.request.session.pop("company_details_500", None):
-                success_url = reverse("manual_companies_house_input")
-            else:
-                success_url = reverse("check_company_details", kwargs={"business_uuid": self.business_uuid})
+            if not self.request.session.pop("company_details_500", None):
+                kwargs = {"business_uuid": self.business_uuid}
         else:
             current_businesses = self.request.session.get("businesses", {})
             current_businesses.pop(self.business_uuid, None)
-            success_url = reverse("where_is_the_business_located", kwargs={"business_uuid": uuid.uuid4()})
+            kwargs = {"business_uuid": uuid.uuid4()}
+        success_url = reverse(business_journey.state, kwargs=kwargs)
+        print(business_journey.state)
 
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
