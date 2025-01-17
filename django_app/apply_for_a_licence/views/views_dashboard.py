@@ -1,4 +1,5 @@
 from apply_for_a_licence.choices import StatusChoices
+from authentication.mixins import LoginRequiredMixin
 from core.views.base_views import BaseTemplateView
 from django.conf import settings
 from django.shortcuts import redirect
@@ -42,7 +43,7 @@ class NewApplicationView(BaseTemplateView):
         return context
 
 
-class DeleteApplicationView(DetailView):
+class DeleteApplicationView(LoginRequiredMixin, DetailView):
     template_name = "apply_for_a_licence/dashboard/delete_application.html"
     context_object_name = "application"
 
