@@ -3,6 +3,8 @@ import uuid
 from typing import Any
 
 from apply_for_a_licence.forms import forms_start as forms
+from apply_for_a_licence.fsm import StartJourneyMachine
+from apply_for_a_licence.models import Licence
 from core.forms.base_forms import GenericForm
 from core.utils import update_last_activity_session_timestamp
 from core.views.base_views import BaseFormView
@@ -18,19 +20,23 @@ logger = logging.getLogger(__name__)
 
 class StartView(BaseFormView):
     form_class = forms.StartForm
+    start_journey: StartJourneyMachine
 
     def dispatch(self, request, *args, **kwargs):
         # refresh the session expiry timestamp. This is the start of the session
         update_last_activity_session_timestamp(request)
+        licence_object = Licence.objects.first()
+        # create the start journey finite state machine and save to the session
+        self.start_journey = StartJourneyMachine(licence_object)
+        print(self.start_journey.state)
+        print(self.start_journey.states)
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str | None:
-        answer = self.form.cleaned_data["who_do_you_want_the_licence_to_cover"]
-        if answer in ["business", "individual"]:
-            return reverse("are_you_third_party")
-        elif answer == "myself":
-            return reverse("what_is_your_email")
-        return None
+        # increment the state machine
+        self.start_journey.start_chosen()
+        print(self.start_journey.state)
+        return reverse(self.start_journey.state)
 
 
 class ThirdPartyView(BaseFormView):

@@ -26,7 +26,6 @@ class BaseFormView(LoginRequiredMixin, FormView):
         from apply_for_a_licence.urls import view_to_step_dict
 
         step_name = view_to_step_dict[self.__class__.__name__]
-
         return step_name
 
     def get_form_kwargs(self):
