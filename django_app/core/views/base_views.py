@@ -3,6 +3,7 @@ import datetime
 from apply_for_a_licence.utils import get_dirty_form_data
 from authentication.mixins import LoginRequiredMixin
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
+from django import forms
 from django.conf import settings
 from django.db.models import Model
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
@@ -77,10 +78,33 @@ class BaseFormView(BaseView, FormView):
         # we want to assign the form to the view ,so we can access it in the get_success_url method
         self.form = form
 
-        self.changed_fields = {}
+        # we want to store the dirty form data in the session, so we can access it later on
+        form_data = dict(form.data.copy())
 
-        instance = self.form.save()
-        self.post_instance_creation_hook(instance)
+        # first get rid of some useless cruft
+        form_data.pop("csrfmiddlewaretoken", None)
+        form_data.pop("encoding", None)
+
+        # Django QueryDict is a weird beast, we need to check if the key maps to a list of values (as it does with a
+        # multi-select field) and if it does, we need to convert it to a list. If not, we can just keep the value as is.
+        # We also need to keep the value as it is if the form is an ArrayField.
+        for key, value in form_data.items():
+            if not isinstance(form.fields.get(key), forms.MultipleChoiceField):
+                if len(value) == 1:
+                    form_data[key] = value[0]
+
+        self.changed_fields = {}
+        if previous_data := get_dirty_form_data(self.request, self.step_name):
+            for key, value in previous_data.items():
+                if key in form_data and form_data[key] != value:
+                    self.changed_fields[key] = value
+
+        if isinstance(self.form, forms.ModelForm):
+            instance = self.form.save()
+            self.post_instance_creation_hook(instance)
+
+        # now keep it in the session
+        self.request.session[self.step_name] = form_data
 
         # get the success_url as this might change the value of redirect_after_post to avoid duplicating conditional
         # logic in the get_success_url method
