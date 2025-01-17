@@ -120,4 +120,3 @@ class TypeOfRelationshipChoices(models.TextChoices):
 class StatusChoices(models.TextChoices):
     draft = "draft", "Draft"
     submitted = "submitted", "Submitted"
-    expired = "expired", "Expired"
