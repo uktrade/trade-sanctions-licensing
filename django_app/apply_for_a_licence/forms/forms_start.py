@@ -25,6 +25,7 @@ class SubmitterReferenceForm(BaseModelForm):
 
     form_h1_header = "Give your application a name"
     bold_labels = False
+    save_and_return = True
 
 
 class StartForm(BaseModelForm):

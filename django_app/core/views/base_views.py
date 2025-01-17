@@ -99,7 +99,7 @@ class BaseFormView(BaseView, FormView):
                 if key in form_data and form_data[key] != value:
                     self.changed_fields[key] = value
 
-        if isinstance(self.form, forms.ModelForm):
+        if self.form.save_and_return:
             instance = self.form.save()
             self.post_instance_creation_hook(instance)
 
