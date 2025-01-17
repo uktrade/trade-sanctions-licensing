@@ -58,6 +58,7 @@ class BusinessJourneyMachine(object):
         "add_a_business",
         "delete_business",
         "business_added",
+        "tasklist",
     ]
 
     def __init__(self, licence_object, organisation):
@@ -102,6 +103,12 @@ class BusinessJourneyMachine(object):
             },
             {"trigger": "add_a_business_chosen", "source": "add_a_business", "dest": "business_added"},
             {"trigger": "check_company_details_chosen", "source": "check_company_details", "dest": "business_added"},
+            {"trigger": "business_added_chosen", "source": "business_added", "dest": "tasklist"},
+            {
+                "trigger": "business_added_chosen",
+                "source": "business_added",
+                "dest": "is_the_business_registered_with_companies_house",
+            },
         ]
 
         # Initialize the state machine
@@ -128,11 +135,18 @@ class BusinessJourneyMachine(object):
             return False
 
     def companies_house_error(self) -> bool:
-        # if self.request.session.pop("company_details_500", None):
+        # if request.session.pop("company_details_500", None):
         #     return True
         # else:
         #     return False
         return False
+
+    def add_another_business(self) -> bool:
+        answer = self.licence_object.business_registered_on_companies_house
+        if answer == "Yes":
+            return True
+        else:
+            return False
 
 
 class IndividualJourneyMachine(object):

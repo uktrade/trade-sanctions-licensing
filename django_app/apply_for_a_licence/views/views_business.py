@@ -116,7 +116,6 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseFormView):
     def get_success_url(self) -> str:
         redis_cache_key = f"{self.request.session.session_key}_business_journey"
         business_journey = cache.get(redis_cache_key, None)
-        print(business_journey.state)
         do_you_know_the_registered_company_number = self.form.cleaned_data["do_you_know_the_registered_company_number"]
         registered_company_number = self.form.cleaned_data["registered_company_number"]
         business_journey.do_you_know_the_registered_company_number_chosen()
@@ -186,6 +185,13 @@ class CheckCompanyDetailsView(BaseFormView):
         }
         self.request.session["businesses"] = current_businesses
         return super().form_valid(form)
+
+    def get_success_url(self):
+        redis_cache_key = f"{self.request.session.session_key}_business_journey"
+        business_journey = cache.get(redis_cache_key, None)
+        business_journey.check_company_details_chosen()
+        success_url = reverse(business_journey.state)
+        return success_url
 
 
 class WhereIsTheBusinessLocatedView(BaseFormView):
