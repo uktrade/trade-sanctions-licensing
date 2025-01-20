@@ -24,7 +24,7 @@
         <p class="govuk-body">You've been inactive for a while.</p>
         <p class="govuk-body">Your application will be deleted unless you continue within the time remaining.</p>
         <p class="govuk-body">We do this for your security.</p>
-        <p class="govuk-body" autofocus><strong id="session_expiry_time_remaining" data-testid="session_expiry_time_remaining">{{ session_expiry_minutes }}
+        <p class="govuk-body" autofocus><strong id="session_expiry_time_remaining" data-testid="session_expiry_time_remaining">{{ SESSION_EXPIRY_MINUTES }}
             minutes</strong> remaining</p>
         <button class="govuk-button" id="ping_session_button" data-testid="ping_session_button">Continue</button>
     </dialog>
@@ -43,7 +43,7 @@
         </div>
         <div class="govuk-notification-banner__content">
             <p class="govuk-body">
-                Your application will be deleted if you're inactive for <strong>{{ session_expiry_minutes }} minutes</strong>.
+                Your application will be deleted if you're inactive for <strong>{{ SESSION_EXPIRY_MINUTES }} minutes</strong>.
             </p>
             <p class="govuk-body">
                 We do this to protect your information.
@@ -54,7 +54,7 @@
 
 {% block column_content %}
     {% error_summary form %}
-    <form action="{{ request.get_full_path }}" method="post" enctype='multipart/form-data' novalidate>
+    <form action="{% block form_action %}{{ request.get_full_path }}{% endblock form_action %}" method="post" enctype='multipart/form-data' novalidate>
         {% if form.form_h1_header %}
             <h1 class="govuk-heading-l">{{ form.form_h1_header }}</h1>
         {% endif %}
@@ -71,7 +71,7 @@
     <script nonce="{{ request.csp_nonce }}">
         window.onload = function () {
             setup_session_dialog(
-                session_expiry_seconds = {{ session_expiry_seconds }},
+                session_expiry_seconds = {{ SESSION_EXPIRY_SECONDS }},
                 ping_session_url = "{% url 'ping_session' %}",
                 session_expiry_url = "{% url 'session_expired' %}"
             )

@@ -13,14 +13,16 @@ from tests.helpers import get_test_client
 
 @pytest.fixture()
 def test_apply_user(db) -> User:
-    user = User.objects.create(
-        username="urn:fdc:test_apply_user",
-        first_name="Test",
-        last_name="User",
+    user, _ = User.objects.get_or_create(
         email="apply_test_user@example.com",
-        is_active=True,
-        is_staff=False,
-        password="test",
+        defaults={
+            "username": "urn:fdc:test_apply_user",
+            "first_name": "Test",
+            "last_name": "User",
+            "is_active": True,
+            "is_staff": False,
+            "password": "test",
+        },
     )
     return user
 

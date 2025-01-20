@@ -22,9 +22,9 @@ def back_button(request: HttpRequest) -> dict[str, str]:
 def session_expiry_times(request: HttpRequest) -> dict[str, int]:
     """Add the session expiry time in seconds & minutes to the context."""
     return {
-        "session_expiry_seconds": settings.SESSION_COOKIE_AGE,
-        "session_expiry_minutes": settings.SESSION_COOKIE_AGE // 60,
-        "session_expiry_hours": settings.SESSION_COOKIE_AGE // 60 // 60,
+        "SESSION_EXPIRY_SECONDS": settings.SESSION_COOKIE_AGE,
+        "SESSION_EXPIRY_MINUTES": settings.SESSION_COOKIE_AGE // 60,
+        "SESSION_EXPIRY_HOURS": settings.SESSION_COOKIE_AGE // 60 // 60,
     }
 
 

@@ -1,5 +1,6 @@
 from apply_for_a_licence.views import (
     views_business,
+    views_dashboard,
     views_documents,
     views_end,
     views_existing_licence,
@@ -12,8 +13,15 @@ from apply_for_a_licence.views import (
 )
 from django.urls import path
 
+views_dashboard_urls = [
+    path("", views_dashboard.DashboardView.as_view(), name="dashboard"),
+    path("new-application", views_dashboard.NewApplicationView.as_view(), name="new_application"),
+    path("delete-application/<int:pk>", views_dashboard.DeleteApplicationView.as_view(), name="delete_application"),
+]
+
 views_start_urls = [
-    path("", views_start.StartView.as_view(), name="start"),
+    path("application-name", views_start.SubmitterReferenceView.as_view(), name="submitter_reference"),
+    path("start", views_start.StartView.as_view(), name="start"),
     path("third-party", views_start.ThirdPartyView.as_view(), name="are_you_third_party"),
     path("your-email-address", views_start.WhatIsYouEmailAddressView.as_view(), name="what_is_your_email"),
     path("enter-security-code", views_start.EmailVerifyView.as_view(), name="email_verify"),
@@ -152,7 +160,8 @@ views_end_urls = [
 ]
 
 urlpatterns = (
-    views_start_urls
+    views_dashboard_urls
+    + views_start_urls
     + views_business_urls
     + views_individual_urls
     + views_yourself_urls

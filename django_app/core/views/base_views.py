@@ -10,11 +10,20 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.generic import FormView, RedirectView
+from django.views import View
+from django.views.generic import FormView, RedirectView, TemplateView
 from django_ratelimit.exceptions import Ratelimited
 
 
-class BaseFormView(LoginRequiredMixin, FormView):
+class BaseView(LoginRequiredMixin, View):
+    pass
+
+
+class BaseTemplateView(BaseView, TemplateView):
+    pass
+
+
+class BaseFormView(BaseView, FormView):
     template_name = "core/base_form_step.html"
 
     # do we want to redirect the user to the redirect_to query parameter page after this form is submitted?
@@ -89,6 +98,9 @@ class BaseFormView(LoginRequiredMixin, FormView):
                 if key in form_data and form_data[key] != value:
                     self.changed_fields[key] = value
 
+        if self.form.save_and_return:
+            self.instance = self.form.save()
+
         # now keep it in the session
         self.request.session[self.step_name] = form_data
 
@@ -124,7 +136,7 @@ class RedirectBaseDomainView(RedirectView):
     @property
     def url(self) -> str:
         if is_apply_for_a_licence_site(self.request.site):
-            return reverse("start")
+            return reverse("dashboard")
         elif is_view_a_licence_site(self.request.site):
             return reverse("view_a_licence:application_list")
         return ""

@@ -115,3 +115,8 @@ class TypeOfRelationshipChoices(models.TextChoices):
     recipient = "recipient", "Recipient"
     business = "business", "Business"
     named_individuals = "named_individuals", "Named Individuals"
+
+
+class StatusChoices(models.TextChoices):
+    draft = "draft", "Draft"
+    submitted = "submitted", "Submitted"
