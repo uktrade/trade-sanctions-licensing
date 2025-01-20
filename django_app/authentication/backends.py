@@ -95,7 +95,7 @@ class StaffSSOBackend(AuthbrokerBackend):
 class AdminBackend(ModelBackend):
     """Authentication backend only used on the admin site. Only enabled with DEBUG and INCLUDE_PRIVATE_URLS are True"""
 
-    def authenticate(self, request, username=..., password=..., **kwargs) -> User | None:
+    def authenticate(self, request, username: str | None = None, password: str | None = None, **kwargs) -> User | None:
         if settings.SHOW_ADMIN_PANEL:
             return super().authenticate(request, username, password, **kwargs)
         else:
