@@ -16,7 +16,7 @@ class TestUpload(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
     """Test upload works"""
 
     def test_upload(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
         expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
@@ -36,7 +36,7 @@ class TestUpload(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
 
     @pytest.mark.usefixtures("patched_clean_document")
     def test_malware_file_raises_error(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
         expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)

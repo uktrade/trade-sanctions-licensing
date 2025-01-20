@@ -2,6 +2,7 @@ import re
 
 from apply_for_a_licence.models import Licence
 from django.contrib.auth.models import User
+from django.urls import reverse
 from playwright.sync_api import expect
 
 from tests.factories import LicenceFactory
@@ -15,7 +16,7 @@ class TestDeleteApplication(PlaywrightTestBase):
         pk = licence.pk
         assert Licence.objects.filter(pk=pk).exists()
 
-        self.page.goto(self.base_url)
+        self.go_to_path(reverse("dashboard"))
         self.page.get_by_role("link", name="Delete draft").click()
         self.page.get_by_role("button", name="Delete this application").click()
 
@@ -25,11 +26,7 @@ class TestDeleteApplication(PlaywrightTestBase):
 class TestNewApplicationView(PlaywrightTestBase):
     def test_start_new_application(self):
         assert Licence.objects.count() == 0
-        self.page.goto(self.base_url)
-        self.page.get_by_role("link", name="Start a new application").click()
-        self.page.get_by_label("Your application name").click()
-        self.page.get_by_label("Your application name").fill("test reference")
-        self.page.get_by_role("button", name="Save and continue").click()
+        self.start_new_application(submitter_reference="test reference")
 
         expect(self.page).to_have_url(re.compile(r".*/start"))
         assert Licence.objects.count() == 1
