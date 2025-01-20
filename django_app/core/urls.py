@@ -14,7 +14,6 @@ public_urls = [
     path("give-feedback/", include("feedback.urls")),
     path("healthcheck/", include("healthcheck.urls")),
     path("throw_error/", lambda x: 1 / 0),
-    path("admin/", admin.site.urls),
     path("apply/", include("apply_for_a_licence.urls")),
     path("cookies-policy", cookie_views.CookiesConsentView.as_view(), name="cookies_consent"),
     path("privacy-notice", generic_views.PrivacyNoticeView.as_view(), name="privacy_notice"),
@@ -31,6 +30,9 @@ public_urls = [
 private_urls = [
     path("view/", include("view_a_licence.urls")),
 ]
+
+if settings.SHOW_ADMIN_PANEL:
+    private_urls.append(path("admin/", admin.site.urls))
 
 if settings.INCLUDE_PRIVATE_URLS:
     logging.info("Include private urls")

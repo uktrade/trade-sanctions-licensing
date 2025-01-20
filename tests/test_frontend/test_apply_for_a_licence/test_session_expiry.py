@@ -23,7 +23,7 @@ class TestSessionExpiry(PlaywrightTestBase):
         self.page.get_by_test_id("ping_session_button").click()
         expect(self.page.get_by_test_id("session_expiry_time_remaining")).to_be_hidden()
 
-        # now checking that it appears again after a while
+        # now checking that it appears again after a while.
         sleep(4)
         expect(self.page.get_by_test_id("session_expiry_time_remaining")).to_be_visible()
 

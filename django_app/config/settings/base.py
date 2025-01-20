@@ -28,6 +28,8 @@ ROOT_DIR = BASE_DIR.parent  # licensing/
 SECRET_KEY = env.django_secret_key
 
 DEBUG = env.debug
+INCLUDE_PRIVATE_URLS = env.include_private_urls
+SHOW_ADMIN_PANEL = DEBUG and INCLUDE_PRIVATE_URLS
 
 ALLOWED_HOSTS = env.allowed_hosts
 
@@ -241,6 +243,9 @@ AUTHENTICATION_BACKENDS = [
     "authentication.backends.OneLoginBackend",
 ]
 
+if SHOW_ADMIN_PANEL:
+    AUTHENTICATION_BACKENDS.insert(0, "authentication.backends.AdminBackend")
+
 # Staff SSO
 AUTHBROKER_URL = env.authbroker_url
 AUTHBROKER_CLIENT_ID = env.authbroker_client_id
@@ -262,8 +267,6 @@ en_formats.DATE_FORMAT = "d/m/Y"
 APPLY_FOR_A_LICENCE_DOMAIN = env.apply_for_a_licence_domain
 VIEW_A_LICENCE_DOMAIN = env.view_a_licence_domain
 PROTOCOL = "https://"
-
-INCLUDE_PRIVATE_URLS = env.include_private_urls
 
 # Django Ratelimit
 RATELIMIT_VIEW = "core.views.base_views.rate_limited_view"
