@@ -87,6 +87,7 @@ class TestStaffSSOBackend:
 
 
 class TestAdminBackend:
+    @override_settings(SHOW_ADMIN_PANEL=True)
     def test_normal_authentication(self, staff_user, request_object):
         staff_user.set_password("password")
         staff_user.save()
