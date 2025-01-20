@@ -98,13 +98,13 @@ class PlaywrightTestBase(LiveServerTestCase):
     def base_url(self) -> str:
         return f"http://{self.base_host}:{self.server_thread.port}"
 
-    def go_to_path(self, path: str, page: Page = None):
+    def go_to_path(self, path: str, page: Page | None = None):
         """Navigate to a path on the site"""
         if not page:
             page = self.page
         page.goto(f"{self.base_url}{path}")
 
-    def start_new_application(self, submitter_reference: str = None):
+    def start_new_application(self, submitter_reference: str | None = None):
         """Starts a new application with a given submitter reference and take the user to the first 'real' question"""
         if not submitter_reference:
             submitter_reference = "test-submitter-reference"
