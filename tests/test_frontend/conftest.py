@@ -158,9 +158,12 @@ class PlaywrightTestBase(LiveServerTestCase):
         page.get_by_role("button", name="Continue").click()
 
     @staticmethod
-    def declaration_and_complete_page(page):
+    def declaration_and_complete_page(page) -> str:
+        """Accepts the declaration and completes the application, returning the reference number"""
         page.get_by_label("I agree and accept").check()
         page.get_by_role("button", name="Submit").click()
+        reference = page.get_by_test_id("application_reference").text_content()
+        return reference
 
     @staticmethod
     def no_more_additions(page):
