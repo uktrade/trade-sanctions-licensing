@@ -4,7 +4,7 @@ from apply_for_a_licence.choices import (
 )
 from django.urls import reverse
 
-from tests.factories import OrganisationFactory
+from tests.factories import LicenceFactory, OrganisationFactory
 
 
 def test_context_data(vl_client_logged_in, licence):
@@ -17,3 +17,9 @@ def test_context_data(vl_client_logged_in, licence):
     )
     response = vl_client_logged_in.get(reverse("view_a_licence:view_application", kwargs={"reference": licence.reference}))
     assert response.context["business_individuals_work_for"] == org
+
+
+def test_cant_view_draft_licence_application(vl_client_logged_in):
+    draft_licence = LicenceFactory(status="draft")
+    response = vl_client_logged_in.get(reverse("view_a_licence:view_application", kwargs={"reference": draft_licence.reference}))
+    assert response.status_code == 404
