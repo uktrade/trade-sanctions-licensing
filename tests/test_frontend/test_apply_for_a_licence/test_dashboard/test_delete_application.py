@@ -15,7 +15,7 @@ class TestDeleteApplication(PlaywrightTestBase):
         pk = licence.pk
         assert Licence.objects.filter(pk=pk).exists()
 
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.page.get_by_role("link", name="Delete draft").click()
         self.page.get_by_role("button", name="Delete this application").click()
 
@@ -25,7 +25,7 @@ class TestDeleteApplication(PlaywrightTestBase):
 class TestNewApplicationView(PlaywrightTestBase):
     def test_start_new_application(self):
         assert Licence.objects.count() == 0
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.page.get_by_role("link", name="Start a new application").click()
         self.page.get_by_label("Your application name").click()
         self.page.get_by_label("Your application name").fill("test reference")

@@ -14,7 +14,7 @@ class TestCYARemove(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
     """Test removing an entity on Check Your Answers."""
 
     def test_cya_remove_businesses_and_recipients(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
         expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
@@ -81,7 +81,7 @@ class TestCYARemove(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         expect(self.page).to_have_url(re.compile(r".*/check-your-answers"))
 
     def test_cya_remove_individual_journey(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.individual_third_party(self.page)
         expect(self.page).to_have_url(re.compile(r".*/your-details"))
         # Add 3 individuals.
@@ -117,7 +117,7 @@ class TestCYARemove(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.check_submission_complete_page(self.page)
 
     def test_cya_remove_myself_journey(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.myself(self.page)
         expect(self.page).to_have_url(re.compile(r".*/your-name-nationality-location"))
         self.provider_myself_located_in_uk(self.page)

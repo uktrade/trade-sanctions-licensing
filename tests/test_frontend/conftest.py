@@ -98,6 +98,17 @@ class PlaywrightTestBase(LiveServerTestCase):
     def base_url(self) -> str:
         return f"http://{self.base_host}:{self.server_thread.port}"
 
+    def start_new_application(self, submitter_reference: str = None):
+        """Starts a new application with a given submitter reference and take the user to the first 'real' question"""
+        if not submitter_reference:
+            submitter_reference = "test-submitter-reference"
+
+        self.page.goto(self.base_url)
+        self.page.get_by_role("link", name="Start a new application").click()
+        self.page.get_by_label("Your application name").click()
+        self.page.get_by_label("Your application name").fill(submitter_reference)
+        self.page.get_by_role("button", name="Save and continue").click()
+
     def verify_email_details(self, page):
         self.email_details(page)
         self.verify_email(page)

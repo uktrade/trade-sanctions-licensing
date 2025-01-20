@@ -13,7 +13,7 @@ class TestProfessionalServices(StartBase, ProviderBase, RecipientBase, Licensing
     """Tests that the professional services are saved correctly"""
 
     def test_professional_business_services_saved(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
         self.provider_business_located_in_uk(self.page)
         self.no_more_additions(self.page)

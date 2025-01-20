@@ -14,7 +14,7 @@ class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
     """Test making changes on Check Your Answers."""
 
     def test_cya_changes(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
         expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
@@ -63,7 +63,7 @@ class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         expect(self.page.locator("text=Test recipient change")).to_be_visible()
 
     def test_cya_change_recipient_relationship(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
         expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
@@ -98,7 +98,7 @@ class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         expect(self.page.get_by_test_id("recipient-relationship-2")).to_have_text("Friendship")
 
     def test_cya_change_licensing_grounds_content(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
         self.provider_business_located_in_uk(self.page)
         self.no_more_additions(self.page)
