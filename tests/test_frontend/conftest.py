@@ -102,7 +102,7 @@ class PlaywrightTestBase(LiveServerTestCase):
         """Navigate to a path on the site"""
         if not page:
             page = self.page
-        page.goto(f"{self.base_url}{path}")
+        page.goto(f"{self.base_url}{path}")  # type: ignore[union-attr]
 
     def start_new_application(self, submitter_reference: str | None = None):
         """Starts a new application with a given submitter reference and take the user to the first 'real' question"""
