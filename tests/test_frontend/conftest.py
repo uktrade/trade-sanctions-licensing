@@ -12,7 +12,7 @@ from django.contrib.sites.models import Site
 from django.test import override_settings
 from django.test.testcases import LiveServerTestCase
 from django_chunk_upload_handlers.clam_av import VirusFoundInFileException
-from playwright.sync_api import expect, sync_playwright
+from playwright.sync_api import Page, expect, sync_playwright
 from utils import notifier
 
 from tests.test_frontend.fixtures import data
@@ -97,6 +97,12 @@ class PlaywrightTestBase(LiveServerTestCase):
     @property
     def base_url(self) -> str:
         return f"http://{self.base_host}:{self.server_thread.port}"
+
+    def go_to_path(self, path: str, page: Page = None):
+        """Navigate to a path on the site"""
+        if not page:
+            page = self.page
+        page.goto(f"{self.base_url}{path}")
 
     def start_new_application(self, submitter_reference: str = None):
         """Starts a new application with a given submitter reference and take the user to the first 'real' question"""
