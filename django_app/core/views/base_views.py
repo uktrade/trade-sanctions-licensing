@@ -40,9 +40,7 @@ class BaseFormView(BaseView, FormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-
         kwargs["request"] = self.request
-
         # restore the form data from the session, if it exists
         if self.request.method == "GET":
             if previous_data := get_dirty_form_data(self.request, self.step_name):
@@ -50,10 +48,12 @@ class BaseFormView(BaseView, FormView):
         return kwargs
 
     def get_form(self, form_class=None):
+
         form = super().get_form(form_class)
         if self.request.method == "GET" and self.request.GET.get("new"):
             # if we want a new form, we don't want it to be bound
             form.is_bound = False
+
         return form
 
     def post(self, request, *args, **kwargs):
