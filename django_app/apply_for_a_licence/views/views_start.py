@@ -52,16 +52,15 @@ class ThirdPartyView(BaseFormView):
 
     def get_success_url(self):
         if not self.form.cleaned_data["is_third_party"]:
-            if start_view := self.request.session.get("start", False):
-                if start_view.get("who_do_you_want_the_licence_to_cover") == "business":
-                    return reverse("is_the_business_registered_with_companies_house")
-                else:
-                    return reverse(
-                        "add_an_individual",
-                        kwargs={
-                            "individual_uuid": str(uuid.uuid4()),
-                        },
-                    )
+            if self.instance.who_do_you_want_the_licence_to_cover == "business":
+                return reverse("is_the_business_registered_with_companies_house")
+            else:
+                return reverse(
+                    "add_an_individual",
+                    kwargs={
+                        "individual_uuid": str(uuid.uuid4()),
+                    },
+                )
         else:
             return reverse("your_details")
 
@@ -77,13 +76,12 @@ class YourDetailsView(BaseFormView):
         return kwargs
 
     def get_success_url(self):
-        if start_view := self.request.session.get("start", False):
-            if start_view.get("who_do_you_want_the_licence_to_cover") == "business":
-                return reverse("is_the_business_registered_with_companies_house")
-            else:
-                return reverse(
-                    "add_an_individual",
-                    kwargs={
-                        "individual_uuid": str(uuid.uuid4()),
-                    },
-                )
+        if self.instance.who_do_you_want_the_licence_to_cover == "business":
+            return reverse("is_the_business_registered_with_companies_house")
+        else:
+            return reverse(
+                "add_an_individual",
+                kwargs={
+                    "individual_uuid": str(uuid.uuid4()),
+                },
+            )
