@@ -49,7 +49,6 @@ class SaveToDB:
             sanctions_regimes = self.data["which_sanctions_regime"]["which_sanctions_regime"]
 
         licence = Licence.objects.create(
-            applicant_user_email_address=self.data["what_is_your_email"]["email"],
             licensing_grounds=self.data["licensing_grounds"].get("licensing_grounds"),
             licensing_grounds_legal_advisory=self.data["licensing_grounds_legal_advisory"].get("licensing_grounds"),
             business_registered_on_companies_house="Yes" if self.is_on_companies_house else "No",

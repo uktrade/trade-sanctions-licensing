@@ -5,16 +5,23 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 
+from tests.factories import LicenceFactory
+
 
 def test_session_not_expired(authenticated_al_client):
     session = authenticated_al_client.session
 
     now_time = timezone.now()
     session[settings.SESSION_LAST_ACTIVITY_KEY] = now_time.isoformat()
+    session["licence_id"] = LicenceFactory(who_do_you_want_the_licence_to_cover="individual").id
     session.save()
     sleep(1)
 
-    response = authenticated_al_client.post(reverse("what_is_your_email"), follow=True, data={"email": "test@example.com"})
+    response = authenticated_al_client.post(
+        reverse("your_details"),
+        follow=True,
+        data={"applicant_full_name": "John Smith", "applicant_business": "business", "applicant_role": "role"},
+    )
     new_updated_activity_time = datetime.datetime.fromisoformat(
         authenticated_al_client.session[settings.SESSION_LAST_ACTIVITY_KEY]
     )
@@ -23,7 +30,7 @@ def test_session_not_expired(authenticated_al_client):
     assert response.status_code == 200
 
     # we want to make sure we're actually being progressed to the next step
-    assert response.resolver_match.url_name == "email_verify"
+    assert response.resolver_match.url_name == "add_an_individual"
 
 
 def test_session_expired(authenticated_al_client):
@@ -34,7 +41,7 @@ def test_session_expired(authenticated_al_client):
     session.save()
     sleep(1)
 
-    response = authenticated_al_client.post(reverse("what_is_your_email"), follow=True)
+    response = authenticated_al_client.post(reverse("your_details"), follow=True)
 
     # we want to make sure we're actually being progressed to the session expired page
     assert response.resolver_match.url_name == "session_expired"
@@ -46,7 +53,7 @@ def test_no_session_key(authenticated_al_client, test_apply_user):
     session.pop(settings.SESSION_LAST_ACTIVITY_KEY, None)
     session.save()
 
-    response = authenticated_al_client.post(reverse("what_is_your_email"), follow=True, data={"email": "test@example.com"})
+    response = authenticated_al_client.post(reverse("your_details"), follow=True, data={"applicant_full_name": "John Smith"})
     assert response.resolver_match.url_name == "session_expired"
     assert settings.SESSION_LAST_ACTIVITY_KEY not in authenticated_al_client.session
 
