@@ -25,6 +25,7 @@ django_server_configuration: &django_server_configuration
         HEADLESS: true
         DJANGO_ALLOW_ASYNC_UNSAFE: true
         SAVE_VIDEOS: true
+        INCLUDE_PRIVATE_URLS: true
     - image: cimg/postgres:16.1
       environment:
         POSTGRES_USER: postgres
