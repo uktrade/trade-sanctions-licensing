@@ -17,6 +17,7 @@ class TestAddBusiness(StartBase, ProviderBase, RecipientBase, LicensingGroundsBa
         self.start_new_application()
         self.business_third_party(self.page)
         expect(self.page).to_have_url(re.compile(r".*/your-details"))
+        self.your_details(self.page, "business")
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
@@ -34,7 +35,6 @@ class TestAddBusiness(StartBase, ProviderBase, RecipientBase, LicensingGroundsBa
     def test_not_third_party_located_outside_uk(self):
         self.start_new_application()
         self.business_not_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_outside_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
@@ -53,7 +53,6 @@ class TestAddBusiness(StartBase, ProviderBase, RecipientBase, LicensingGroundsBa
     def test_add_another_business_and_remove(self):
         self.start_new_application()
         self.business_not_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.page.get_by_label("Yes").check()
@@ -72,7 +71,7 @@ class TestAddBusiness(StartBase, ProviderBase, RecipientBase, LicensingGroundsBa
     def test_back_button_doesnt_duplicate(self):
         self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
+        self.your_details(self.page, "business")
         self.provider_business_located_in_uk(self.page)
 
         expect(self.page.get_by_role("heading", name="You've added 1 business")).to_be_visible()
