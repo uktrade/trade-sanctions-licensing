@@ -10,7 +10,7 @@ from apply_for_a_licence.models import Licence
 from authentication.mixins import LoginRequiredMixin
 from core.sites import require_view_a_licence
 from django.contrib.auth.models import User
-from django.db.models import QuerySet
+from django.db.models import Count, Q, QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import reverse
 from django.urls import reverse_lazy
@@ -91,8 +91,17 @@ class ManageUsersView(LoginRequiredMixin, StaffUserOnlyMixin, TemplateView):
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["pending_users"] = User.objects.filter(is_active=False, is_staff=False)
-        context["accepted_users"] = User.objects.filter(is_active=True)
+        staff_users = User.objects.exclude(username__startswith="urn:fdc:gov.uk:")
+        context["pending_staff_users"] = staff_users.filter(is_active=False)
+        context["accepted_staff_users"] = staff_users.filter(is_active=True)
+        context["public_users"] = User.objects.filter(is_active=True, username__startswith="urn:fdc:gov.uk:").annotate(
+            submitted_applications_count=Count(
+                "licence_applications", filter=Q(licence_applications__status=StatusChoices.submitted.value)
+            ),
+            draft_applications_count=Count(
+                "licence_applications", filter=Q(licence_applications__status=StatusChoices.draft.value)
+            ),
+        )
         return context
 
     def get(self, request: HttpRequest, **kwargs: object) -> HttpResponse:

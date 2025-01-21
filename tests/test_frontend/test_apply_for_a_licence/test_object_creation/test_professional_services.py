@@ -25,9 +25,9 @@ class TestProfessionalServices(StartBase, ProviderBase, RecipientBase, Licensing
         self.page.get_by_role("button", name="Continue").click()
         self.licensing_grounds_simple(self.page)
         self.page.get_by_test_id("continue_button").click()
-        self.declaration_and_complete_page(self.page)
+        new_reference = self.declaration_and_complete_page(self.page)
 
-        new_licence_object = Licence.objects.last()
+        new_licence_object = Licence.objects.get(reference=new_reference)
         assert new_licence_object.professional_or_business_services == [
             choices.ProfessionalOrBusinessServicesChoices.auditing.value,
             choices.ProfessionalOrBusinessServicesChoices.legal_advisory.value,
