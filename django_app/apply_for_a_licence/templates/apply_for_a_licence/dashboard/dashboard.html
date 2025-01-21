@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-
+{% load get_tasklist_url %}
 {% block back_button %}{% endblock %}
 
 {% block title %}Your applications{% endblock title %}
@@ -47,7 +47,7 @@
                         </td>
                         <td class="govuk-table__cell">
                             {% if application.status == "draft" %}
-                                <a class="govuk-button">Continue</a>
+                                <a class="govuk-button" href="{% get_tasklist_url pk=application.pk %}">Continue</a>
                                 <div class="delete_draft_link">
                                     <a class="govuk-link" href="{% url 'delete_application' pk=application.pk %}">Delete
                                         draft</a>

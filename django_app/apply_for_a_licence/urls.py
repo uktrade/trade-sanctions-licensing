@@ -21,7 +21,7 @@ views_dashboard_urls = [
 
 views_start_urls = [
     path("application-name", views_start.SubmitterReferenceView.as_view(), name="submitter_reference"),
-    path("start", views_start.StartView.as_view(), name="start"),
+    path("start/<str:pk>", views_start.StartView.as_view(), name="start"),
     path("third-party", views_start.ThirdPartyView.as_view(), name="are_you_third_party"),
     path("your-details", views_start.YourDetailsView.as_view(), name="your_details"),
 ]

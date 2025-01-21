@@ -12,12 +12,15 @@ logger = logging.getLogger(__name__)
 
 class SubmitterReferenceView(BaseFormView):
     form_class = forms.SubmitterReferenceForm
-    success_url = reverse_lazy("start")
 
     def dispatch(self, request, *args, **kwargs):
         # refresh the session expiry timestamp. This is the start of the session
         update_last_activity_session_timestamp(request)
         return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        success_url = reverse_lazy("start", kwargs={"pk": self.instance.pk})
+        return success_url
 
 
 class StartView(BaseFormView):
@@ -25,7 +28,7 @@ class StartView(BaseFormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        licence_id = self.request.session["licence_id"]
+        licence_id = self.kwargs.get("pk")
         instance = Licence.objects.get(pk=licence_id)
         kwargs["instance"] = instance
         return kwargs
