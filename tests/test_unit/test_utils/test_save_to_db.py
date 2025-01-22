@@ -2,7 +2,8 @@ from unittest.mock import patch
 
 import pytest
 from apply_for_a_licence.choices import TypeOfRelationshipChoices
-from apply_for_a_licence.models import Document, Individual, Organisation, Session
+from apply_for_a_licence.models import Document, Individual, Organisation
+from django.contrib.sessions.models import Session
 from utils.save_to_db import SaveToDB
 
 from tests.test_unit.test_utils import data
