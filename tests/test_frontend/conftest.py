@@ -203,6 +203,7 @@ class StartBase(PlaywrightTestBase):
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("Yes").check()
         page.get_by_role("button", name="Continue").click()
+        self.your_details(page, "business")
 
     def business_not_third_party(self, page):
         page.get_by_label("A business or businesses with").check()
@@ -215,6 +216,7 @@ class StartBase(PlaywrightTestBase):
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("Yes").check()
         page.get_by_role("button", name="Continue").click()
+        self.your_details(page, "individual")
 
     def myself(self, page):
         page.get_by_label("Myself").check()
@@ -236,9 +238,7 @@ class ProviderBase(PlaywrightTestBase):
         page.get_by_role("button", name="Continue").click()
         self.fill_non_uk_address_details(page)
 
-    def provider_individual_located_in_uk(self, page, first_individual_added=False):
-        if first_individual_added:
-            self.your_details(page, "individual")
+    def provider_individual_located_in_uk(self, page):
         page.get_by_label("First name").fill("Test first name")
         page.get_by_label("Last name").fill("Test last name")
         page.get_by_label("UK national located in the UK", exact=True).check()

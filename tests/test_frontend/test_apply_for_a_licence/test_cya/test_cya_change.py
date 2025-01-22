@@ -16,7 +16,6 @@ class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
     def test_cya_changes(self):
         self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
@@ -65,7 +64,6 @@ class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
     def test_cya_change_recipient_relationship(self):
         self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)

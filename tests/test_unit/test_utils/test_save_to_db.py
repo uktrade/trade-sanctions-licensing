@@ -2,13 +2,7 @@ from unittest.mock import patch
 
 import pytest
 from apply_for_a_licence.choices import TypeOfRelationshipChoices
-from apply_for_a_licence.models import (
-    Document,
-    Individual,
-    Organisation,
-    Session,
-    UserEmailVerification,
-)
+from apply_for_a_licence.models import Document, Individual, Organisation, Session
 from utils.save_to_db import SaveToDB
 
 from tests.test_unit.test_utils import data
@@ -16,17 +10,6 @@ from tests.test_unit.test_utils import data
 
 @pytest.mark.django_db
 def save_a_licence(request_object, is_individual, is_on_companies_house, is_third_party, cleaned_data=data.cleaned_data):
-    user_email_address = "test@testmail.com"
-    request_object.session["user_email_address"] = user_email_address
-    request_object.session.save()
-    verify_code = "012345"
-    user_session = Session.objects.get(session_key=request_object.session.session_key)
-    UserEmailVerification.objects.create(
-        user_session=user_session,
-        email_verification_code=verify_code,
-        verified=True,
-    )
-
     save_object = SaveToDB(
         request_object,
         data=cleaned_data,
@@ -43,7 +26,6 @@ def test_save_basic_licence(request_object):
     save_object = save_a_licence(request_object, is_individual=False, is_on_companies_house=False, is_third_party=False)
     licence = save_object.save_licence()
     assert licence.is_third_party is False
-    assert licence.applicant_role == data.cleaned_data["your_details"]["applicant_role"]
     assert licence.existing_licences == data.cleaned_data["previous_licence"]["existing_licences"]
     assert licence.held_existing_licence == data.cleaned_data["previous_licence"]["held_existing_licence"]
 
