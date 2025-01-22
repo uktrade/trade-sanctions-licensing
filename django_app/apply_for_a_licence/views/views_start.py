@@ -4,7 +4,7 @@ import uuid
 from apply_for_a_licence.forms import forms_start as forms
 from apply_for_a_licence.models import Licence
 from core.utils import update_last_activity_session_timestamp
-from core.views.base_views import BaseFormView
+from core.views.base_views import BaseFormView, BaseLicenceFormView
 from django.urls import reverse, reverse_lazy
 
 logger = logging.getLogger(__name__)
@@ -42,16 +42,9 @@ class StartView(BaseFormView):
         return None
 
 
-class ThirdPartyView(BaseFormView):
+class ThirdPartyView(BaseLicenceFormView):
     form_class = forms.ThirdPartyForm
     success_url = reverse_lazy("your_details")
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        licence_id = self.request.session["licence_id"]
-        instance = Licence.objects.get(pk=licence_id)
-        kwargs["instance"] = instance
-        return kwargs
 
     def get_success_url(self):
         if not self.form.cleaned_data["is_third_party"]:
@@ -68,15 +61,8 @@ class ThirdPartyView(BaseFormView):
             return reverse("your_details")
 
 
-class YourDetailsView(BaseFormView):
+class YourDetailsView(BaseLicenceFormView):
     form_class = forms.YourDetailsForm
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        licence_id = self.request.session["licence_id"]
-        instance = Licence.objects.get(pk=licence_id)
-        kwargs["instance"] = instance
-        return kwargs
 
     def get_success_url(self):
         if self.instance.who_do_you_want_the_licence_to_cover == "business":

@@ -1,5 +1,6 @@
 import datetime
 
+from apply_for_a_licence.models import Licence
 from apply_for_a_licence.utils import get_dirty_form_data
 from authentication.mixins import LoginRequiredMixin
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
@@ -124,6 +125,15 @@ class BaseFormView(BaseView, FormView):
     def form_invalid(self, form):
         # debugging purposes so we can put breakpoints here
         return super().form_invalid(form)
+
+
+class BaseLicenceFormView(BaseFormView):
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        licence_id = self.request.session["licence_id"]
+        instance = Licence.objects.get(pk=licence_id)
+        kwargs["instance"] = instance
+        return kwargs
 
 
 def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpResponse:
