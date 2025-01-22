@@ -59,7 +59,7 @@
                             <th scope="col" class="govuk-table__header">Management</th>
                         </tr>
                     </thead>
-                    {% for user in accepted_users %}
+                    {% for user in accepted_staff_users %}
                         <tbody class="govuk-table__body">
                             <tr class="govuk-table__row">
                                 <td class="govuk-table__cell">{{ user.first_name }} {{ user.last_name }}</td>
@@ -82,7 +82,7 @@
                             <th scope="col" class="govuk-table__header">Management</th>
                         </tr>
                     </thead>
-                    {% for user in pending_users %}
+                    {% for user in pending_staff_users %}
                         <tbody class="govuk-table__body">
                             <tr class="govuk-table__row">
                                 <td class="govuk-table__cell">{{ user.first_name }} {{ user.last_name }}</td>
