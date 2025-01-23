@@ -16,8 +16,8 @@ class TestSubmitterReferenceView:
 
 
 class TestStartView:
-    def test_post_myself(self, authenticated_al_client):
-        licence = Licence.objects.create()
+    def test_post_myself(self, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(user=test_apply_user)
 
         response = authenticated_al_client.post(
             reverse("start", kwargs={"pk": licence.id}),
@@ -29,8 +29,8 @@ class TestStartView:
         assert licence_response.who_do_you_want_the_licence_to_cover == "myself"
         assert response.url == reverse("add_yourself")
 
-    def test_post_business(self, authenticated_al_client):
-        licence = Licence.objects.create()
+    def test_post_business(self, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(user=test_apply_user)
         response = authenticated_al_client.post(
             reverse("start", kwargs={"pk": licence.id}),
             data={"who_do_you_want_the_licence_to_cover": WhoDoYouWantTheLicenceToCoverChoices.business.value},
@@ -43,9 +43,9 @@ class TestStartView:
 
 
 class TestThirdPartyView:
-    def test_post_third_party_individual(self, authenticated_al_client):
+    def test_post_third_party_individual(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
-            who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
         )
 
         session = authenticated_al_client.session
@@ -61,8 +61,10 @@ class TestThirdPartyView:
         assert licence_response.is_third_party
         assert response.url == reverse("your_details")
 
-    def test_post_third_party_business(self, authenticated_al_client):
-        licence = Licence.objects.create(who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value)
+    def test_post_third_party_business(self, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
 
         session = authenticated_al_client.session
         session["licence_id"] = licence.id
@@ -77,9 +79,9 @@ class TestThirdPartyView:
         assert licence_response.is_third_party
         assert response.url == reverse("your_details")
 
-    def test_post_not_third_party_individual(self, authenticated_al_client):
+    def test_post_not_third_party_individual(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
-            who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
         )
         session = authenticated_al_client.session
         session["licence_id"] = licence.id
@@ -95,8 +97,10 @@ class TestThirdPartyView:
         assert not licence_response.is_third_party
         assert "individual-details" in response.url
 
-    def test_post_not_third_party_business(self, authenticated_al_client):
-        licence = Licence.objects.create(who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value)
+    def test_post_not_third_party_business(self, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
 
         session = authenticated_al_client.session
         session["licence_id"] = licence.id
@@ -114,9 +118,11 @@ class TestThirdPartyView:
 
 
 class TestYourDetailsView:
-    def test_post_individual(self, authenticated_al_client):
+    def test_post_individual(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
-            is_third_party=True, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
+            user=test_apply_user,
+            is_third_party=True,
+            who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value,
         )
 
         session = authenticated_al_client.session
@@ -132,9 +138,11 @@ class TestYourDetailsView:
         assert licence_response.applicant_role == "role 1"
         assert "individual-details" in response.url
 
-    def test_post_business(self, authenticated_al_client):
+    def test_post_business(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
-            is_third_party=True, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+            user=test_apply_user,
+            is_third_party=True,
+            who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value,
         )
 
         session = authenticated_al_client.session

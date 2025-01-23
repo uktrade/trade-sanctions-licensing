@@ -8,12 +8,12 @@ from django.utils import timezone
 from tests.factories import LicenceFactory
 
 
-def test_session_not_expired(authenticated_al_client):
+def test_session_not_expired(authenticated_al_client, test_apply_user):
     session = authenticated_al_client.session
 
     now_time = timezone.now()
     session[settings.SESSION_LAST_ACTIVITY_KEY] = now_time.isoformat()
-    session["licence_id"] = LicenceFactory(who_do_you_want_the_licence_to_cover="individual").id
+    session["licence_id"] = LicenceFactory(user=test_apply_user, who_do_you_want_the_licence_to_cover="individual").id
     session.save()
     sleep(1)
 
