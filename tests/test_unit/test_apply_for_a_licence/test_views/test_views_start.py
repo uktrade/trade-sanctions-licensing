@@ -48,10 +48,9 @@ class TestThirdPartyView:
             who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
         )
 
-        request = RequestFactory().get("/")
-        request.session = authenticated_al_client.session
-        request.session["licence_id"] = licence.id
-        request.session.save()
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
 
         response = authenticated_al_client.post(
             reverse("are_you_third_party"),
@@ -65,10 +64,9 @@ class TestThirdPartyView:
     def test_post_third_party_business(self, authenticated_al_client):
         licence = Licence.objects.create(who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value)
 
-        request = RequestFactory().get("/")
-        request.session = authenticated_al_client.session
-        request.session["licence_id"] = licence.id
-        request.session.save()
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
 
         response = authenticated_al_client.post(
             reverse("are_you_third_party"),
@@ -83,10 +81,9 @@ class TestThirdPartyView:
         licence = Licence.objects.create(
             who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
         )
-        request = RequestFactory().get("/")
-        request.session = authenticated_al_client.session
-        request.session["licence_id"] = licence.id
-        request.session.save()
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
 
         response = authenticated_al_client.post(
             reverse("are_you_third_party"),
@@ -100,10 +97,10 @@ class TestThirdPartyView:
 
     def test_post_not_third_party_business(self, authenticated_al_client):
         licence = Licence.objects.create(who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value)
-        request = RequestFactory().get("/")
-        request.session = authenticated_al_client.session
-        request.session["licence_id"] = licence.id
-        request.session.save()
+
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
 
         response = authenticated_al_client.post(
             reverse("are_you_third_party"),
@@ -122,10 +119,9 @@ class TestYourDetailsView:
             is_third_party=True, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
         )
 
-        request = RequestFactory().get("/")
-        request.session = authenticated_al_client.session
-        request.session["licence_id"] = licence.id
-        request.session.save()
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
 
         response = authenticated_al_client.post(
             reverse("your_details"),
@@ -140,10 +136,10 @@ class TestYourDetailsView:
         licence = Licence.objects.create(
             is_third_party=True, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
         )
-        request = RequestFactory().get("/")
-        request.session = authenticated_al_client.session
-        request.session["licence_id"] = licence.id
-        request.session.save()
+
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
 
         response = authenticated_al_client.post(
             reverse("your_details"),

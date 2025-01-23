@@ -6,7 +6,7 @@ from authentication.mixins import LoginRequiredMixin
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from django import forms
 from django.conf import settings
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -133,6 +133,9 @@ class BaseLicenceFormView(BaseFormView):
         licence_id = self.request.session["licence_id"]
         instance = Licence.objects.get(pk=licence_id)
         kwargs["instance"] = instance
+        # We want to raise a 404 so user doesn't know they've tried to access a licence they shouldn't have
+        if instance.user != self.request.user:
+            raise Http404
         return kwargs
 
 
