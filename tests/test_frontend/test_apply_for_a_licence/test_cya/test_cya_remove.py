@@ -16,7 +16,6 @@ class TestCYARemove(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
     def test_cya_remove_businesses_and_recipients(self):
         self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         # Add 3 businesses
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
@@ -83,10 +82,9 @@ class TestCYARemove(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
     def test_cya_remove_individual_journey(self):
         self.start_new_application()
         self.individual_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         # Add 3 individuals.
 
-        self.provider_individual_located_in_uk(self.page, first_individual_added=True)
+        self.provider_individual_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-individual"))
         self.page.get_by_label("Yes").check()
         self.page.get_by_role("button", name="Continue").click()

@@ -2,14 +2,7 @@ from typing import Any
 
 from apply_for_a_licence import choices
 from apply_for_a_licence.choices import TypeOfRelationshipChoices
-from apply_for_a_licence.exceptions import EmailNotVerifiedException
-from apply_for_a_licence.models import (
-    Document,
-    Individual,
-    Licence,
-    Organisation,
-    UserEmailVerification,
-)
+from apply_for_a_licence.models import Document, Individual, Licence, Organisation
 from core.document_storage import TemporaryDocumentStorage
 from django.conf import settings
 from django.http import HttpRequest
@@ -27,21 +20,10 @@ class SaveToDB:
         is_on_companies_house: bool,
     ) -> None:
         self.request = request
-        self.email_verification = self._get_user_verification()
         self.data = data
         self.is_individual = is_individual
         self.is_third_party = is_third_party
         self.is_on_companies_house = is_on_companies_house
-
-    def _get_user_verification(self) -> UserEmailVerification:
-        user_email_verification = UserEmailVerification.objects.filter(user_session=self.request.session.session_key).latest(
-            "date_created"
-        )
-
-        if not user_email_verification.verified:
-            # the user hasn't verified their email address, don't let them submit
-            raise EmailNotVerifiedException()
-        return user_email_verification
 
     def save_licence(self) -> Licence:
         sanctions_regimes = []
@@ -49,7 +31,6 @@ class SaveToDB:
             sanctions_regimes = self.data["which_sanctions_regime"]["which_sanctions_regime"]
 
         licence = Licence.objects.create(
-            applicant_user_email_address=self.data["what_is_your_email"]["email"],
             licensing_grounds=self.data["licensing_grounds"].get("licensing_grounds"),
             licensing_grounds_legal_advisory=self.data["licensing_grounds_legal_advisory"].get("licensing_grounds"),
             business_registered_on_companies_house="Yes" if self.is_on_companies_house else "No",
@@ -63,7 +44,6 @@ class SaveToDB:
             held_existing_licence=self.data["previous_licence"]["held_existing_licence"],
             existing_licences=self.data["previous_licence"]["existing_licences"],
             is_third_party=self.is_third_party,
-            user_email_verification=self.email_verification,
             who_do_you_want_the_licence_to_cover=self.data["start"]["who_do_you_want_the_licence_to_cover"],
         )
 
@@ -72,7 +52,7 @@ class SaveToDB:
 
         if self.data["start"]["who_do_you_want_the_licence_to_cover"] == "myself":
             licence.applicant_full_name = f"{self.data['add_yourself']['first_name']} {self.data['add_yourself']['last_name']}"
-        else:
+        if self.is_third_party:
             licence.applicant_role = self.data["your_details"]["applicant_role"]
             licence.applicant_business = self.data["your_details"]["applicant_business"]
             licence.applicant_full_name = self.data["your_details"]["applicant_full_name"]

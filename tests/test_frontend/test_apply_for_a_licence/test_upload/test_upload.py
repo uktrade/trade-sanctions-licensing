@@ -18,7 +18,6 @@ class TestUpload(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
     def test_upload(self):
         self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
@@ -38,7 +37,6 @@ class TestUpload(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
     def test_malware_file_raises_error(self):
         self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)

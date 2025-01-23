@@ -3,11 +3,10 @@ import datetime
 import uuid
 
 from core.document_storage import PermanentDocumentStorage
-from core.models import BaseModel, BaseModelID
+from core.models import BaseModel
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.sessions.models import Session
 from django.db import models
 from django.db.models import QuerySet
 from django.forms import model_to_dict
@@ -46,7 +45,6 @@ class Licence(BaseModel):
     )
     existing_licences = models.TextField(null=True, blank=True)
     is_third_party = models.BooleanField(null=True, blank=False)
-    user_email_verification = models.OneToOneField("UserEmailVerification", on_delete=models.SET_NULL, blank=False, null=True)
     who_do_you_want_the_licence_to_cover = models.CharField(
         max_length=255,
         choices=choices.WhoDoYouWantTheLicenceToCoverChoices.choices,
@@ -133,13 +131,6 @@ class Licence(BaseModel):
             return timezone.now() > self.get_date_till_deleted()
         else:
             return False
-
-
-class UserEmailVerification(BaseModelID):
-    user_session = models.ForeignKey(Session, on_delete=models.CASCADE)
-    email_verification_code = models.CharField(max_length=6)
-    date_created = models.DateTimeField(auto_now_add=True)
-    verified = models.BooleanField(default=False)
 
 
 class AddressMixin(models.Model):

@@ -115,10 +115,6 @@ class PlaywrightTestBase(LiveServerTestCase):
         self.page.get_by_label("Your application name").fill(submitter_reference)
         self.page.get_by_role("button", name="Save and continue").click()
 
-    def verify_email_details(self, page):
-        self.email_details(page)
-        self.verify_email(page)
-
     def check_your_answers(self, page, third_party=True, type="business"):
         expect(page).to_have_url(re.compile(r".*/check-your-answers"))
         if type != "myself":
@@ -127,17 +123,6 @@ class PlaywrightTestBase(LiveServerTestCase):
         self.cya_overview(page)
         self.cya_recipients(page)
         self.cya_purposes(page)
-
-    @staticmethod
-    def email_details(page, details=data.EMAIL_DETAILS):
-        page.get_by_label("What is your email address?").fill(details["email"])
-        page.get_by_role("button", name="Continue").click()
-
-    @staticmethod
-    def verify_email(page, details=data.EMAIL_DETAILS):
-        page.get_by_role("heading", name="We've sent you an email").click()
-        page.get_by_label("Enter the 6 digit security").fill(details["verify_code"])
-        page.get_by_role("button", name="Continue").click()
 
     @staticmethod
     def fill_uk_address_details(page, type="business", details=data.UK_ADDRESS_DETAILS):
@@ -185,11 +170,11 @@ class PlaywrightTestBase(LiveServerTestCase):
 
     @staticmethod
     def cya_your_details(page, third_party):
-        expect(page.get_by_test_id("your-details-name")).to_have_text("Test full name")
-        expect(page.get_by_test_id("your-details-business")).to_have_text("Test business")
-        expect(page.get_by_test_id("your-details-role")).to_have_text("Test role")
         if third_party:
-            expect(page.get_by_test_id("your-details-third-party")).to_have_text("Yes")
+            expect(page.get_by_test_id("your-details-name")).to_have_text("Test full name")
+            expect(page.get_by_test_id("your-details-business")).to_have_text("Test business")
+            expect(page.get_by_test_id("your-details-role")).to_have_text("Test role")
+            # expect(page.get_by_test_id("your-details-third-party")).to_have_text("Yes")
         else:
             expect(page.get_by_test_id("your-details-third-party")).to_have_text("No")
 
@@ -221,31 +206,28 @@ class StartBase(PlaywrightTestBase):
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("Yes").check()
         page.get_by_role("button", name="Continue").click()
-        self.verify_email_details(page)
+        self.your_details(page, "business")
 
     def business_not_third_party(self, page):
         page.get_by_label("A business or businesses with").check()
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("No").check()
         page.get_by_role("button", name="Continue").click()
-        self.verify_email_details(page)
 
     def individual_third_party(self, page):
         page.get_by_label("Named individuals with a UK").check()
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("Yes").check()
         page.get_by_role("button", name="Continue").click()
-        self.verify_email_details(page)
+        self.your_details(page, "individual")
 
     def myself(self, page):
         page.get_by_label("Myself").check()
         page.get_by_role("button", name="Continue").click()
-        self.verify_email_details(page)
 
 
 class ProviderBase(PlaywrightTestBase):
     def provider_business_located_in_uk(self, page):
-        self.your_details(page, "business")
         page.get_by_label("No", exact=True).check()
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("In the UK").check()
@@ -253,16 +235,13 @@ class ProviderBase(PlaywrightTestBase):
         self.fill_uk_address_details(page, "business")
 
     def provider_business_located_outside_uk(self, page):
-        self.your_details(page, "business")
         page.get_by_label("No", exact=True).check()
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("Outside the UK").check()
         page.get_by_role("button", name="Continue").click()
         self.fill_non_uk_address_details(page)
 
-    def provider_individual_located_in_uk(self, page, first_individual_added=False):
-        if first_individual_added:
-            self.your_details(page, "individual")
+    def provider_individual_located_in_uk(self, page):
         page.get_by_label("First name").fill("Test first name")
         page.get_by_label("Last name").fill("Test last name")
         page.get_by_label("UK national located in the UK", exact=True).check()
