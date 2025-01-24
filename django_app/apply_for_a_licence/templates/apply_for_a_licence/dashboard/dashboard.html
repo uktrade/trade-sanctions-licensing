@@ -10,13 +10,13 @@
             vertical-align: middle;
         }
 
-        .govuk-table__cell  .govuk-button {
+        .govuk-table__cell .govuk-button {
             margin-bottom: 0;
         }
 
-        .delete_draft_link {
-            margin-left: 10px;
-            display: inline;
+        .delete_application_link {
+            padding-top: 7px;
+            margin-left: 20px;
         }
     </style>
 {% endblock extra_css %}
@@ -29,7 +29,7 @@
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
                     <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Your application name</th>
-                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Status</th>
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Submission status</th>
                     <th scope="col" class="govuk-table__header govuk-!-width-one-half">Actions</th>
                 </tr>
             </thead>
@@ -47,10 +47,17 @@
                         </td>
                         <td class="govuk-table__cell">
                             {% if application.status == "draft" %}
-                                <a class="govuk-button" href="{% get_tasklist_url pk=application.pk %}">Continue</a>
-                                <div class="delete_draft_link">
-                                    <a class="govuk-link" href="{% url 'delete_application' pk=application.pk %}">Delete
-                                        draft</a>
+                                <div class="flex_container">
+                                    <div>
+                                        <a class="govuk-button"
+                                           href="{% get_tasklist_url pk=application.pk %}">Continue</a>
+                                    </div>
+                                    <div class="delete_application_link">
+                                        <a class="govuk-link" href="{% url 'delete_application' pk=application.pk %}">
+                                            Delete draft
+                                        </a>
+                                    </div>
+
                                 </div>
                             {% else %}
                                 <a class="govuk-link" href="/">Download and view application (opens in new tab)</a>
@@ -73,7 +80,8 @@
                 </span>
             </summary>
             <div class="govuk-details__text">
-                Once you start a new application, you have {{ DRAFT_APPLICATION_EXPIRY_DAYS }} days to submit it or it will be deleted. You can amend
+                Once you start a new application, you have {{ DRAFT_APPLICATION_EXPIRY_DAYS }} days to submit it or it
+                will be deleted. You can amend
                 your application at any time until you submit it.
             </div>
         </details>
