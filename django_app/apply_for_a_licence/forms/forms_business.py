@@ -4,7 +4,7 @@ from apply_for_a_licence.exceptions import (
     CompaniesHouse500Error,
     CompaniesHouseException,
 )
-from apply_for_a_licence.models import Licence, Organisation
+from apply_for_a_licence.models import Organisation
 from core.forms.base_forms import (
     BaseForm,
     BaseModelForm,
@@ -30,8 +30,10 @@ from utils.companies_house import (
 
 
 class IsTheBusinessRegisteredWithCompaniesHouseForm(BaseModelForm):
+    save_and_return = True
+
     class Meta:
-        model = Licence
+        model = Organisation
         fields = ["business_registered_on_companies_house"]
         widgets = {"business_registered_on_companies_house": forms.RadioSelect}
         labels = {
@@ -50,14 +52,12 @@ class IsTheBusinessRegisteredWithCompaniesHouseForm(BaseModelForm):
 
 
 class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
+    save_and_return = True
     hide_optional_label_fields = ["registered_company_number"]
-
-    registered_company_name = forms.CharField(required=False)
-    registered_office_address = forms.CharField(required=False)
 
     class Meta:
         model = Organisation
-        fields = ["do_you_know_the_registered_company_number", "registered_company_number"]
+        fields = ["do_you_know_the_registered_company_number", "registered_company_number", "name", "registered_office_address"]
         widgets = {"do_you_know_the_registered_company_number": forms.RadioSelect}
         labels = {
             "do_you_know_the_registered_company_number": "Do you know the registered company number?",
@@ -74,6 +74,10 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
+        self.fields["name"].initial = ""
+        self.fields["registered_office_address"].initial = ""
+        self.fields["name"].widget = forms.HiddenInput()
+        self.fields["registered_office_address"].widget = forms.HiddenInput()
 
         # remove companies house 500 error if it exists
         self.request.session.pop("company_details_500", None)
@@ -124,7 +128,7 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
                 try:
                     company_details = get_details_from_companies_house(registered_company_number)
                     cleaned_data["registered_company_number"] = company_details["company_number"]
-                    cleaned_data["registered_company_name"] = company_details["company_name"]
+                    cleaned_data["name"] = company_details["company_name"]
                     cleaned_data["registered_office_address"] = get_formatted_address(
                         company_details["registered_office_address"]
                     )
@@ -145,6 +149,8 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
                         code="invalid", message=self.Meta.error_messages["registered_company_number"]["invalid"]
                     ),
                 )
+        print(self._errors)
+        print(cleaned_data)
 
         return cleaned_data
 
@@ -186,6 +192,7 @@ class WhereIsTheBusinessLocatedForm(BaseForm):
 
 class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
     form_h1_header = "Business details"
+    save_and_return = True
 
     class Meta(BaseUKBusinessDetailsForm.Meta):
         model = Organisation
@@ -231,6 +238,7 @@ class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
 
 class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
     form_h1_header = "Business details"
+    save_and_return = True
 
     class Meta(BaseNonUKBusinessDetailsForm.Meta):
         model = Organisation

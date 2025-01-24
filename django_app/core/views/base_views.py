@@ -1,13 +1,13 @@
 import datetime
 
-from apply_for_a_licence.models import Licence
+from apply_for_a_licence.models import Licence, Organisation
 from apply_for_a_licence.utils import get_dirty_form_data
 from authentication.mixins import LoginRequiredMixin
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from django import forms
 from django.conf import settings
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -131,11 +131,23 @@ class BaseLicenceFormView(BaseFormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         licence_id = self.request.session["licence_id"]
-        instance = Licence.objects.get(pk=licence_id)
+        instance = get_object_or_404(Licence, pk=licence_id)
         kwargs["instance"] = instance
         # We want to raise a 404 so user doesn't know they've tried to access a licence they shouldn't have
         if instance.user != self.request.user:
             raise Http404
+        return kwargs
+
+
+class BaseOrganisationFormView(BaseFormView):
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        organisation_id = self.kwargs.get("business_uuid")
+        licence_id = self.request.session["licence_id"]
+        licence_object = get_object_or_404(Licence, pk=licence_id)
+        print(licence_object)
+        instance = Organisation.objects.get(pk=organisation_id, licence=licence_object)
+        kwargs["instance"] = instance
         return kwargs
 
 

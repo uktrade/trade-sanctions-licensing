@@ -3,7 +3,7 @@ import datetime
 import uuid
 
 from core.document_storage import PermanentDocumentStorage
-from core.models import BaseModel
+from core.models import BaseModel, BaseModelID
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
@@ -21,16 +21,16 @@ from .types import Licensee
 class Licence(BaseModel):
     """The chief model for the application for a licence. Represents an application"""
 
-    licensing_grounds = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
-    licensing_grounds_legal_advisory = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
-    regimes = ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
-    reference = models.CharField(max_length=6)
-    submitter_reference = models.CharField(max_length=255, blank=True, null=True)
     business_registered_on_companies_house = models.CharField(
         choices=choices.YesNoDoNotKnowChoices.choices,
         max_length=11,
         blank=False,
     )
+    licensing_grounds = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
+    licensing_grounds_legal_advisory = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
+    regimes = ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
+    reference = models.CharField(max_length=6)
+    submitter_reference = models.CharField(max_length=255, blank=True, null=True)
     type_of_service = models.CharField(choices=choices.TypeOfServicesChoices.choices)
     professional_or_business_services = ArrayField(
         models.CharField(choices=choices.ProfessionalOrBusinessServicesChoices.choices), null=True
@@ -151,15 +151,14 @@ class AddressMixin(models.Model):
         return get_formatted_address(model_to_dict(self))
 
 
-class Organisation(BaseModel, AddressMixin):
+class Organisation(BaseModelID, AddressMixin):
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="organisations")
     # two name fields required for the case of recipients
-    name = models.CharField()
+    name = models.CharField(null=True, blank=True)
     website = models.URLField(null=True, blank=True)
-    do_you_know_the_registered_company_number = models.CharField(
-        choices=choices.YesNoChoices.choices,
-        blank=False,
-        null=True,
+    do_you_know_the_registered_company_number = models.CharField(choices=choices.YesNoChoices.choices, blank=True, null=True)
+    business_registered_on_companies_house = models.CharField(
+        choices=choices.YesNoDoNotKnowChoices.choices, max_length=11, blank=True, null=True
     )
     registered_company_number = models.CharField(max_length=15, blank=True, null=True)
     registered_office_address = models.CharField(null=True, blank=True)
@@ -181,6 +180,9 @@ class Organisation(BaseModel, AddressMixin):
     relationship_provider = models.TextField(
         blank=True, null=True, db_comment="what is the relationship between the provider and the recipient?"
     )
+
+    class Meta:
+        ordering = ["created_at"]
 
     def readable_address(self) -> str:
         """If we have registered_office_address, use that instead of the address fields"""

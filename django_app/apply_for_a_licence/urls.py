@@ -28,12 +28,12 @@ views_start_urls = [
 
 views_business_urls = [
     path(
-        "business-registered-with-companies-house",
+        "business-registered-with-companies-house/<uuid:business_uuid>",
         views_business.IsTheBusinessRegisteredWithCompaniesHouseView.as_view(),
         name="is_the_business_registered_with_companies_house",
     ),
     path(
-        "registered-company-number",
+        "registered-company-number/<uuid:business_uuid>",
         views_business.DoYouKnowTheRegisteredCompanyNumberView.as_view(),
         name="do_you_know_the_registered_company_number",
     ),
