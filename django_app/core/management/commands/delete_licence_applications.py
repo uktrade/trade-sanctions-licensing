@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     help = (
-        "Deletes licence applications when given a list of application references. "
+        "Deletes licence applications when given a list of application references."
         "Usage: pipenv run django_app/python manage.py delete_licence_applications <reference> <reference> ..."
     )
 
