@@ -1,6 +1,7 @@
 from core.views.base_views import BaseSaveAndReturnModelFormView
 from django.http import HttpResponseRedirect
 from django.shortcuts import Http404
+from django.views.generic import DeleteView
 
 
 class EntityView(BaseSaveAndReturnModelFormView):
@@ -49,16 +50,18 @@ class AddAnEntityView(EntityView):
             return True
 
 
-class DeleteAnEntityView(EntityView):
+class DeleteAnEntitySaveAndReturnView(DeleteView):
     """Base view for deleting an entity from the database. This is used for infinitely looping sub-journeys, such as
     add a business/recipient/individual."""
 
     allow_zero_entities = False
 
-    def post(self, request, *args, **kwargs):
-        entities = self.model.objects.filter(licence=self.licence_object)
+    def form_valid(self, form):
+        licence_id = self.request.session["licence_id"]
+        licence_object = Licence.objects.get(pk=licence_id)
+        entities = self.model.objects.filter(licence=licence_object)
+
         if self.allow_zero_entities or len(entities) > 1:
-            self.object.delete()
-            return HttpResponseRedirect(self.get_success_url())
+            return super().form_valid(form)
         else:
             raise Http404()

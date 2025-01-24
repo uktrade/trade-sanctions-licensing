@@ -149,8 +149,6 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
                         code="invalid", message=self.Meta.error_messages["registered_company_number"]["invalid"]
                     ),
                 )
-        print(self._errors)
-        print(cleaned_data)
 
         return cleaned_data
 
@@ -213,6 +211,7 @@ class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
+        self.fields["name"].required = True
 
         address_layout = Fieldset(
             Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
@@ -259,6 +258,7 @@ class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
+        self.fields["name"].required = True
 
         address_layout = Fieldset(
             Field.text("country", field_width=Fluid.TWO_THIRDS),

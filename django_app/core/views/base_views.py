@@ -145,7 +145,6 @@ class BaseOrganisationFormView(BaseFormView):
         organisation_id = self.kwargs.get("business_uuid")
         licence_id = self.request.session["licence_id"]
         licence_object = get_object_or_404(Licence, pk=licence_id)
-        print(licence_object)
         instance = Organisation.objects.get(pk=organisation_id, licence=licence_object)
         kwargs["instance"] = instance
         return kwargs
