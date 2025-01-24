@@ -60,7 +60,10 @@ class TestViewApplicationView:
         vl_client.force_login(test_user)
         User.objects.create_user("Polly", "staff@example.com", is_staff=True, is_active=True)
 
-        licence = LicenceFactory(who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value)
+        licence = LicenceFactory(
+            who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value,
+            status="submitted",
+        )
         response = vl_client.get(reverse("view_a_licence:view_application", kwargs={"reference": licence.reference}))
         assert response.status_code == 200
         mock_email.assert_not_called()

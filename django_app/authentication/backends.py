@@ -2,8 +2,9 @@ from typing import Any
 
 from authbroker_client.backends import AuthbrokerBackend
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.backends import BaseBackend
+from django.contrib.auth.backends import BaseBackend, ModelBackend
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import HttpRequest
@@ -89,3 +90,16 @@ class StaffSSOBackend(AuthbrokerBackend):
                 new_user.save()
 
                 return new_user
+
+
+class AdminBackend(ModelBackend):
+    """Authentication backend only used on the admin site. Only enabled with DEBUG and INCLUDE_PRIVATE_URLS are True"""
+
+    def authenticate(self, request, username: str | None = None, password: str | None = None, **kwargs) -> User | None:
+        if settings.SHOW_ADMIN_PANEL:
+            return super().authenticate(request, username, password, **kwargs)
+        else:
+            return None
+
+    def user_can_authenticate(self, user):
+        return user.is_staff and super().user_can_authenticate(user)

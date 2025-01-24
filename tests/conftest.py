@@ -118,7 +118,7 @@ def licence_request_object(request_object):
 
 @pytest.fixture()
 def licence():
-    return LicenceFactory()
+    return LicenceFactory(status="submitted")
 
 
 @pytest.fixture()

@@ -1,8 +1,9 @@
 from unittest import mock
 
-from authentication.backends import OneLoginBackend, StaffSSOBackend
+from authentication.backends import AdminBackend, OneLoginBackend, StaffSSOBackend
 from authentication.types import UserInfo
 from django.contrib.auth.models import User
+from django.test import override_settings
 from freezegun import freeze_time
 
 
@@ -82,4 +83,29 @@ class TestStaffSSOBackend:
 
     def test_only_works_with_view(self, apply_rf):
         user = StaffSSOBackend().authenticate(apply_rf)
+        assert user is None
+
+
+class TestAdminBackend:
+    @override_settings(SHOW_ADMIN_PANEL=True)
+    def test_normal_authentication(self, staff_user, request_object):
+        staff_user.set_password("password")
+        staff_user.save()
+
+        user = AdminBackend().authenticate(request_object, username="staff", password="password")
+        assert user == staff_user
+
+    def test_not_staff(self, test_apply_user, request_object):
+        test_apply_user.set_password("password")
+        test_apply_user.save()
+
+        user = AdminBackend().authenticate(request_object, username=test_apply_user.username, password="password")
+        assert user is None
+
+    @override_settings(SHOW_ADMIN_PANEL=False)
+    def test_admin_panel_not_enabled(self, staff_user, request_object):
+        staff_user.set_password("password")
+        staff_user.save()
+
+        user = AdminBackend().authenticate(request_object, username="staff", password="password")
         assert user is None

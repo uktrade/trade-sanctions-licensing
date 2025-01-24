@@ -2,6 +2,7 @@ import logging
 from typing import Any
 
 from apply_for_a_licence.choices import (
+    StatusChoices,
     TypeOfRelationshipChoices,
     WhoDoYouWantTheLicenceToCoverChoices,
 )
@@ -9,7 +10,7 @@ from apply_for_a_licence.models import Licence
 from authentication.mixins import LoginRequiredMixin
 from core.sites import require_view_a_licence
 from django.contrib.auth.models import User
-from django.db.models import QuerySet
+from django.db.models import Count, Q, QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import reverse
 from django.urls import reverse_lazy
@@ -47,6 +48,8 @@ class ApplicationListView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView)
 
     def get_queryset(self) -> "QuerySet[Licence]":
         queryset = super().get_queryset()
+        queryset = queryset.filter(status=StatusChoices.submitted)
+
         sort = self.request.session.get("sort", "newest")
         if sort == "oldest":
             queryset = reversed(queryset)
@@ -59,13 +62,46 @@ class ApplicationListView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView)
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
+class ViewALicenceApplicationView(LoginRequiredMixin, ActiveUserRequiredMixin, DetailView):
+    template_name = "view_a_licence/view_a_licence_application.html"
+    context_object_name = "licence"
+    model = Licence
+    slug_url_kwarg = "reference"
+    slug_field = "reference"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(status=StatusChoices.submitted)
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["back_button_text"] = "View all licence applications"
+
+        if self.object.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.individual.value:
+            context["business_individuals_work_for"] = self.object.organisations.get(
+                type_of_relationship=TypeOfRelationshipChoices.named_individuals
+            )
+
+        return context
+
+
+@method_decorator(require_view_a_licence(), name="dispatch")
 class ManageUsersView(LoginRequiredMixin, StaffUserOnlyMixin, TemplateView):
     template_name = "view_a_licence/manage_users.html"
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["pending_users"] = User.objects.filter(is_active=False, is_staff=False)
-        context["accepted_users"] = User.objects.filter(is_active=True)
+        staff_users = User.objects.exclude(username__startswith="urn:fdc:gov.uk:")
+        context["pending_staff_users"] = staff_users.filter(is_active=False)
+        context["accepted_staff_users"] = staff_users.filter(is_active=True)
+        context["public_users"] = User.objects.filter(is_active=True, username__startswith="urn:fdc:gov.uk:").annotate(
+            submitted_applications_count=Count(
+                "licence_applications", filter=Q(licence_applications__status=StatusChoices.submitted.value)
+            ),
+            draft_applications_count=Count(
+                "licence_applications", filter=Q(licence_applications__status=StatusChoices.draft.value)
+            ),
+        )
         return context
 
     def get(self, request: HttpRequest, **kwargs: object) -> HttpResponse:
@@ -87,26 +123,6 @@ class ManageUsersView(LoginRequiredMixin, StaffUserOnlyMixin, TemplateView):
             return HttpResponseRedirect(reverse("view_a_licence:manage_users"))
 
         return super().get(request, **kwargs)
-
-
-@method_decorator(require_view_a_licence(), name="dispatch")
-class ViewALicenceApplicationView(LoginRequiredMixin, ActiveUserRequiredMixin, DetailView):
-    template_name = "view_a_licence/view_a_licence_application.html"
-    context_object_name = "licence"
-    model = Licence
-    slug_url_kwarg = "reference"
-    slug_field = "reference"
-
-    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context["back_button_text"] = "View all licence applications"
-
-        if self.object.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.individual.value:
-            context["business_individuals_work_for"] = self.object.organisations.get(
-                type_of_relationship=TypeOfRelationshipChoices.named_individuals
-            )
-
-        return context
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")

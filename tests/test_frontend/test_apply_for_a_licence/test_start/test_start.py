@@ -41,5 +41,5 @@ class TestStart(PlaywrightTestBase):
         self.page.get_by_role("heading", name="Who do you want the licence").click()
         self.page.get_by_label("Myself").check()
         self.page.get_by_role("button", name="Continue").click()
-        self.page.get_by_text("What is your email address?", exact=True).click()
-        expect(self.page).to_have_url(re.compile(r".*/your-email-address"))
+        self.page.get_by_text("Your details", exact=True).click()
+        expect(self.page).to_have_url(re.compile(r".*/your-name-nationality-location"))

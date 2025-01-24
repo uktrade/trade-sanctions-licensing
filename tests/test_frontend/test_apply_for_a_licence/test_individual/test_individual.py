@@ -16,8 +16,7 @@ class TestAddIndividual(StartBase, ProviderBase, RecipientBase, LicensingGrounds
     def test_third_party_located_in_uk(self):
         self.start_new_application()
         self.individual_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
-        self.provider_individual_located_in_uk(self.page, first_individual_added=True)
+        self.provider_individual_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-individual"))
         self.no_more_additions(self.page)
         self.recipient_simple(self.page, "individual")
@@ -36,8 +35,7 @@ class TestAddIndividual(StartBase, ProviderBase, RecipientBase, LicensingGrounds
     def test_add_another_individual_and_remove(self):
         self.start_new_application()
         self.individual_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
-        self.provider_individual_located_in_uk(self.page, first_individual_added=True)
+        self.provider_individual_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-individual"))
         self.page.get_by_label("Yes").check()
         self.page.get_by_role("button", name="Continue").click()
@@ -51,8 +49,6 @@ class TestAddIndividual(StartBase, ProviderBase, RecipientBase, LicensingGrounds
     def test_uk_national_located_outside_the_uk(self):
         self.start_new_application()
         self.individual_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
-        self.your_details(self.page, "individual")
         self.page.get_by_label("First name").fill("Test first name")
         self.page.get_by_label("Last name").fill("Test last name")
         self.page.get_by_label("UK national located outside the UK", exact=True).check()
@@ -63,8 +59,6 @@ class TestAddIndividual(StartBase, ProviderBase, RecipientBase, LicensingGrounds
     def test_dual_national_located_in_uk(self):
         self.start_new_application()
         self.individual_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
-        self.your_details(self.page, "individual")
         self.page.get_by_label("First name").fill("Test first name")
         self.page.get_by_label("Last name").fill("Test last name")
         self.page.get_by_label("Dual national (includes UK) located in the UK").check()
@@ -75,8 +69,6 @@ class TestAddIndividual(StartBase, ProviderBase, RecipientBase, LicensingGrounds
     def test_dual_national_located_outside_uk(self):
         self.start_new_application()
         self.individual_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
-        self.your_details(self.page, "individual")
         self.page.get_by_label("First name").fill("Test first name")
         self.page.get_by_label("Last name").fill("Test last name")
         self.page.get_by_label("Dual national (includes UK) located outside the UK").check()
@@ -87,8 +79,6 @@ class TestAddIndividual(StartBase, ProviderBase, RecipientBase, LicensingGrounds
     def test_non_uk_national(self):
         self.start_new_application()
         self.individual_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
-        self.your_details(self.page, "individual")
         self.page.get_by_label("First name").fill("Test first name")
         self.page.get_by_label("Last name").fill("Test last name")
         self.page.get_by_label("Non-UK national located in the UK").check()

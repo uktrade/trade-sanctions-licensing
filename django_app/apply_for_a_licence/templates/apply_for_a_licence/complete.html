@@ -12,7 +12,7 @@
         <div class="govuk-panel__body">
             Your reference number
             <br>
-            <strong>{{ request.session.licence_reference }}</strong>
+            <strong data-testid="application_reference">{{ request.session.licence_reference }}</strong>
         </div>
     </div>
     {% if request.session.applicant_email %}

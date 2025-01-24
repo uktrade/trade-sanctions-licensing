@@ -22,6 +22,7 @@ class TestViewALicenceApplicationView(PlaywrightTestBase):
             ],
             licensing_grounds=[LicensingGroundsChoices.energy.value],
             licensing_grounds_legal_advisory=[LicensingGroundsChoices.food.value, LicensingGroundsChoices.safety.value],
+            status="submitted",
         )
         licence.assign_reference()
         licence.save()

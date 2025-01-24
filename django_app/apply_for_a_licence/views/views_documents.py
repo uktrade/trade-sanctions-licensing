@@ -109,7 +109,7 @@ class DownloadDocumentView(LoginRequiredMixin, View):
             # the object key is actually prefixed with the session key according to the logic in CustomFileUploadHandler
             file_url = generate_presigned_url(TemporaryDocumentStorage(), f"{self.request.session.session_key}/{file_name}")
 
-            if user_email := self.request.session.get("user_email_address"):
+            if user_email := self.request.user.email:
                 logger.info(f"User {user_email} has downloaded file: {file_name}")
             else:
                 logger.info(f"Downloaded file: {file_name}")

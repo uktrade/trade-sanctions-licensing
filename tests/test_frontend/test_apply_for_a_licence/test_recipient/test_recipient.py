@@ -16,7 +16,6 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
     def test_interception_or_monitoring_journey(self):
         self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
@@ -32,7 +31,6 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
     def test_add_another_recipient_and_remove(self):
         self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
@@ -54,7 +52,6 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
     def test_changing_recipient_same_location(self):
         self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
@@ -73,7 +70,6 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
     def test_changing_recipient_different_location(self):
         self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)

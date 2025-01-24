@@ -1,11 +1,12 @@
 import datetime
 
+from apply_for_a_licence.models import Licence
 from apply_for_a_licence.utils import get_dirty_form_data
 from authentication.mixins import LoginRequiredMixin
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from django import forms
 from django.conf import settings
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -40,9 +41,7 @@ class BaseFormView(BaseView, FormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-
         kwargs["request"] = self.request
-
         # restore the form data from the session, if it exists
         if self.request.method == "GET":
             if previous_data := get_dirty_form_data(self.request, self.step_name):
@@ -50,10 +49,12 @@ class BaseFormView(BaseView, FormView):
         return kwargs
 
     def get_form(self, form_class=None):
+
         form = super().get_form(form_class)
         if self.request.method == "GET" and self.request.GET.get("new"):
             # if we want a new form, we don't want it to be bound
             form.is_bound = False
+
         return form
 
     def post(self, request, *args, **kwargs):
@@ -124,6 +125,18 @@ class BaseFormView(BaseView, FormView):
     def form_invalid(self, form):
         # debugging purposes so we can put breakpoints here
         return super().form_invalid(form)
+
+
+class BaseLicenceFormView(BaseFormView):
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        licence_id = self.request.session["licence_id"]
+        instance = Licence.objects.get(pk=licence_id)
+        kwargs["instance"] = instance
+        # We want to raise a 404 so user doesn't know they've tried to access a licence they shouldn't have
+        if instance.user != self.request.user:
+            raise Http404
+        return kwargs
 
 
 def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpResponse:

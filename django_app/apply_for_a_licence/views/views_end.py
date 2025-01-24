@@ -11,14 +11,14 @@ from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from utils.notifier import send_email
 from utils.s3 import get_all_session_files
 from utils.save_to_db import SaveToDB
-from view_a_licence.utils import craft_view_a_licence_url
+from view_a_licence.utils import get_view_a_licence_application_url
 
 logger = logging.getLogger(__name__)
 
@@ -117,9 +117,8 @@ class DeclarationView(BaseFormView):
         )
 
         # Send confirmation email to OTSI staff
-        view_application_url = craft_view_a_licence_url(
-            reverse("view_a_licence:view_application", kwargs={"reference": new_licence_object.reference})
-        )
+        view_application_url = get_view_a_licence_application_url(new_licence_object.reference)
+
         for email in settings.NEW_APPLICATION_ALERT_RECIPIENTS:
             send_email(
                 email=email,
