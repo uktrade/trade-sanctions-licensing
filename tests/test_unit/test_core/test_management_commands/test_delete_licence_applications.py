@@ -10,7 +10,7 @@ def test_successful_delete(db):
 
     assert Licence.objects.count() == 2
 
-    call_command("delete_licence_reports", ["123", "456"])
+    call_command("delete_licence_applications", ["123", "456"])
     assert Licence.objects.count() == 0
 
 
@@ -19,5 +19,5 @@ def test_doesnt_exist_delete(db):
 
     assert Licence.objects.count() == 1
 
-    call_command("delete_licence_reports", ["456"])
+    call_command("delete_licence_applications", ["456"])
     assert Licence.objects.count() == 1
