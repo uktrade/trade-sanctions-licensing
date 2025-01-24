@@ -3,7 +3,7 @@ from apply_for_a_licence.models import Licence
 from core.crispy_fields import HTMLTemplate
 from core.forms.base_forms import BaseModelForm
 from crispy_forms_gds.choices import Choice
-from crispy_forms_gds.layout import Field, Fluid, Layout, Size
+from crispy_forms_gds.layout import HTML, Field, Fluid, Layout, Size
 from django import forms
 
 
@@ -12,14 +12,18 @@ class SubmitterReferenceForm(BaseModelForm):
         model = Licence
         fields = ["submitter_reference"]
         labels = {"submitter_reference": "Your application name"}
-        help_texts = {
-            "submitter_reference": "This is for you to keep track of your application. It will not be submitted.",
-        }
         error_messages = {"submitter_reference": {"required": "Enter the name of the application"}}
 
     form_h1_header = "Give your application a name"
     bold_labels = False
     save_and_return = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            HTML("<p class='govuk-body'>This is for you to keep track of your application. It will not be submitted.</p>"),
+            Field.text("submitter_reference", field_width=Fluid.TWO_THIRDS),
+        )
 
     def save(self, commit=True) -> Licence:
         instance = super().save(commit=False)
