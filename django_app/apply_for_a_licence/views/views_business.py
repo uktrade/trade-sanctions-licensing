@@ -5,7 +5,7 @@ from typing import Any, Dict
 
 from apply_for_a_licence.forms import forms_business as forms
 from apply_for_a_licence.models import Licence, Organisation
-from apply_for_a_licence.views.base_views import DeleteAnEntityView
+from apply_for_a_licence.views.base_views import DeleteAnEntitySaveAndReturnView
 from core.views.base_views import BaseFormView, BaseOrganisationFormView
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
@@ -42,8 +42,6 @@ class BusinessAddedView(BaseFormView):
         licence_id = self.request.session["licence_id"]
         licence_object = Licence.objects.get(pk=licence_id)
         businesses = Organisation.objects.filter(licence=licence_object)
-        for business in businesses:
-            print(business.name)
         if len(businesses) > 0:
             # only allow access to this page if a business has been added
             return super().dispatch(request, *args, **kwargs)
@@ -67,9 +65,8 @@ class BusinessAddedView(BaseFormView):
         return context
 
 
-class DeleteBusinessView(DeleteAnEntityView):
-    session_key = "businesses"
-    url_parameter_key = "business_uuid"
+class DeleteBusinessView(DeleteAnEntitySaveAndReturnView):
+    model = Organisation
     success_url = reverse_lazy("business_added")
 
 
@@ -82,16 +79,13 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
         organisation_id = self.kwargs.get("business_uuid")
         licence_id = self.request.session["licence_id"]
         licence_object = get_object_or_404(Licence, pk=licence_id)
-        print(licence_object)
         # get_or_create returns tuple
         instance, _ = Organisation.objects.get_or_create(pk=organisation_id, licence=licence_object)
         kwargs["instance"] = instance
-        print(instance)
         return kwargs
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["business_registered_on_companies_house"]
-        print(vars(self))
         if answer == "yes":
             success_url = reverse(
                 "do_you_know_the_registered_company_number", kwargs={"business_uuid": self.kwargs.get("business_uuid")}
@@ -111,8 +105,6 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseOrganisationFormView):
     redirect_after_post = False
 
     def get_success_url(self) -> str:
-        print(vars(self))
-
         do_you_know_the_registered_company_number = self.form.cleaned_data["do_you_know_the_registered_company_number"]
         registered_company_number = self.form.cleaned_data["registered_company_number"]
         if do_you_know_the_registered_company_number == "yes" and registered_company_number:
@@ -125,6 +117,7 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseOrganisationFormView):
 
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
+        print(success_url)
         return success_url
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:

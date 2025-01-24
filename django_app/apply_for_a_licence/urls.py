@@ -55,7 +55,7 @@ views_business_urls = [
     path(
         "business-details/<str:location>/<uuid:business_uuid>", views_business.AddABusinessView.as_view(), name="add_a_business"
     ),
-    path("delete-business", views_business.DeleteBusinessView.as_view(), name="delete_business"),
+    path("delete-business/<pk>", views_business.DeleteBusinessView.as_view(), name="delete_business"),
     path("add-business", views_business.BusinessAddedView.as_view(), name="business_added"),
 ]
 

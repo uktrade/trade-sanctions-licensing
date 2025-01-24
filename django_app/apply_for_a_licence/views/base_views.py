@@ -1,10 +1,12 @@
 from typing import Any
 
+from apply_for_a_licence.models import Licence
 from core.forms.base_forms import BaseForm
 from core.views.base_views import BaseFormView
 from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import Http404, redirect
 from django.urls import reverse_lazy
+from django.views.generic import DeleteView
 
 
 class AddAnEntityView(BaseFormView):
@@ -121,3 +123,20 @@ class DeleteAnEntityView(BaseFormView):
                 self.request.session[self.session_key] = entities
 
         return redirect(success_url)
+
+
+class DeleteAnEntitySaveAndReturnView(DeleteView):
+    """Base view for deleting an entity from the database. This is used for infinitely looping sub-journeys, such as
+    add a business/recipient/individual."""
+
+    allow_zero_entities = False
+
+    def form_valid(self, form):
+        licence_id = self.request.session["licence_id"]
+        licence_object = Licence.objects.get(pk=licence_id)
+        entities = self.model.objects.filter(licence=licence_object)
+
+        if self.allow_zero_entities or len(entities) > 1:
+            return super().form_valid(form)
+        else:
+            raise Http404()
