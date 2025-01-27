@@ -43,7 +43,7 @@ views_business_urls = [
         name="where_is_the_business_located",
     ),
     path(
-        "check-company-details/<str:business_uuid>",
+        "check-company-details/<uuid:business_uuid>",
         views_business.CheckCompanyDetailsView.as_view(),
         name="check_company_details",
     ),
@@ -60,13 +60,13 @@ views_business_urls = [
 ]
 
 views_individual_urls = [
-    path("individual-details/<str:individual_uuid>", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
+    path("individual-details/<uuid:individual_uuid>", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
     path(
-        "individuals-home-address/<str:location>/<str:individual_uuid>",
+        "individuals-home-address/<str:location>/<uuid:individual_uuid>",
         views_individual.WhatIsIndividualsAddressView.as_view(),
         name="what_is_individuals_address",
     ),
-    path("delete-individual", views_individual.DeleteIndividualView.as_view(), name="delete_individual"),
+    path("delete-individual/<pk>", views_individual.DeleteIndividualView.as_view(), name="delete_individual"),
     path("add-individual", views_individual.IndividualAddedView.as_view(), name="individual_added"),
     path(
         "business-details",

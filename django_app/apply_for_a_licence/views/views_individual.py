@@ -1,34 +1,36 @@
 import logging
 import urllib.parse
 import uuid
-from typing import Any
+from typing import Any, Dict
 
-from apply_for_a_licence.choices import NationalityAndLocation
+from apply_for_a_licence.choices import (
+    NationalityAndLocation,
+    TypeOfRelationshipChoices,
+)
 from apply_for_a_licence.forms import forms_individual as forms
-from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
-from core.views.base_views import BaseFormView
+from apply_for_a_licence.models import Individual, Licence, Organisation
+from apply_for_a_licence.views.base_views import DeleteAnEntitySaveAndReturnView
+from core.views.base_views import BaseFormView, BaseIndividualFormView
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 
 logger = logging.getLogger(__name__)
 
 
-class AddAnIndividualView(AddAnEntityView):
+class AddAnIndividualView(BaseFormView):
     form_class = forms.AddAnIndividualForm
     redirect_after_post = False
-    session_key = "individuals"
-    url_parameter_key = "individual_uuid"
 
-    def set_session_data(self, form: forms.AddAnIndividualForm) -> dict[str, Any]:
-        return {
-            "name_data": {
-                "cleaned_data": form.cleaned_data,
-                "dirty_data": form.data,
-            }
-        }
-
-    def get_session_data(self, session_data: dict[str, Any]) -> dict[str, Any]:
-        return session_data["name_data"]["dirty_data"]
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        individual_id = self.kwargs.get("individual_uuid")
+        licence_id = self.request.session["licence_id"]
+        licence_object = get_object_or_404(Licence, pk=licence_id)
+        # get_or_create returns tuple
+        instance, _ = Individual.objects.get_or_create(pk=individual_id, licence=licence_object)
+        kwargs["instance"] = instance
+        return kwargs
 
     def form_valid(self, form: forms.AddAnIndividualForm) -> HttpResponse:
         # is it a UK address?
@@ -44,7 +46,7 @@ class AddAnIndividualView(AddAnEntityView):
             "what_is_individuals_address",
             kwargs={
                 "location": "in-uk" if self.is_uk_individual else "outside-uk",
-                "individual_uuid": self.entity_uuid,
+                "individual_uuid": self.kwargs.get("individual_uuid"),
             },
         )
         if get_parameters := urllib.parse.urlencode(self.request.GET):
@@ -52,26 +54,12 @@ class AddAnIndividualView(AddAnEntityView):
         return success_url
 
 
-class DeleteIndividualView(DeleteAnEntityView):
+class DeleteIndividualView(DeleteAnEntitySaveAndReturnView):
+    model = Individual
     success_url = reverse_lazy("individual_added")
-    session_key = "individuals"
-    url_parameter_key = "individual_uuid"
 
 
-class WhatIsIndividualsAddressView(AddAnEntityView):
-    url_parameter_key = "individual_uuid"
-    session_key = "individuals"
-
-    def set_session_data(self, form: forms.AddAnIndividualForm) -> dict[str, Any]:
-        return {
-            "address_data": {
-                "cleaned_data": form.cleaned_data,
-                "dirty_data": form.data,
-            }
-        }
-
-    def get_session_data(self, session_data: dict[str, Any]) -> dict[str, Any]:
-        return session_data.get("address_data", {}).get("dirty_data", {})
+class WhatIsIndividualsAddressView(BaseIndividualFormView):
 
     def setup(self, request, *args, **kwargs):
         self.location = kwargs["location"]
@@ -102,6 +90,23 @@ class IndividualAddedView(BaseFormView):
     form_class = forms.IndividualAddedForm
     template_name = "apply_for_a_licence/form_steps/individual_added.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        licence_id = self.request.session["licence_id"]
+        licence_object = Licence.objects.get(pk=licence_id)
+        individuals = Individual.objects.filter(licence=licence_object)
+        if len(individuals) > 0:
+            # only allow access to this page if an individual has been added
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            return redirect("add_an_individual", kwargs={"individual_uuid": uuid.uuid4()})
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        licence_id = self.request.session["licence_id"]
+        licence_object = Licence.objects.get(pk=licence_id)
+        context["individuals"] = Individual.objects.filter(licence=licence_object)
+        return context
+
     def get_success_url(self):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
@@ -116,9 +121,16 @@ class BusinessEmployingIndividualView(BaseFormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        if len(self.request.session.get("individuals", {})) == 1:
+        licence_id = self.request.session["licence_id"]
+        licence_object = get_object_or_404(Licence, pk=licence_id)
+        individuals = Individual.objects.filter(licence=licence_object)
+        instance, _ = Organisation.objects.get_or_create(
+            licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.named_individuals
+        )
+        if len(individuals) == 1:
             kwargs["form_h1_header"] = "Details of the business employing the individual"
         else:
             kwargs["form_h1_header"] = "Details of the business employing the individuals"
 
+        kwargs["instance"] = instance
         return kwargs

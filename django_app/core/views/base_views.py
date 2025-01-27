@@ -1,6 +1,7 @@
 import datetime
 
-from apply_for_a_licence.models import Licence, Organisation
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
+from apply_for_a_licence.models import Individual, Licence, Organisation
 from apply_for_a_licence.utils import get_dirty_form_data
 from authentication.mixins import LoginRequiredMixin
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
@@ -145,7 +146,20 @@ class BaseOrganisationFormView(BaseFormView):
         organisation_id = self.kwargs.get("business_uuid")
         licence_id = self.request.session["licence_id"]
         licence_object = get_object_or_404(Licence, pk=licence_id)
-        instance = Organisation.objects.get(pk=organisation_id, licence=licence_object)
+        instance = Organisation.objects.get(
+            pk=organisation_id, licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.business
+        )
+        kwargs["instance"] = instance
+        return kwargs
+
+
+class BaseIndividualFormView(BaseFormView):
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        individual_id = self.kwargs.get("individual_uuid")
+        licence_id = self.request.session["licence_id"]
+        licence_object = get_object_or_404(Licence, pk=licence_id)
+        instance = Individual.objects.get(pk=individual_id, licence=licence_object)
         kwargs["instance"] = instance
         return kwargs
 

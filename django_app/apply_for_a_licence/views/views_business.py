@@ -3,6 +3,7 @@ import urllib.parse
 import uuid
 from typing import Any, Dict
 
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.forms import forms_business as forms
 from apply_for_a_licence.models import Licence, Organisation
 from apply_for_a_licence.views.base_views import DeleteAnEntitySaveAndReturnView
@@ -19,8 +20,6 @@ logger = logging.getLogger(__name__)
 class AddABusinessView(BaseOrganisationFormView):
     success_url = reverse_lazy("business_added")
     redirect_after_post = False
-    session_key = "businesses"
-    url_parameter_key = "business_uuid"
 
     def setup(self, request, *args, **kwargs):
         self.location = kwargs["location"]
@@ -41,7 +40,7 @@ class BusinessAddedView(BaseFormView):
     def dispatch(self, request, *args, **kwargs):
         licence_id = self.request.session["licence_id"]
         licence_object = Licence.objects.get(pk=licence_id)
-        businesses = Organisation.objects.filter(licence=licence_object)
+        businesses = Organisation.objects.filter(licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.business)
         if len(businesses) > 0:
             # only allow access to this page if a business has been added
             return super().dispatch(request, *args, **kwargs)
@@ -61,7 +60,9 @@ class BusinessAddedView(BaseFormView):
         context = super().get_context_data(**kwargs)
         licence_id = self.request.session["licence_id"]
         licence_object = Licence.objects.get(pk=licence_id)
-        context["businesses"] = Organisation.objects.filter(licence=licence_object)
+        context["businesses"] = Organisation.objects.filter(
+            licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.business
+        )
         return context
 
 
@@ -80,7 +81,9 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
         licence_id = self.request.session["licence_id"]
         licence_object = get_object_or_404(Licence, pk=licence_id)
         # get_or_create returns tuple
-        instance, _ = Organisation.objects.get_or_create(pk=organisation_id, licence=licence_object)
+        instance, _ = Organisation.objects.get_or_create(
+            pk=organisation_id, licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.business
+        )
         kwargs["instance"] = instance
         return kwargs
 
@@ -145,7 +148,9 @@ class CheckCompanyDetailsView(BaseFormView):
         licence_id = self.request.session["licence_id"]
         licence_object = Licence.objects.get(pk=licence_id)
         business_uuid = self.kwargs.get("business_uuid")
-        business = Organisation.objects.get(pk=business_uuid, licence=licence_object)
+        business = Organisation.objects.get(
+            pk=business_uuid, licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.business
+        )
         context["business"] = business
         return context
 
