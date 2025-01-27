@@ -192,7 +192,7 @@ class Organisation(BaseModelID, AddressMixin):
             return super().readable_address()
 
 
-class Individual(BaseModel, AddressMixin):
+class Individual(BaseModelID, AddressMixin):
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="individuals")
     first_name = models.CharField(max_length=255, blank=False)
     last_name = models.CharField(max_length=255, blank=False)
