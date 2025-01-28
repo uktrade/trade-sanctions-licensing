@@ -49,6 +49,7 @@ class IsTheBusinessRegisteredWithCompaniesHouseForm(BaseModelForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.fields["business_registered_on_companies_house"].choices.pop(0)
+        self.fields["business_registered_on_companies_house"].required = True
 
 
 class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
@@ -78,7 +79,7 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
         self.fields["registered_office_address"].initial = ""
         self.fields["name"].widget = forms.HiddenInput()
         self.fields["registered_office_address"].widget = forms.HiddenInput()
-
+        self.fields["do_you_know_the_registered_company_number"].required = True
         # remove companies house 500 error if it exists
         self.request.session.pop("company_details_500", None)
         self.request.session.modified = True
