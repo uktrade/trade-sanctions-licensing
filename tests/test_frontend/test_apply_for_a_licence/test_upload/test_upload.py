@@ -45,7 +45,7 @@ class TestUpload(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
         )
         self.page.wait_for_timeout(2000)  # Wait for the doc to upload
         expect(self.page.get_by_role("heading", name="There is a problem")).to_be_visible()
-        expect(self.page.get_by_role("link", name="The selected file contains a virus")).to_be_visible()
+        expect(self.page.get_by_text("The selected file contains a virus")).to_be_visible()
         self.page.get_by_role("button", name="Continue").click()
         expect(self.page.get_by_text("mock_malware_file.txt")).not_to_be_visible()
         expect(self.page).to_have_url(re.compile(r".*/upload-documents"))
