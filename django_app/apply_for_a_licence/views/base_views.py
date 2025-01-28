@@ -1,6 +1,7 @@
 from typing import Any
 
 from apply_for_a_licence.models import Licence
+from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import BaseForm
 from core.views.base_views import BaseFormView
 from django.http import HttpResponse
@@ -125,7 +126,7 @@ class DeleteAnEntityView(BaseFormView):
         return redirect(success_url)
 
 
-class DeleteAnEntitySaveAndReturnView(DeleteView):
+class DeleteAnEntitySaveAndReturnView(LoginRequiredMixin, DeleteView):
     """Base view for deleting an entity from the database. This is used for infinitely looping sub-journeys, such as
     add a business/recipient/individual."""
 
