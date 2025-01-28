@@ -6,6 +6,7 @@ from typing import Any, Dict
 from apply_for_a_licence.choices import (
     NationalityAndLocation,
     TypeOfRelationshipChoices,
+    WhoDoYouWantTheLicenceToCoverChoices,
 )
 from apply_for_a_licence.forms import forms_individual as forms
 from apply_for_a_licence.models import Individual, Licence, Organisation
@@ -80,9 +81,10 @@ class WhatIsIndividualsAddressView(BaseIndividualFormView):
 
     def get_success_url(self):
         success_url = reverse("individual_added")
-        if start_view := self.request.session.get("start", False):
-            if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
-                success_url = reverse("yourself_and_individual_added")
+        licence_id = self.request.session["licence_id"]
+        licence_object = Licence.objects.get(pk=licence_id)
+        if licence_object.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.myself:
+            success_url = reverse("yourself_and_individual_added")
         return success_url
 
 

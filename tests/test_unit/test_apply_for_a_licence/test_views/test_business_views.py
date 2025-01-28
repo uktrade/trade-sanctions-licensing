@@ -1,10 +1,13 @@
 import uuid
 
-from apply_for_a_licence.choices import WhoDoYouWantTheLicenceToCoverChoices
+from apply_for_a_licence.choices import (
+    TypeOfRelationshipChoices,
+    WhoDoYouWantTheLicenceToCoverChoices,
+    YesNoChoices,
+    YesNoDoNotKnowChoices,
+)
 from apply_for_a_licence.models import Licence, Organisation
 from django.urls import reverse
-
-from . import data
 
 
 class TestIsTheBusinessRegisteredWithCompaniesHouse:
@@ -49,7 +52,11 @@ class TestDoYouKnowTheRegisteredCompanyNumber:
         session = authenticated_al_client.session
         session["licence_id"] = licence.id
         session.save()
-        business = Organisation.objects.create(licence=licence)
+        business = Organisation.objects.create(
+            licence=licence,
+            business_registered_on_companies_house=YesNoDoNotKnowChoices.yes,
+            type_of_relationship=TypeOfRelationshipChoices.business,
+        )
         response = authenticated_al_client.post(
             reverse("do_you_know_the_registered_company_number", kwargs={"business_uuid": business.id}),
             data={"do_you_know_the_registered_company_number": "yes", "registered_company_number": "12345678"},
@@ -67,7 +74,11 @@ class TestDoYouKnowTheRegisteredCompanyNumber:
         session = authenticated_al_client.session
         session["licence_id"] = licence.id
         session.save()
-        business = Organisation.objects.create(licence=licence)
+        business = Organisation.objects.create(
+            licence=licence,
+            business_registered_on_companies_house=YesNoDoNotKnowChoices.yes,
+            type_of_relationship=TypeOfRelationshipChoices.business,
+        )
         response = authenticated_al_client.post(
             reverse("do_you_know_the_registered_company_number", kwargs={"business_uuid": business.id}),
             data={"do_you_know_the_registered_company_number": "no"},
@@ -83,7 +94,11 @@ class TestDoYouKnowTheRegisteredCompanyNumber:
         session = authenticated_al_client.session
         session["licence_id"] = licence.id
         session.save()
-        business = Organisation.objects.create(licence=licence)
+        business = Organisation.objects.create(
+            licence=licence,
+            business_registered_on_companies_house=YesNoDoNotKnowChoices.yes,
+            type_of_relationship=TypeOfRelationshipChoices.business,
+        )
         response = authenticated_al_client.get(
             reverse("do_you_know_the_registered_company_number", kwargs={"business_uuid": business.id})
         )
@@ -100,7 +115,7 @@ class TestBusinessAddedView:
         session["licence_id"] = licence.id
         session.save()
         # create at least 1 business
-        Organisation.objects.create(licence=licence)
+        Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
 
         response = authenticated_al_client.post(
             reverse("business_added"),
@@ -117,7 +132,7 @@ class TestBusinessAddedView:
         session["licence_id"] = licence.id
         session.save()
         # create at least 1 business
-        Organisation.objects.create(licence=licence)
+        Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
 
         response = authenticated_al_client.post(
             reverse("business_added"),
@@ -137,8 +152,8 @@ class TestDeleteBusinessView:
         session["licence_id"] = licence.id
         session.save()
         # create 2 businesses
-        business1 = Organisation.objects.create(licence=licence)
-        business2 = Organisation.objects.create(licence=licence)
+        business1 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+        business2 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
         response = authenticated_al_client.post(
             reverse("delete_business", kwargs={"pk": business1.id}),
         )
@@ -158,9 +173,10 @@ class TestDeleteBusinessView:
         session["licence_id"] = licence.id
         session.save()
         # create 3 businesses
-        business1 = Organisation.objects.create(licence=licence)
-        business2 = Organisation.objects.create(licence=licence)
-        business3 = Organisation.objects.create(licence=licence)
+        business1 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+        business2 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+        business3 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+
         authenticated_al_client.post(
             reverse("delete_business", kwargs={"pk": business1.id}),
         )
@@ -187,9 +203,9 @@ class TestDeleteBusinessView:
         session["licence_id"] = licence.id
         session.save()
         # create 3 businesses
-        business1 = Organisation.objects.create(licence=licence)
-        business2 = Organisation.objects.create(licence=licence)
-        business3 = Organisation.objects.create(licence=licence)
+        business1 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+        business2 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+        business3 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
         response = authenticated_al_client.post(
             reverse("delete_business", kwargs={"pk": uuid.uuid4()}),
         )
@@ -203,29 +219,46 @@ class TestDeleteBusinessView:
 
 
 class TestCheckCompanyDetailsView:
-    def test_check_successful_post(self, request_object, authenticated_al_client):
+    def test_check_successful_post(self, request_object, authenticated_al_client, test_apply_user):
         request_object.session = authenticated_al_client.session
-        request_object.session["businesses"] = data.businesses
-        request_object.session["companies_house_businesses"] = data.companies_house_business
-        request_object.session.save()
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
 
-        response = authenticated_al_client.post(reverse("check_company_details", kwargs={"business_uuid": "companieshouse1"}))
-        businesses = authenticated_al_client.session["businesses"]
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+        # create 3 businesses
+        business = Organisation.objects.create(
+            licence=licence,
+            business_registered_on_companies_house=YesNoDoNotKnowChoices.yes,
+            type_of_relationship=TypeOfRelationshipChoices.business,
+            do_you_know_the_registered_company_number=YesNoChoices.yes,
+            registered_company_number=1234567,
+            name="Test company",
+            registered_office_address="AL1, United Kingdom",
+        )
+        response = authenticated_al_client.post(reverse("check_company_details", kwargs={"business_uuid": business.id}))
         assert response.url == "/apply/add-business"
-        assert len(businesses) == 4
-        assert "companieshouse1" in businesses.keys()
 
-    def test_get_context_data(self, request_object, authenticated_al_client):
+    def test_get_context_data(self, request_object, authenticated_al_client, test_apply_user):
         request_object.session = authenticated_al_client.session
-        request_object.session["businesses"] = data.businesses
-        request_object.session["companies_house_businesses"] = data.companies_house_business
-        request_object.session.save()
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
 
-        response = authenticated_al_client.get(reverse("check_company_details", kwargs={"business_uuid": "companieshouse1"}))
-        assert response.context["company_details"] == {
-            "companies_house": True,
-            "company_number": "1234567",
-            "name": "Company 1",
-            "readable_address": "AL1, United Kingdom",
-        }
-        assert response.context["business_uuid"] == "companieshouse1"
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+        # create 3 businesses
+        business = Organisation.objects.create(
+            licence=licence,
+            business_registered_on_companies_house=YesNoDoNotKnowChoices.yes,
+            type_of_relationship=TypeOfRelationshipChoices.business,
+            do_you_know_the_registered_company_number=YesNoChoices.yes,
+            registered_company_number=1234567,
+            name="Test company",
+            registered_office_address="AL1, United Kingdom",
+        )
+        response = authenticated_al_client.get(reverse("check_company_details", kwargs={"business_uuid": business.id}))
+        assert response.context["business"] == business

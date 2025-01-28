@@ -1,16 +1,12 @@
-from apply_for_a_licence.choices import NationalityAndLocation
-from django.test import RequestFactory
-from django.urls import reverse
+import uuid
 
-from . import data
+from apply_for_a_licence.choices import NationalityAndLocation
+from apply_for_a_licence.models import Individual
+from django.urls import reverse
 
 
 class TestYourselfAndIndividualAddedView:
-    def test_do_not_add_another_individual_successful_post(self, authenticated_al_client):
-        request = RequestFactory().get("/")
-        request.session = authenticated_al_client.session
-        request.session["individuals"] = data.individuals
-        request.session.save()
+    def test_do_not_add_another_individual_successful_post(self, authenticated_al_client, yourself):
         response = authenticated_al_client.post(
             reverse("yourself_and_individual_added"),
             data={"do_you_want_to_add_another_individual": False},
@@ -18,11 +14,7 @@ class TestYourselfAndIndividualAddedView:
         assert response.url == reverse("previous_licence")
         assert response.status_code == 302
 
-    def test_add_another_individual_successful_post(self, authenticated_al_client):
-        request = RequestFactory().get("/")
-        request.session = authenticated_al_client.session
-        request.session["individuals"] = data.individuals
-        request.session.save()
+    def test_add_another_individual_successful_post(self, authenticated_al_client, yourself):
         response = authenticated_al_client.post(
             reverse("yourself_and_individual_added"),
             data={"do_you_want_to_add_another_individual": True},
@@ -32,7 +24,7 @@ class TestYourselfAndIndividualAddedView:
 
 
 class TestAddYourselfView:
-    def test_successful_post(self, authenticated_al_client):
+    def test_successful_post(self, authenticated_al_client, yourself):
         response = authenticated_al_client.post(
             reverse("add_yourself"),
             data={
@@ -46,22 +38,21 @@ class TestAddYourselfView:
         assert (
             reverse(
                 "add_yourself_address",
-                kwargs={
-                    "location": "in-uk",
-                },
+                kwargs={"location": "in-uk", "yourself_uuid": yourself.id},
             )
             in response.redirect_chain[0][0]
         )
+        yourself = Individual.objects.get(id=yourself.id)
+        assert yourself.first_name == "John"
+        assert yourself.nationality_and_location == NationalityAndLocation.uk_national_uk_location
 
 
 class TestAddYourselfAddressView:
-    def test_successful_non_uk_address_post(self, authenticated_al_client):
+    def test_successful_non_uk_address_post(self, authenticated_al_client, yourself):
         response = authenticated_al_client.post(
             reverse(
                 "add_yourself_address",
-                kwargs={
-                    "location": "outside-uk",
-                },
+                kwargs={"location": "outside-uk", "yourself_uuid": yourself.id},
             ),
             data={
                 "country": "DE",
@@ -72,54 +63,53 @@ class TestAddYourselfAddressView:
         )
 
         assert response.url == reverse("yourself_and_individual_added")
+        yourself = Individual.objects.get(id=yourself.id)
+        assert yourself.country == "DE"
+        assert yourself.address_line_1 == "Checkpoint Charlie"
 
 
 class TestDeleteIndividualFromYourselfView:
-    def test_successful_post(self, authenticated_al_client):
-        request = RequestFactory().post("/")
-        request.session = authenticated_al_client.session
-        request.session["individuals"] = data.individuals
-        individual_id = "individual1"
-        request.session.save()
+    def test_successful_post(self, authenticated_al_client, yourself_licence, yourself):
+        individual1 = Individual.objects.create(licence=yourself_licence)
+        individual2 = Individual.objects.create(licence=yourself_licence)
+
         response = authenticated_al_client.post(
-            reverse("delete_individual_from_yourself"),
-            data={"individual_uuid": individual_id},
+            reverse("delete_individual_from_yourself", kwargs={"pk": individual1.id}),
         )
-        assert "individual1" not in authenticated_al_client.session["individuals"].keys()
-        assert authenticated_al_client.session["individuals"] != data.individuals
+        individuals = Individual.objects.filter(licence=yourself_licence)
+        assert individual1 not in individuals
+        assert individual2 in individuals
+        assert yourself in individuals
         assert response.url == "/apply/check-your-details-add-individuals"
         assert response.status_code == 302
 
-    def test_delete_all_individuals_post(self, authenticated_al_client):
-        request = RequestFactory().post("/")
-        request.session = authenticated_al_client.session
-        request.session["individuals"] = data.individuals
-        request.session.save()
-        response = authenticated_al_client.post(
-            reverse("delete_individual_from_yourself"),
-            data={"individual_uuid": "individual1"},
+    def test_delete_all_individuals_post(self, authenticated_al_client, yourself_licence, yourself):
+        individual1 = Individual.objects.create(licence=yourself_licence)
+        individual2 = Individual.objects.create(licence=yourself_licence)
+
+        authenticated_al_client.post(
+            reverse("delete_individual_from_yourself", kwargs={"pk": individual1.id}),
         )
         response = authenticated_al_client.post(
-            reverse("delete_individual_from_yourself"),
-            data={"individual_uuid": "individual2"},
+            reverse("delete_individual_from_yourself", kwargs={"pk": individual2.id}),
         )
-        response = authenticated_al_client.post(
-            reverse("delete_individual_from_yourself"),
-            data={"individual_uuid": "individual3"},
-        )
-        # does not delete last individual
-        assert len(authenticated_al_client.session["individuals"]) == 0
+        individuals = Individual.objects.filter(licence=yourself_licence)
+        assert individual1 not in individuals
+        assert individual2 not in individuals
+        assert yourself in individuals
         assert response.url == "/apply/check-your-details-add-individuals"
         assert response.status_code == 302
 
-    def test_unsuccessful_post(self, authenticated_al_client):
-        request_object = RequestFactory().get("/")
-        request_object.session = authenticated_al_client.session
-        request_object.session["individuals"] = data.individuals
-        request_object.session.save()
+    def test_unsuccessful_post(self, authenticated_al_client, yourself_licence, yourself):
+        individual1 = Individual.objects.create(licence=yourself_licence)
+        individual2 = Individual.objects.create(licence=yourself_licence)
+
         response = authenticated_al_client.post(
-            reverse("delete_individual_from_yourself"),
+            reverse("delete_individual_from_yourself", kwargs={"pk": uuid.uuid4()}),
         )
-        assert authenticated_al_client.session["individuals"] == data.individuals
-        assert response.url == "/apply/check-your-details-add-individuals"
-        assert response.status_code == 302
+
+        individuals = Individual.objects.filter(licence=yourself_licence)
+        assert individual1 in individuals
+        assert individual2 in individuals
+        assert yourself in individuals
+        assert response.status_code == 404

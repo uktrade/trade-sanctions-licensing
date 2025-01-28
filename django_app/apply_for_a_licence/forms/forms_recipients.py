@@ -60,6 +60,7 @@ class AddAUKRecipientForm(BaseUKBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
+        self.fields["name"].required = True
 
         address_layout = Fieldset(
             Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
@@ -124,7 +125,7 @@ class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-
+        self.fields["name"].required = True
         address_layout = Fieldset(
             Field.text("country", field_width=Fluid.TWO_THIRDS),
             Field.text("town_or_city", field_width=Fluid.TWO_THIRDS),

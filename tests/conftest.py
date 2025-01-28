@@ -1,4 +1,6 @@
 import pytest
+from apply_for_a_licence.choices import WhoDoYouWantTheLicenceToCoverChoices
+from apply_for_a_licence.models import Individual, Licence
 from core.sites import SiteName
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -131,3 +133,46 @@ def apply_rf(request_object):
 def viewer_rf(request_object):
     request_object.site = Site.objects.get(name=SiteName.view_a_licence)
     return request_object
+
+
+@pytest.fixture()
+def individual_licence(authenticated_al_client, test_apply_user):
+    licence_object = Licence.objects.create(
+        user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
+    )
+
+    session = authenticated_al_client.session
+    session["licence_id"] = licence_object.id
+    session.save()
+    return licence_object
+
+
+@pytest.fixture()
+def yourself_licence(authenticated_al_client, test_apply_user):
+    licence_object = Licence.objects.create(
+        user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.myself.value
+    )
+
+    session = authenticated_al_client.session
+    session["licence_id"] = licence_object.id
+    session.save()
+    return licence_object
+
+
+@pytest.fixture()
+def individual(individual_licence):
+    individual = Individual.objects.create(
+        licence=individual_licence,
+    )
+    return individual
+
+
+@pytest.fixture()
+def yourself(yourself_licence):
+    yourself_licence.applicant_full_name = "Your Name"
+    yourself = Individual.objects.create(
+        licence=yourself_licence,
+        first_name="Your",
+        last_name="Name",
+    )
+    return yourself
