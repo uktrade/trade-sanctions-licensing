@@ -36,7 +36,7 @@ class TestStart(PlaywrightTestBase):
         self.page.get_by_role("heading", name="Are you a third-party").click()
         expect(self.page).to_have_url(re.compile(r".*/third-party"))
 
-    def test_myself_input_goes_to_myself_details(self):
+    def test_myself_input_goes_to_email(self):
         self.start_new_application()
         self.page.get_by_role("heading", name="Who do you want the licence").click()
         self.page.get_by_label("Myself").check()

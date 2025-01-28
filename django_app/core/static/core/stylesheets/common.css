@@ -91,3 +91,7 @@ dialog::backdrop {
 .fl-right {
     float: right;
 }
+
+.flex_container {
+    display: flex;
+}
