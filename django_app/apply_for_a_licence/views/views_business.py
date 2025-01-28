@@ -120,7 +120,6 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseOrganisationFormView):
 
         if get_parameters := urllib.parse.urlencode(self.request.GET):
             success_url += "?" + get_parameters
-        print(success_url)
         return success_url
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:

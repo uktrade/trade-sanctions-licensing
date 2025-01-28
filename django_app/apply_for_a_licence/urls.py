@@ -78,7 +78,7 @@ views_individual_urls = [
 views_yourself_urls = [
     path("your-name-nationality-location", views_yourself.AddYourselfView.as_view(), name="add_yourself"),
     path(
-        "your-home-address/<str:location>",
+        "your-home-address/<str:location>/<uuid:yourself_uuid>",
         views_yourself.AddYourselfAddressView.as_view(),
         name="add_yourself_address",
     ),
@@ -88,7 +88,7 @@ views_yourself_urls = [
         name="yourself_and_individual_added",
     ),
     path(
-        "delete-individual-from-yourself",
+        "delete-individual-from-yourself/<pk>",
         views_yourself.DeleteIndividualFromYourselfView.as_view(),
         name="delete_individual_from_yourself",
     ),
