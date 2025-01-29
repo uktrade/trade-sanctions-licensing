@@ -30,25 +30,21 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalindividual",
             name="uuid",
-            field=models.UUIDField(db_index=True, default=uuid.UUID("a56b452a-5597-48c8-89b4-3804fafaf29a"), editable=False),
+            field=models.UUIDField(db_index=True, default=uuid.uuid4, editable=False),
         ),
         migrations.AlterField(
             model_name="historicalorganisation",
             name="uuid",
-            field=models.UUIDField(db_index=True, default=uuid.UUID("55662afd-01eb-4edd-8957-3e783161a2b1"), editable=False),
+            field=models.UUIDField(db_index=True, default=uuid.uuid4, editable=False),
         ),
         migrations.AlterField(
             model_name="individual",
             name="uuid",
-            field=models.UUIDField(
-                default=uuid.UUID("a56b452a-5597-48c8-89b4-3804fafaf29a"), editable=False, primary_key=True, serialize=False
-            ),
+            field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
         ),
         migrations.AlterField(
             model_name="organisation",
             name="uuid",
-            field=models.UUIDField(
-                default=uuid.UUID("55662afd-01eb-4edd-8957-3e783161a2b1"), editable=False, primary_key=True, serialize=False
-            ),
+            field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
         ),
     ]
