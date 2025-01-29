@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="historicalindividual",
             name="uuid",
-            field=models.UUIDField(default=uuid.UUID("cc5a035a-cde4-4817-82a1-f448e46dbe64"), editable=False),
+            field=models.UUIDField(default=uuid.uuid4, editable=False),
         ),
         migrations.AddField(
             model_name="historicalorganisation",
@@ -30,12 +30,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="historicalorganisation",
             name="uuid",
-            field=models.UUIDField(default=uuid.UUID("f4c1f14f-03e6-438e-875e-1360ef9beb46"), editable=False),
+            field=models.UUIDField(default=uuid.uuid4, editable=False),
         ),
         migrations.AddField(
             model_name="individual",
             name="uuid",
-            field=models.UUIDField(default=uuid.UUID("cc5a035a-cde4-4817-82a1-f448e46dbe64"), editable=False),
+            field=models.UUIDField(default=uuid.uuid4, editable=False),
         ),
         migrations.AddField(
             model_name="organisation",
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="organisation",
             name="uuid",
-            field=models.UUIDField(default=uuid.UUID("f4c1f14f-03e6-438e-875e-1360ef9beb46"), editable=False),
+            field=models.UUIDField(default=uuid.uuid4, editable=False),
         ),
         migrations.AlterField(
             model_name="historicalorganisation",
