@@ -7,6 +7,8 @@ from tests.helpers import get_all_templates_files_for_app
 
 
 def test_all_templates_inherit_from_base_logged_in_template(request_object):
+    """Checks all the templates in apply_for_a_licence app inherit from the base_logged_in.html template and
+    therefore have the session expiry logic."""
     app_name = "apply_for_a_licence"
 
     apply_templates = get_all_templates_files_for_app(app_name)
