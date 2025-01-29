@@ -84,27 +84,6 @@
         {% endfor %}
     {% endif %}
     {% if licence.who_do_you_want_the_licence_to_cover == "myself" or licence.who_do_you_want_the_licence_to_cover == "individual" %}
-        <h3 class="govuk-heading-s">Their details</h3>
-        {% if licence.who_do_you_want_the_licence_to_cover == "individual" %}
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        Business name
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ business_individuals_work_for.name }}
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        Address
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=business_individuals_work_for.readable_address|linebreaksbr %}
-                    </dd>
-                </div>
-            </dl>
-        {% endif %}
         {% for individual in licence.individuals.all %}
             <h3 class="govuk-heading-s"> Individual {{ forloop.counter }}</h3>
             <dl class="govuk-summary-list">
@@ -142,6 +121,27 @@
                 </div>
             </dl>
         {% endfor %}
+        <h2 class="govuk-heading-m">Business the individuals work for</h2>
+        {% if licence.who_do_you_want_the_licence_to_cover == "individual" %}
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Business name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ business_individuals_work_for.name }}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        Address
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=business_individuals_work_for.readable_address|linebreaksbr %}
+                    </dd>
+                </div>
+            </dl>
+        {% endif %}
     {% endif %}
     <div class="action-wrapper">
         <h2 class="govuk-heading-m">Previous licence</h2>
