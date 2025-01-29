@@ -3,7 +3,7 @@ import datetime
 import uuid
 
 from core.document_storage import PermanentDocumentStorage
-from core.models import BaseModel
+from core.models import BaseModel, BaseModelID
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
@@ -151,9 +151,8 @@ class AddressMixin(models.Model):
         return get_formatted_address(model_to_dict(self))
 
 
-class Organisation(BaseModel, AddressMixin):
+class Organisation(BaseModelID, AddressMixin):
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="organisations")
-    uuid = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True)
     # two name fields required for the case of recipients
     name = models.CharField(null=True, blank=True)
     website = models.URLField(null=True, blank=True)
@@ -193,9 +192,8 @@ class Organisation(BaseModel, AddressMixin):
             return super().readable_address()
 
 
-class Individual(BaseModel, AddressMixin):
+class Individual(BaseModelID, AddressMixin):
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="individuals")
-    uuid = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True)
     first_name = models.CharField(max_length=255, blank=False)
     last_name = models.CharField(max_length=255, blank=False)
     nationality_and_location = models.CharField(choices=choices.NationalityAndLocation.choices)
