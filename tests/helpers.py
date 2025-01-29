@@ -57,6 +57,6 @@ def reload_urlconf():
 def get_all_templates_files_for_app(app_name: str) -> list[Path]:
     apply_for_a_licence_app_config = apps.get_app_config(app_name)
     template_dir = Path(apply_for_a_licence_app_config.path) / "templates"
-    files = []
+    files: list[Path] = []
     files.extend(x for x in Path(template_dir).glob("**/*.html") if x)
     return files
