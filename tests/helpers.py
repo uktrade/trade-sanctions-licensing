@@ -1,9 +1,7 @@
 import sys
 from importlib import import_module, reload
-from pathlib import Path
 from unittest.mock import MagicMock
 
-from django.apps import apps
 from django.conf import settings
 from django.http import HttpResponse
 from django.test import Client
@@ -52,11 +50,3 @@ def reload_urlconf():
     if settings.ROOT_URLCONF in sys.modules:
         reload(sys.modules[settings.ROOT_URLCONF])
     return import_module(settings.ROOT_URLCONF)
-
-
-def get_all_templates_files_for_app(app_name: str):
-    apply_for_a_licence_app_config = apps.get_app_config(app_name)
-    template_dir = Path(apply_for_a_licence_app_config.path) / "templates"
-    files = []
-    files.extend(x for x in Path(template_dir).glob("**/*.html") if x)
-    return files
