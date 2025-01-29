@@ -34,6 +34,5 @@ class SessionExpiredView(TemplateView):
     template_name = "core/session_expired.html"
 
     def get(self, request: HttpRequest, *args, **kwargs):
-        # the session should already be empty by definition but just in case, manually clear
         logout(request)
         return super().get(request, *args, **kwargs)

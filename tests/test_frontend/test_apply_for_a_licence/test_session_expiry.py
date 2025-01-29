@@ -41,12 +41,12 @@ class TestSessionExpiry(PlaywrightTestBase):
         non_js_page = self.browser.new_context(java_script_enabled=False).new_page()
         self.go_to_path(reverse("submitter_reference"), page=non_js_page)
         expect(non_js_page.get_by_test_id("non_js_session_expiry_banner")).to_be_visible()
-        expect(non_js_page.get_by_text("Your application will be deleted if you're inactive for 1 minute")).to_be_visible()
+        expect(non_js_page.get_by_text("You'll be signed out if you're inactive for 1 minute")).to_be_visible()
 
         # now testing this does not appear on normal
         self.go_to_path(reverse("submitter_reference"))
         expect(self.page.get_by_test_id("non_js_session_expiry_banner")).to_be_hidden()
-        expect(self.page.get_by_text("Your application will be deleted if you're inactive for 1 minute")).to_be_hidden()
+        expect(self.page.get_by_text("You'll be signed out if you're inactive for 1 minute")).to_be_hidden()
 
     @override_settings(SESSION_COOKIE_AGE=1)
     def test_redirect_on_session_expire(self):
