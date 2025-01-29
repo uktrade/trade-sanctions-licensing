@@ -54,7 +54,7 @@ def reload_urlconf():
     return import_module(settings.ROOT_URLCONF)
 
 
-def get_all_templates_files_for_app(app_name: str):
+def get_all_templates_files_for_app(app_name: str) -> list[Path]:
     apply_for_a_licence_app_config = apps.get_app_config(app_name)
     template_dir = Path(apply_for_a_licence_app_config.path) / "templates"
     files = []
