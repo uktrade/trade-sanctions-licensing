@@ -20,13 +20,18 @@
 {% block body_end %}
 	{# session expiry dialog pop-up #}
     <dialog id="session_expiry_dialog">
-        <p class="govuk-heading-l">Your application will time out soon</p>
-        <p class="govuk-body">You've been inactive for a while.</p>
-        <p class="govuk-body">Your application will be deleted unless you continue within the time remaining.</p>
-        <p class="govuk-body">We do this for your security.</p>
-        <p class="govuk-body" autofocus><strong id="session_expiry_time_remaining" data-testid="session_expiry_time_remaining">{{ SESSION_EXPIRY_MINUTES }}
-            minutes</strong> remaining</p>
-        <button class="govuk-button" id="ping_session_button" data-testid="ping_session_button">Continue</button>
+        <p class="govuk-heading-l">You'll be signed out soon</p>
+        <p class="govuk-body">This is because you've been inactive for a while.</p>
+        <p class="govuk-body">You'll be signed out unless you continue within the time remaining.</p>
+        <p class="govuk-body">Any information you have not saved will be deleted for your security.</p>
+        <p class="govuk-body" autofocus>
+            <strong id="session_expiry_time_remaining" data-testid="session_expiry_time_remaining">
+                {{ SESSION_EXPIRY_MINUTES }} minutes
+            </strong>
+            remaining
+        </p>
+        <button class="govuk-button" id="ping_session_button" data-testid="ping_session_button">Stay signed in</button>
+        <button class="govuk-button govuk-button--secondary" id="sign_out_button" data-testid="sign_out_button">Sign out</button>
     </dialog>
 {% endblock body_end %}
 

@@ -289,7 +289,7 @@ CACHES = {
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Session cookie age is set to 40 minutes
-SESSION_COOKIE_AGE = 40 * 60
+SESSION_COOKIE_AGE = 2 * 60
 SESSION_LAST_ACTIVITY_KEY = "last_form_submission"
 
 # CSP policies
