@@ -153,6 +153,8 @@ class AddressMixin(models.Model):
 
 class Organisation(BaseModelID, AddressMixin):
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="organisations")
+    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+
     # two name fields required for the case of recipients
     name = models.CharField(null=True, blank=True)
     website = models.URLField(null=True, blank=True)
