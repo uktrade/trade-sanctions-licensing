@@ -18,6 +18,7 @@ import sentry_sdk
 from authentication.config import OneLoginConfig
 from config.env import env
 from django.conf.locale.en import formats as en_formats
+from django.urls import reverse_lazy
 from sentry_sdk.integrations.django import DjangoIntegration
 
 is_dbt_platform = "COPILOT_ENVIRONMENT_NAME" in os.environ
@@ -259,6 +260,8 @@ GOV_UK_ONE_LOGIN_CLIENT_SECRET = env.gov_uk_one_login_client_secret
 GOV_UK_ONE_LOGIN_CONFIG = OneLoginConfig
 GOV_UK_ONE_LOGIN_ENABLED = False
 
+LOGIN_REDIRECT_URL = reverse_lazy("initial_redirect_view")
+
 TRUNCATE_WORDS_LIMIT = 30
 
 en_formats.DATE_FORMAT = "d/m/Y"
@@ -288,8 +291,8 @@ CACHES = {
 }
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# Session cookie age is set to 40 minutes
-SESSION_COOKIE_AGE = 2 * 60
+# Session cookie age is set to 25 minutes
+SESSION_COOKIE_AGE = 25 * 60
 SESSION_LAST_ACTIVITY_KEY = "last_form_submission"
 
 # CSP policies
