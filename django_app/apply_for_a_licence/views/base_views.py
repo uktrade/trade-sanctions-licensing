@@ -131,6 +131,7 @@ class DeleteAnEntitySaveAndReturnView(LoginRequiredMixin, DeleteView):
     add a business/recipient/individual."""
 
     allow_zero_entities = False
+    form_class = BaseForm
 
     def form_valid(self, form):
         licence_id = self.request.session["licence_id"]
