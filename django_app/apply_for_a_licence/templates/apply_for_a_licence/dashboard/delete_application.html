@@ -1,4 +1,4 @@
-{% extends 'core/base_form_step.html' %}
+{% extends 'core/base_logged_in_template.html' %}
 
 {% block form_action %}{% url 'delete_application' pk=application.pk %}{% endblock form_action %}
 

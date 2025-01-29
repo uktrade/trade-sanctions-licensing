@@ -241,9 +241,9 @@
             <main class="govuk-main-wrapper" id="main-content">
                 {% block main_content %}
                     <div class="govuk-grid-row">
+                        {% block row_start %}{% endblock row_start %}
                         {% block row_content %}
                             <div class="govuk-grid-column-two-thirds">
-                                {% block column_start %}{% endblock column_start %}
                                 {% block column_content %}
                                 {% endblock column_content %}
                             </div>
