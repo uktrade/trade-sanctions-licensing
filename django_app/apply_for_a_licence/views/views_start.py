@@ -33,6 +33,10 @@ class StartView(BaseFormView):
         kwargs["instance"] = instance
         return kwargs
 
+    def dispatch(self, request, *args, **kwargs):
+        update_last_activity_session_timestamp(request)
+        return super().dispatch(request, *args, **kwargs)
+
     def get_success_url(self) -> str | None:
         answer = self.form.cleaned_data["who_do_you_want_the_licence_to_cover"]
         if answer in ["business", "individual"]:

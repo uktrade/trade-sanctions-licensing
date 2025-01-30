@@ -91,6 +91,7 @@ def request_object(authenticated_al_client: Client, test_apply_user: User):
     request_object.user = test_apply_user
     request_object.GET = {}
     request_object.POST = {}
+    request_object.META = {}
     return request_object
 
 
