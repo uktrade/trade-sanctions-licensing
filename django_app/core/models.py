@@ -14,7 +14,7 @@ class BaseModel(models.Model):
 
     @property
     def _history_user(self):
-        # todo - remove when OneLogin is enabled
+        # todo - remove when OneLogin is enabled.
         return None
 
 
