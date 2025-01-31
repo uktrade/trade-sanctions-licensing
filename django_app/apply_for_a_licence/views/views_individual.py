@@ -9,11 +9,12 @@ from apply_for_a_licence.choices import (
     WhoDoYouWantTheLicenceToCoverChoices,
 )
 from apply_for_a_licence.forms import forms_individual as forms
-from apply_for_a_licence.models import Individual, Licence, Organisation
+from apply_for_a_licence.models import Individual, Organisation
 from apply_for_a_licence.views.base_views import DeleteAnEntitySaveAndReturnView
+from core.utils import get_licence_object
 from core.views.base_views import BaseFormView, BaseIndividualFormView
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 
 logger = logging.getLogger(__name__)
@@ -26,8 +27,7 @@ class AddAnIndividualView(BaseFormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         individual_id = self.kwargs.get("individual_uuid")
-        licence_id = self.request.session["licence_id"]
-        licence_object = get_object_or_404(Licence, pk=licence_id)
+        licence_object = get_licence_object(self.request)
         # get_or_create returns tuple
         instance, _ = Individual.objects.get_or_create(pk=individual_id, licence=licence_object)
         kwargs["instance"] = instance
@@ -81,8 +81,7 @@ class WhatIsIndividualsAddressView(BaseIndividualFormView):
 
     def get_success_url(self):
         success_url = reverse("individual_added")
-        licence_id = self.request.session["licence_id"]
-        licence_object = Licence.objects.get(pk=licence_id)
+        licence_object = get_licence_object(self.request)
         if licence_object.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.myself:
             success_url = reverse("yourself_and_individual_added")
         return success_url
@@ -93,8 +92,7 @@ class IndividualAddedView(BaseFormView):
     template_name = "apply_for_a_licence/form_steps/individual_added.html"
 
     def dispatch(self, request, *args, **kwargs):
-        licence_id = self.request.session["licence_id"]
-        licence_object = Licence.objects.get(pk=licence_id)
+        licence_object = get_licence_object(self.request)
         individuals = Individual.objects.filter(licence=licence_object)
         if len(individuals) > 0:
             # only allow access to this page if an individual has been added
@@ -104,8 +102,7 @@ class IndividualAddedView(BaseFormView):
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        licence_id = self.request.session["licence_id"]
-        licence_object = Licence.objects.get(pk=licence_id)
+        licence_object = get_licence_object(self.request)
         context["individuals"] = Individual.objects.filter(licence=licence_object)
         return context
 
@@ -123,8 +120,7 @@ class BusinessEmployingIndividualView(BaseFormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        licence_id = self.request.session["licence_id"]
-        licence_object = get_object_or_404(Licence, pk=licence_id)
+        licence_object = get_licence_object(self.request)
         individuals = Individual.objects.filter(licence=licence_object)
         instance, _ = Organisation.objects.get_or_create(
             licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.named_individuals

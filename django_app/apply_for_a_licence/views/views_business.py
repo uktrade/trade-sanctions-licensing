@@ -5,11 +5,12 @@ from typing import Any, Dict
 
 from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.forms import forms_business as forms
-from apply_for_a_licence.models import Licence, Organisation
+from apply_for_a_licence.models import Organisation
 from apply_for_a_licence.views.base_views import DeleteAnEntitySaveAndReturnView
+from core.utils import get_licence_object
 from core.views.base_views import BaseFormView, BaseOrganisationFormView
 from django.conf import settings
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django_ratelimit.decorators import ratelimit
@@ -38,8 +39,7 @@ class BusinessAddedView(BaseFormView):
     template_name = "apply_for_a_licence/form_steps/business_added.html"
 
     def dispatch(self, request, *args, **kwargs):
-        licence_id = self.request.session["licence_id"]
-        licence_object = Licence.objects.get(pk=licence_id)
+        licence_object = get_licence_object(self.request)
         businesses = Organisation.objects.filter(licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.business)
         if len(businesses) > 0:
             # only allow access to this page if a business has been added
@@ -58,8 +58,7 @@ class BusinessAddedView(BaseFormView):
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        licence_id = self.request.session["licence_id"]
-        licence_object = Licence.objects.get(pk=licence_id)
+        licence_object = get_licence_object(self.request)
         context["businesses"] = Organisation.objects.filter(
             licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.business
         )
@@ -78,8 +77,7 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         organisation_id = self.kwargs.get("business_uuid")
-        licence_id = self.request.session["licence_id"]
-        licence_object = get_object_or_404(Licence, pk=licence_id)
+        licence_object = get_licence_object(self.request)
         # get_or_create returns tuple
         instance, _ = Organisation.objects.get_or_create(
             pk=organisation_id, licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.business
@@ -144,8 +142,7 @@ class CheckCompanyDetailsView(BaseFormView):
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        licence_id = self.request.session["licence_id"]
-        licence_object = Licence.objects.get(pk=licence_id)
+        licence_object = get_licence_object(self.request)
         business_uuid = self.kwargs.get("business_uuid")
         business = Organisation.objects.get(
             pk=business_uuid, licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.business

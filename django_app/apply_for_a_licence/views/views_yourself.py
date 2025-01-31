@@ -5,8 +5,9 @@ import uuid
 from apply_for_a_licence.choices import NationalityAndLocation
 from apply_for_a_licence.forms import forms_individual as individual_forms
 from apply_for_a_licence.forms import forms_yourself as forms
-from apply_for_a_licence.models import Individual, Licence
+from apply_for_a_licence.models import Individual
 from apply_for_a_licence.views.base_views import DeleteAnEntitySaveAndReturnView
+from core.utils import get_licence_object
 from core.views.base_views import BaseFormView, BaseIndividualFormView
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -25,8 +26,7 @@ class AddYourselfView(BaseFormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         yourself_id = self.kwargs.get("yourself_uuid")
-        licence_id = self.request.session["licence_id"]
-        licence_object = get_object_or_404(Licence, pk=licence_id)
+        licence_object = get_licence_object(self.request)
         # get_or_create returns tuple
         instance, _ = Individual.objects.get_or_create(pk=yourself_id, licence=licence_object)
         kwargs["instance"] = instance
@@ -43,8 +43,7 @@ class AddYourselfView(BaseFormView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        licence_id = self.request.session["licence_id"]
-        licence_object = get_object_or_404(Licence, pk=licence_id)
+        licence_object = get_licence_object(self.request)
         licence_object.applicant_full_name = self.instance.full_name
         licence_object.save()
 
@@ -72,8 +71,7 @@ class AddYourselfAddressView(BaseIndividualFormView):
     def get_form_class(self) -> forms.AddYourselfUKAddressForm | forms.AddYourselfNonUKAddressForm:
         form_class = forms.AddYourselfNonUKAddressForm
         yourself_id = self.kwargs.get("yourself_uuid")
-        licence_id = self.request.session["licence_id"]
-        licence_object = get_object_or_404(Licence, pk=licence_id)
+        licence_object = get_licence_object(self.request)
         instance = get_object_or_404(Individual, pk=yourself_id, licence=licence_object)
 
         if instance.nationality_and_location in [
@@ -96,8 +94,7 @@ class YourselfAndIndividualAddedView(BaseFormView):
     template_name = "apply_for_a_licence/form_steps/yourself_and_individual_added.html"
 
     def dispatch(self, request, *args, **kwargs):
-        licence_id = self.request.session["licence_id"]
-        licence_object = Licence.objects.get(pk=licence_id)
+        licence_object = get_licence_object(self.request)
         individuals = Individual.objects.filter(licence=licence_object)
         if len(individuals) > 0:
             # only allow access to this page if an individual or yourself has been added
@@ -107,8 +104,7 @@ class YourselfAndIndividualAddedView(BaseFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        licence_id = self.request.session["licence_id"]
-        licence_object = Licence.objects.get(pk=licence_id)
+        licence_object = get_licence_object(self.request)
         individuals = Individual.objects.filter(licence=licence_object)
         for individual in individuals:
             if individual.full_name == licence_object.applicant_full_name:
