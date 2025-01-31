@@ -1,8 +1,8 @@
 from typing import Any
 
-from apply_for_a_licence.models import Licence
 from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import BaseForm
+from core.utils import get_licence_object
 from core.views.base_views import BaseFormView
 from django.http import HttpResponse
 from django.shortcuts import Http404, redirect
@@ -134,8 +134,7 @@ class DeleteAnEntitySaveAndReturnView(LoginRequiredMixin, DeleteView):
     form_class = BaseForm
 
     def form_valid(self, form):
-        licence_id = self.request.session["licence_id"]
-        licence_object = Licence.objects.get(pk=licence_id)
+        licence_object = get_licence_object(self.request)
         entities = self.model.objects.filter(licence=licence_object)
 
         if self.allow_zero_entities or len(entities) > 1:
