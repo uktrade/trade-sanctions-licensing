@@ -59,7 +59,11 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
     class Meta:
         model = Organisation
         fields = ["do_you_know_the_registered_company_number", "registered_company_number", "name", "registered_office_address"]
-        widgets = {"do_you_know_the_registered_company_number": forms.RadioSelect}
+        widgets = {
+            "do_you_know_the_registered_company_number": forms.RadioSelect,
+            "name": forms.HiddenInput,
+            "registered_office_address": forms.HiddenInput,
+        }
         labels = {
             "do_you_know_the_registered_company_number": "Do you know the registered company number?",
             "registered_company_number": "Registered company number",
@@ -75,11 +79,7 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.fields["name"].initial = ""
-        self.fields["registered_office_address"].initial = ""
-        self.fields["name"].widget = forms.HiddenInput()
-        self.fields["registered_office_address"].widget = forms.HiddenInput()
-        self.fields["do_you_know_the_registered_company_number"].required = True
+        self.fields["name"].required = False
         # remove companies house 500 error if it exists
         self.request.session.pop("company_details_500", None)
         self.request.session.modified = True
@@ -212,7 +212,6 @@ class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.fields["name"].required = True
 
         address_layout = Fieldset(
             Field.text("address_line_1", field_width=Fluid.TWO_THIRDS),
@@ -259,7 +258,6 @@ class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.fields["name"].required = True
 
         address_layout = Fieldset(
             Field.text("country", field_width=Fluid.TWO_THIRDS),
