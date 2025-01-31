@@ -76,7 +76,7 @@ views_individual_urls = [
 ]
 
 views_yourself_urls = [
-    path("your-name-nationality-location", views_yourself.AddYourselfView.as_view(), name="add_yourself"),
+    path("your-name-nationality-location/<uuid:yourself_uuid>", views_yourself.AddYourselfView.as_view(), name="add_yourself"),
     path(
         "your-home-address/<str:location>/<uuid:yourself_uuid>",
         views_yourself.AddYourselfAddressView.as_view(),

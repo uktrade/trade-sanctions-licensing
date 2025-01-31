@@ -103,7 +103,6 @@ class BaseFormView(BaseView, FormView):
 
         if self.form.save_and_return:
             self.instance = self.form.save()
-            print(self.instance)
 
         # now keep it in the session
         self.request.session[self.step_name] = form_data

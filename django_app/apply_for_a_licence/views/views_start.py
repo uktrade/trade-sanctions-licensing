@@ -38,7 +38,7 @@ class StartView(BaseFormView):
         if answer in ["business", "individual"]:
             return reverse("are_you_third_party")
         elif answer == "myself":
-            return reverse("add_yourself")
+            return reverse("add_yourself", kwargs={"yourself_uuid": str(uuid.uuid4())})
         return None
 
 

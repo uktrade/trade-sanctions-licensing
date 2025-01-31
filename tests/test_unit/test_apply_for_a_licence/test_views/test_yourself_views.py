@@ -26,7 +26,7 @@ class TestYourselfAndIndividualAddedView:
 class TestAddYourselfView:
     def test_successful_post(self, authenticated_al_client, yourself):
         response = authenticated_al_client.post(
-            reverse("add_yourself"),
+            reverse("add_yourself", kwargs={"yourself_uuid": yourself.id}),
             data={
                 "first_name": "John",
                 "last_name": "Doe",

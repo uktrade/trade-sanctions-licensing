@@ -7,7 +7,7 @@ from apply_for_a_licence.forms import forms_individual as individual_forms
 from apply_for_a_licence.forms import forms_yourself as forms
 from apply_for_a_licence.models import Individual, Licence
 from apply_for_a_licence.views.base_views import DeleteAnEntitySaveAndReturnView
-from core.views.base_views import BaseFormView
+from core.views.base_views import BaseFormView, BaseIndividualFormView
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -24,10 +24,11 @@ class AddYourselfView(BaseFormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
+        yourself_id = self.kwargs.get("yourself_uuid")
         licence_id = self.request.session["licence_id"]
         licence_object = get_object_or_404(Licence, pk=licence_id)
         # get_or_create returns tuple
-        instance, _ = Individual.objects.get_or_create(licence=licence_object)
+        instance, _ = Individual.objects.get_or_create(pk=yourself_id, licence=licence_object)
         kwargs["instance"] = instance
         self.instance = instance
         return kwargs
@@ -64,22 +65,9 @@ class AddYourselfView(BaseFormView):
         return success_url
 
 
-class AddYourselfAddressView(BaseFormView):
+class AddYourselfAddressView(BaseIndividualFormView):
     success_url = reverse_lazy("yourself_and_individual_added")
-
-    def __init__(self):
-        self.instance = None
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        yourself_id = self.kwargs.get("yourself_uuid")
-        licence_id = self.request.session["licence_id"]
-        licence_object = get_object_or_404(Licence, pk=licence_id)
-        # get_or_create returns tuple
-        instance, _ = Individual.objects.get_or_create(pk=yourself_id, licence=licence_object)
-        kwargs["instance"] = instance
-        self.instance = instance
-        return kwargs
+    pk_url_kwarg = "yourself_uuid"
 
     def get_form_class(self) -> forms.AddYourselfUKAddressForm | forms.AddYourselfNonUKAddressForm:
         form_class = forms.AddYourselfNonUKAddressForm
