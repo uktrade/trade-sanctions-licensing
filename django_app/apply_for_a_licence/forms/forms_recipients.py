@@ -124,7 +124,6 @@ class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-
         address_layout = Fieldset(
             Field.text("country", field_width=Fluid.TWO_THIRDS),
             Field.text("town_or_city", field_width=Fluid.TWO_THIRDS),

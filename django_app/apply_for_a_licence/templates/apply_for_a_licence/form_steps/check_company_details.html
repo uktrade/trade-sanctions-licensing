@@ -17,11 +17,11 @@
                     Registered company number
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ company_details.company_number }}
+                    {{ business.registered_company_number }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
-                       href="{% url 'do_you_know_the_registered_company_number' %}?change=yes&business_uuid={{ business_uuid }}">Change<span
+                       href="{% url 'do_you_know_the_registered_company_number' business_uuid=business.id %}?change=yes&">Change<span
                         class="govuk-visually-hidden">registered company number</span></a>
                 </dd>
             </div>
@@ -30,7 +30,7 @@
                     Registered company name
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ company_details.name }}
+                    {{ business.name }}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
@@ -38,7 +38,7 @@
                     Registered office address
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ company_details.readable_address | linebreaksbr }}
+                    {{ business.readable_address | linebreaksbr }}
                 </dd>
             </div>
         </dl>
