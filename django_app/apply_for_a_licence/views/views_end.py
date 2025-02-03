@@ -144,8 +144,8 @@ class CompleteView(LoginRequiredMixin, TemplateView):
 
 
 class DownloadPDFView(BaseDownloadPDFView):
-    template_name = "report_a_suspected_breach/form_steps/report_pdf.html"
-    header = "Report a suspected breach of trade sanctions: submission complete"
+    template_name = "apply_for_a_licence/download_application_pdf.html"
+    header = "Apply for a licence to provide sanctioned trade services: application submitted "
 
     def get_context_data(self, *args: object, **kwargs: object) -> dict[str, Any]:
         # reference = self.request.GET.get("reference")
