@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 
 from apply_for_a_licence.utils import get_dirty_form_data
 from authentication.mixins import LoginRequiredMixin
@@ -7,11 +8,14 @@ from django import forms
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.generic import FormView, RedirectView
+from django.utils.safestring import mark_safe
+from django.views.generic import DetailView, FormView, RedirectView
 from django_ratelimit.exceptions import Ratelimited
+from playwright.sync_api import sync_playwright
 
 
 class BaseFormView(LoginRequiredMixin, FormView):
@@ -128,3 +132,33 @@ class RedirectBaseDomainView(RedirectView):
         elif is_view_a_licence_site(self.request.site):
             return reverse("view_a_licence:application_list")
         return ""
+
+
+class BaseDownloadPDFView(DetailView):
+    template_name = "core/base_download_pdf.html"
+    header = "Apply for a licence to provide sanctioned trade services"
+
+    def get(self, request: HttpRequest, **kwargs: object) -> HttpResponse:
+        self.reference = self.request.GET.get("reference", "")
+        filename = f"application-{self.reference}.pdf"
+        pdf_data = None
+        template_string = render_to_string(self.template_name, context=self.get_context_data(**kwargs))
+
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.set_content(mark_safe(template_string))
+            page.wait_for_function("document.fonts.ready.then(fonts => fonts.status === 'loaded')")
+            pdf_data = page.pdf(format="A4")
+            browser.close()
+
+        response = HttpResponse(pdf_data, content_type="application/pdf")
+        response["Content-Disposition"] = f"inline; filename={filename}"
+        return response
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        self.object = []
+        context = super().get_context_data(**kwargs)
+        context["header"] = self.header
+        context["reference"] = self.reference
+        return context

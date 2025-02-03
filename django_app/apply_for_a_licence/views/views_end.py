@@ -10,7 +10,7 @@ from core.views.base_views import BaseFormView
 from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect  # get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -19,6 +19,8 @@ from utils.notifier import send_email
 from utils.s3 import get_all_session_files
 from utils.save_to_db import SaveToDB
 from view_a_licence.utils import get_view_a_licence_application_url
+
+from django_app.core.views.base_views import BaseDownloadPDFView
 
 logger = logging.getLogger(__name__)
 
@@ -139,3 +141,16 @@ class DeclarationView(BaseFormView):
 
 class CompleteView(LoginRequiredMixin, TemplateView):
     template_name = "apply_for_a_licence/complete.html"
+
+
+class DownloadPDFView(BaseDownloadPDFView):
+    template_name = "report_a_suspected_breach/form_steps/report_pdf.html"
+    header = "Report a suspected breach of trade sanctions: submission complete"
+
+    def get_context_data(self, *args: object, **kwargs: object) -> dict[str, Any]:
+        # reference = self.request.GET.get("reference")
+        # self.object = get_object_or_404(Breach, reference=reference)
+        context = super().get_context_data(**kwargs)
+        # breach_context_data = get_breach_context_data(self.object)
+        # context.update(breach_context_data)
+        return context

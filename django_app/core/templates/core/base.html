@@ -190,10 +190,12 @@
                     </a>
                 </div>
                 <div class="govuk-header__content">
-                    <a href="/"
-                       class="govuk-header__link govuk-header__service-name">
-                        Apply for a licence to provide sanctioned trade services
-                    </a>
+                    {% block header_content %}
+                        <a href="/"
+                           class="govuk-header__link govuk-header__service-name">
+                            Apply for a licence to provide sanctioned trade services
+                        </a>
+                    {% endblock header_content %}
                 </div>
 
             </div>
