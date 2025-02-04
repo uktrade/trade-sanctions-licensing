@@ -38,7 +38,7 @@ def reverse_func(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("apply_for_a_licence", "0018_alter_historicallicence_service_activities_and_more"),
+        ("apply_for_a_licence", "0019_alter_historicalorganisation_business_registered_on_companies_house_and_more"),
     ]
 
     operations = [

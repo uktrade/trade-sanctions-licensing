@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("apply_for_a_licence", "0017_alter_historicalindividual_id_and_more"),
+        ("apply_for_a_licence", "0018_alter_historicallicence_service_activities_and_more"),
     ]
 
     operations = [
