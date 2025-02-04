@@ -8,11 +8,11 @@ from . import data
 
 
 class TestAddRecipientView:
-    def test_successful_post(self, authenticated_al_client):
-        assert authenticated_al_client.session.get("recipients") is None
+    def test_successful_post(self, authenticated_al_client_with_licence):
+        assert authenticated_al_client_with_licence.session.get("recipients") is None
         recipient_uuid = str(uuid.uuid4())
 
-        authenticated_al_client.post(
+        authenticated_al_client_with_licence.post(
             reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid}),
             data={
                 "name": "COOL BEANS LTD",
@@ -25,7 +25,7 @@ class TestAddRecipientView:
             follow=True,
         )
 
-        recipients = authenticated_al_client.session.get("recipients")
+        recipients = authenticated_al_client_with_licence.session.get("recipients")
         assert len(recipients) == 1
 
         assert recipients[recipient_uuid]["cleaned_data"]["name"] == "COOL BEANS LTD"

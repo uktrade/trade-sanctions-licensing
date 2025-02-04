@@ -323,3 +323,8 @@ class CheckCompanyDetailsForm(BaseModelForm):
             "registered_company_number": forms.HiddenInput,
             "registered_office_address": forms.HiddenInput,
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.Meta.fields:
+            self.fields[field].required = False

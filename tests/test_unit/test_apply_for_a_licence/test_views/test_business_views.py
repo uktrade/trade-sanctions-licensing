@@ -155,7 +155,7 @@ class TestDeleteBusinessView:
         business1 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
         business2 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
         response = authenticated_al_client.post(
-            reverse("delete_business", kwargs={"pk": business1.id}),
+            reverse("delete_business", kwargs={"business_uuid": business1.id}),
         )
         businesses = Organisation.objects.filter(licence=licence)
 
@@ -178,13 +178,13 @@ class TestDeleteBusinessView:
         business3 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
 
         authenticated_al_client.post(
-            reverse("delete_business", kwargs={"pk": business1.id}),
+            reverse("delete_business", kwargs={"business_uuid": business1.id}),
         )
         authenticated_al_client.post(
-            reverse("delete_business", kwargs={"pk": business2.id}),
+            reverse("delete_business", kwargs={"business_uuid": business2.id}),
         )
         response = authenticated_al_client.post(
-            reverse("delete_business", kwargs={"pk": business3.id}),
+            reverse("delete_business", kwargs={"business_uuid": business3.id}),
         )
         businesses = Organisation.objects.filter(licence=licence)
         # does not delete last business
@@ -207,7 +207,7 @@ class TestDeleteBusinessView:
         business2 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
         business3 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
         response = authenticated_al_client.post(
-            reverse("delete_business", kwargs={"pk": uuid.uuid4()}),
+            reverse("delete_business", kwargs={"business_uuid": uuid.uuid4()}),
         )
         businesses = Organisation.objects.filter(licence=licence)
         # does not delete any business
