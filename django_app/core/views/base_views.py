@@ -157,7 +157,7 @@ class BaseDownloadPDFView(DetailView):
         return response
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
-        self.object = []
+        self.object: list[Any] = []
         context = super().get_context_data(**kwargs)
         context["header"] = self.header
         context["reference"] = self.reference
