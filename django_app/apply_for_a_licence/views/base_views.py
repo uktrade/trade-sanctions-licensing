@@ -6,7 +6,8 @@ from django.shortcuts import Http404
 class EntityView(BaseSaveAndReturnModelFormView):
     @property
     def pk_url_kwarg(self) -> str:
-        raise NotImplementedError("You need to implement the pk_url_kwarg property")
+        if self.model:
+            return f"{self.model.__name__.lower()}_uuid"
 
     @property
     def model(self):

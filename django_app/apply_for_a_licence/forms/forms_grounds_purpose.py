@@ -31,16 +31,18 @@ class BaseLicensingGroundsForm(BaseModelForm):
         )
         self.fields[self.field_name].choices = self.checkbox_choices
 
-        if choices.ProfessionalOrBusinessServicesChoices.legal_advisory in self.instance.professional_or_business_services:
-            self.fields[self.field_name].error_messages = {
-                "required": "Select which licensing grounds describe the purpose of the relevant activity for which the legal "
-                "advice is being given, or select none of these, or select I do not know"
-            }
-        else:
-            self.fields[self.field_name].error_messages = {
-                "required": "Select which licensing grounds describe your purpose for providing"
-                " the sanctioned services, or select none of these, or select I do not know"
-            }
+        if self.instance.professional_or_business_services:
+            if choices.ProfessionalOrBusinessServicesChoices.legal_advisory in self.instance.professional_or_business_services:
+                self.fields[self.field_name].error_messages = {
+                    "required": "Select which licensing grounds describe the purpose of the relevant "
+                    "activity for which the legal advice is being given, or select none of these, "
+                    "or select I do not know"
+                }
+            else:
+                self.fields[self.field_name].error_messages = {
+                    "required": "Select which licensing grounds describe your purpose for providing"
+                    " the sanctioned services, or select none of these, or select I do not know"
+                }
 
         self.helper.layout = Layout(
             Fieldset(

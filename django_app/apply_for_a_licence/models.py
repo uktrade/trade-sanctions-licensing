@@ -28,14 +28,14 @@ class Licence(BaseModel):
     )
     licensing_grounds = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
     licensing_grounds_legal_advisory = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
-    regimes = ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
+    regimes = ArrayField(base_field=models.CharField(max_length=255), blank=False, null=True)
     reference = models.CharField(max_length=6)
-    submitter_reference = models.CharField(max_length=255, blank=True, null=True)
+    submitter_reference = models.CharField(max_length=255, blank=False, null=True)
     type_of_service = models.CharField(choices=choices.TypeOfServicesChoices.choices)
     professional_or_business_services = ArrayField(
         models.CharField(choices=choices.ProfessionalOrBusinessServicesChoices.choices), null=True
     )
-    service_activities = models.TextField(blank=True, null=True)
+    service_activities = models.TextField(blank=False, null=True)
     description_provision = models.TextField(blank=True, null=True)
     purpose_of_provision = models.TextField(blank=True, null=True)
     held_existing_licence = models.CharField(
@@ -184,7 +184,7 @@ class Organisation(BaseModelID, AddressMixin):
         blank=False,
     )
     relationship_provider = models.TextField(
-        blank=True, null=True, db_comment="what is the relationship between the provider and the recipient?"
+        blank=False, null=True, db_comment="what is the relationship between the provider and the recipient?"
     )
 
     def readable_address(self) -> str:

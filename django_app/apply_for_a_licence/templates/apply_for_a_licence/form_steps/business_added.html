@@ -48,7 +48,7 @@
             </div>
             {% if businesses|length > 1 %}
                 <form id="delete_business_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                      action="{% url 'delete_business' pk=business.id%}">
+                      action="{% url 'delete_business' business_uuid=business.id%}">
                     <input type="hidden" name="business_uuid" value="{{ business.id }}">
                     {% csrf_token %}
                     <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_business_form_{{ forloop.counter }}">
