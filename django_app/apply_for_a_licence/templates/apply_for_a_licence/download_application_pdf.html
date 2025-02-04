@@ -45,7 +45,7 @@
                 {% for organisation in licence.organisations.all %}
                     {% if organisation.type_of_relationship == "business" %}
                         <h3 class="govuk-heading-s">Who the licence covers</h3>
-                        Business {{ forloop.counter }}
+                        <h3 class="govuk-heading-s">Business {{ forloop.counter }}</h3>
                         <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                             <strong>Business name:</strong> {{ organisation.name }}<br>
                         </dt></div>
@@ -57,9 +57,9 @@
             {% endif %}
             {% if licence.who_do_you_want_the_licence_to_cover == "myself" or licence.who_do_you_want_the_licence_to_cover == "individual" %}
                 {% for individual in licence.individuals.all %}
-                    <h3 class="govuk-heading-s">Who the licence covers</h3>
                     <div class="govuk-summary-list__row">
-                        Individual {{ forloop.counter }}
+                        <h3 class="govuk-heading-s">Who the licence covers</h3>
+                        <h3 class="govuk-heading-s">Individual {{ forloop.counter }}</h3>
                         <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                             <strong>Name:</strong> {{ individual.full_name }}<br>
                         </dt></div>
