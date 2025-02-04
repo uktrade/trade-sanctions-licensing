@@ -3,14 +3,15 @@ import uuid
 from typing import Any
 
 from apply_for_a_licence.forms.forms_end import DeclarationForm
+from apply_for_a_licence.models import Licence
 from apply_for_a_licence.utils import get_all_cleaned_data, get_all_forms
 from authentication.mixins import LoginRequiredMixin
 from core.document_storage import TemporaryDocumentStorage
-from core.views.base_views import BaseFormView
+from core.views.base_views import BaseDownloadPDFView, BaseFormView
 from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponse
-from django.shortcuts import redirect  # get_object_or_404
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -19,8 +20,6 @@ from utils.notifier import send_email
 from utils.s3 import get_all_session_files
 from utils.save_to_db import SaveToDB
 from view_a_licence.utils import get_view_a_licence_application_url
-
-from django_app.core.views.base_views import BaseDownloadPDFView
 
 logger = logging.getLogger(__name__)
 
@@ -147,10 +146,8 @@ class DownloadPDFView(BaseDownloadPDFView):
     template_name = "apply_for_a_licence/download_application_pdf.html"
     header = "Apply for a licence to provide sanctioned trade services: application submitted "
 
-    def get_context_data(self, *args: object, **kwargs: object) -> dict[str, Any]:
-        # reference = self.request.GET.get("reference")
-        # self.object = get_object_or_404(Breach, reference=reference)
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        # breach_context_data = get_breach_context_data(self.object)
-        # context.update(breach_context_data)
+        self.reference = self.request.GET.get("reference", "")
+        context["licence"] = Licence.objects.get(reference=self.reference)
         return context
