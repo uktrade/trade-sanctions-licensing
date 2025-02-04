@@ -4,6 +4,7 @@ from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.models import Individual, Licence, Organisation
 from apply_for_a_licence.utils import get_dirty_form_data
 from authentication.mixins import LoginRequiredMixin
+from core.forms.base_forms import BaseForm, BaseModelForm
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from django import forms
 from django.conf import settings
@@ -30,6 +31,9 @@ class BaseFormView(BaseView, FormView):
 
     # do we want to redirect the user to the redirect_to query parameter page after this form is submitted?
     redirect_after_post = True
+
+    # do we want to redirect the user to the next step with query parameters?
+    redirect_with_query_parameters = True
 
     @property
     def step_name(self) -> str:
@@ -77,7 +81,7 @@ class BaseFormView(BaseView, FormView):
 
     def form_valid(self, form):
         # we want to assign the form to the view ,so we can access it in the get_success_url method
-        self.form = form
+        self.form: BaseForm = form
 
         # we want to store the dirty form data in the session, so we can access it later on
         form_data = dict(form.data.copy())
@@ -100,15 +104,14 @@ class BaseFormView(BaseView, FormView):
                 if key in form_data and form_data[key] != value:
                     self.changed_fields[key] = value
 
-        if self.form.save_and_return:
-            self.instance = self.form.save()
-
         # now keep it in the session
         self.request.session[self.step_name] = form_data
 
         # get the success_url as this might change the value of redirect_after_post to avoid duplicating conditional
         # logic in the get_success_url method
         success_url = self.get_success_url()
+        if self.redirect_with_query_parameters:
+            success_url = self.add_query_parameters_to_url(success_url)
 
         # figure out if we want to redirect after form is submitted
         redirect_to_url = self.request.GET.get("redirect_to_url", None) or self.request.session.pop("redirect_to_url", None)
@@ -123,12 +126,38 @@ class BaseFormView(BaseView, FormView):
 
         return HttpResponseRedirect(success_url)
 
+    def add_query_parameters_to_url(self, success_url: str) -> str:
+        """Add GET query parameters to the success URL so they're retained."""
+        if get_parameters := self.request.GET.urlencode():
+            success_url += "?" + get_parameters
+        return success_url
+
     def form_invalid(self, form):
         # debugging purposes so we can put breakpoints here
         return super().form_invalid(form)
 
+    def get_current_licence_object(self) -> Licence:
+        licence_id = self.request.session["licence_id"]
+        licence = get_object_or_404(Licence, pk=licence_id)
+        assert licence.user == self.request.user
+        return licence
 
-class BaseLicenceFormView(BaseFormView):
+
+class BaseModelFormView(BaseFormView):
+    def form_valid(self, form):
+        self.form: BaseModelForm = form
+        self.instance = self.form.save()
+        return super().form_valid(form)
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.GET.get("update", None) == "yes":
+            self.update = True
+        else:
+            self.update = False
+        return super().dispatch(request, *args, **kwargs)
+
+
+class BaseLicenceFormView(BaseModelFormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         licence_id = self.request.session["licence_id"]
@@ -140,7 +169,7 @@ class BaseLicenceFormView(BaseFormView):
         return kwargs
 
 
-class BaseOrganisationFormView(BaseFormView):
+class BaseOrganisationFormView(BaseModelFormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         organisation_id = self.kwargs.get("business_uuid")
@@ -153,7 +182,20 @@ class BaseOrganisationFormView(BaseFormView):
         return kwargs
 
 
-class BaseIndividualFormView(BaseFormView):
+class BaseRecipientFormView(BaseModelFormView):
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        recipient_id = self.kwargs.get("recipient_uuid")
+        licence_id = self.request.session["licence_id"]
+        licence_object = get_object_or_404(Licence, pk=licence_id)
+        instance = Organisation.objects.get(
+            pk=recipient_id, licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.recipient
+        )
+        kwargs["instance"] = instance
+        return kwargs
+
+
+class BaseIndividualFormView(BaseModelFormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         individual_id = self.kwargs.get("individual_uuid")

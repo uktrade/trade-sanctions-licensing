@@ -17,17 +17,7 @@ class Migration(migrations.Migration):
             field=models.UUIDField(default=uuid.uuid4, unique=True),
         ),
         migrations.AlterField(
-            model_name="historicalorganisation",
-            name="uuid",
-            field=models.UUIDField(default=uuid.uuid4, unique=True),
-        ),
-        migrations.AlterField(
             model_name="individual",
-            name="uuid",
-            field=models.UUIDField(default=uuid.uuid4, unique=True),
-        ),
-        migrations.AlterField(
-            model_name="historicalindividual",
             name="uuid",
             field=models.UUIDField(default=uuid.uuid4, unique=True),
         ),

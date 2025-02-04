@@ -35,7 +35,7 @@ class Licence(BaseModel):
     professional_or_business_services = ArrayField(
         models.CharField(choices=choices.ProfessionalOrBusinessServicesChoices.choices), null=True
     )
-    service_activities = models.TextField()
+    service_activities = models.TextField(blank=True, null=True)
     description_provision = models.TextField(blank=True, null=True)
     purpose_of_provision = models.TextField(blank=True, null=True)
     held_existing_licence = models.CharField(
@@ -142,6 +142,9 @@ class AddressMixin(models.Model):
     country = CountryField(blank_label="Select country", blank=True, null=True)
     town_or_city = models.CharField(max_length=250, blank=True, null=True)
     county = models.CharField(max_length=250, null=True, blank=True)
+    where_is_the_address = models.CharField(
+        max_length=20, blank=False, null=True, choices=choices.WhereIsTheAddressChoices.choices
+    )
 
     class Meta:
         abstract = True
@@ -152,6 +155,9 @@ class AddressMixin(models.Model):
 
 
 class Organisation(BaseModelID, AddressMixin):
+    class Meta:
+        ordering = ["created_at"]
+
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="organisations")
     # two name fields required for the case of recipients
     name = models.CharField(null=True, blank=True)
@@ -181,15 +187,25 @@ class Organisation(BaseModelID, AddressMixin):
         blank=True, null=True, db_comment="what is the relationship between the provider and the recipient?"
     )
 
-    class Meta:
-        ordering = ["created_at"]
-
     def readable_address(self) -> str:
         """If we have registered_office_address, use that instead of the address fields"""
         if self.registered_office_address:
             return self.registered_office_address
         else:
             return super().readable_address()
+
+    def clear_address_data(self) -> None:
+        """Clears the address data on the model instance"""
+        self.address_line_1 = None
+        self.address_line_2 = None
+        self.address_line_3 = None
+        self.address_line_4 = None
+        self.postcode = None
+        self.country = None
+        self.town_or_city = None
+        self.county = None
+        self.where_is_the_address = None
+        self.save()
 
 
 class Individual(BaseModelID, AddressMixin):
