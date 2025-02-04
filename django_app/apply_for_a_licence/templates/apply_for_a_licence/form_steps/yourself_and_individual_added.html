@@ -11,9 +11,8 @@
             <h2 class="govuk-heading-m" style="float:left;">Your details </h2>
             <ul class="govuk-summary-card__actions">
                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
-
                     <a class="govuk-link" style="font-size: 19px; text-align:right"
-                       href="{% url 'add_yourself' %}">Change<span
+                       href="{% url 'add_yourself' yourself.id %}">Change<span
                         class="govuk-visually-hidden"> your details </span></a>
                 </dd>
             </ul>

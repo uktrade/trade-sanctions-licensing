@@ -1,27 +1,27 @@
 from apply_for_a_licence import choices
 from apply_for_a_licence.models import Licence
-from apply_for_a_licence.utils import get_cleaned_data_for_step
 from core.crispy_fields import get_field_with_label_id
-from core.forms.base_forms import BaseForm, BaseModelForm
+from core.forms.base_forms import BaseModelForm
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from django import forms
 
 
-class LicensingGroundsForm(BaseForm):
-    licensing_grounds = forms.MultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple,
-        choices=choices.LicensingGroundsChoices.active_choices(),
-        required=True,
-        label="Select all that apply",
-        error_messages={
-            "invalid": "Select the licensing grounds or select I do not know",
-        },
-    )
-
+class LicensingGroundsForm(BaseModelForm):
     class Meta:
         model = Licence
         fields = ["licensing_grounds"]
+        widgets = {
+            "licensing_grounds": forms.CheckboxSelectMultiple,
+        }
+        labels = {
+            "licensing_grounds": "Select all that apply",
+        }
+        error_messages = {
+            "licensing_grounds": {
+                "invalid": "Select the licensing grounds or select I do not know",
+            },
+        }
 
     class Media:
         js = ["apply_for_a_licence/javascript/licensing_grounds.js"]
@@ -30,7 +30,7 @@ class LicensingGroundsForm(BaseForm):
         super().__init__(*args, **kwargs)
         services = self.get_services()
         error_messages = self.fields["licensing_grounds"].error_messages
-        self.checkbox_choices = self.fields["licensing_grounds"].choices
+        self.checkbox_choices = choices.LicensingGroundsChoices.active_choices()
         # Create the 'or' divider between the last choice and I do not know
         last_actual_licensing_ground_value = self.checkbox_choices[-3][0]
         last_actual_licensing_ground_label = self.checkbox_choices[-3][1]
@@ -60,16 +60,7 @@ class LicensingGroundsForm(BaseForm):
             }
 
     def get_services(self):
-        return get_cleaned_data_for_step(self.request, "professional_or_business_services").get(
-            "professional_or_business_services", []
-        )
-
-    def get_licensing_grounds_display(self):
-        display = []
-        for licensing_ground in self.cleaned_data["licensing_grounds"]:
-            display += [dict(self.fields["licensing_grounds"].choices)[licensing_ground]]
-        display = ",\n\n".join(display)
-        return display
+        return self.instance.professional_or_business_services
 
 
 class LicensingGroundsLegalAdvisoryForm(LicensingGroundsForm):

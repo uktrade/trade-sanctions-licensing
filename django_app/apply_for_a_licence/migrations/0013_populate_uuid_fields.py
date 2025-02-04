@@ -9,11 +9,11 @@ def generate_uuid(apps, schema_editor):
     Individual = apps.get_model("apply_for_a_licence", "Individual")
     for row in Organisation.objects.all():
         row.uuid = uuid.uuid4()
-        row.save(update_fields=["uuid"])
+        row.save()
 
     for row in Individual.objects.all():
         row.uuid = uuid.uuid4()
-        row.save(update_fields=["uuid"])
+        row.save()
 
 
 class Migration(migrations.Migration):

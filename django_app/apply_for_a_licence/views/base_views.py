@@ -1,9 +1,11 @@
 from typing import Any
 
-from apply_for_a_licence.models import Licence
+from apply_for_a_licence.models import Organisation
 from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import BaseForm
-from core.views.base_views import BaseFormView
+from core.utils import get_licence_object
+from core.views.base_views import BaseFormView, BaseSaveAndReturnFormView
+from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import Http404, redirect
 from django.urls import reverse_lazy
@@ -134,11 +136,20 @@ class DeleteAnEntitySaveAndReturnView(LoginRequiredMixin, DeleteView):
     form_class = BaseForm
 
     def form_valid(self, form):
-        licence_id = self.request.session["licence_id"]
-        licence_object = Licence.objects.get(pk=licence_id)
+        licence_object = get_licence_object(self.request)
         entities = self.model.objects.filter(licence=licence_object)
 
         if self.allow_zero_entities or len(entities) > 1:
             return super().form_valid(form)
         else:
             raise Http404()
+
+
+class SaveAndReturnEntityAddedView(BaseSaveAndReturnFormView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["entities"] = self.get_all_entities()
+        return context
+
+    def get_all_organisations(self) -> QuerySet[Organisation]:
+        return self.get_all_objects().filter(type_of_relationship="business")

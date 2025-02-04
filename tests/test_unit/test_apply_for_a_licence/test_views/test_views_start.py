@@ -27,7 +27,7 @@ class TestStartView:
         assert response.status_code == 302
         licence_response = Licence.objects.get(pk=licence.id)
         assert licence_response.who_do_you_want_the_licence_to_cover == "myself"
-        assert response.url == reverse("add_yourself")
+        assert "your-name-nationality-location" in response.url
 
     def test_post_business(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(user=test_apply_user)

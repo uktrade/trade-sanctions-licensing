@@ -26,7 +26,7 @@ def test_private_urls_false(settings, authenticated_al_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("add_yourself")
+    assert "your-name-nationality-location" in response.url
 
     # assert view urls return 404 not found
     response = authenticated_al_client.get("/view/")
@@ -46,7 +46,7 @@ def test_private_urls_true(settings, authenticated_al_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("add_yourself")
+    assert "your-name-nationality-location" in response.url
 
     # assert view urls return 403 forbidden
     response = authenticated_al_client.get("/view/")

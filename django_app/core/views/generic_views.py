@@ -1,8 +1,11 @@
+from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from core.utils import update_last_activity_session_timestamp
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView, TemplateView
+from django_ratelimit.exceptions import Ratelimited
 
 
 class ResetSessionView(View):
@@ -36,3 +39,19 @@ class SessionExpiredView(TemplateView):
         # the session should already be empty by definition but just in case, manually clear
         request.session.flush()
         return super().get(request, *args, **kwargs)
+
+
+def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpResponse:
+    return HttpResponse("You have made too many", status=429)
+
+
+class RedirectBaseDomainView(RedirectView):
+    """Redirects base url visits to either apply-for-a-licence or view-a-licence default view"""
+
+    @property
+    def url(self) -> str:
+        if is_apply_for_a_licence_site(self.request.site):
+            return reverse("dashboard")
+        elif is_view_a_licence_site(self.request.site):
+            return reverse("view_a_licence:application_list")
+        return ""

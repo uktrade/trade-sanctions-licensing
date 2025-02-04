@@ -160,11 +160,11 @@ class Organisation(BaseModelID, AddressMixin):
 
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="organisations")
     # two name fields required for the case of recipients
-    name = models.CharField(null=True, blank=True)
+    name = models.CharField(null=True, blank=False)
     website = models.URLField(null=True, blank=True)
-    do_you_know_the_registered_company_number = models.CharField(choices=choices.YesNoChoices.choices, blank=True, null=True)
+    do_you_know_the_registered_company_number = models.CharField(choices=choices.YesNoChoices.choices, blank=False, null=True)
     business_registered_on_companies_house = models.CharField(
-        choices=choices.YesNoDoNotKnowChoices.choices, max_length=11, blank=True, null=True
+        choices=choices.YesNoDoNotKnowChoices.choices, max_length=11, blank=False, null=True
     )
     registered_company_number = models.CharField(max_length=15, blank=True, null=True)
     registered_office_address = models.CharField(null=True, blank=True)

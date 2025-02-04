@@ -6,11 +6,20 @@ from apply_for_a_licence.choices import TypeOfRelationshipChoices, TypeOfService
 from apply_for_a_licence.forms import forms_recipients as forms
 from apply_for_a_licence.models import Organisation
 from apply_for_a_licence.views.base_views import DeleteAnEntityView
-from core.views.base_views import BaseFormView, BaseRecipientFormView
+from core.views.base_views import (
+    BaseSaveAndReturnEntityModelFormView,
+    BaseSaveAndReturnFormView,
+)
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 
 logger = logging.getLogger(__name__)
+
+
+class BaseRecipientFormView(BaseSaveAndReturnEntityModelFormView):
+    pk_url_kwarg = "recipient_uuid"
+    model = Organisation
+    context_object_name = "recipient"
 
 
 class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
@@ -18,13 +27,12 @@ class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
     redirect_after_post = False
 
     def dispatch(self, request, *args, **kwargs):
-        if self.kwargs.get("recipient_uuid", ""):
-            if not Organisation.objects.filter(pk=self.kwargs["recipient_uuid"]).exists():
+        if self.kwargs.get(self.pk_url_kwarg, ""):
+            if not Organisation.objects.filter(pk=self.kwargs[self.pk_url_kwarg]).exists():
                 # let's create a new recipient if it doesn't exist
-                licence_object = self.get_current_licence_object()
                 Organisation.objects.create(
-                    pk=self.kwargs["recipient_uuid"],
-                    licence=licence_object,
+                    pk=self.kwargs[self.pk_url_kwarg],
+                    licence=self.licence_object,
                     type_of_relationship=TypeOfRelationshipChoices.recipient.value,
                 )
 
@@ -58,14 +66,15 @@ class AddARecipientView(BaseRecipientFormView):
         return success_url
 
 
-class RecipientAddedView(BaseFormView):
+class RecipientAddedView(BaseSaveAndReturnFormView):
     form_class = forms.RecipientAddedForm
     template_name = "apply_for_a_licence/form_steps/recipient_added.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        licence = self.get_current_licence_object()
-        context["recipients"] = licence.organisations.filter(type_of_relationship=TypeOfRelationshipChoices.recipient.value)
+        context["recipients"] = Organisation.objects.filter(
+            licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.recipient.value
+        )
         return context
 
     def get_success_url(self) -> str:
@@ -73,8 +82,7 @@ class RecipientAddedView(BaseFormView):
         if add_recipient:
             success_url = reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()}) + "?new=yes"
         else:
-            licence = self.get_current_licence_object()
-            if licence.type_of_service == TypeOfServicesChoices.professional_and_business.value:
+            if self.licence_object.type_of_service == TypeOfServicesChoices.professional_and_business.value:
                 success_url = reverse("licensing_grounds")
             else:
                 success_url = reverse("purpose_of_provision")
@@ -88,6 +96,6 @@ class DeleteRecipientView(DeleteAnEntityView):
     url_parameter_key = "recipient_uuid"
 
 
-class RelationshipProviderRecipientView(BaseRecipientFormView):
+class RelationshipProviderRecipientView(BaseSaveAndReturnFormView):
     form_class = forms.RelationshipProviderRecipientForm
     success_url = reverse_lazy("recipient_added")

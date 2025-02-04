@@ -3,13 +3,13 @@ import uuid
 
 from apply_for_a_licence.choices import TypeOfServicesChoices
 from apply_for_a_licence.forms import forms_services as forms
-from core.views.base_views import BaseLicenceFormView
+from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
 from django.urls import reverse, reverse_lazy
 
 logger = logging.getLogger(__name__)
 
 
-class TypeOfServiceView(BaseLicenceFormView):
+class TypeOfServiceView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.TypeOfServiceForm
 
     def get_success_url(self) -> str:
@@ -29,7 +29,7 @@ class TypeOfServiceView(BaseLicenceFormView):
         return success_url
 
 
-class ProfessionalOrBusinessServicesView(BaseLicenceFormView):
+class ProfessionalOrBusinessServicesView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.ProfessionalOrBusinessServicesForm
     success_url = reverse_lazy("service_activities")
 
@@ -53,7 +53,7 @@ class ProfessionalOrBusinessServicesView(BaseLicenceFormView):
         return super().form_valid(form)
 
 
-class WhichSanctionsRegimeView(BaseLicenceFormView):
+class WhichSanctionsRegimeView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.WhichSanctionsRegimeForm
     success_url = reverse_lazy("service_activities")
 
@@ -64,7 +64,7 @@ class WhichSanctionsRegimeView(BaseLicenceFormView):
         return True
 
 
-class ServiceActivitiesView(BaseLicenceFormView):
+class ServiceActivitiesView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.ServiceActivitiesForm
 
     @property
