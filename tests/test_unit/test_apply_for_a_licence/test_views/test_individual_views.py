@@ -36,7 +36,7 @@ class TestDeleteIndividualView:
         assert individual2 in all_individuals
 
         response = authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"pk": individual2.id}),
+            reverse("delete_individual", kwargs={"individual_uuid": individual2.id}),
         )
         all_individuals = Individual.objects.filter(licence=individual_licence)
         assert individual1 in all_individuals
@@ -53,14 +53,14 @@ class TestDeleteIndividualView:
         assert individual2 in all_individuals
         assert individual3 in all_individuals
         authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"pk": individual1.id}),
+            reverse("delete_individual", kwargs={"individual_uuid": individual1.id}),
         )
         authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"pk": individual2.id}),
+            reverse("delete_individual", kwargs={"individual_uuid": individual2.id}),
         )
         # does not delete last individual
         response = authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"pk": individual3.id}),
+            reverse("delete_individual", kwargs={"individual_uuid": individual3.id}),
         )
         all_individuals = Individual.objects.filter(licence=individual_licence)
         assert len(all_individuals) == 1
@@ -78,7 +78,7 @@ class TestDeleteIndividualView:
         assert individual2 in all_individuals
         assert individual3 in all_individuals
         response = authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"pk": uuid.uuid4()}),
+            reverse("delete_individual", kwargs={"individual_uuid": uuid.uuid4()}),
         )
         all_individuals = Individual.objects.filter(licence=individual_licence)
         assert len(all_individuals) == 3
