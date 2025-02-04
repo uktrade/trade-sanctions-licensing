@@ -4,15 +4,19 @@ from copy import deepcopy
 import pytest
 from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
 from core.forms.base_forms import BaseForm
-from core.urls import urlpatterns
 from django import forms
 from django.urls import path, reverse
 
+from tests.helpers import reload_urlconf
 
-@pytest.fixture(autouse=True)
+
+@pytest.fixture(autouse=True, scope="function")
 def setup_urls():
     # we do the setup for both of these tests here as we can only touch urlpatterns once per file,
     # it's all a bit hacky but coverage is coverage.
+
+    reload_urlconf()
+    from core.urls import urlpatterns
 
     # first cloning the classes to stop it affecting other tests.
     TestAddAnEntityView = deepcopy(AddAnEntityView)
@@ -43,6 +47,7 @@ def setup_urls():
     yield
     urlpatterns.pop()
     urlpatterns.pop()
+    reload_urlconf()
 
 
 class ThingForm(BaseForm):

@@ -18,6 +18,7 @@ import sentry_sdk
 from authentication.config import OneLoginConfig
 from config.env import env
 from django.conf.locale.en import formats as en_formats
+from django.urls import reverse_lazy
 from sentry_sdk.integrations.django import DjangoIntegration
 
 is_dbt_platform = "COPILOT_ENVIRONMENT_NAME" in os.environ
@@ -258,6 +259,8 @@ GOV_UK_ONE_LOGIN_CLIENT_ID = env.gov_uk_one_login_client_id
 GOV_UK_ONE_LOGIN_CLIENT_SECRET = env.gov_uk_one_login_client_secret
 GOV_UK_ONE_LOGIN_CONFIG = OneLoginConfig
 GOV_UK_ONE_LOGIN_ENABLED = False
+
+LOGIN_REDIRECT_URL = reverse_lazy("initial_redirect_view")
 
 TRUNCATE_WORDS_LIMIT = 30
 

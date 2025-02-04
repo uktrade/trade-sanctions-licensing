@@ -16,11 +16,11 @@ from tests.helpers import get_test_client
 @pytest.fixture()
 def test_apply_user(db) -> User:
     user, _ = User.objects.get_or_create(
-        email="apply_test_user@example.com",
+        username="urn:fdc:test_apply_user",
         defaults={
-            "username": "urn:fdc:test_apply_user",
             "first_name": "Test",
             "last_name": "User",
+            "email": "apply_test_user@example.com",
             "is_active": True,
             "is_staff": False,
             "password": "test",
@@ -93,6 +93,7 @@ def request_object(authenticated_al_client: Client, test_apply_user: User):
     request_object.user = test_apply_user
     request_object.GET = {}
     request_object.POST = {}
+    request_object.META = {}
     return request_object
 
 

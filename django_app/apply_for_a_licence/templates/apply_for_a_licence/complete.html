@@ -1,4 +1,4 @@
-{% extends "core/base.html" %}
+{% extends "core/base_logged_in_template.html" %}
 
 {% block title %}
     Complete
@@ -21,7 +21,7 @@
         <p class="govuk-body">We have sent you a confirmation email.</p>
     {% endif %}
     <p class="govuk-body hide-on-js-disabled show-on-js-enabled hide-on-print">
-        <a class="govuk-link" onclick="window.print()" href=#>View and print your application</a>
+        <a class="govuk-link" onclick="window.print()" href=#>Print this screen</a>
         <p class="govuk-body">
 		{% comment %}
 		    TODO: remove comments and update dummy template when DST-798 is complete

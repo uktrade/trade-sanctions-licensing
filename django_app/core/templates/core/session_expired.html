@@ -2,14 +2,13 @@
 
 {% block back_button %}{% endblock back_button %}
 
-{% block title %}Your application has been deleted{% endblock title %}
+{% block title %}You've been signed out{% endblock title %}
 
 {% block column_content %}
-    <h1 class="govuk-heading-l">Your application has been deleted</h1>
-    <p class="govuk-body">We've deleted your application because you were inactive for {{ SESSION_EXPIRY_MINUTES }}
-        minutes.</p>
-    <p class="govuk-body">This is to protect your information.</p>
-    <p class="govuk-body">You'll need to start again.</p>
+    <h1 class="govuk-heading-l">You've been signed out</h1>
+    <p class="govuk-body">We've signed you out because you were inactive for {{ SESSION_EXPIRY_MINUTES }} minutes.</p>
+    <p class="govuk-body">Any information you did not save has been deleted for your security.</p>
+    <p class="govuk-body">To continue your application, you'll need to sign in again.</p>
 
-    <a class="govuk-button" href="{% url 'initial_redirect_view' %}" data-testid="start_again_button">Start again</a>
+    <a class="govuk-button" href="{% url 'authentication:login' %}" data-testid="sign_in_link">Sign in</a>
 {% endblock column_content %}

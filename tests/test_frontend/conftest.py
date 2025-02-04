@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import override_settings
 from django.test.testcases import LiveServerTestCase
+from django.urls import reverse
 from django_chunk_upload_handlers.clam_av import VirusFoundInFileException
 from playwright.sync_api import Page, expect, sync_playwright
 from utils import notifier
@@ -109,8 +110,7 @@ class PlaywrightTestBase(LiveServerTestCase):
         if not submitter_reference:
             submitter_reference = "test-submitter-reference"
 
-        self.page.goto(self.base_url)
-        self.page.get_by_role("link", name="Start a new application").click()
+        self.go_to_path(reverse("submitter_reference"))
         self.page.get_by_label("Your application name").click()
         self.page.get_by_label("Your application name").fill(submitter_reference)
         self.page.get_by_role("button", name="Save and continue").click()

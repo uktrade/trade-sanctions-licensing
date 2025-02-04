@@ -23,8 +23,10 @@ class FeedbackForm(BaseModelForm):
         model = FeedbackItem
         fields = ("rating", "did_you_experience_any_issues", "how_we_could_improve_the_service", "user_name", "user_email")
         labels = {
-            "how_we_could_improve_the_service": "How could we improve the service?",
+            "how_we_could_improve_the_service": "How could we improve the service? (optional)",
             "rating": "Overall, how satisfied did you feel with using this service?",
+            "user_name": "Your name (optional)",
+            "user_email": "Your email address (optional)",
         }
         widgets = {
             "rating": forms.RadioSelect,
