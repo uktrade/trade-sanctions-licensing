@@ -40,7 +40,7 @@
             </div>
             {% if recipients|length > 1 %}
                 <form id="delete_recipient_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                      action="{% url 'delete_recipient' %}?recipient_uuid={{ recipient.pk }}">
+                      action="{% url 'delete_recipient' recipient_uuid=recipient.pk %}">
                     <input type="hidden" name="recipient_uuid" value="{{ recipient.pk }}">
                     {% csrf_token %}
                     <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_recipient_form_{{ forloop.counter }}">

@@ -5,18 +5,15 @@ from typing import Type
 from apply_for_a_licence.choices import TypeOfRelationshipChoices, TypeOfServicesChoices
 from apply_for_a_licence.forms import forms_recipients as forms
 from apply_for_a_licence.models import Organisation
-from apply_for_a_licence.views.base_views import DeleteAnEntityView
-from core.views.base_views import (
-    BaseSaveAndReturnEntityModelFormView,
-    BaseSaveAndReturnFormView,
-)
+from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
+from core.views.base_views import BaseSaveAndReturnFormView
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 
 logger = logging.getLogger(__name__)
 
 
-class BaseRecipientFormView(BaseSaveAndReturnEntityModelFormView):
+class BaseRecipientFormView(AddAnEntityView):
     pk_url_kwarg = "recipient_uuid"
     model = Organisation
     context_object_name = "recipient"
@@ -26,19 +23,23 @@ class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
     form_class = forms.WhereIsTheRecipientLocatedForm
     redirect_after_post = False
 
-    def dispatch(self, request, *args, **kwargs):
-        if self.kwargs.get(self.pk_url_kwarg, ""):
-            if not Organisation.objects.filter(pk=self.kwargs[self.pk_url_kwarg]).exists():
-                # let's create a new recipient if it doesn't exist
-                Organisation.objects.create(
-                    pk=self.kwargs[self.pk_url_kwarg],
-                    licence=self.licence_object,
-                    type_of_relationship=TypeOfRelationshipChoices.recipient.value,
-                )
+    @property
+    def object(self) -> Organisation:
+        # let's create a new recipient if it doesn't exist
+        instance, _ = Organisation.objects.get_or_create(
+            pk=self.kwargs[self.pk_url_kwarg],
+            defaults={
+                "licence": self.licence_object,
+                "type_of_relationship": TypeOfRelationshipChoices.recipient.value,
+            },
+        )
+        return instance
 
-            return super().dispatch(request, *args, **kwargs)
-        else:
+    def dispatch(self, request, *args, **kwargs):
+        if not self.kwargs.get(self.pk_url_kwarg, ""):
+            # if they've entered here via CYA 'add new recipient', we need to come up with one
             return redirect(reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()}))
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         if form.has_field_changed("where_is_the_address"):
@@ -92,8 +93,8 @@ class RecipientAddedView(BaseSaveAndReturnFormView):
 
 class DeleteRecipientView(DeleteAnEntityView):
     success_url = reverse_lazy("recipient_added")
-    session_key = "recipients"
-    url_parameter_key = "recipient_uuid"
+    model = Organisation
+    pk_url_kwarg = "recipient_uuid"
 
 
 class RelationshipProviderRecipientView(BaseSaveAndReturnFormView):

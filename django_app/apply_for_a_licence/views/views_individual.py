@@ -1,7 +1,6 @@
 import logging
-import urllib.parse
 import uuid
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 from apply_for_a_licence.choices import (
     NationalityAndLocation,
@@ -10,9 +9,11 @@ from apply_for_a_licence.choices import (
 )
 from apply_for_a_licence.forms import forms_individual as forms
 from apply_for_a_licence.models import Individual, Organisation
-from apply_for_a_licence.views.base_views import DeleteAnEntitySaveAndReturnView
-from core.utils import get_licence_object
-from core.views.base_views import BaseFormView, BaseSaveAndReturnEntityModelFormView
+from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
+from core.views.base_views import (
+    BaseSaveAndReturnFormView,
+    BaseSaveAndReturnModelFormView,
+)
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -21,26 +22,19 @@ from django.urls import reverse, reverse_lazy
 logger = logging.getLogger(__name__)
 
 
-class BaseIndividualFormView(BaseSaveAndReturnEntityModelFormView):
+class BaseIndividualFormView(AddAnEntityView):
     pk_url_kwarg = "individual_uuid"
     model = Individual
-
-    def get_all_individuals(self) -> QuerySet[Individual]:
-        return self.get_all_child_objects()
+    context_object_name = "individuals"
 
 
-class AddAnIndividualView(BaseFormView):
+class AddAnIndividualView(BaseIndividualFormView):
     form_class = forms.AddAnIndividualForm
     redirect_after_post = False
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        individual_id = self.kwargs.get("individual_uuid")
-        licence_object = get_licence_object(self.request)
-        # get_or_create returns tuple
-        instance, _ = Individual.objects.get_or_create(pk=individual_id, licence=licence_object)
-        kwargs["instance"] = instance
-        return kwargs
+    def dispatch(self, request, *args, **kwargs):
+        Individual.objects.get_or_create(pk=self.kwargs["individual_uuid"], defaults={"licence": self.licence_object})
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form: forms.AddAnIndividualForm) -> HttpResponse:
         # is it a UK address?
@@ -59,12 +53,10 @@ class AddAnIndividualView(BaseFormView):
                 "individual_uuid": self.kwargs.get("individual_uuid"),
             },
         )
-        if get_parameters := urllib.parse.urlencode(self.request.GET):
-            success_url += "?" + get_parameters
         return success_url
 
 
-class DeleteIndividualView(DeleteAnEntitySaveAndReturnView):
+class DeleteIndividualView(DeleteAnEntityView):
     model = Individual
     success_url = reverse_lazy("individual_added")
 
@@ -75,7 +67,7 @@ class WhatIsIndividualsAddressView(BaseIndividualFormView):
         self.location = kwargs["location"]
         return super().setup(request, *args, **kwargs)
 
-    def get_form_class(self) -> forms.IndividualUKAddressForm | forms.IndividualNonUKAddressForm:
+    def get_form_class(self) -> Type[forms.IndividualUKAddressForm | forms.IndividualNonUKAddressForm]:
         if self.location == "in-uk":
             form_class = forms.IndividualUKAddressForm
         else:
@@ -90,19 +82,20 @@ class WhatIsIndividualsAddressView(BaseIndividualFormView):
 
     def get_success_url(self):
         success_url = reverse("individual_added")
-        licence_object = get_licence_object(self.request)
-        if licence_object.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.myself:
+        if self.licence_object.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.myself:
             success_url = reverse("yourself_and_individual_added")
         return success_url
 
 
-class IndividualAddedView(BaseFormView):
+class IndividualAddedView(BaseSaveAndReturnFormView):
     form_class = forms.IndividualAddedForm
     template_name = "apply_for_a_licence/form_steps/individual_added.html"
 
+    def get_all_individuals(self) -> QuerySet[Individual]:
+        return Individual.objects.filter(licence=self.licence_object)
+
     def dispatch(self, request, *args, **kwargs):
-        licence_object = get_licence_object(self.request)
-        individuals = Individual.objects.filter(licence=licence_object)
+        individuals = self.get_all_individuals()
         if len(individuals) > 0:
             # only allow access to this page if an individual has been added
             return super().dispatch(request, *args, **kwargs)
@@ -111,8 +104,7 @@ class IndividualAddedView(BaseFormView):
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        licence_object = get_licence_object(self.request)
-        context["individuals"] = Individual.objects.filter(licence=licence_object)
+        context["individuals"] = self.get_all_individuals()
         return context
 
     def get_success_url(self):
@@ -123,21 +115,24 @@ class IndividualAddedView(BaseFormView):
             return reverse("previous_licence")
 
 
-class BusinessEmployingIndividualView(BaseFormView):
+class BusinessEmployingIndividualView(BaseSaveAndReturnModelFormView):
     form_class = forms.BusinessEmployingIndividualForm
     success_url = reverse_lazy("type_of_service")
 
+    @property
+    def object(self) -> Organisation:
+        instance, _ = Organisation.objects.get_or_create(
+            licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.named_individuals
+        )
+        return instance
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        licence_object = get_licence_object(self.request)
-        individuals = Individual.objects.filter(licence=licence_object)
-        instance, _ = Organisation.objects.get_or_create(
-            licence=licence_object, type_of_relationship=TypeOfRelationshipChoices.named_individuals
-        )
-        if len(individuals) == 1:
+
+        if Individual.objects.filter(licence=self.licence_object).count() == 1:
             kwargs["form_h1_header"] = "Details of the business employing the individual"
         else:
             kwargs["form_h1_header"] = "Details of the business employing the individuals"
 
-        kwargs["instance"] = instance
+        kwargs["instance"] = self.object
         return kwargs

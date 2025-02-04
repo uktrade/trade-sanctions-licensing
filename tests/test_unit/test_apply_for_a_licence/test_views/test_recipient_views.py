@@ -150,8 +150,7 @@ class TestDeleteRecipientView:
         recipient_id = "recipient1"
         request.session.save()
         response = authenticated_al_client.post(
-            reverse("delete_recipient"),
-            data={"recipient_uuid": recipient_id},
+            reverse("delete_recipient", kwargs={"recipient_uuid": recipient_id}),
         )
         assert "recipient1" not in authenticated_al_client.session["recipients"].keys()
         assert authenticated_al_client.session["recipients"] != data.recipients
@@ -164,16 +163,13 @@ class TestDeleteRecipientView:
         request.session["recipients"] = data.recipients
         request.session.save()
         response = authenticated_al_client.post(
-            reverse("delete_recipient"),
-            data={"recipient_uuid": "recipient1"},
+            reverse("delete_recipient", kwargs={"recipient_uuid": "recipient1"}),
         )
         response = authenticated_al_client.post(
-            reverse("delete_recipient"),
-            data={"recipient_uuid": "recipient2"},
+            reverse("delete_recipient", kwargs={"recipient_uuid": "recipient2"}),
         )
         response = authenticated_al_client.post(
-            reverse("delete_recipient"),
-            data={"recipient_uuid": "recipient3"},
+            reverse("delete_recipient", kwargs={"recipient_uuid": "recipient3"}),
         )
         # does not delete last recipient
         assert len(authenticated_al_client.session["recipients"]) == 1
@@ -187,7 +183,7 @@ class TestDeleteRecipientView:
         request_object.session["recipients"] = data.recipients
         request_object.session.save()
         response = authenticated_al_client.post(
-            reverse("delete_recipient"),
+            reverse("delete_recipient", kwargs={"recipient_uuid": uuid.uuid4()}),
         )
         assert authenticated_al_client.session["recipients"] == data.recipients
         assert response.url == "/apply/add-recipient"

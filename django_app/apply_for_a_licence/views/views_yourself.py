@@ -6,7 +6,7 @@ from apply_for_a_licence.choices import NationalityAndLocation
 from apply_for_a_licence.forms import forms_individual as individual_forms
 from apply_for_a_licence.forms import forms_yourself as forms
 from apply_for_a_licence.models import Individual
-from apply_for_a_licence.views.base_views import DeleteAnEntitySaveAndReturnView
+from apply_for_a_licence.views.base_views import DeleteAnEntityView
 from apply_for_a_licence.views.views_individual import BaseIndividualFormView
 from core.utils import get_licence_object
 from core.views.base_views import BaseFormView
@@ -131,7 +131,7 @@ class YourselfAndIndividualAddedView(BaseFormView):
             return reverse("previous_licence")
 
 
-class DeleteIndividualFromYourselfView(DeleteAnEntitySaveAndReturnView):
+class DeleteIndividualFromYourselfView(DeleteAnEntityView):
     model = Individual
     success_url = reverse_lazy("yourself_and_individual_added")
     allow_zero_entities = True

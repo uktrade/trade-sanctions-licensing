@@ -7,71 +7,69 @@ from crispy_forms_gds.layout import Field, Fieldset, Layout
 from django import forms
 
 
-class LicensingGroundsForm(BaseModelForm):
-    class Meta:
-        model = Licence
-        fields = ["licensing_grounds"]
-        widgets = {
-            "licensing_grounds": forms.CheckboxSelectMultiple,
-        }
-        labels = {
-            "licensing_grounds": "Select all that apply",
-        }
-        error_messages = {
-            "licensing_grounds": {
-                "invalid": "Select the licensing grounds or select I do not know",
-            },
-        }
+class BaseLicensingGroundsForm(BaseModelForm):
+    field_name: str | None = None
 
     class Media:
         js = ["apply_for_a_licence/javascript/licensing_grounds.js"]
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        services = self.get_services()
-        error_messages = self.fields["licensing_grounds"].error_messages
+
+        # setting the labels and widgets
+        self.fields[self.field_name].label = "Select all that apply"
+
         self.checkbox_choices = choices.LicensingGroundsChoices.active_choices()
         # Create the 'or' divider between the last choice and I do not know
         last_actual_licensing_ground_value = self.checkbox_choices[-3][0]
         last_actual_licensing_ground_label = self.checkbox_choices[-3][1]
+        assert last_actual_licensing_ground_value == choices.LicensingGroundsChoices.food.value
         self.checkbox_choices[-3] = Choice(
             value=last_actual_licensing_ground_value,
             label=last_actual_licensing_ground_label,
             divider="or",
         )
+        self.fields[self.field_name].choices = self.checkbox_choices
 
-        self.fields["licensing_grounds"].choices = self.checkbox_choices
-        self.helper.layout = Layout(
-            Fieldset(
-                get_field_with_label_id("licensing_grounds", field_method=Field.checkboxes, label_id="checkbox"),
-                aria_describedby="checkbox",
-            )
-        )
-
-        if "legal_advisory" in services:
-            self.fields["licensing_grounds"].error_messages = error_messages | {
+        if choices.ProfessionalOrBusinessServicesChoices.legal_advisory in self.instance.professional_or_business_services:
+            self.fields[self.field_name].error_messages = {
                 "required": "Select which licensing grounds describe the purpose of the relevant activity for which the legal "
                 "advice is being given, or select none of these, or select I do not know"
             }
         else:
-            self.fields["licensing_grounds"].error_messages = error_messages | {
+            self.fields[self.field_name].error_messages = {
                 "required": "Select which licensing grounds describe your purpose for providing"
                 " the sanctioned services, or select none of these, or select I do not know"
             }
 
-    def get_services(self):
-        return self.instance.professional_or_business_services
+        self.helper.layout = Layout(
+            Fieldset(
+                get_field_with_label_id(self.field_name, field_method=Field.checkboxes, label_id="checkbox"),
+                aria_describedby="checkbox",
+            )
+        )
 
 
-class LicensingGroundsLegalAdvisoryForm(LicensingGroundsForm):
-    def __init__(self, *args: object, **kwargs: object) -> None:
-        super().__init__(*args, **kwargs)
-        self.fields["licensing_grounds"].error_messages = self.fields["licensing_grounds"].error_messages | {
-            "required": "Select which licensing grounds describe your purpose for providing "
-            "the sanctioned services (excluding legal advisory), or select none of these, or select I do not know"
+class LicensingGroundsForm(BaseLicensingGroundsForm):
+    field_name = "licensing_grounds"
+
+    class Meta:
+        model = Licence
+        fields = ["licensing_grounds"]
+        widgets = {
+            "licensing_grounds": forms.CheckboxSelectMultiple,
         }
 
-        self.fields["licensing_grounds"].choices = self.checkbox_choices
+
+class LicensingGroundsLegalAdvisoryForm(BaseLicensingGroundsForm):
+    field_name = "licensing_grounds_legal_advisory"
+
+    class Meta(LicensingGroundsForm.Meta):
+        model = Licence
+        fields = ["licensing_grounds_legal_advisory"]
+        widgets = {
+            "licensing_grounds_legal_advisory": forms.CheckboxSelectMultiple,
+        }
 
 
 class PurposeOfProvisionForm(BaseModelForm):

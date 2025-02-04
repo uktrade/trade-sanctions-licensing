@@ -125,7 +125,7 @@ views_recipients_urls = [
         views_recipients.AddARecipientView.as_view(),
         name="add_a_recipient",
     ),
-    path("delete-recipient", views_recipients.DeleteRecipientView.as_view(), name="delete_recipient"),
+    path("delete-recipient/<uuid:recipient_uuid>", views_recipients.DeleteRecipientView.as_view(), name="delete_recipient"),
     path("add-recipient", views_recipients.RecipientAddedView.as_view(), name="recipient_added"),
     path(
         "provider-recipient-relationship/<str:recipient_uuid>",

@@ -1,12 +1,11 @@
 import datetime
 
-from apply_for_a_licence.models import Individual, Licence, Organisation
+from apply_for_a_licence.models import Licence
 from apply_for_a_licence.utils import get_dirty_form_data
 from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import BaseForm, BaseModelForm
 from django import forms
 from django.conf import settings
-from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -109,8 +108,6 @@ class BaseFormView(BaseView, FormView):
         # get the success_url as this might change the value of redirect_after_post to avoid duplicating conditional
         # logic in the get_success_url method
         success_url = self.get_success_url()
-        if self.redirect_with_query_parameters:
-            success_url = self.add_query_parameters_to_url(success_url)
 
         # figure out if we want to redirect after form is submitted
         redirect_to_url = self.request.GET.get("redirect_to_url", None) or self.request.session.pop("redirect_to_url", None)
@@ -235,36 +232,3 @@ class BaseSaveAndReturnLicenceModelFormView(BaseSaveAndReturnModelFormView):
         kwargs = super().get_form_kwargs()
         kwargs["instance"] = self.object
         return kwargs
-
-
-class BaseSaveAndReturnEntityModelFormView(BaseSaveAndReturnModelFormView):
-    @property
-    def pk_url_kwarg(self) -> str:
-        raise NotImplementedError("You need to implement the pk_url_kwarg property")
-
-    @property
-    def model(self):
-        raise NotImplementedError("You need to implement the model property")
-
-    @property
-    def object(self):
-        pk = self.kwargs[self.pk_url_kwarg]
-        child_object = self.model.objects.get(
-            pk=pk,
-            licence=self.licence_object,
-        )
-        return child_object
-
-    def get_all_objects(self) -> QuerySet[Organisation | Individual]:
-        return self.model.objects.filter(licence=self.licence_object)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["instance"] = self.object
-        return kwargs
-
-    def save_form(self, form):
-        instance = form.save(commit=False)
-        instance.licence = self.licence_object
-        instance.save()
-        return instance

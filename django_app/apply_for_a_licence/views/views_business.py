@@ -1,16 +1,12 @@
 import logging
-import urllib.parse
 import uuid
 from typing import Any, Dict
 
 from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.forms import forms_business as forms
 from apply_for_a_licence.models import Organisation
-from apply_for_a_licence.views.base_views import DeleteAnEntitySaveAndReturnView
-from core.views.base_views import (
-    BaseSaveAndReturnEntityModelFormView,
-    BaseSaveAndReturnFormView,
-)
+from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
+from core.views.base_views import BaseSaveAndReturnFormView
 from django.conf import settings
 from django.db.models import QuerySet
 from django.shortcuts import redirect
@@ -21,7 +17,7 @@ from django_ratelimit.decorators import ratelimit
 logger = logging.getLogger(__name__)
 
 
-class BaseBusinessModelFormView(BaseSaveAndReturnEntityModelFormView):
+class BaseBusinessModelFormView(AddAnEntityView):
     pk_url_kwarg = "business_uuid"
     model = Organisation
     context_object_name = "business"
@@ -47,14 +43,14 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
     form_class = forms.BusinessAddedForm
     template_name = "apply_for_a_licence/form_steps/business_added.html"
 
-    def get_all_objects(self) -> QuerySet[Organisation]:
+    def get_all_businesses(self) -> QuerySet[Organisation]:
         return Organisation.objects.filter(
             type_of_relationship=TypeOfRelationshipChoices.business,
             licence=self.licence_object,
         )
 
     def dispatch(self, request, *args, **kwargs):
-        businesses = self.get_all_objects()
+        businesses = self.get_all_businesses()
         if len(businesses) > 0:
             # only allow access to this page if a business has been added
             return super().dispatch(request, *args, **kwargs)
@@ -72,11 +68,11 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["businesses"] = self.get_all_objects()
+        context["businesses"] = self.get_all_businesses()
         return context
 
 
-class DeleteBusinessView(DeleteAnEntitySaveAndReturnView):
+class DeleteBusinessView(DeleteAnEntityView):
     model = Organisation
     success_url = reverse_lazy("business_added")
 
@@ -85,15 +81,17 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
     form_class = forms.IsTheBusinessRegisteredWithCompaniesHouseForm
     redirect_after_post = False
 
-    def dispatch(self, request, *args, **kwargs):
-        if self.kwargs.get("business_uuid", ""):
-            if not Organisation.objects.filter(pk=self.kwargs["business_uuid"]).exists():
-                Organisation.objects.create(
-                    pk=self.kwargs["business_uuid"],
-                    licence=self.licence_object,
-                    type_of_relationship=TypeOfRelationshipChoices.business,
-                )
-            return super().dispatch(request, *args, **kwargs)
+    @property
+    def object(self) -> Organisation:
+        # let's create a new business if it doesn't exist
+        instance, _ = Organisation.objects.get_or_create(
+            pk=self.kwargs[self.pk_url_kwarg],
+            defaults={
+                "licence": self.licence_object,
+                "type_of_relationship": TypeOfRelationshipChoices.business,
+            },
+        )
+        return instance
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["business_registered_on_companies_house"]
@@ -124,8 +122,6 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseBusinessModelFormView):
         else:
             success_url = reverse("where_is_the_business_located", kwargs={"business_uuid": self.kwargs.get("business_uuid")})
 
-        if get_parameters := urllib.parse.urlencode(self.request.GET):
-            success_url += "?" + get_parameters
         return success_url
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
