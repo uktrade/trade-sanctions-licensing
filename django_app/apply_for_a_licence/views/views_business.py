@@ -68,6 +68,7 @@ class BusinessAddedView(BaseFormView):
 class DeleteBusinessView(DeleteAnEntitySaveAndReturnView):
     model = Organisation
     success_url = reverse_lazy("business_added")
+    pk_url_kwarg = "business_uuid"
 
 
 class IsTheBusinessRegisteredWithCompaniesHouseView(BaseFormView):
