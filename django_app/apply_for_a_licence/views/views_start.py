@@ -1,6 +1,7 @@
 import logging
 import uuid
 
+from apply_for_a_licence import choices
 from apply_for_a_licence.forms import forms_start as forms
 from apply_for_a_licence.models import Licence
 from core.utils import update_last_activity_session_timestamp
@@ -53,7 +54,7 @@ class ThirdPartyView(BaseLicenceFormView):
 
     def get_success_url(self):
         if not self.form.cleaned_data["is_third_party"]:
-            if self.instance.who_do_you_want_the_licence_to_cover == "business":
+            if self.instance.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.business:
                 return reverse("is_the_business_registered_with_companies_house", kwargs={"business_uuid": str(uuid.uuid4())})
             else:
                 return reverse(
