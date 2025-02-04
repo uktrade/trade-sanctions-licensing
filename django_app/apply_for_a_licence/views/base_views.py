@@ -8,6 +8,8 @@ class EntityView(BaseSaveAndReturnModelFormView):
     def pk_url_kwarg(self) -> str:
         if self.model:
             return f"{self.model.__name__.lower()}_uuid"
+        else:
+            raise NotImplementedError("You need to implement the model property")
 
     @property
     def model(self):

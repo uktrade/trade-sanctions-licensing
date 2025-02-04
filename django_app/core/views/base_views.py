@@ -74,9 +74,9 @@ class BaseFormView(BaseView, FormView):
 
         return super().post(request, *args, **kwargs)
 
-    def form_valid(self, form):
+    def form_valid(self, form: BaseForm):
         # we want to assign the form to the view ,so we can access it in the get_success_url method
-        self.form: BaseForm = form
+        self.form = form
 
         # we want to store the dirty form data in the session, so we can access it later on
         form_data = dict(form.data.copy())
@@ -155,9 +155,9 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
             self.update = False
         return super().dispatch(request, *args, **kwargs)
 
-    def get_form(self, form_class=None):
+    def get_form(self, form_class: BaseForm | None = None) -> BaseForm:
         form = super().get_form(form_class)
-        self.form: BaseForm = form
+        self.form = form
         return form
 
     def get_form_kwargs(self):

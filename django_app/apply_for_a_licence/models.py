@@ -201,7 +201,7 @@ class Organisation(BaseModelID, AddressMixin):
         self.address_line_3 = None
         self.address_line_4 = None
         self.postcode = None
-        self.country = None
+        self.country = None  # type: ignore[assignment]
         self.town_or_city = None
         self.county = None
         self.where_is_the_address = None
