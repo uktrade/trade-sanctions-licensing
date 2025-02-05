@@ -9,7 +9,7 @@ from django.db import IntegrityError
 from django.test import Client, RequestFactory
 from django.utils import timezone
 
-from tests.factories import LicenceFactory
+from tests.factories import LicenceFactory, OrganisationFactory
 from tests.helpers import get_test_client
 
 
@@ -52,13 +52,14 @@ def authenticated_al_client(al_client, test_apply_user) -> Client:
 
 
 @pytest.fixture()
-def authenticated_al_client_with_licence(authenticated_al_client) -> Client:
+def authenticated_al_client_with_licence(authenticated_al_client, test_apply_user, licence) -> Client:
     """Client used to access the apply-for-a-licence site.
 
     The test_apply_user user is logged in with this client and a licence is created belonging to this user
     """
     session = authenticated_al_client.session
-    licence = LicenceFactory(user=authenticated_al_client.user)
+    licence.user = test_apply_user
+    licence.save()
     session["licence_id"] = licence.id
     session.save()
     return authenticated_al_client
@@ -150,6 +151,15 @@ def viewer_rf(request_object):
 
 
 @pytest.fixture()
+def licence_application(authenticated_al_client, test_apply_user):
+    licence_object = LicenceFactory(user=test_apply_user)
+    session = authenticated_al_client.session
+    session["licence_id"] = licence_object.id
+    session.save()
+    return licence_object
+
+
+@pytest.fixture()
 def individual_licence(authenticated_al_client, test_apply_user):
     licence_object = Licence.objects.create(
         user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
@@ -190,3 +200,11 @@ def yourself(yourself_licence):
         last_name="Name",
     )
     return yourself
+
+
+@pytest.fixture()
+def organisation(licence_application):
+    organisation = OrganisationFactory(
+        licence=licence_application,
+    )
+    return organisation

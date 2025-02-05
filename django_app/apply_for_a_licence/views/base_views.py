@@ -37,6 +37,14 @@ class AddAnEntityView(EntityView):
         instance.save()
         return instance
 
+    @property
+    def redirect_after_post(self) -> bool:
+        if self.request.GET.get("change") == "yes":
+            # if we are creating a new one, then we want to take them to the next step
+            return False
+        else:
+            return True
+
 
 class DeleteAnEntityView(EntityView):
     """Base view for deleting an entity from the database. This is used for infinitely looping sub-journeys, such as

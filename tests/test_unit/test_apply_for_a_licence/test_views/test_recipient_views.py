@@ -1,16 +1,25 @@
 import uuid
 
 from apply_for_a_licence.choices import TypeOfServicesChoices
+from apply_for_a_licence.models import Organisation
 from django.test import RequestFactory
 from django.urls import reverse
+
+from tests.factories import OrganisationFactory
 
 from . import data
 
 
 class TestAddRecipientView:
-    def test_successful_post(self, authenticated_al_client_with_licence):
+    def test_successful_post(self, authenticated_al_client_with_licence, licence):
         assert authenticated_al_client_with_licence.session.get("recipients") is None
         recipient_uuid = str(uuid.uuid4())
+
+        organisation = OrganisationFactory(
+            pk=recipient_uuid,
+            licence=licence,
+            where_is_the_address="in-uk",
+        )
 
         authenticated_al_client_with_licence.post(
             reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid}),
@@ -24,19 +33,26 @@ class TestAddRecipientView:
             },
             follow=True,
         )
+        organisation.refresh_from_db()
+        assert Organisation.objects.filter(licence=licence).count() == 1
+        assert organisation.name == "COOL BEANS LTD"
+        assert organisation.email == "thisismyemail@obviously.com"
+        assert organisation.address_line_1 == "13 I live here"
+        assert organisation.address_line_2 == "Flat bassment"
+        assert organisation.town_or_city == "Leeds"
+        assert organisation.postcode == "SW1A 1AA"
 
-        recipients = authenticated_al_client_with_licence.session.get("recipients")
-        assert len(recipients) == 1
+    def test_redirect_after_post(self, authenticated_al_client_with_licence, licence):
+        recipient_uuid = str(uuid.uuid4())
 
-        assert recipients[recipient_uuid]["cleaned_data"]["name"] == "COOL BEANS LTD"
-        assert (
-            recipients[recipient_uuid]["cleaned_data"]["readable_address"]
-            == "13 I live here,\n Flat bassment,\n Leeds,\n SW1A 1AA,\n United Kingdom"
+        OrganisationFactory(
+            pk=recipient_uuid,
+            licence=licence,
+            where_is_the_address="in-uk",
         )
 
-    def test_redirect_after_post(self, authenticated_al_client):
-        response = authenticated_al_client.post(
-            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": uuid.uuid4()})
+        response = authenticated_al_client_with_licence.post(
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid})
             + "?redirect_to_url=check_your_answers",
             data={
                 "name": "COOL BEANS LTD",
@@ -49,8 +65,8 @@ class TestAddRecipientView:
         )
         assert reverse("check_your_answers") in response.url
 
-        response = authenticated_al_client.post(
-            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": uuid.uuid4()})
+        response = authenticated_al_client_with_licence.post(
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid})
             + "?redirect_to_url=check_your_answers&change=yes",
             data={
                 "name": "COOL BEANS LTD",
@@ -63,9 +79,9 @@ class TestAddRecipientView:
         )
         assert "provider-recipient-relationship" in response.url
 
-    def test_get_form_new_recipient(self, authenticated_al_client):
+    def test_get_form_new_recipient(self, authenticated_al_client, organisation):
         response = authenticated_al_client.get(
-            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": uuid.uuid4()})
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": organisation.pk})
         )
         assert response.context["form"].is_bound is False
         assert response.status_code == 200
