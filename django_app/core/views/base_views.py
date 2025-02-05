@@ -6,7 +6,7 @@ from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import BaseForm, BaseModelForm
 from django import forms
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -133,7 +133,8 @@ class BaseSaveAndReturnView(BaseView):
         licence_id = self.request.session["licence_id"]
         try:
             licence = Licence.objects.get(pk=licence_id)
-            assert licence.user == self.request.user
+            if licence.user != self.request.user:
+                raise Http404()
             self._licence_object = licence
             return licence
         except Licence.DoesNotExist:

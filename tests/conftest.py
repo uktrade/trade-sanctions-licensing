@@ -52,15 +52,15 @@ def authenticated_al_client(al_client, test_apply_user) -> Client:
 
 
 @pytest.fixture()
-def authenticated_al_client_with_licence(authenticated_al_client, test_apply_user, licence) -> Client:
+def authenticated_al_client_with_licence(authenticated_al_client, test_apply_user, licence_application) -> Client:
     """Client used to access the apply-for-a-licence site.
 
     The test_apply_user user is logged in with this client and a licence is created belonging to this user
     """
     session = authenticated_al_client.session
-    licence.user = test_apply_user
-    licence.save()
-    session["licence_id"] = licence.id
+    licence_application.user = test_apply_user
+    licence_application.save()
+    session["licence_id"] = licence_application.id
     session.save()
     return authenticated_al_client
 

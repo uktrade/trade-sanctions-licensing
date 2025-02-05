@@ -135,3 +135,4 @@ class DeleteIndividualFromYourselfView(DeleteAnEntityView):
     model = Individual
     success_url = reverse_lazy("yourself_and_individual_added")
     allow_zero_entities = True
+    pk_url_kwarg = "pk"

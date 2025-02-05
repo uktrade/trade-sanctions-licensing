@@ -1,8 +1,8 @@
-import uuid
-
 from apply_for_a_licence.choices import NationalityAndLocation
 from apply_for_a_licence.models import Individual
 from django.urls import reverse
+
+from tests.factories import LicenceFactory
 
 
 class TestYourselfAndIndividualAddedView:
@@ -104,8 +104,10 @@ class TestDeleteIndividualFromYourselfView:
         individual1 = Individual.objects.create(licence=yourself_licence)
         individual2 = Individual.objects.create(licence=yourself_licence)
 
+        new_licence = LicenceFactory()
+        individual3 = Individual.objects.create(licence=new_licence)
         response = authenticated_al_client.post(
-            reverse("delete_individual_from_yourself", kwargs={"pk": uuid.uuid4()}),
+            reverse("delete_individual_from_yourself", kwargs={"pk": individual3.pk}),
         )
 
         individuals = Individual.objects.filter(licence=yourself_licence)

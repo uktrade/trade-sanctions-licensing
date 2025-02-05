@@ -18,10 +18,13 @@ class EntityView(BaseSaveAndReturnModelFormView):
     @property
     def object(self):
         pk = self.kwargs[self.pk_url_kwarg]
-        child_object = self.model.objects.get(
-            pk=pk,
-            licence=self.licence_object,
-        )
+        try:
+            child_object = self.model.objects.get(
+                pk=pk,
+                licence=self.licence_object,
+            )
+        except self.model.DoesNotExist:
+            raise Http404()
         return child_object
 
 
