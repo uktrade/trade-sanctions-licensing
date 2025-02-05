@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo "$COPILOT_ENVIRONMENT_NAME"
 

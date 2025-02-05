@@ -1,1 +1,1 @@
-web: chmod +x django_app/scripts/entry.sh && ./django_app/scripts/entry.sh
+web: django_app/scripts/entry.sh
