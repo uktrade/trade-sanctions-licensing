@@ -1,1 +1,1 @@
-web: django_app/scripts/entry.sh
+web:  cd django_app/scripts && ./entry.sh
