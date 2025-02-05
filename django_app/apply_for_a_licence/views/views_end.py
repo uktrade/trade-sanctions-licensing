@@ -142,7 +142,7 @@ class CompleteView(LoginRequiredMixin, TemplateView):
     template_name = "apply_for_a_licence/complete.html"
 
 
-class DownloadPDFView(BaseDownloadPDFView):
+class DownloadPDFView(LoginRequiredMixin, BaseDownloadPDFView):
     template_name = "apply_for_a_licence/download_application_pdf.html"
     header = "Apply for a licence to provide sanctioned trade services: application submitted "
 
