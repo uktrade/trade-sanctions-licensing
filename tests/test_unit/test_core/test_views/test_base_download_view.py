@@ -37,6 +37,6 @@ class TestDownloadPDFView:
         expected_response = HttpResponse(status=200, content_type="application/pdf")
         assert response.status_code == expected_response.status_code
         assert response["content-type"] == expected_response["content-type"]
-        assert response.headers["Content-Disposition"] == "inline; filename=" + f"report-{test_reference}.pdf"
+        assert response.headers["Content-Disposition"] == "inline; filename=" + f"application-{test_reference}.pdf"
 
         mock_sync_playwright.chromium.launch.assert_called_once_with(headless=True)
