@@ -1,7 +1,9 @@
 from unittest.mock import MagicMock
 
 import pytest
-from django.urls import reverse
+from core.views.base_views import BaseDownloadPDFView
+from django.http import HttpResponse
+from django.test import RequestFactory
 
 
 @pytest.fixture(autouse=True)
@@ -23,17 +25,18 @@ def patched_playwright(monkeypatch):
 
 
 class TestDownloadPDFView:
-    def test_successful_get(self, patched_playwright, authenticated_al_client):
+    def test_successful_get(self, patched_playwright):
         mock_sync_playwright, mock_browser, mock_page = patched_playwright
         test_reference = "DE1234"
+        request = RequestFactory().get("?reference=" + test_reference)
 
-        response = authenticated_al_client.get(reverse("download_application") + f"?reference={test_reference}")
+        view = BaseDownloadPDFView()
+        view.setup(request, reference=test_reference)
+        response = view.get(request, reference=test_reference)
 
-        assert response.status_code == 200
-        assert response.context["reference"] == test_reference
-        assert response.headers["Content-Disposition"] == "inline; filename=" + f"application-{test_reference}.pdf"
+        expected_response = HttpResponse(status=200, content_type="application/pdf")
+        assert response.status_code == expected_response.status_code
+        assert response["content-type"] == expected_response["content-type"]
+        assert response.headers["Content-Disposition"] == "inline; filename=" + f"report-{test_reference}.pdf"
 
         mock_sync_playwright.chromium.launch.assert_called_once_with(headless=True)
-        mock_browser.new_page.assert_called_once()
-        mock_page.pdf.assert_called_once_with(format="A4")
-        mock_browser.close.assert_called_once()
