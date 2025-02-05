@@ -4,7 +4,7 @@
 {% block title %}View Licence Application{% endblock title %}
 {% block download_link %}
     <div class="govuk-grid-column-one-half govuk-!-text-align-right govuk-!-margin-top-3 hide-on-print">
-        <a href="{% url 'download_application' %}?reference={{ licence.reference }}" class="govuk-link--muted govuk-body-s" target="_blank">Download and view application (opens in new tab)</a>
+        <a href="{% url 'view_a_licence:download_application' %}?reference={{ licence.reference }}" class="govuk-link--muted govuk-body-s" target="_blank">Download and view application (opens in new tab)</a>
     </div>
 {% endblock download_link %}
 
