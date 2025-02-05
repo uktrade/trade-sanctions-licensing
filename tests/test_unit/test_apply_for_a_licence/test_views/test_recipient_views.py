@@ -86,47 +86,47 @@ class TestAddRecipientView:
         assert response.context["form"].is_bound is False
         assert response.status_code == 200
 
-    def test_get_form_is_not_bound_different_location(self, authenticated_al_client):
-        recipient_uuid = uuid.uuid4()
-        session = authenticated_al_client.session
-        session["recipient_locations"] = {
-            str(recipient_uuid): {
-                "location": "in-uk",
-                "changed": True,
-            }
-        }
-        session.save()
+    def test_get_form_is_not_bound_different_location(self, authenticated_al_client, organisation):
+        organisation.where_is_the_address = "in-uk"
+        organisation.address_line_1 = "13 I live here"
+        organisation.save()
 
-        response = authenticated_al_client.get(
-            reverse("add_a_recipient", kwargs={"location": "outside-uk", "recipient_uuid": recipient_uuid}) + "?change=yes"
+        response = authenticated_al_client.post(
+            reverse(
+                "where_is_the_recipient_located",
+                kwargs={"recipient_uuid": organisation.pk},
+            )
+            + "?change=yes",
+            data={"where_is_the_address": "outside-uk"},
         )
-        assert response.context["form"].is_bound is False
-        assert response.status_code == 200
-        assert not session.get("recipients", {}).get(str(recipient_uuid), False)
-
-    def test_get_form_is_bound_same_location(self, authenticated_al_client):
-        recipient_uuid = uuid.uuid4()
-        session = authenticated_al_client.session
-        session["recipients"] = {
-            str(recipient_uuid): {
-                "cleaned_data": {
-                    "url_location": "in-uk",
-                },
-                "dirty_data": {"address_line_1": "test address"},
-            }
-        }
-        session.save()
-
-        response = authenticated_al_client.get(
-            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid}) + "?change=yes"
+        assert response.status_code == 302
+        assert (
+            response.url
+            == reverse("add_a_recipient", kwargs={"location": "outside-uk", "recipient_uuid": organisation.pk}) + "?change=yes"
         )
-        assert response.context["form"].is_bound
+        organisation.refresh_from_db()
+        assert not organisation.address_line_1
 
-        response = authenticated_al_client.get(
-            reverse("add_a_recipient", kwargs={"location": "outside-uk", "recipient_uuid": recipient_uuid}) + "?change=yes"
+    def test_get_form_is_bound_same_location(self, authenticated_al_client, organisation):
+        organisation.where_is_the_address = "in-uk"
+        organisation.address_line_1 = "13 I live here"
+        organisation.save()
+
+        response = authenticated_al_client.post(
+            reverse(
+                "where_is_the_recipient_located",
+                kwargs={"recipient_uuid": organisation.pk},
+            )
+            + "?change=yes",
+            data={"where_is_the_address": "in-uk"},
         )
-        assert not response.context["form"].is_bound
-        assert response.status_code == 200
+        assert response.status_code == 302
+        assert (
+            response.url
+            == reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": organisation.pk}) + "?change=yes"
+        )
+        organisation.refresh_from_db()
+        assert organisation.address_line_1 == "13 I live here"
 
     def test_post_form_complete_change(self, authenticated_al_client):
         recipient_uuid = uuid.uuid4()
