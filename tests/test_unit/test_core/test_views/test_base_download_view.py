@@ -40,3 +40,6 @@ class TestDownloadPDFView:
         assert response.headers["Content-Disposition"] == "inline; filename=" + f"application-{test_reference}.pdf"
 
         mock_sync_playwright.chromium.launch.assert_called_once_with(headless=True)
+        mock_browser.new_page.assert_called_once()
+        mock_page.pdf.assert_called_once_with(format="A4")
+        mock_browser.close.assert_called_once()
