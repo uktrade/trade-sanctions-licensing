@@ -155,7 +155,7 @@
         {% if individuals %}
             {% for id, individual in individuals.items %}
                 {% if individual.address_data %}
-                        {# we want to make sure that the object has been fully completed, name + address data is necessary #}
+                        {# we want to make sure that the object has been fully completed, name + address data is necessary. #}
                     <div class="action-wrapper">
                         <h3 class="govuk-heading-s fl-left">Individual {{ forloop.counter }}</h3>
                         <dl class="govuk-summary-card__actions">

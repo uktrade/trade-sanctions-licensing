@@ -143,7 +143,7 @@ class EmailVerifyForm(BaseForm):
             time_code_sent = verification_objects.date_created
 
             # 15 minutes ago, show a ‘code has expired’ error message and send the user a new code
-            # 2 hours ago, show an ‘incorrect security code’ message, even if the code was correct
+            # 2 hours ago, show an ‘incorrect security code’ message, even if the code was correct.
             if time_code_sent > (now() - timedelta(hours=2)):
                 raise forms.ValidationError(self.fields["email_verification_code"].error_messages["expired"], code="expired")
             else:
