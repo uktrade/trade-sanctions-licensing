@@ -116,12 +116,16 @@
                         {{ recipient.name }}
                         <br><br>
                         {{ recipient.readable_address }}</dt></div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        <strong>Website:</strong> {{ recipient.website }}<br></dt></div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        <strong>Additional contact information:</strong> {{ recipient.additional_contact_details|linebreaksbr }}</dt></div>
+                {% if  recipient.website %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            <strong>Website:</strong> {{ recipient.website }}<br></dt></div>
+                {% endif %}
+                {% if  recipient.additional_contact_details %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            <strong>Additional contact information:</strong> {{ recipient.additional_contact_details|linebreaksbr }}</dt></div>
+                {% endif %}
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                         <strong>Relationship between the provider of the services and the recipient:</strong> {{ recipient.relationship_provider }}</dt></div>
