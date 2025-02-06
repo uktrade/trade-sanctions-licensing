@@ -1,184 +1,186 @@
 {% extends "core/base_download_pdf.html" %}
-{% block column_content %}
-    <div>
-        <h1 class="govuk-heading-l">{{ header }}</h1>
-    </div>
-    <h2 class="govuk-heading-m">Reference number: {{ reference }}</h2>
+<div class="page-margin">
+    {% block column_content %}
+        <div>
+            <h1 class="govuk-heading-l">{{ header }}</h1>
+        </div>
+        <h2 class="govuk-heading-m">Reference number: {{ reference }}</h2>
 
-    <p class="govuk-body-m">
-        We've sent a confirmation email to {{ licence.applicant_user_email_address }}
-    </p>
+        <p class="govuk-body-m">
+            We've sent a confirmation email to {{ licence.applicant_user_email_address }}
+        </p>
 
-    <h2 class="govuk-heading-m padding-bottom-0">Your details</h2>
-    <dl class="govuk-summary-list govuk-summary-list--no-border">
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-                <strong>Full name:</strong> {{ licence.applicant_full_name }}
-            </dt>
-        </div>
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                <strong>Email:</strong> {{ licence.applicant_user_email_address }}<br>
-            </dt>
-        </div>
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                <strong>Business you work for:</strong> {{ licence.applicant_business }}<br>
-            </dt>
-        </div>
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                <strong>Your role:</strong> {{ licence.applicant_role }}<br>
-            </dt>
-        </div>
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                <strong>Are you a third party?</strong> {{ licence.is_third_party|yesno:"Yes,No" }}<br>
-            </dt>
-        </div>
-    </dl>
+        <h2 class="govuk-heading-m padding-bottom-0">Your details</h2>
+        <dl class="govuk-summary-list govuk-summary-list--no-border">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    <strong>Full name:</strong> {{ licence.applicant_full_name }}
+                </dt>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    <strong>Email:</strong> {{ licence.applicant_user_email_address }}<br>
+                </dt>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    <strong>Business you work for:</strong> {{ licence.applicant_business }}<br>
+                </dt>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    <strong>Your role:</strong> {{ licence.applicant_role }}<br>
+                </dt>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    <strong>Are you a third party?</strong> {{ licence.is_third_party|yesno:"Yes,No" }}<br>
+                </dt>
+            </div>
+        </dl>
 
-    <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row">
-            <h2 class="govuk-heading-m">Who the licence covers</h2>
-            {% if licence.who_do_you_want_the_licence_to_cover == "business" %}
-                {% for organisation in licence.organisations.all %}
-                    {% if organisation.type_of_relationship == "business" %}
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <h2 class="govuk-heading-m padding-bottom-0">Who the licence covers</h2>
+                {% if licence.who_do_you_want_the_licence_to_cover == "business" %}
+                    {% for organisation in licence.organisations.all %}
+                        {% if organisation.type_of_relationship == "business" %}
 
-                        <h3 class="govuk-heading-s">Business {{ forloop.counter }}</h3>
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            <strong>Business name:</strong> {{ organisation.name }}<br>
-                        </dt></div>
+                            <h3 class="govuk-heading-s">Business {{ forloop.counter }}</h3>
+                            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                                <strong>Business name:</strong> {{ organisation.name }}<br>
+                            </dt></div>
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                                    <strong>Address:</strong> <br>{{ organisation.readable_address | linebreaksbr }}<br></dt></div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% if licence.who_do_you_want_the_licence_to_cover == "myself" or licence.who_do_you_want_the_licence_to_cover == "individual" %}
+                    {% for individual in licence.individuals.all %}
+                        <div class="govuk-summary-list__row">
+                            <h3 class="govuk-heading-s">Individual {{ forloop.counter }}</h3>
+                            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                                <strong>Name:</strong> {{ individual.full_name }}<br>
+                            </dt></div>
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                                <strong>Address:</strong> <br>{{ organisation.readable_address | linebreaksbr }}<br></dt></div>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-            {% if licence.who_do_you_want_the_licence_to_cover == "myself" or licence.who_do_you_want_the_licence_to_cover == "individual" %}
-                {% for individual in licence.individuals.all %}
-                    <div class="govuk-summary-list__row">
-                        <h3 class="govuk-heading-s">Individual {{ forloop.counter }}</h3>
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            <strong>Name:</strong> {{ individual.full_name }}<br>
-                        </dt></div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            <strong>Address:</strong> <br>{{ individual.readable_address|linebreaksbr }}<br></dt></div>
+                                <strong>Address:</strong> <br>{{ individual.readable_address|linebreaksbr }}<br></dt></div>
 
-                {% endfor %}
-            {% endif %}
-        </dl>
-        <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row">
-                <h2 class="govuk-heading-m">Previous licence</h2>
-                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    <strong>Previous licence held:</strong> {{ licence.held_existing_licence|capfirst }} <br>
-                </dt></div>
-            {% if licence.held_existing_licence == "yes" %}
+                    {% endfor %}
+                {% endif %}
+            </dl>
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <h2 class="govuk-heading-m padding-bottom-0">Previous licence</h2>
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        <strong>Previous licence held:</strong> {{ licence.held_existing_licence|capfirst }} <br>
+                    </dt></div>
+                {% if licence.held_existing_licence == "yes" %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            <strong>Previous licence numbers:</strong> {{ licence.existing_licences|linebreaksbr }}
+                        </dt></div>
+                {% endif %}
+            </dl>
+
+            <h2 class="govuk-heading-m padding-bottom-0">Overview of the services</h2>
+
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular"><strong>What type of services do you want to provide?</strong>
+                        {{ licence.get_type_of_service_display }}
+                    </dt></div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        <strong>Previous licence numbers:</strong> {{ licence.existing_licences|linebreaksbr }}
+                        <strong>What are the services?:</strong>
+                        {% for service in licence.get_professional_or_business_services_display %}
+                            {{ service }}
+                            {% if not forloop.last %}
+                                <br>
+                            {% endif %}
+                        {% endfor %}
                     </dt></div>
-            {% endif %}
-        </dl>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        <strong>Describe the specific activities within the services you want to provide:</strong> {{ licence.service_activities|linebreaksbr }}
+                    </dt></div>
+            </dl>
 
-        <h2 class="govuk-heading-m">Overview of the services</h2>
+            <h2 class="govuk-heading-m padding-bottom-0">Recipients of the services </h2>
+            {% for recipient in licence.recipients %}
+                <dl class="govuk-summary-list">
+                    <h3 class="govuk-heading-s">Recipient {{ forloop.counter }}</h3>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            <strong>Name and address:</strong>
+                            {{ recipient.name }}
+                            <br><br>
+                            {{ recipient.readable_address }}</dt></div>
+                    {% if  recipient.website %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                                <strong>Website:</strong> {{ recipient.website }}<br></dt></div>
+                    {% endif %}
+                    {% if  recipient.additional_contact_details %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                                <strong>Additional contact information:</strong> {{ recipient.additional_contact_details|linebreaksbr }}</dt></div>
+                    {% endif %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            <strong>Relationship between the provider of the services and the recipient:</strong> {{ recipient.relationship_provider }}</dt></div>
+            {% endfor %}
+
+        </dl>
 
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-font-weight-regular"><strong>What type of services do you want to provide?</strong>
-                    {{ licence.get_type_of_service_display }}
-                </dt></div>
-            <div class="govuk-summary-list__row">
+                <h2 class="govuk-heading-m padding-bottom-0">Purpose of the services </h2>
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    <strong>What are the services?:</strong>
-                    {% for service in licence.get_professional_or_business_services_display %}
-                        {{ service }}
+                    {% if "legal_advisory" in licence.professional_or_business_services %}
+                        <strong>Licensing grounds for the relevant activity:</strong>
+                    {% else %}
+                        <strong>Licensing grounds:</strong>
+                    {% endif %}
+                    {% for ground in licence.get_licensing_grounds_display %}
+                        {{ ground }}
                         {% if not forloop.last %}
-                            <br>
+                            <br><br>
                         {% endif %}
                     {% endfor %}
                 </dt></div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    <strong>Describe the specific activities within the services you want to provide:</strong> {{ licence.service_activities|linebreaksbr }}
+                    <strong>Licensing grounds for other services (not legal advisory):</strong>
+                    {% for ground in licence.get_licensing_grounds_legal_advisory_display %}
+                        {{ ground }}
+                        {% if not forloop.last %}
+                            <br><br>
+                        {% endif %}
+                    {% endfor %}
+                </dt></div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    <strong>Purpose for providing the services:</strong> {{ licence.purpose_of_provision|linebreaksbr }}</dt></div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                    <strong>Upload supporting documents:</strong>
+                    {% if not licence.documents.exists %}
+                        None uploaded
+                    {% else %}
+                        {% for document in licence.documents.all %}
+                            <a href="{{ document.url }}" download>{{ document.file_name }}</a><br>
+                        {% endfor %}
+                    {% endif %}
                 </dt></div>
         </dl>
 
-        <h2 class="govuk-heading-m">Recipients of the services </h2>
-        {% for recipient in licence.recipients %}
-            <dl class="govuk-summary-list">
-                <h3 class="govuk-heading-s">Recipient {{ forloop.counter }}</h3>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        <strong>Name and address:</strong>
-                        {{ recipient.name }}
-                        <br><br>
-                        {{ recipient.readable_address }}</dt></div>
-                {% if  recipient.website %}
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            <strong>Website:</strong> {{ recipient.website }}<br></dt></div>
-                {% endif %}
-                {% if  recipient.additional_contact_details %}
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            <strong>Additional contact information:</strong> {{ recipient.additional_contact_details|linebreaksbr }}</dt></div>
-                {% endif %}
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        <strong>Relationship between the provider of the services and the recipient:</strong> {{ recipient.relationship_provider }}</dt></div>
-        {% endfor %}
+        <h2 class="govuk-heading-m padding-bottom-0">What happens next</h2>
+        <p class="govuk-body-m">
+            We've sent your application to the Office of Trade Sanctions Implementation (OTSI), part of the Department for Business and Trade (DBT).<br>
 
-    </dl>
-
-    <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row">
-            <h2 class="govuk-heading-m">Purpose of the services </h2>
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                {% if "legal_advisory" in licence.professional_or_business_services %}
-                    <strong>Licensing grounds for the relevant activity:</strong>
-                {% else %}
-                    <strong>Licensing grounds:</strong>
-                {% endif %}
-                {% for ground in licence.get_licensing_grounds_display %}
-                    {{ ground }}
-                    {% if not forloop.last %}
-                        <br><br>
-                    {% endif %}
-                {% endfor %}
-            </dt></div>
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                <strong>Licensing grounds for other services (not legal advisory):</strong>
-                {% for ground in licence.get_licensing_grounds_legal_advisory_display %}
-                    {{ ground }}
-                    {% if not forloop.last %}
-                        <br><br>
-                    {% endif %}
-                {% endfor %}
-            </dt></div>
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                <strong>Purpose for providing the services:</strong> {{ licence.purpose_of_provision|linebreaksbr }}</dt></div>
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                <strong>Upload supporting documents:</strong>
-                {% if not licence.documents.exists %}
-                    None uploaded
-                {% else %}
-                    {% for document in licence.documents.all %}
-                        <a href="{{ document.url }}" download>{{ document.file_name }}</a><br>
-                    {% endfor %}
-                {% endif %}
-            </dt></div>
-    </dl>
-
-    <h2 class="govuk-heading-m">What happens next</h2>
-    <p class="govuk-body-m">
-        We've sent your application to the Office of Trade Sanctions Implementation (OTSI), part of the Department for Business and Trade (DBT).<br>
-
-        OTSI will contact you once they've reviewed your application.
-    </p>
-{% endblock column_content %}
+            OTSI will contact you once they've reviewed your application.
+        </p>
+    {% endblock column_content %}
+</div>
