@@ -14,7 +14,11 @@ class LicensingGroundsView(BaseSaveAndReturnLicenceModelFormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        if ProfessionalOrBusinessServicesChoices.legal_advisory.value in self.licence_object.professional_or_business_services:
+        if (
+            self.licence_object.professional_or_business_services
+            and ProfessionalOrBusinessServicesChoices.legal_advisory.value
+            in self.licence_object.professional_or_business_services
+        ):
             kwargs["form_h1_header"] = (
                 "Which of these licensing grounds describes the purpose of the relevant activity for "
                 "which the legal advice is being given?"
