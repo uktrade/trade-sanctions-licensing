@@ -46,6 +46,7 @@ class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
             # if the field has changed, we need to clear the recipient address data
             form.instance.clear_address_data()
             form.instance.where_is_the_address = form.cleaned_data["where_is_the_address"]
+            form.instance.save()
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

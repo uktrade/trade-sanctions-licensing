@@ -105,7 +105,7 @@ class PlaywrightTestBase(LiveServerTestCase):
             page = self.page
         page.goto(f"{self.base_url}{path}")  # type: ignore[union-attr]
 
-    def start_new_application(self, submitter_reference: str | None = None):
+    def start_new_application(self, submitter_reference: str | None = None) -> str:
         """Starts a new application with a given submitter reference and take the user to the first 'real' question"""
         if not submitter_reference:
             submitter_reference = "test-submitter-reference"
@@ -114,6 +114,8 @@ class PlaywrightTestBase(LiveServerTestCase):
         self.page.get_by_label("Your application name").click()
         self.page.get_by_label("Your application name").fill(submitter_reference)
         self.page.get_by_role("button", name="Save and continue").click()
+
+        return submitter_reference
 
     def check_your_answers(self, page, third_party=True, type="business"):
         expect(page).to_have_url(re.compile(r".*/check-your-answers"))
