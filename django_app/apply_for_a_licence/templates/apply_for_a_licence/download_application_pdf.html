@@ -9,7 +9,7 @@
         We've sent a confirmation email to {{ licence.applicant_user_email_address }}
     </p>
 
-    <h2 class="govuk-heading-m">Your details</h2>
+    <h2 class="govuk-heading-m padding-bottom-0">Your details</h2>
     <dl class="govuk-summary-list govuk-summary-list--no-border">
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
@@ -44,28 +44,27 @@
             {% if licence.who_do_you_want_the_licence_to_cover == "business" %}
                 {% for organisation in licence.organisations.all %}
                     {% if organisation.type_of_relationship == "business" %}
-                        <h3 class="govuk-heading-s">Who the licence covers</h3>
+
                         <h3 class="govuk-heading-s">Business {{ forloop.counter }}</h3>
                         <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                             <strong>Business name:</strong> {{ organisation.name }}<br>
                         </dt></div>
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                                <strong>Address:</strong> {{ organisation.readable_address | linebreaksbr }}<br></dt></div>
+                                <strong>Address:</strong> <br>{{ organisation.readable_address | linebreaksbr }}<br></dt></div>
                     {% endif %}
                 {% endfor %}
             {% endif %}
             {% if licence.who_do_you_want_the_licence_to_cover == "myself" or licence.who_do_you_want_the_licence_to_cover == "individual" %}
                 {% for individual in licence.individuals.all %}
                     <div class="govuk-summary-list__row">
-                        <h3 class="govuk-heading-s">Who the licence covers</h3>
                         <h3 class="govuk-heading-s">Individual {{ forloop.counter }}</h3>
                         <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                             <strong>Name:</strong> {{ individual.full_name }}<br>
                         </dt></div>
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                            <strong>Address:</strong> {{ individual.readable_address|linebreaksbr }}<br></dt></div>
+                            <strong>Address:</strong> <br>{{ individual.readable_address|linebreaksbr }}<br></dt></div>
 
                 {% endfor %}
             {% endif %}
