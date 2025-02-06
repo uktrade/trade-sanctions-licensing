@@ -62,7 +62,7 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.page.get_by_role("button", name="Continue").click()
         assert self.page.locator("input[name='name']").input_value() == "business"  # checking pre-fill
         self.page.get_by_role("button", name="Continue").click()
-        assert self.page.locator("input[name='relationship']").input_value() == "Test relationship"  # checking pre-fill
+        assert self.page.locator("input[name='relationship_provider']").input_value() == "Test relationship"  # checking pre-fill
         self.page.get_by_role("button", name="Continue").click()
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         expect(self.page.get_by_role("heading", name="You've added 1 recipient")).to_be_visible()
@@ -78,4 +78,4 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.page.get_by_text("Change").click()
         self.page.get_by_text("Outside the UK").click()
         self.page.get_by_role("button", name="Continue").click()
-        assert self.page.locator("input[name='name']").input_value() == ""  # should be wiped
+        assert self.page.locator("input[name='address_line_1']").input_value() == ""  # should be wiped

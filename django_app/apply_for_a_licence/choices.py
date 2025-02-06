@@ -120,3 +120,8 @@ class TypeOfRelationshipChoices(models.TextChoices):
 class StatusChoices(models.TextChoices):
     draft = "draft", "Draft"
     submitted = "submitted", "Submitted"
+
+
+class WhereIsTheAddressChoices(models.TextChoices):
+    outside_uk = "outside-uk", "Outside the UK"
+    in_uk = "in-uk", "In the UK"

@@ -28,12 +28,12 @@ views_start_urls = [
 
 views_business_urls = [
     path(
-        "business-registered-with-companies-house",
+        "business-registered-with-companies-house/<uuid:business_uuid>",
         views_business.IsTheBusinessRegisteredWithCompaniesHouseView.as_view(),
         name="is_the_business_registered_with_companies_house",
     ),
     path(
-        "registered-company-number",
+        "registered-company-number/<uuid:business_uuid>",
         views_business.DoYouKnowTheRegisteredCompanyNumberView.as_view(),
         name="do_you_know_the_registered_company_number",
     ),
@@ -43,7 +43,7 @@ views_business_urls = [
         name="where_is_the_business_located",
     ),
     path(
-        "check-company-details/<str:business_uuid>",
+        "check-company-details/<uuid:business_uuid>",
         views_business.CheckCompanyDetailsView.as_view(),
         name="check_company_details",
     ),
@@ -55,18 +55,18 @@ views_business_urls = [
     path(
         "business-details/<str:location>/<uuid:business_uuid>", views_business.AddABusinessView.as_view(), name="add_a_business"
     ),
-    path("delete-business", views_business.DeleteBusinessView.as_view(), name="delete_business"),
+    path("delete-business/<uuid:business_uuid>", views_business.DeleteBusinessView.as_view(), name="delete_business"),
     path("add-business", views_business.BusinessAddedView.as_view(), name="business_added"),
 ]
 
 views_individual_urls = [
-    path("individual-details/<str:individual_uuid>", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
+    path("individual-details/<uuid:individual_uuid>", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
     path(
-        "individuals-home-address/<str:location>/<str:individual_uuid>",
+        "individuals-home-address/<str:location>/<uuid:individual_uuid>",
         views_individual.WhatIsIndividualsAddressView.as_view(),
         name="what_is_individuals_address",
     ),
-    path("delete-individual", views_individual.DeleteIndividualView.as_view(), name="delete_individual"),
+    path("delete-individual/<pk>", views_individual.DeleteIndividualView.as_view(), name="delete_individual"),
     path("add-individual", views_individual.IndividualAddedView.as_view(), name="individual_added"),
     path(
         "business-details",
@@ -76,9 +76,9 @@ views_individual_urls = [
 ]
 
 views_yourself_urls = [
-    path("your-name-nationality-location", views_yourself.AddYourselfView.as_view(), name="add_yourself"),
+    path("your-name-nationality-location/<uuid:yourself_uuid>", views_yourself.AddYourselfView.as_view(), name="add_yourself"),
     path(
-        "your-home-address/<str:location>",
+        "your-home-address/<str:location>/<uuid:yourself_uuid>",
         views_yourself.AddYourselfAddressView.as_view(),
         name="add_yourself_address",
     ),
@@ -88,7 +88,7 @@ views_yourself_urls = [
         name="yourself_and_individual_added",
     ),
     path(
-        "delete-individual-from-yourself",
+        "delete-individual-from-yourself/<pk>",
         views_yourself.DeleteIndividualFromYourselfView.as_view(),
         name="delete_individual_from_yourself",
     ),
@@ -125,7 +125,7 @@ views_recipients_urls = [
         views_recipients.AddARecipientView.as_view(),
         name="add_a_recipient",
     ),
-    path("delete-recipient", views_recipients.DeleteRecipientView.as_view(), name="delete_recipient"),
+    path("delete-recipient/<uuid:recipient_uuid>", views_recipients.DeleteRecipientView.as_view(), name="delete_recipient"),
     path("add-recipient", views_recipients.RecipientAddedView.as_view(), name="recipient_added"),
     path(
         "provider-recipient-relationship/<str:recipient_uuid>",

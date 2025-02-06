@@ -1,27 +1,24 @@
 import logging
-import urllib
 
 from apply_for_a_licence.choices import ProfessionalOrBusinessServicesChoices
 from apply_for_a_licence.forms import forms_grounds_purpose as forms
-from apply_for_a_licence.utils import get_cleaned_data_for_step
-from core.views.base_views import BaseFormView
+from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
 from django.urls import reverse, reverse_lazy
 
 logger = logging.getLogger(__name__)
 
 
-class LicensingGroundsView(BaseFormView):
+class LicensingGroundsView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.LicensingGroundsForm
     redirect_after_post = False
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        # todo: use get_cleaned_data_for_step method here - form was invalid so wasn't working
-        professional_or_business_services = self.request.session.get("professional_or_business_services", {})
-        self.professional_or_business_services_data = professional_or_business_services.get(
-            "professional_or_business_services", []
-        )
-        if ProfessionalOrBusinessServicesChoices.legal_advisory.value in self.professional_or_business_services_data:
+        if (
+            self.licence_object.professional_or_business_services
+            and ProfessionalOrBusinessServicesChoices.legal_advisory.value
+            in self.licence_object.professional_or_business_services
+        ):
             kwargs["form_h1_header"] = (
                 "Which of these licensing grounds describes the purpose of the relevant activity for "
                 "which the legal advice is being given?"
@@ -34,24 +31,24 @@ class LicensingGroundsView(BaseFormView):
         return kwargs
 
     def get_success_url(self) -> str:
+        licence = self.licence_object
         if (
-            ProfessionalOrBusinessServicesChoices.legal_advisory.value in self.professional_or_business_services_data
-            and len(self.professional_or_business_services_data) > 1
+            licence.professional_or_business_services
+            and ProfessionalOrBusinessServicesChoices.legal_advisory.value in licence.professional_or_business_services
+            and len(licence.professional_or_business_services) > 1
         ):
             # the user has selected 'Legal advisory' as well as other services, redirect them to the legal advisory page
-            self.success_url = reverse("licensing_grounds_legal_advisory")
+            success_url = reverse("licensing_grounds_legal_advisory")
         else:
             # delete form data for legal advisory grounds
-            self.request.session["licensing_grounds_legal_advisory"] = {}
-            self.success_url = reverse("purpose_of_provision")
+            licence.licensing_grounds_legal_advisory = None
+            licence.save()
+            success_url = reverse("purpose_of_provision")
 
-        if get_parameters := urllib.parse.urlencode(self.request.GET):
-            self.success_url += "?" + get_parameters
-
-        return self.success_url
+        return success_url
 
 
-class LicensingGroundsLegalAdvisoryView(BaseFormView):
+class LicensingGroundsLegalAdvisoryView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.LicensingGroundsLegalAdvisoryForm
     success_url = reverse_lazy("purpose_of_provision")
 
@@ -61,17 +58,16 @@ class LicensingGroundsLegalAdvisoryView(BaseFormView):
             "For the other services you want to provide (excluding legal advisory), which of these "
             "licensing grounds describes your purpose for providing them?"
         )
-        self.professional_or_business_services_data = get_cleaned_data_for_step(
-            self.request, "professional_or_business_services"
-        ).get("professional_or_business_services", [])
-
-        if self.request.GET.get("update", ""):
-            # clear the session data if the user is coming from the CYA page
-            if self.request.session.get("licensing_grounds_legal_advisory", ""):
-                self.request.session.pop("licensing_grounds_legal_advisory")
         return kwargs
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if self.request.method == "GET" and self.update:
+            # clear the form data if the user is coming from the CYA page
+            form.is_bound = False
+        return form
 
-class PurposeOfProvisionView(BaseFormView):
+
+class PurposeOfProvisionView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.PurposeOfProvisionForm
     success_url = reverse_lazy("upload_documents")

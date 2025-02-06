@@ -2,15 +2,6 @@ from apply_for_a_licence.forms import forms_start as forms
 from django import forms as django_forms
 
 
-class TestSubmitterReferenceForm:
-    def test_save(self, request_object, test_apply_user):
-        form = forms.SubmitterReferenceForm(data={"submitter_reference": "123456"}, request=request_object)
-        assert form.is_valid()
-        instance = form.save()
-        assert instance.submitter_reference == "123456"
-        assert instance.user == test_apply_user
-
-
 class TestStartForm:
     def test_required(self):
         form = forms.StartForm(data={"who_do_you_want_the_licence_to_cover": None})

@@ -5,8 +5,11 @@ from django.contrib import admin
 from django.urls import include, path
 
 from .views import cookie_views, generic_views
-from .views.base_views import RedirectBaseDomainView
-from .views.generic_views import PingSessionView, SessionExpiredView
+from .views.generic_views import (
+    PingSessionView,
+    RedirectBaseDomainView,
+    SessionExpiredView,
+)
 from .views.shared_views import DownloadPDFView
 
 public_urls = [

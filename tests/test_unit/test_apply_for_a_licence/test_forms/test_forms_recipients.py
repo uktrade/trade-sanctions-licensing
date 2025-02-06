@@ -71,7 +71,7 @@ class TestRecipientAddedForm:
 
 class TestRelationshipProviderRecipientForm:
     def test_required(self, request_object):
-        form = forms.RelationshipProviderRecipientForm(data={"relationship": None}, request=request_object)
+        form = forms.RelationshipProviderRecipientForm(data={"relationship_provider": None}, request=request_object)
         assert not form.is_valid()
-        assert "relationship" in form.errors
-        assert form.errors.as_data()["relationship"][0].code == "required"
+        assert "relationship_provider" in form.errors
+        assert form.errors.as_data()["relationship_provider"][0].code == "required"

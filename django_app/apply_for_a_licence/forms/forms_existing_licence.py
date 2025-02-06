@@ -1,7 +1,7 @@
 from typing import Any
 
+from apply_for_a_licence.choices import WhoDoYouWantTheLicenceToCoverChoices
 from apply_for_a_licence.models import Licence
-from apply_for_a_licence.utils import get_cleaned_data_for_step
 from core.forms.base_forms import BaseModelForm
 from crispy_forms_gds.layout import (
     ConditionalQuestion,
@@ -43,42 +43,33 @@ class ExistingLicencesForm(BaseModelForm):
                 "No",
             )
         )
-        self.held_existing_licence_label = (
-            "Have any of the businesses you've added held a licence before to provide "
-            "any sanctioned services or export any sanctioned goods?"
-        )
-
-        if start_view := get_cleaned_data_for_step(self.request, "start"):
-            if start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
-                self.held_existing_licence_label = (
-                    "Have you, or has anyone else you've added, held a licence before "
-                    "to provide any sanctioned services or export any sanctioned goods?"
-                )
-            elif start_view.get("who_do_you_want_the_licence_to_cover") == "individual":
-                self.held_existing_licence_label = (
-                    "Have any of the individuals you've added held a licence before to "
-                    "provide any sanctioned services or export any sanctioned goods?"
-                )
-        self.fields["held_existing_licence"].label = self.held_existing_licence_label
-        start_view = get_cleaned_data_for_step(self.request, "start")
-
-        if start_view.get("who_do_you_want_the_licence_to_cover") == "business":
-            self.fields["held_existing_licence"].error_messages["required"] = (
-                "Select yes if any of the businesses "
-                "have held a licence before to provide sanctioned services or export sanctioned goods"
+        if self.instance.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.myself:
+            self.fields["held_existing_licence"].label = (
+                "Have you, or has anyone else you've added, held a licence before "
+                "to provide any sanctioned services or export any sanctioned goods?"
             )
-
-        elif start_view.get("who_do_you_want_the_licence_to_cover") == "individual":
-            self.fields["held_existing_licence"].error_messages["required"] = (
-                "Select yes if any of the individuals have held a licence before to "
-                "provide sanctioned services or export sanctioned goods"
-            )
-
-        elif start_view.get("who_do_you_want_the_licence_to_cover") == "myself":
             self.fields["held_existing_licence"].error_messages["required"] = (
                 "Select yes if you, or anyone else you've "
                 "added, has held a licence before to provide sanctioned "
                 "services or export sanctioned goods"
+            )
+        elif self.instance.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.individual:
+            self.fields["held_existing_licence"].label = (
+                "Have any of the individuals you've added held a licence before to "
+                "provide any sanctioned services or export any sanctioned goods?"
+            )
+            self.fields["held_existing_licence"].error_messages["required"] = (
+                "Select yes if any of the individuals have held a licence before to "
+                "provide sanctioned services or export sanctioned goods"
+            )
+        elif self.instance.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.business:
+            self.fields["held_existing_licence"].label = (
+                "Have any of the businesses you've added held a licence before to provide "
+                "any sanctioned services or export any sanctioned goods?"
+            )
+            self.fields["held_existing_licence"].error_messages["required"] = (
+                "Select yes if any of the businesses "
+                "have held a licence before to provide sanctioned services or export sanctioned goods"
             )
 
     def clean(self) -> dict[str, Any]:
