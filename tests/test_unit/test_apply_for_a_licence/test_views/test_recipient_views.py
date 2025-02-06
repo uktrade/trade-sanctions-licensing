@@ -190,23 +190,25 @@ class TestDeleteRecipientView:
 
 
 class TestRecipientAddedView:
-    def test_success_url(self, authenticated_al_client):
-        response = authenticated_al_client.post(
+    def test_success_url(self, authenticated_al_client_with_licence, licence_application):
+        licence_application.type_of_service = TypeOfServicesChoices.infrastructure_or_tourism_related.value
+        licence_application.save()
+
+        response = authenticated_al_client_with_licence.post(
             reverse("recipient_added"),
             data={"do_you_want_to_add_another_recipient": "False"},
         )
         assert response.url == reverse("purpose_of_provision")
 
-        response = authenticated_al_client.post(
+        response = authenticated_al_client_with_licence.post(
             reverse("recipient_added"), data={"do_you_want_to_add_another_recipient": "True"}, follow=True
         )
         assert response.wsgi_request.path == reverse("where_is_the_recipient_located", kwargs=response.resolver_match.kwargs)
 
-        session = authenticated_al_client.session
-        session["type_of_service"] = {"type_of_service": TypeOfServicesChoices.professional_and_business.value}
-        session.save()
+        licence_application.type_of_service = TypeOfServicesChoices.professional_and_business.value
+        licence_application.save()
 
-        response = authenticated_al_client.post(
+        response = authenticated_al_client_with_licence.post(
             reverse("recipient_added"),
             data={"do_you_want_to_add_another_recipient": "False"},
         )

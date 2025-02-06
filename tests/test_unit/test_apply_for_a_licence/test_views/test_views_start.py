@@ -6,12 +6,16 @@ from django.urls import reverse
 
 class TestSubmitterReferenceView:
     def test_post(self, authenticated_al_client):
+        assert Licence.objects.count() == 0
         request = RequestFactory().get("/")
         request.session = authenticated_al_client.session
-        response = authenticated_al_client.post(reverse("submitter_reference"))
+        response = authenticated_al_client.post(reverse("submitter_reference"), data={"submitter_reference": "test"})
 
         assert response.status_code == 302
         assert "start" in response.url
+        assert Licence.objects.count() == 1
+        assert Licence.objects.first().submitter_reference == "test"
+        assert Licence.objects.first().pk == request.session["licence_id"]
         assert response.url == reverse("start", kwargs={"pk": request.session["licence_id"]})
 
 
