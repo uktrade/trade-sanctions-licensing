@@ -33,7 +33,8 @@ class LicensingGroundsView(BaseSaveAndReturnLicenceModelFormView):
     def get_success_url(self) -> str:
         licence = self.licence_object
         if (
-            ProfessionalOrBusinessServicesChoices.legal_advisory.value in licence.professional_or_business_services
+            licence.professional_or_business_services
+            and ProfessionalOrBusinessServicesChoices.legal_advisory.value in licence.professional_or_business_services
             and len(licence.professional_or_business_services) > 1
         ):
             # the user has selected 'Legal advisory' as well as other services, redirect them to the legal advisory page
