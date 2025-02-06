@@ -95,8 +95,9 @@ class DeleteRecipientView(DeleteAnEntityView):
     success_url = reverse_lazy("recipient_added")
     model = Organisation
     pk_url_kwarg = "recipient_uuid"
+    allow_zero_entities = True
 
 
-class RelationshipProviderRecipientView(BaseSaveAndReturnFormView):
+class RelationshipProviderRecipientView(BaseRecipientFormView):
     form_class = forms.RelationshipProviderRecipientForm
     success_url = reverse_lazy("recipient_added")

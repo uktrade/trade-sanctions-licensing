@@ -208,3 +208,10 @@ def organisation(licence_application):
         licence=licence_application,
     )
     return organisation
+
+
+@pytest.fixture()
+def recipient_organisation(organisation):
+    organisation.type_of_relationship = "recipient"
+    organisation.save()
+    return organisation

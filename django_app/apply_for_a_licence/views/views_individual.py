@@ -59,6 +59,7 @@ class AddAnIndividualView(BaseIndividualFormView):
 class DeleteIndividualView(DeleteAnEntityView):
     model = Individual
     success_url = reverse_lazy("individual_added")
+    pk_url_kwarg = "pk"
 
 
 class WhatIsIndividualsAddressView(BaseIndividualFormView):
