@@ -8,6 +8,7 @@ from apply_for_a_licence.choices import (
 from apply_for_a_licence.models import Licence
 from authentication.mixins import LoginRequiredMixin
 from core.sites import require_view_a_licence
+from core.views.base_views import BaseDownloadPDFView
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
@@ -129,3 +130,15 @@ class ViewFeedbackView(LoginRequiredMixin, ActiveUserRequiredMixin, DetailView):
     model = FeedbackItem
     template_name = "view_a_licence/view_feedback.html"
     context_object_name = "feedback"
+
+
+@method_decorator(require_view_a_licence(), name="dispatch")
+class DownloadPDFView(LoginRequiredMixin, ActiveUserRequiredMixin, BaseDownloadPDFView):
+    template_name = "view_a_licence/view_application_pdf.html"
+    header = "Apply for a licence to provide sanctioned trade services: application submitted "
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        self.reference = self.request.GET.get("reference", "")
+        context["licence"] = Licence.objects.get(reference=self.reference)
+        return context

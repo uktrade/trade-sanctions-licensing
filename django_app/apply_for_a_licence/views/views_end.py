@@ -3,10 +3,11 @@ import uuid
 from typing import Any
 
 from apply_for_a_licence.forms.forms_end import DeclarationForm
+from apply_for_a_licence.models import Licence
 from apply_for_a_licence.utils import get_all_cleaned_data, get_all_forms
 from authentication.mixins import LoginRequiredMixin
 from core.document_storage import TemporaryDocumentStorage
-from core.views.base_views import BaseFormView
+from core.views.base_views import BaseDownloadPDFView, BaseFormView
 from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponse
@@ -139,3 +140,14 @@ class DeclarationView(BaseFormView):
 
 class CompleteView(LoginRequiredMixin, TemplateView):
     template_name = "apply_for_a_licence/complete.html"
+
+
+class DownloadPDFView(LoginRequiredMixin, BaseDownloadPDFView):
+    template_name = "apply_for_a_licence/download_application_pdf.html"
+    header = "Apply for a licence to provide sanctioned trade services: application submitted "
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        self.reference = self.request.GET.get("reference", "")
+        context["licence"] = Licence.objects.get(reference=self.reference)
+        return context

@@ -11,4 +11,5 @@ urlpatterns = [
     path("manage-users/", views.ManageUsersView.as_view(), name="manage_users"),
     path("view-all-feedback/", views.ViewAllFeedbackView.as_view(), name="view_all_feedback"),
     path("view-feedback/<int:pk>", views.ViewFeedbackView.as_view(), name="view_feedback"),
+    path("download-application/", views.DownloadPDFView.as_view(), name="download_application"),
 ]
