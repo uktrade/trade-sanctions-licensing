@@ -41,7 +41,6 @@
                 {% if licence.who_do_you_want_the_licence_to_cover == "business" %}
                     {% for organisation in licence.organisations.all %}
                         {% if organisation.type_of_relationship == "business" %}
-                            <h3 class="govuk-heading-s">Who the licence covers</h3>
                             <h3 class="govuk-heading-s">Business {{ forloop.counter }}</h3>
                             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                                 <strong>Business name:</strong> {{ organisation.name }}<br>
@@ -55,7 +54,6 @@
                 {% if licence.who_do_you_want_the_licence_to_cover == "myself" or licence.who_do_you_want_the_licence_to_cover == "individual" %}
                     {% for individual in licence.individuals.all %}
                         <div class="govuk-summary-list__row">
-                            <h3 class="govuk-heading-s">Who the licence covers</h3>
                             <h3 class="govuk-heading-s">Individual {{ forloop.counter }}</h3>
                             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                                 <strong>Name:</strong> {{ individual.full_name }}<br>
@@ -91,16 +89,19 @@
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular"><strong>Type of services:</strong>
                         {{ licence.get_type_of_service_display }}
                     </dt></div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                        <strong>Specific services:</strong>
-                        {% for service in licence.get_professional_or_business_services_display %}
-                            {{ service }}
-                            {% if not forloop.last %}
-                                <br>
-                            {% endif %}
-                        {% endfor %}
-                    </dt></div>
+                {% if licence.professional_or_business_services %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            <strong>Specific services:</strong>
+                            {% for service in licence.get_professional_or_business_services_display %}
+                                {% if forloop.first %}<br>{% endif %}
+                                {{ service }}
+                                {% if not forloop.last %}
+                                    <br>
+                                {% endif %}
+                            {% endfor %}
+                        </dt></div>
+                {% endif %}
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                         <strong>Description of the services:</strong> {{ licence.service_activities|linebreaksbr }}
@@ -117,12 +118,12 @@
                             {{ recipient.name }}
                             <br><br>
                             {{ recipient.readable_address }}</dt></div>
-                    {% if  recipient.website %}
+                    {% if recipient.website %}
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                                 <strong>Website:</strong> {{ recipient.website }}<br></dt></div>
                     {% endif %}
-                    {% if  recipient.additional_contact_details %}
+                    {% if recipient.additional_contact_details %}
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
                                 <strong>Additional contact information:</strong> {{ recipient.additional_contact_details|linebreaksbr }}</dt></div>
@@ -137,44 +138,48 @@
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
                 <h2 class="govuk-heading-m padding-bottom-0">Purpose of the services </h2>
-                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    {% if "legal_advisory" in licence.professional_or_business_services %}
-                        <strong>Licensing grounds for the relevant activity:</strong>
-                    {% else %}
-                        <strong>Licensing grounds:</strong>
-                    {% endif %}
-                    {% for ground in licence.get_licensing_grounds_display %}
-                        {{ ground }}
-                        {% if not forloop.last %}
-                            <br><br>
+                {% if licence.licensing_grounds %}
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        {% if "legal_advisory" in licence.professional_or_business_services %}
+                            <strong>Licensing grounds for the relevant activity:</strong>
+                        {% else %}
+                            <strong>Licensing grounds:</strong>
                         {% endif %}
-                    {% endfor %}
-                </dt></div>
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    <strong>Licensing grounds for other services (not legal advisory):</strong>
-                    {% for ground in licence.get_licensing_grounds_legal_advisory_display %}
-                        {{ ground }}
-                        {% if not forloop.last %}
-                            <br><br>
-                        {% endif %}
-                    {% endfor %}
-                </dt></div>
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    <strong>Purpose for providing the services:</strong> {{ licence.purpose_of_provision|linebreaksbr }}</dt></div>
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
-                    <strong>Supporting documents:</strong>
-                    {% if not licence.documents.exists %}
-                        None uploaded
-                    {% else %}
-                        {% for document in licence.documents.all %}
-                            <a href="{{ document.url }}" download>{{ document.file_name }}</a><br>
+                        {% for ground in licence.get_licensing_grounds_display %}
+                            {{ ground }}
+                            {% if not forloop.last %}
+                                <br><br>
+                            {% endif %}
                         {% endfor %}
-                    {% endif %}
-                </dt></div>
-        </dl>
+                    </dt></div>
+                {% endif %}
+                {% if licence.licensing_grounds_legal_advisory %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                            <strong>Licensing grounds for other services (not legal advisory):</strong>
+                            {% for ground in licence.get_licensing_grounds_legal_advisory_display %}
+                                {{ ground }}
+                                {% if not forloop.last %}
+                                    <br><br>
+                                {% endif %}
+                            {% endfor %}
+                        </dt></div>
+                {% endif %}
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        <strong>Purpose for providing the services:</strong> {{ licence.purpose_of_provision|linebreaksbr }}</dt></div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-font-weight-regular">
+                        <strong>Supporting documents:</strong>
+                        {% if not licence.documents.exists %}
+                            None uploaded
+                        {% else %}
+                            {% for document in licence.documents.all %}
+                                <br><a href="{{ document.url }}" download>{{ document.file_name }}</a><br>
+                            {% endfor %}
+                        {% endif %}
+                    </dt></div>
+            </dl>
 
 
     {% endblock column_content %}
