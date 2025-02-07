@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from django.http import HttpResponse
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -79,16 +78,17 @@ class TestDeclarationView:
 
 class TestDownloadPDFView:
     @patch("apply_for_a_licence.models.Licence.objects.get", return_value=MagicMock())
-    @patch("apply_for_a_licence.views.views_end.BaseDownloadPDFView", return_value=MagicMock())
+    @patch("core.views.base_views.BaseDownloadPDFView")
     def test_successful_get(self, mock_download, mock_licence):
-        print(mock_licence)
         test_reference = "DE1234"
         request = RequestFactory().get("?reference=" + test_reference)
+        expected_header = "Apply for a licence to provide sanctioned trade services: application submitted "
 
         view = DownloadPDFView()
-        view.setup(request, reference=test_reference)
-        response = view.get(request, reference=test_reference)
+        view.reference = test_reference
+        view.setup(request)
+        response = view.get_context_data()
 
-        expected_response = HttpResponse(status=200)
-        assert response.status_code == expected_response.status_code
+        assert response["header"] == expected_header
+        assert response["reference"] == test_reference
         mock_licence.assert_called_with(reference=test_reference)
