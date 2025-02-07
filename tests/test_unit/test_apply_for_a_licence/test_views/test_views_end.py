@@ -82,6 +82,7 @@ class TestDownloadPDFView:
     @patch("apply_for_a_licence.views.views_end.BaseDownloadPDFView", return_value=MagicMock())
     @patch("apply_for_a_licence.views.views_end.Licence", return_value=MagicMock())
     def test_successful_get(self, mock_licence, mock_download):
+        mock_licence.objects.return_value.get.return_value = MagicMock()
         test_reference = "DE1234"
         request = RequestFactory().get("?reference=" + test_reference)
 
