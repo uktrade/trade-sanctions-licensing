@@ -1,8 +1,11 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+from django.http import HttpResponse
+from django.test import RequestFactory
 from django.urls import reverse
 
+from django_app.apply_for_a_licence.views.views_end import DownloadPDFView
 from tests.conftest import LicenceFactory
 
 
@@ -72,3 +75,20 @@ class TestDeclarationView:
         assert kwargs.get("is_on_companies_house") is False
         assert kwargs.get("is_individual") is False
         assert kwargs.get("is_third_party") is True
+
+
+class TestDownloadPDFView:
+    @patch("apply_for_a_licence.views.views_end.BaseDownloadPDFView", return_value=MagicMock())
+    @patch("apply_for_a_licence.views.views_end.Licence", return_value=MagicMock())
+    def test_successful_get(self, mock_licence, mock_download, authenticated_al_client):
+        test_reference = "DE1234"
+        request = RequestFactory().get("?reference=" + test_reference)
+
+        view = DownloadPDFView()
+        view.setup(request, reference=test_reference)
+        response = view.get(request, reference=test_reference)
+
+        expected_response = HttpResponse(status=200)
+        assert response.status_code == expected_response.status_code
+        mock_licence.assert_called_with(reference=test_reference)
+        mock_download.assert_called_once()
