@@ -14,6 +14,7 @@ from utils.s3 import get_all_session_files
 
 class UploadDocumentsForm(BaseForm):
     revalidate_on_done = False
+    save_and_return = True
     document = MultipleFileField(
         label="Upload a file",
         help_text="Maximum individual file size 100MB. Maximum number of uploads 10.",
