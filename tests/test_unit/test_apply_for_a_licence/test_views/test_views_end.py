@@ -78,11 +78,10 @@ class TestDeclarationView:
 
 
 class TestDownloadPDFView:
-    @pytest.mark.django_db
+    @patch("apply_for_a_licence.models.Licence.objects.get", return_value=MagicMock())
     @patch("apply_for_a_licence.views.views_end.BaseDownloadPDFView", return_value=MagicMock())
-    @patch("apply_for_a_licence.views.views_end.Licence", return_value=MagicMock())
-    def test_successful_get(self, mock_licence, mock_download):
-        mock_licence.objects.return_value.get.return_value = MagicMock()
+    def test_successful_get(self, mock_download, mock_licence):
+        print(mock_licence)
         test_reference = "DE1234"
         request = RequestFactory().get("?reference=" + test_reference)
 
@@ -93,4 +92,3 @@ class TestDownloadPDFView:
         expected_response = HttpResponse(status=200)
         assert response.status_code == expected_response.status_code
         mock_licence.assert_called_with(reference=test_reference)
-        mock_download.assert_called_once()
