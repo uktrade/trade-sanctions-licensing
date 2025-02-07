@@ -78,7 +78,10 @@ class ThirdPartyForm(BaseModelForm):
         coerce=lambda x: x == "True",
         widget=forms.RadioSelect,
         label="Are you a third-party applying on behalf of a business you represent?",
-        error_messages={"required": "Select yes if you're a third party applying on behalf of a business you represent"},
+        error_messages={
+            "required": "Select yes if you're an external third party applying on behalf of a business you represent"
+        },
+        help_text="Such as external legal counsel or an external agent",
     )
 
     class Meta:
