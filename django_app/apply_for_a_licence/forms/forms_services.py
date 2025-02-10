@@ -1,13 +1,13 @@
 from apply_for_a_licence import choices
 from apply_for_a_licence.choices import TypeOfServicesChoices
 from apply_for_a_licence.models import Licence
+from apply_for_a_licence.utils import get_active_regimes
 from core.crispy_fields import get_field_with_label_id
 from core.forms.base_forms import BaseForm, BaseModelForm
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from django import forms
 from django.template.loader import render_to_string
-from sanctions_regimes.licensing import active_regimes
 
 
 class TypeOfServiceForm(BaseModelForm):
@@ -46,7 +46,7 @@ class WhichSanctionsRegimeForm(BaseForm):
         super().__init__(*args, **kwargs)
         checkbox_choices = []
 
-        sanctions = active_regimes
+        sanctions = get_active_regimes()
 
         for item in sanctions:
             checkbox_choices.append(Choice(item["name"], item["name"]))
