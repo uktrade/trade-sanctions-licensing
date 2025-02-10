@@ -15,7 +15,6 @@ from core.views.base_views import (
     BaseSaveAndReturnModelFormView,
 )
 from django.db.models import QuerySet
-from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 
@@ -36,20 +35,16 @@ class AddAnIndividualView(BaseIndividualFormView):
         Individual.objects.get_or_create(pk=self.kwargs["individual_uuid"], defaults={"licence": self.licence_object})
         return super().dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form: forms.AddAnIndividualForm) -> HttpResponse:
-        # is it a UK address?
-        self.is_uk_individual = form.cleaned_data["nationality_and_location"] in [
+    def get_success_url(self):
+        is_uk_individual = self.form.cleaned_data["nationality_and_location"] in [
             NationalityAndLocation.uk_national_uk_location.value,
             NationalityAndLocation.dual_national_uk_location.value,
             NationalityAndLocation.non_uk_national_uk_location.value,
         ]
-        return super().form_valid(form)
-
-    def get_success_url(self):
         success_url = reverse(
             "what_is_individuals_address",
             kwargs={
-                "location": "in-uk" if self.is_uk_individual else "outside-uk",
+                "location": "in-uk" if is_uk_individual else "outside-uk",
                 "individual_uuid": self.kwargs.get("individual_uuid"),
             },
         )
@@ -63,7 +58,6 @@ class DeleteIndividualView(DeleteAnEntityView):
 
 
 class WhatIsIndividualsAddressView(BaseIndividualFormView):
-
     def setup(self, request, *args, **kwargs):
         self.location = kwargs["location"]
         return super().setup(request, *args, **kwargs)

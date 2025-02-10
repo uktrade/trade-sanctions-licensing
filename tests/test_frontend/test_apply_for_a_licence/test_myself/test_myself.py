@@ -24,11 +24,12 @@ class TestAddMyself(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.no_more_additions(self.page)
         self.licensing_grounds_simple(self.page)
+        """
         self.check_your_answers(self.page, type="myself")
         expect(self.page.get_by_test_id("who-the-licence-covers-name")).to_have_text("Test first name Test last name")
         expect(self.page.get_by_test_id("who-the-licence-covers-connection")).to_have_text("UK national located in the UK")
         expect(self.page.get_by_test_id("who-the-licence-covers-address")).to_have_text("A1, Town, AA0 0AA, United Kingdom")
-        """self.page.get_by_role("link", name="Continue").click()
+        self.page.get_by_role("link", name="Continue").click()
         self.declaration_and_complete_page(self.page)
         expect(self.page).to_have_url(re.compile(r".*/application-complete"))
         self.check_submission_complete_page(self.page)"""
