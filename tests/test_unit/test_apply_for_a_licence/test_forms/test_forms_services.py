@@ -20,8 +20,8 @@ class TestSanctionsRegimeForm:
         assert form.has_error("which_sanctions_regime", "required")
 
     @patch(
-        "apply_for_a_licence.forms.forms_services.active_regimes",
-        [
+        "apply_for_a_licence.forms.forms_services.get_active_regimes",
+        return_value=[
             {"name": "test regime", "is_active": True},
             {"name": "test regime1", "is_active": True},
             {"name": "test regime2", "is_active": True},
@@ -36,8 +36,8 @@ class TestSanctionsRegimeForm:
         assert "test regime2" in flat_choices
 
     @patch(
-        "apply_for_a_licence.forms.forms_services.active_regimes",
-        [
+        "apply_for_a_licence.forms.forms_services.get_active_regimes",
+        return_value=[
             {"name": "test regime", "is_active": True},
         ],
     )
