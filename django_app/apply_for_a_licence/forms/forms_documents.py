@@ -3,7 +3,8 @@ import os
 from apply_for_a_licence.fields import MultipleFileField
 from apply_for_a_licence.models import Document
 from core.document_storage import TemporaryDocumentStorage
-from core.forms.base_forms import BaseForm
+
+# from core.forms.base_forms import BaseForm
 from core.utils import get_mime_type
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Layout
@@ -11,8 +12,10 @@ from django import forms
 from django_chunk_upload_handlers.clam_av import VirusFoundInFileException
 from utils.s3 import get_all_session_files
 
+from django_app.core.forms.base_forms import BaseModelForm
 
-class UploadDocumentsForm(BaseForm):
+
+class UploadDocumentsForm(BaseModelForm):
     revalidate_on_done = False
     save_and_return = True
     document = MultipleFileField(
@@ -109,6 +112,7 @@ class UploadDocumentsForm(BaseForm):
                 )
 
             # has the user already uploaded 10 files?
+            # TODO: update session_files
             if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
                 if len(session_files) + 1 > 10:
                     raise forms.ValidationError("You can only select up to 10 files at the same time", code="too_many")

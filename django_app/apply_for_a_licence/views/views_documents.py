@@ -3,6 +3,7 @@ import uuid
 from typing import Any
 
 from apply_for_a_licence.forms import forms_documents as forms
+from apply_for_a_licence.models import Document
 from authentication.mixins import LoginRequiredMixin
 from core.document_storage import TemporaryDocumentStorage
 from core.utils import is_ajax
@@ -13,9 +14,8 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import View
-from utils.s3 import (
+from utils.s3 import (  # get_all_session_files,
     generate_presigned_url,
-    get_all_session_files,
     get_user_uploaded_files,
 )
 
@@ -39,8 +39,8 @@ class UploadDocumentsView(BaseFormView):
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         """Retrieve the already uploaded files from the session storage and add them to the context."""
         context = super().get_context_data(**kwargs)
-        if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
-            context["session_files"] = session_files
+        documents = Document.objects.get(licence=self.kwargs["pk"])
+        context["documents"] = documents
         return context
 
     def form_valid(self, form: Form) -> HttpResponse:
