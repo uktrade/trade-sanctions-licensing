@@ -23,7 +23,6 @@ class TypeOfServiceView(BaseSaveAndReturnLicenceModelFormView):
                 success_url = reverse("service_activities")
 
         if self.form.has_field_changed("type_of_service"):
-            # if the type of service has changed, we want to clear the session data for the next steps
             self.redirect_after_post = False
 
         return success_url
