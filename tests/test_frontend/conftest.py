@@ -243,9 +243,9 @@ class ProviderBase(PlaywrightTestBase):
         page.get_by_role("button", name="Continue").click()
         self.fill_non_uk_address_details(page)
 
-    def provider_individual_located_in_uk(self, page):
-        page.get_by_label("First name").fill("Test first name")
-        page.get_by_label("Last name").fill("Test last name")
+    def provider_individual_located_in_uk(self, page, first_name: str = "Test full name", last_name: str = "Test last name"):
+        page.get_by_label("First name").fill(first_name)
+        page.get_by_label("Last name").fill(last_name)
         page.get_by_label("UK national located in the UK", exact=True).check()
         page.get_by_role("button", name="Continue").click()
         self.fill_uk_address_details(page, "individual")

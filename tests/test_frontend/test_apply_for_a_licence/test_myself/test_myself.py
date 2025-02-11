@@ -43,7 +43,7 @@ class TestAddMyself(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
         self.page.get_by_label("Yes").check()
         self.page.get_by_role("button", name="Continue").click()
-        self.provider_individual_located_in_uk(self.page)
+        self.provider_individual_located_in_uk(self.page, first_name="new_person_first", last_name="test")
         expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
         # expect(self.page.get_by_role("heading", name="You've added yourself plus 1 individual to the licence")).to_be_visible()
         # todo - reinstate
