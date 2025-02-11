@@ -2,20 +2,20 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 
 
-{% block title %}You've added {{ request.session.recipients.keys|length }} recipient{% if request.session.recipients.keys|length > 1 or request.session.recipients.keys|length == 0 %}s{% endif %}{% endblock title %}
+{% block title %}You've added {{ recipients|length }} recipient{% if recipients|length > 1 or recipients|length == 0 %}s{% endif %}{% endblock title %}
 
 {% block column_content %}
     <h1 class="govuk-heading-l">
-        You've added {{ request.session.recipients.keys|length }} recipient{% if request.session.recipients.keys|length > 1 or request.session.recipients.keys|length == 0 %}s{% endif %}
+        You've added {{ recipients|length }} recipient{% if recipients|length > 1 or recipients|length == 0 %}s{% endif %}
     </h1>
-    {% for id, recipient in request.session.recipients.items %}
+    {% for recipient in recipients %}
         <div class="action-wrapper">
             <div>
                 <h2 class="govuk-heading-m" style="float:left;">Recipient {{ forloop.counter }} </h2>
                 <ul class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         <a class="govuk-link" style="font-size: 19px; text-align:right"
-                           href="{% url 'where_is_the_recipient_located' recipient_uuid=id %}?change=yes">Change<span
+                           href="{% url 'where_is_the_recipient_located' recipient_uuid=recipient.pk %}?change=yes">Change<span
                             class="govuk-visually-hidden"> recipient {{forloop.counter}} details </span></a>
                     </dd>
                 </ul>
@@ -27,7 +27,7 @@
                     Name
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ recipient.cleaned_data.name }}
+                    {{ recipient.name }}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
@@ -35,13 +35,13 @@
                     Address
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ recipient.cleaned_data.readable_address | linebreaksbr }}
+                    {{ recipient.readable_address | linebreaksbr }}
                 </dd>
             </div>
-            {% if request.session.recipients.keys|length > 1 %}
+            {% if recipients|length > 1 %}
                 <form id="delete_recipient_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                      action="{% url 'delete_recipient' %}?recipient_uuid={{ id }}">
-                    <input type="hidden" name="recipient_uuid" value="{{ id }}">
+                      action="{% url 'delete_recipient' recipient_uuid=recipient.pk %}">
+                    <input type="hidden" name="recipient_uuid" value="{{ recipient.pk }}">
                     {% csrf_token %}
                     <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_recipient_form_{{ forloop.counter }}">
                         Remove recipient {{forloop.counter }} <span

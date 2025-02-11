@@ -57,7 +57,7 @@ class TestDoYouKnowTheRegisteredCompanyNumberForm:
         )
         form.is_valid()
         cleaned_data = form.clean()
-        assert cleaned_data["registered_company_name"] == "Test Company"
+        assert cleaned_data["name"] == "Test Company"
         assert cleaned_data["registered_office_address"] == "12 road, London"
         assert cleaned_data["registered_company_number"] == "12345678"
 

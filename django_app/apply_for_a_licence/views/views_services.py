@@ -1,16 +1,15 @@
 import logging
-import urllib.parse
 import uuid
 
 from apply_for_a_licence.choices import TypeOfServicesChoices
 from apply_for_a_licence.forms import forms_services as forms
-from core.views.base_views import BaseFormView
-from django.urls import reverse
+from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
+from django.urls import reverse, reverse_lazy
 
 logger = logging.getLogger(__name__)
 
 
-class TypeOfServiceView(BaseFormView):
+class TypeOfServiceView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.TypeOfServiceForm
 
     def get_success_url(self) -> str:
@@ -23,85 +22,62 @@ class TypeOfServiceView(BaseFormView):
             case _:
                 success_url = reverse("service_activities")
 
-        if get_parameters := urllib.parse.urlencode(self.request.GET):
-            success_url += "?" + get_parameters
-
-        if type_of_service := self.changed_fields.get("type_of_service", False):
+        if self.form.has_field_changed("type_of_service"):
             self.redirect_after_post = False
-
-            # we want to clear the service_activities and the purpose_of_provision if the type of service has changed
-            self.request.session["service_activities"] = {}
-            self.request.session["purpose_of_provision"] = {}
-
-            # changed from Professional or Business Services to other service
-            if type_of_service == "professional_and_business":
-                # delete form data for professional business services and licensing grounds
-                self.request.session["professional_or_business_services"] = {}
-                self.request.session["licensing_grounds"] = {}
-
-            # changed from Interception or Monitoring to other service
-            if type_of_service == "interception_or_monitoring":
-                self.request.session["which_sanctions_regime"] = {}
 
         return success_url
 
 
-class ProfessionalOrBusinessServicesView(BaseFormView):
+class ProfessionalOrBusinessServicesView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.ProfessionalOrBusinessServicesForm
+    success_url = reverse_lazy("service_activities")
 
-    def get_success_url(self) -> str:
-        success_url = reverse("service_activities")
-        url_params = ""
-
-        if self.request.GET.get("update", None) == "yes":
-            self.redirect_after_post = False
-
+    def add_query_parameters_to_url(self, success_url: str) -> str:
+        success_url = super().add_query_parameters_to_url(success_url)
         # We need separate logic here if coming from CYA as we
         # only want to go through the full update flow for pbs if it's actually changed.
-        if self.changed_fields.get("professional_or_business_services", False) and "redirect_to_url" in self.request.GET:
-            self.redirect_after_post = False
-            url_params = "update=yes"
+        if self.form.has_field_changed("professional_or_business_services") and "redirect_to_url" in self.request.GET:
+            if "?" in success_url:
+                success_url += "&"
+            else:
+                success_url += "?"
 
-        if get_parameters := urllib.parse.urlencode(self.request.GET):
-            success_url += "?" + url_params + "&" + get_parameters
-        elif url_params:
-            success_url += "?" + url_params
+            success_url += "update=yes"
+
         return success_url
 
+    def form_valid(self, form):
+        if form.has_field_changed("professional_or_business_services"):
+            self.redirect_after_post = False
+        return super().form_valid(form)
 
-class WhichSanctionsRegimeView(BaseFormView):
+
+class WhichSanctionsRegimeView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.WhichSanctionsRegimeForm
+    success_url = reverse_lazy("service_activities")
 
-    def get_success_url(self) -> str:
-        success_url = reverse("service_activities")
-
+    @property
+    def redirect_after_post(self) -> bool:
         if self.request.GET.get("update", None) == "yes":
-            self.redirect_after_post = False
-
-        if get_parameters := urllib.parse.urlencode(self.request.GET):
-            success_url += "?" + get_parameters
-
-        return success_url
+            return False
+        return True
 
 
-class ServiceActivitiesView(BaseFormView):
+class ServiceActivitiesView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.ServiceActivitiesForm
+
+    @property
+    def redirect_after_post(self) -> bool:
+        if self.update:
+            return False
+        return True
 
     def get_success_url(self) -> str:
         success_url = reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()})
 
-        if self.request.GET.get("update", None) == "yes":
-            self.redirect_after_post = False
+        if self.update:
             success_url = reverse("purpose_of_provision")
-            # todo: use get_cleaned_data_for_step method here - form was invalid so wasn't working
-            if professional_or_business_services := (self.request.session.get("type_of_service", {})):
-                if (
-                    professional_or_business_services.get("type_of_service", False)
-                    == TypeOfServicesChoices.professional_and_business.value
-                ):
-                    success_url = reverse("licensing_grounds")
-
-        if get_parameters := urllib.parse.urlencode(self.request.GET):
-            success_url += "?" + get_parameters
+            if self.form.instance.professional_or_business_services == TypeOfServicesChoices.professional_and_business.value:
+                success_url = reverse("licensing_grounds")
 
         return success_url
