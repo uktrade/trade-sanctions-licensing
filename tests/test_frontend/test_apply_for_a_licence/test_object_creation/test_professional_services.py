@@ -13,7 +13,7 @@ class TestProfessionalServices(StartBase, ProviderBase, RecipientBase, Licensing
     """Tests that the professional services are saved correctly"""
 
     def test_professional_business_services_saved(self):
-        self.start_new_application()
+        reference = self.start_new_application()
         self.business_third_party(self.page)
         self.provider_business_located_in_uk(self.page)
         self.no_more_additions(self.page)
@@ -24,11 +24,9 @@ class TestProfessionalServices(StartBase, ProviderBase, RecipientBase, Licensing
         self.page.get_by_label("Civil society activities that").check()
         self.page.get_by_role("button", name="Continue").click()
         self.licensing_grounds_simple(self.page)
-        self.page.get_by_test_id("continue_button").click()
-        new_reference = self.declaration_and_complete_page(self.page)
 
-        new_licence_object = Licence.objects.get(reference=new_reference)
-        assert new_licence_object.professional_or_business_services == [
+        licence_object = Licence.objects.get(submitter_reference=reference)
+        assert licence_object.professional_or_business_services == [
             choices.ProfessionalOrBusinessServicesChoices.auditing.value,
             choices.ProfessionalOrBusinessServicesChoices.legal_advisory.value,
         ]

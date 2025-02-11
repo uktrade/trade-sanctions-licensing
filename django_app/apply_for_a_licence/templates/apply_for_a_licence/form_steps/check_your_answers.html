@@ -87,7 +87,7 @@
                     {% if request.session.businesses.keys|length > 1 %}
                         <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                             <form id="delete_business_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                                  action="{% url 'delete_business' %}?business_uuid={{ id }}&success_url=check_your_answers">
+                                  action="{% url 'delete_business' business_uuid=id %}&success_url=check_your_answers">
                                 <input type="hidden" name="business_uuid" value="{{ id }}">
                                 <input type="hidden" name="success_url" value="check_your_answers">
                                 {% csrf_token %}

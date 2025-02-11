@@ -13,7 +13,7 @@ from django import forms
 
 class AddAnIndividualForm(BaseModelForm):
     form_h1_header = "Add an individual"
-
+    save_and_return = True
     nationality = forms.CharField(widget=forms.HiddenInput, required=False)
 
     class Meta:
@@ -79,6 +79,7 @@ class IndividualAddedForm(BaseForm):
 
 
 class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
+    save_and_return = True
 
     class Meta(BaseBusinessDetailsForm.Meta):
         model = Organisation
@@ -99,7 +100,6 @@ class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-
         self.fields["country"].required = True
         self.fields["country"].empty_label = "Select country"
         self.fields["address_line_1"].error_messages["required"] = "Enter address line 1"
@@ -127,6 +127,7 @@ class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
 
 class IndividualUKAddressForm(BaseUKBusinessDetailsForm):
     form_h1_header = "What is the individual's home address?"
+    save_and_return = True
 
     class Meta(BaseUKBusinessDetailsForm.Meta):
         model = Individual
@@ -160,6 +161,7 @@ class IndividualUKAddressForm(BaseUKBusinessDetailsForm):
 
 class IndividualNonUKAddressForm(BaseNonUKBusinessDetailsForm):
     form_h1_header = "What is the individual's home address?"
+    save_and_return = True
 
     class Meta(BaseNonUKBusinessDetailsForm.Meta):
         model = Individual

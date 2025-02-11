@@ -61,6 +61,15 @@ class BaseForm(forms.Form):
         if self.request and self.request.method == "GET" and (self.request.GET.get("change") or self.request.GET.get("update")):
             self.is_bound = False
 
+    def has_field_changed(self, field_name: str) -> bool:
+        """Check if a field has changed from a value that was previously inputted by the user.
+
+        e.g.
+        User inputs 'yes' for a field, then changes it to 'no' -> Returns True
+        User inputs 'yes' for a field -> Returns False
+        """
+        return field_name in self.changed_data and self.initial.get(field_name)
+
 
 class BaseModelForm(BaseForm, forms.ModelForm):
     pass
@@ -81,6 +90,7 @@ class BaseBusinessDetailsForm(BaseModelForm):
             "town_or_city": forms.TextInput,
             "county": forms.TextInput,
             "postcode": forms.TextInput,
+            "additional_contact_details": forms.Textarea,
         }
         labels = {
             "name": "Name of business",
@@ -92,6 +102,7 @@ class BaseBusinessDetailsForm(BaseModelForm):
             "town_or_city": "Town or city",
             "county": "County (optional)",
             "postcode": "Postcode",
+            "additional_contact_details": "Additional contact details (optional)",
         }
         error_messages = {
             "name": {"required": "Enter the name of the business"},
@@ -137,6 +148,7 @@ class BaseUKBusinessDetailsForm(BaseBusinessDetailsForm):
             "address_line_2",
             "county",
             "postcode",
+            "additional_contact_details",
         )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
@@ -181,6 +193,7 @@ class BaseNonUKBusinessDetailsForm(BaseBusinessDetailsForm):
             "address_line_2",
             "address_line_3",
             "address_line_4",
+            "additional_contact_details",
         )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
