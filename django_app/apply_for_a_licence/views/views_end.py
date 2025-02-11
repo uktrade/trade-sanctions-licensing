@@ -17,10 +17,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from utils.notifier import send_email
-from utils.s3 import get_all_session_files
+from utils.s3 import get_all_session_files, store_document_in_permanent_bucket
 from view_a_licence.utils import get_view_a_licence_application_url
-
-from django_app.utils.s3 import store_document_in_permanent_bucket
 
 logger = logging.getLogger(__name__)
 
