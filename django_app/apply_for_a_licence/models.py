@@ -28,14 +28,14 @@ class Licence(BaseModel):
     )
     licensing_grounds = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
     licensing_grounds_legal_advisory = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
-    regimes = ArrayField(base_field=models.CharField(max_length=255), blank=False, null=True)
+    regimes = ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
     reference = models.CharField(max_length=6)
-    submitter_reference = models.CharField(max_length=255, blank=False, null=True)
+    submitter_reference = models.CharField(max_length=255, blank=True, null=True)
     type_of_service = models.CharField(choices=choices.TypeOfServicesChoices.choices)
     professional_or_business_services = ArrayField(
         models.CharField(choices=choices.ProfessionalOrBusinessServicesChoices.choices), null=True
     )
-    service_activities = models.TextField(blank=False, null=True)
+    service_activities = models.TextField()
     description_provision = models.TextField(blank=True, null=True)
     purpose_of_provision = models.TextField(blank=True, null=True)
     held_existing_licence = models.CharField(
@@ -142,9 +142,6 @@ class AddressMixin(models.Model):
     country = CountryField(blank_label="Select country", blank=True, null=True)
     town_or_city = models.CharField(max_length=250, blank=True, null=True)
     county = models.CharField(max_length=250, null=True, blank=True)
-    where_is_the_address = models.CharField(
-        max_length=20, blank=False, null=True, choices=choices.WhereIsTheAddressChoices.choices
-    )
 
     class Meta:
         abstract = True
@@ -155,16 +152,13 @@ class AddressMixin(models.Model):
 
 
 class Organisation(BaseModelID, AddressMixin):
-    class Meta:
-        ordering = ["created_at"]
-
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="organisations")
     # two name fields required for the case of recipients
-    name = models.CharField(null=True, blank=False)
+    name = models.CharField(null=True, blank=True)
     website = models.URLField(null=True, blank=True)
-    do_you_know_the_registered_company_number = models.CharField(choices=choices.YesNoChoices.choices, blank=False, null=True)
+    do_you_know_the_registered_company_number = models.CharField(choices=choices.YesNoChoices.choices, blank=True, null=True)
     business_registered_on_companies_house = models.CharField(
-        choices=choices.YesNoDoNotKnowChoices.choices, max_length=11, blank=False, null=True
+        choices=choices.YesNoDoNotKnowChoices.choices, max_length=11, blank=True, null=True
     )
     registered_company_number = models.CharField(max_length=15, blank=True, null=True)
     registered_office_address = models.CharField(null=True, blank=True)
@@ -184,8 +178,11 @@ class Organisation(BaseModelID, AddressMixin):
         blank=False,
     )
     relationship_provider = models.TextField(
-        blank=False, null=True, db_comment="what is the relationship between the provider and the recipient?"
+        blank=True, null=True, db_comment="what is the relationship between the provider and the recipient?"
     )
+
+    class Meta:
+        ordering = ["created_at"]
 
     def readable_address(self) -> str:
         """If we have registered_office_address, use that instead of the address fields"""
@@ -194,21 +191,8 @@ class Organisation(BaseModelID, AddressMixin):
         else:
             return super().readable_address()
 
-    def clear_address_data(self) -> None:
-        """Clears the address data on the model instance"""
-        self.address_line_1 = None
-        self.address_line_2 = None
-        self.address_line_3 = None
-        self.address_line_4 = None
-        self.postcode = None
-        self.country = None  # type: ignore[assignment]
-        self.town_or_city = None
-        self.county = None
-        self.where_is_the_address = None
-        self.save()
 
-
-class Individual(BaseModelID, AddressMixin):
+class Individual(BaseModel, AddressMixin):
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="individuals")
     first_name = models.CharField(max_length=255, blank=False)
     last_name = models.CharField(max_length=255, blank=False)

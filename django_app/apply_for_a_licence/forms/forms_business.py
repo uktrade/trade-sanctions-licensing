@@ -49,7 +49,6 @@ class IsTheBusinessRegisteredWithCompaniesHouseForm(BaseModelForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.fields["business_registered_on_companies_house"].choices.pop(0)
-        self.fields["business_registered_on_companies_house"].required = True
 
 
 class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
@@ -59,11 +58,7 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
     class Meta:
         model = Organisation
         fields = ["do_you_know_the_registered_company_number", "registered_company_number", "name", "registered_office_address"]
-        widgets = {
-            "do_you_know_the_registered_company_number": forms.RadioSelect,
-            "name": forms.HiddenInput,
-            "registered_office_address": forms.HiddenInput,
-        }
+        widgets = {"do_you_know_the_registered_company_number": forms.RadioSelect}
         labels = {
             "do_you_know_the_registered_company_number": "Do you know the registered company number?",
             "registered_company_number": "Registered company number",
@@ -79,7 +74,11 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.fields["name"].required = False
+        self.fields["name"].initial = ""
+        self.fields["registered_office_address"].initial = ""
+        self.fields["name"].widget = forms.HiddenInput()
+        self.fields["registered_office_address"].widget = forms.HiddenInput()
+
         # remove companies house 500 error if it exists
         self.request.session.pop("company_details_500", None)
         self.request.session.modified = True
@@ -150,6 +149,8 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
                         code="invalid", message=self.Meta.error_messages["registered_company_number"]["invalid"]
                     ),
                 )
+        print(self._errors)
+        print(cleaned_data)
 
         return cleaned_data
 
@@ -177,23 +178,16 @@ class ManualCompaniesHouseInputForm(BaseForm):
         )
 
 
-class WhereIsTheBusinessLocatedForm(BaseModelForm):
-    class Meta:
-        model = Organisation
-        fields = ("where_is_the_address",)
-        widgets = {
-            "where_is_the_address": forms.RadioSelect,
-        }
-        labels = {
-            "where_is_the_address": "Where is the business located?",
-        }
-        error_messages = {
-            "where_is_the_address": {"required": "Select if the business is located in the UK or outside the UK"},
-        }
-
-    def __init__(self, *args: object, **kwargs: object) -> None:
-        super().__init__(*args, **kwargs)
-        self.fields["where_is_the_address"].choices.pop(0)
+class WhereIsTheBusinessLocatedForm(BaseForm):
+    where_is_the_address = forms.ChoiceField(
+        label="Where is the business located?",
+        choices=(
+            ("in-uk", "In the UK"),
+            ("outside-uk", "Outside the UK"),
+        ),
+        widget=forms.RadioSelect,
+        error_messages={"required": "Select if the business is located in the UK or outside the UK"},
+    )
 
 
 class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
@@ -312,19 +306,3 @@ class BusinessAddedForm(BaseForm):
         if self.request.method == "GET":
             # we never want to bind/pre-fill this form, always fresh for the user
             self.is_bound = False
-
-
-class CheckCompanyDetailsForm(BaseModelForm):
-    class Meta:
-        model = Organisation
-        fields = ["name", "registered_company_number", "registered_office_address"]
-        widgets = {
-            "name": forms.HiddenInput,
-            "registered_company_number": forms.HiddenInput,
-            "registered_office_address": forms.HiddenInput,
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.Meta.fields:
-            self.fields[field].required = False

@@ -1,19 +1,19 @@
 import datetime
 
-from apply_for_a_licence.models import Licence
+from apply_for_a_licence.models import Licence, Organisation
 from apply_for_a_licence.utils import get_dirty_form_data
 from authentication.mixins import LoginRequiredMixin
-from core.forms.base_forms import BaseForm, BaseModelForm
+from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from django import forms
 from django.conf import settings
-from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import redirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
-from django.views.generic import FormView, TemplateView
-from django.views.generic.detail import SingleObjectMixin
+from django.views.generic import FormView, RedirectView, TemplateView
+from django_ratelimit.exceptions import Ratelimited
 
 
 class BaseView(LoginRequiredMixin, View):
@@ -74,7 +74,7 @@ class BaseFormView(BaseView, FormView):
 
         return super().post(request, *args, **kwargs)
 
-    def form_valid(self, form: BaseForm):
+    def form_valid(self, form):
         # we want to assign the form to the view ,so we can access it in the get_success_url method
         self.form = form
 
@@ -127,109 +127,41 @@ class BaseFormView(BaseView, FormView):
         return super().form_invalid(form)
 
 
-class BaseSaveAndReturnView(BaseView):
-    @property
-    def licence_object(self) -> Licence | None:
+class BaseLicenceFormView(BaseFormView):
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
         licence_id = self.request.session["licence_id"]
-        try:
-            licence = Licence.objects.get(pk=licence_id)
-            if licence.user != self.request.user:
-                raise Http404()
-            self._licence_object = licence
-            return licence
-        except Licence.DoesNotExist:
-            return None
-
-
-class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
-    template_name = "core/base_form_step.html"
-    # do we want to redirect the user to the redirect_to query parameter page after this form is submitted?
-    redirect_after_post = True
-
-    # do we want to redirect the user to the next step with query parameters?
-    redirect_with_query_parameters = True
-
-    def dispatch(self, request, *args, **kwargs):
-        if self.request.GET.get("update", None) == "yes":
-            self.update = True
-        else:
-            self.update = False
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_form(self, form_class: BaseForm | None = None) -> BaseForm:
-        form = super().get_form(form_class)
-        self.form = form
-        return form
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["request"] = self.request
+        instance = get_object_or_404(Licence, pk=licence_id)
+        kwargs["instance"] = instance
+        # We want to raise a 404 so user doesn't know they've tried to access a licence they shouldn't have
+        if instance.user != self.request.user:
+            raise Http404
         return kwargs
 
-    def post(self, request, *args, **kwargs):
-        # checking for session expiry
-        if last_activity := request.session.get(settings.SESSION_LAST_ACTIVITY_KEY, None):
-            now = timezone.now()
-            last_activity = datetime.datetime.fromisoformat(last_activity)
-            # if the last recorded activity was more than the session cookie age ago, we assume the session has expired
-            if now > (last_activity + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)):
-                return redirect(reverse("session_expired"))
-        else:
-            # if we don't have a last activity, we assume the session has expired
-            return redirect(reverse("session_expired"))
 
-        # now setting the last active to the current time
-        request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
-
-        return super().post(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        # get the success_url as this might change the value of redirect_after_post to avoid duplicating conditional
-        # logic in the get_success_url method
-        success_url = self.get_success_url()
-        if self.redirect_with_query_parameters:
-            success_url = self.add_query_parameters_to_url(success_url)
-
-        # figure out if we want to redirect after form is submitted
-        redirect_to_url = self.request.GET.get("redirect_to_url", None) or self.request.session.pop("redirect_to_url", None)
-        if redirect_to_url and url_has_allowed_host_and_scheme(redirect_to_url, allowed_hosts=None):
-            if self.redirect_after_post:
-                # we want to redirect the user to a specific page after the form is submitted
-                return redirect(redirect_to_url)
-            else:
-                # we don't want to redirect the user just now, but we want to pass the redirect_to URL to the next form,
-                # so it can redirect the user after it is submitted
-                self.request.session["redirect_to_url"] = redirect_to_url
-
-        return HttpResponseRedirect(success_url)
-
-    def add_query_parameters_to_url(self, success_url: str) -> str:
-        """Add GET query parameters to the success URL so they're retained."""
-        if get_parameters := self.request.GET.urlencode():
-            success_url += "?" + get_parameters
-        return success_url
+class BaseOrganisationFormView(BaseFormView):
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        organisation_id = self.kwargs.get("business_uuid")
+        licence_id = self.request.session["licence_id"]
+        licence_object = get_object_or_404(Licence, pk=licence_id)
+        print(licence_object)
+        instance = Organisation.objects.get(pk=organisation_id, licence=licence_object)
+        kwargs["instance"] = instance
+        return kwargs
 
 
-class BaseSaveAndReturnModelFormView(SingleObjectMixin, BaseSaveAndReturnFormView):
-    def get_form(self, form_class=None) -> BaseModelForm:
-        form = super().get_form(form_class)
-        self.form: BaseModelForm = form
-        return form
-
-    def form_valid(self, form):
-        self.instance = self.save_form(form)
-        return super().form_valid(form)
-
-    def save_form(self, form):
-        return form.save()
+def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpResponse:
+    return HttpResponse("You have made too many", status=429)
 
 
-class BaseSaveAndReturnLicenceModelFormView(BaseSaveAndReturnModelFormView):
+class RedirectBaseDomainView(RedirectView):
+    """Redirects base url visits to either apply-for-a-licence or view-a-licence default view"""
+
     @property
-    def object(self):
-        return self.licence_object
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["instance"] = self.object
-        return kwargs
+    def url(self) -> str:
+        if is_apply_for_a_licence_site(self.request.site):
+            return reverse("dashboard")
+        elif is_view_a_licence_site(self.request.site):
+            return reverse("view_a_licence:application_list")
+        return ""
