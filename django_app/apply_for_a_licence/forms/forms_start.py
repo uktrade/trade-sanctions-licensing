@@ -77,7 +77,7 @@ class ThirdPartyForm(BaseModelForm):
         choices=choices.YES_NO_CHOICES,
         coerce=lambda x: x == "True",
         widget=forms.RadioSelect,
-        label="Are you a third-party applying on behalf of a business you represent?",
+        label="Are you an external third-party applying on behalf of a business you represent?",
         error_messages={
             "required": "Select yes if you're an external third party applying on behalf of a business you represent"
         },
