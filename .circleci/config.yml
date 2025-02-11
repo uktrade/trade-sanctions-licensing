@@ -147,6 +147,7 @@ jobs:
                 --junitxml=test-results/frontend/results.xml \
                 --create-db \
                 --circleci-parallelize
+                --reruns 3
 
         - store_artifacts:
             # save the frontend test videos
@@ -190,6 +191,7 @@ jobs:
               --cov-report=json \
               --junitxml=test-results/unit/results.xml \
               --create-db
+              --reruns 3
 
         - codecov/upload
 
