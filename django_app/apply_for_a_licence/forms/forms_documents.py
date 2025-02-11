@@ -18,14 +18,21 @@ from django_app.core.forms.base_forms import BaseModelForm
 class UploadDocumentsForm(BaseModelForm):
     revalidate_on_done = False
     save_and_return = True
-    document = MultipleFileField(
-        label="Upload a file",
-        help_text="Maximum individual file size 100MB. Maximum number of uploads 10.",
-        required=False,
-    )
+
+    class Meta:
+        model = Document
+        fields = ("document",)
+        widgets = {
+            "document": MultipleFileField,
+        }
+        labels = {
+            "document": "Upload a file",
+        }
+        help_texts = {"document": "Maximum individual file size 100MB. Maximum number of uploads 10."}
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
+        self.fields["document"].required = False
         self.fields["document"].widget.attrs["class"] = "govuk-file-upload moj-multi-file-upload__input"
         self.fields["document"].widget.attrs["name"] = "document"
         # redefining this to remove the 'Continue' button from the helper
