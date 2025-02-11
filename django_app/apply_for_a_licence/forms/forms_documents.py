@@ -3,8 +3,6 @@ import os
 from apply_for_a_licence.fields import MultipleFileField
 from apply_for_a_licence.models import Document
 from core.document_storage import TemporaryDocumentStorage
-
-# from core.forms.base_forms import BaseForm
 from core.utils import get_mime_type
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Layout
