@@ -25,13 +25,6 @@ class SubmitterReferenceForm(BaseModelForm):
             Field.text("submitter_reference", field_width=Fluid.TWO_THIRDS),
         )
 
-    def save(self, commit=True) -> Licence:
-        instance = super().save(commit=False)
-        instance.user = self.request.user
-        instance.save()
-        self.request.session["licence_id"] = instance.id
-        return instance
-
 
 class StartForm(BaseModelForm):
     save_and_return = True
@@ -77,7 +70,7 @@ class ThirdPartyForm(BaseModelForm):
         choices=choices.YES_NO_CHOICES,
         coerce=lambda x: x == "True",
         widget=forms.RadioSelect,
-        label="Are you a third-party applying on behalf of a business you represent?",
+        label="Are you an external third-party applying on behalf of a business you represent?",
         error_messages={
             "required": "Select yes if you're an external third party applying on behalf of a business you represent"
         },

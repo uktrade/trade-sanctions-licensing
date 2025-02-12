@@ -11,6 +11,7 @@ from django import forms
 class AddYourselfForm(BaseModelForm):
     form_h1_header = "Your details"
     nationality = forms.CharField(widget=forms.HiddenInput, required=False)
+    save_and_return = True
 
     class Meta:
         model = Individual
@@ -52,6 +53,7 @@ class AddYourselfForm(BaseModelForm):
 
 class AddYourselfUKAddressForm(BaseUKBusinessDetailsForm):
     form_h1_header = "What is your home address?"
+    save_and_return = True
 
     class Meta(BaseUKBusinessDetailsForm.Meta):
         model = Organisation
@@ -85,6 +87,7 @@ class AddYourselfUKAddressForm(BaseUKBusinessDetailsForm):
 
 class AddYourselfNonUKAddressForm(BaseNonUKBusinessDetailsForm):
     form_h1_header = "What is your home address?"
+    save_and_return = True
 
     class Meta(BaseNonUKBusinessDetailsForm.Meta):
         model = Organisation

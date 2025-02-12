@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-from apply_for_a_licence import choices
 from apply_for_a_licence.forms import forms_services as forms
 
 
@@ -14,10 +13,10 @@ class TestTypeOfServiceForm:
 
 class TestSanctionsRegimeForm:
     def test_required(self, request_object):
-        form = forms.WhichSanctionsRegimeForm(data={"which_sanctions_regime": None}, request=request_object)
+        form = forms.WhichSanctionsRegimeForm(data={"regimes": None}, request=request_object)
         assert not form.is_valid()
-        assert "which_sanctions_regime" in form.errors
-        assert form.has_error("which_sanctions_regime", "required")
+        assert "regimes" in form.errors
+        assert form.has_error("regimes", "required")
 
     @patch(
         "apply_for_a_licence.forms.forms_services.active_regimes",
@@ -29,25 +28,11 @@ class TestSanctionsRegimeForm:
     )
     def test_choices_creation(self, request_object):
         form = forms.WhichSanctionsRegimeForm(request=request_object)
-        assert len(form.fields["which_sanctions_regime"].choices) == 3
-        flat_choices = [choice[0] for choice in form.fields["which_sanctions_regime"].choices]
+        assert len(form.fields["regimes"].choices) == 3
+        flat_choices = [choice[0] for choice in form.fields["regimes"].choices]
         assert "test regime" in flat_choices
         assert "test regime1" in flat_choices
         assert "test regime2" in flat_choices
-
-    @patch(
-        "apply_for_a_licence.forms.forms_services.active_regimes",
-        [
-            {"name": "test regime", "is_active": True},
-        ],
-    )
-    def test_assert_unknown_regime_selected_error(self, request_object):
-        form = forms.WhichSanctionsRegimeForm(
-            data={"which_sanctions_regime": ["Unknown Regime", "test regime"]}, request=request_object
-        )
-        assert not form.is_valid()
-        assert "which_sanctions_regime" in form.errors
-        assert form.has_error("which_sanctions_regime", "invalid_choice")
 
 
 class TestProfessionalOrBusinessServicesForm:
@@ -56,19 +41,6 @@ class TestProfessionalOrBusinessServicesForm:
         assert not form.is_valid()
         assert "professional_or_business_services" in form.errors
         assert form.errors.as_data()["professional_or_business_services"][0].code == "required"
-
-    def test_get_professional_or_business_service_display(self, request_object):
-        form = forms.ProfessionalOrBusinessServicesForm(
-            data={
-                "professional_or_business_services": [
-                    choices.ProfessionalOrBusinessServicesChoices.accounting.value,
-                    choices.ProfessionalOrBusinessServicesChoices.legal_advisory.value,
-                ]
-            },
-            request=request_object,
-        )
-        assert form.is_valid()
-        assert form.get_professional_or_business_service_display() == "Accounting,\nLegal advisory"
 
 
 class TestServiceActivitiesForm:

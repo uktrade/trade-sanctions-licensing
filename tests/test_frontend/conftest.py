@@ -105,7 +105,7 @@ class PlaywrightTestBase(LiveServerTestCase):
             page = self.page
         page.goto(f"{self.base_url}{path}")  # type: ignore[union-attr]
 
-    def start_new_application(self, submitter_reference: str | None = None):
+    def start_new_application(self, submitter_reference: str | None = None) -> str:
         """Starts a new application with a given submitter reference and take the user to the first 'real' question"""
         if not submitter_reference:
             submitter_reference = "test-submitter-reference"
@@ -114,6 +114,8 @@ class PlaywrightTestBase(LiveServerTestCase):
         self.page.get_by_label("Your application name").click()
         self.page.get_by_label("Your application name").fill(submitter_reference)
         self.page.get_by_role("button", name="Save and continue").click()
+
+        return submitter_reference
 
     def check_your_answers(self, page, third_party=True, type="business"):
         expect(page).to_have_url(re.compile(r".*/check-your-answers"))
@@ -241,9 +243,9 @@ class ProviderBase(PlaywrightTestBase):
         page.get_by_role("button", name="Continue").click()
         self.fill_non_uk_address_details(page)
 
-    def provider_individual_located_in_uk(self, page):
-        page.get_by_label("First name").fill("Test first name")
-        page.get_by_label("Last name").fill("Test last name")
+    def provider_individual_located_in_uk(self, page, first_name: str = "Test full name", last_name: str = "Test last name"):
+        page.get_by_label("First name").fill(first_name)
+        page.get_by_label("Last name").fill(last_name)
         page.get_by_label("UK national located in the UK", exact=True).check()
         page.get_by_role("button", name="Continue").click()
         self.fill_uk_address_details(page, "individual")
