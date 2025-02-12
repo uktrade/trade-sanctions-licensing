@@ -30,6 +30,7 @@ class BaseSettings(PydanticBaseSettings):
     new_otsi_user_template_id: str = ""
     public_user_new_application_template_id: str = ""
     otsi_new_application_template_id: str = ""
+    delete_licence_application_template_id: str = ""
     email_verify_timeout_seconds: int = 3600
     new_application_alert_recipients: str = "email@example.com"
 
