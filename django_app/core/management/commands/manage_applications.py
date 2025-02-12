@@ -36,11 +36,12 @@ class Command(BaseCommand):
                 context={
                     "name": licence_object.applicant_full_name,
                     "application_number": licence_object.reference,
-                    "url": reverse("dashboard"),
+                    "application_url": reverse("dashboard"),
                 },
             )
             self.stdout.write(
                 self.style.SUCCESS(
-                    f"Successfully send email to {licence_object.email} for Licence application {licence_object.id}"
+                    f"Successfully send email to {licence_object.applicant_user_email_address} "
+                    f"for Licence application {licence_object.id}"
                 )
             )
