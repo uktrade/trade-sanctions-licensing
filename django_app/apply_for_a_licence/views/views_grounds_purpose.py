@@ -71,3 +71,6 @@ class LicensingGroundsLegalAdvisoryView(BaseSaveAndReturnLicenceModelFormView):
 class PurposeOfProvisionView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.PurposeOfProvisionForm
     success_url = reverse_lazy("upload_documents")
+
+    def get_success_url(self):
+        return reverse("upload_documents", kwargs={"pk": self.licence_object.pk})

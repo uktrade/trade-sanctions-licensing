@@ -8,7 +8,6 @@
 {% endblock extra_css %}
 
 {% block extra_js %}
-    {{ block.super }}
     <script src="{% static "core/javascript/moj-multi-file-upload.js" %}" nonce="{{ request.csp_nonce }}"></script>
     <script nonce="{{ request.csp_nonce }}">
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -16,7 +15,7 @@
         $(document).ready(function () {
             const multi_file_upload = new $.MultiFileUpload({
                 container: document.querySelector(".moj-multi-file-upload"),
-                uploadUrl: "{% url 'upload_documents' %}",
+                uploadUrl: "{% url 'upload_documents' pk=id %}",
                 deleteUrl: "{% url 'delete_documents' %}"
             });
 
@@ -46,6 +45,8 @@
                 }
             });
         })
+
+
     </script>
 {% endblock extra_js %}
 
@@ -59,7 +60,7 @@
 
     <div class="moj-multi-file-upload">
         <form id="main_file_upload_form" method="post" enctype='multipart/form-data' novalidate
-              action="{% url 'upload_documents' %}">
+              action="{% url 'upload_documents' pk=id %}">
             {% csrf_token %}
             {% crispy form %}
         </form>

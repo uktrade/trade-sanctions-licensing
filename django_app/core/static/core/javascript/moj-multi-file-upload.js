@@ -114,7 +114,7 @@ $.MultiFileUpload.prototype.getErrorHtml = function (response) {
     html += response.error
     html += '</span>'
     html += '<br><br>'
-    html += '<input id="' + id + '" type="file" name="upload_documents-document" class="file-upload-error-input hidden">'
+    html += '<input id="' + id + '" type="file" name="upload_documents-file" class="file-upload-error-input hidden">'
     html += '<label for="' + id + '" class="govuk-button govuk-button--secondary">Choose file</label>'
     html += '</div>'
     return html
