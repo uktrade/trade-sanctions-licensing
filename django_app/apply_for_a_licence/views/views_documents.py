@@ -7,7 +7,7 @@ from apply_for_a_licence.models import Document
 from authentication.mixins import LoginRequiredMixin
 from core.document_storage import TemporaryDocumentStorage
 from core.utils import is_ajax
-from core.views.base_views import BaseFormView
+from core.views.base_views import BaseSaveAndReturnModelFormView
 from django.core.cache import cache
 from django.forms import Form
 from django.http import Http404, HttpResponse, JsonResponse
@@ -22,7 +22,7 @@ from utils.s3 import (  # get_all_session_files,
 logger = logging.getLogger(__name__)
 
 
-class UploadDocumentsView(BaseFormView):
+class UploadDocumentsView(BaseSaveAndReturnModelFormView):
     """View for uploading documents.
     Accepts both Ajax and non-Ajax requests, to accommodate both JS and non-JS users respectively."""
 
@@ -39,15 +39,20 @@ class UploadDocumentsView(BaseFormView):
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         """Retrieve the already uploaded files from the session storage and add them to the context."""
         context = super().get_context_data(**kwargs)
-        documents = Document.objects.get(licence=self.kwargs["pk"])
-        context["documents"] = documents
+        try:
+            documents = Document.objects.get(licence=self.kwargs["pk"])
+            context["documents"] = documents
+        except Document.DoesNotExist:
+            context["documents"] = []
+
+        context["id"] = self.kwargs["pk"]
         return context
 
     def form_valid(self, form: Form) -> HttpResponse:
         """Loop through the files and save them to the temporary storage. If the request is Ajax, return a JsonResponse.
 
         If the request is not Ajax, redirect to the summary page (the next step in the form)."""
-        for temporary_file in form.cleaned_data["document"]:
+        for temporary_file in form.cleaned_data["file"]:
             # adding the file name to the cache, so we can retrieve it later and confirm they uploaded it
             # we add a unique identifier to the key, so we do not overwrite previous uploads
             redis_cache_key = f"{self.request.session.session_key}{uuid.uuid4()}"
@@ -73,8 +78,8 @@ class UploadDocumentsView(BaseFormView):
             return JsonResponse(
                 {
                     "success": False,
-                    "error": form.errors["document"][0],
-                    "file_name": self.request.FILES["document"].name.rpartition("/")[2],
+                    "error": form.errors["file"][0],
+                    "file_name": self.request.FILES["file"].name.rpartition("/")[2],
                 },
                 status=200,
             )

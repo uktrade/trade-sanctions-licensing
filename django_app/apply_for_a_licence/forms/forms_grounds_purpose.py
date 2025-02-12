@@ -96,3 +96,4 @@ class PurposeOfProvisionForm(BaseModelForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.fields["purpose_of_provision"].required = True
+        kwargs["pk"] = self.instance.pk

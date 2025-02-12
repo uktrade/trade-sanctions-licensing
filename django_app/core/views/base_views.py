@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 
 from apply_for_a_licence.models import Licence
 from apply_for_a_licence.utils import get_dirty_form_data
@@ -221,7 +222,17 @@ class BaseSaveAndReturnModelFormView(SingleObjectMixin, BaseSaveAndReturnFormVie
         return super().form_valid(form)
 
     def save_form(self, form):
-        return form.save()
+        instance = form.save(commit=False)
+        instance.user = self.request.user
+        saved_instance = instance.save()
+        if not self.request.session["licence_id"]:
+            self.request.session["licence_id"] = instance.id
+
+        return saved_instance
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        self.object = []
+        return super().get_context_data(**kwargs)
 
 
 class BaseSaveAndReturnLicenceModelFormView(BaseSaveAndReturnModelFormView):

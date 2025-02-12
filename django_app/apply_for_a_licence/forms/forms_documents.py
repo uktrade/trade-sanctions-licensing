@@ -8,29 +8,30 @@ from core.utils import get_mime_type
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Layout
 from django import forms
+from django.utils.safestring import mark_safe
 from django_chunk_upload_handlers.clam_av import VirusFoundInFileException
 from utils.s3 import get_all_session_files
+
+from django_app.apply_for_a_licence.fields import MultipleFileInput
 
 
 class UploadDocumentsForm(BaseModelForm):
     revalidate_on_done = False
     save_and_return = True
-    storage = TemporaryDocumentStorage()
+    file = MultipleFileField()
 
     class Meta:
         model = Document
         fields = ["file"]
         widgets = {
-            "file": MultipleFileField(),
+            "file": MultipleFileInput(),
         }
-        labels = {
-            "file": "Upload a file",
-        }
-        help_texts = {"file": "Maximum individual file size 100MB. Maximum number of uploads 10."}
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.fields["file"].required = False
+        self.fields["file"].label = mark_safe("<strong>Upload a file</strong>")
+        self.fields["file"].help_text = "Maximum individual file size 100MB. Maximum number of uploads 10."
         self.fields["file"].widget.attrs["class"] = "govuk-file-upload moj-multi-file-upload__input"
         self.fields["file"].widget.attrs["name"] = "file"
         # redefining this to remove the 'Continue' button from the helper
