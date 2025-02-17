@@ -17,7 +17,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        delete_threshold = timezone.now() - datetime.timedelta(days=settings.DRAFT_APPLICATION_EXPIRY_DAYS)
+        delete_threshold = timezone.now() - datetime.timedelta(days=settings.DRAFT_APPLICATION_EXPIRY_DAYS + 1)
         # Delete applications older than DRAFT_APPLICATION_EXPIRY_DAYS
         stale_licences = Licence.objects.filter(created_at__lt=delete_threshold, status=StatusChoices.draft)
         for licence_object in stale_licences:
@@ -26,7 +26,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f"Successfully deleted Licence application {licence_id}"))
 
         # Email applicants whose licenses are 7 days from DRAFT_APPLICATION_EXPIRY_DAYS
-        email_threshold = delete_threshold + datetime.timedelta(days=7)
+        email_threshold = timezone.now() - datetime.timedelta(days=settings.DRAFT_APPLICATION_EXPIRY_DAYS - 7)
         email_licences = Licence.objects.filter(created_at__date=email_threshold.date(), status=StatusChoices.draft)
 
         for licence_object in email_licences:
@@ -41,7 +41,7 @@ class Command(BaseCommand):
             )
             self.stdout.write(
                 self.style.SUCCESS(
-                    f"Successfully send email to {licence_object.applicant_user_email_address} "
-                    f"for Licence application {licence_object.id}"
+                    f"Successfully sent email to {licence_object.applicant_user_email_address} "
+                    f"for licence application {licence_object.id}"
                 )
             )
