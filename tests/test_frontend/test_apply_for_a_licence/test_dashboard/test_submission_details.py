@@ -11,6 +11,10 @@ from tests.test_frontend.conftest import PlaywrightTestBase
 
 class TestApplicationDetails(PlaywrightTestBase):
     def test_submitted_on(self):
+        self.go_to_path(reverse("dashboard"))
+        expect(self.page.get_by_text("Submitted on 14 February 2025")).not_to_be_visible()
+        expect(self.page.get_by_text("Your reference: 111111")).not_to_be_visible()
+
         user = User.objects.get(email="apply_test_user@example.com")
         submitted_licence = LicenceFactory(
             user=user,
