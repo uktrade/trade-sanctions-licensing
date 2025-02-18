@@ -130,14 +130,16 @@ class BaseFormView(BaseView, FormView):
 class BaseSaveAndReturnView(BaseView):
     @property
     def licence_object(self) -> Licence | None:
-        licence_id = self.request.session["licence_id"]
-        try:
-            licence = Licence.objects.get(pk=licence_id)
-            if licence.user != self.request.user:
-                raise Http404()
-            self._licence_object = licence
-            return licence
-        except Licence.DoesNotExist:
+        if licence_id := self.request.session.get("licence_id"):
+            try:
+                licence = Licence.objects.get(pk=licence_id)
+                if licence.user != self.request.user:
+                    raise Http404()
+                self._licence_object = licence
+                return licence
+            except Licence.DoesNotExist:
+                return None
+        else:
             return None
 
 
@@ -154,19 +156,7 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
             self.update = True
         else:
             self.update = False
-        return super().dispatch(request, *args, **kwargs)
 
-    def get_form(self, form_class: BaseForm | None = None) -> BaseForm:
-        form = super().get_form(form_class)
-        self.form = form
-        return form
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["request"] = self.request
-        return kwargs
-
-    def post(self, request, *args, **kwargs):
         # checking for session expiry
         if last_activity := request.session.get(settings.SESSION_LAST_ACTIVITY_KEY, None):
             now = timezone.now()
@@ -180,8 +170,17 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
 
         # now setting the last active to the current time
         request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
+        return super().dispatch(request, *args, **kwargs)
 
-        return super().post(request, *args, **kwargs)
+    def get_form(self, form_class: BaseForm | None = None) -> BaseForm:
+        form = super().get_form(form_class)
+        self.form = form
+        return form
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["request"] = self.request
+        return kwargs
 
     def form_valid(self, form):
         # get the success_url as this might change the value of redirect_after_post to avoid duplicating conditional
