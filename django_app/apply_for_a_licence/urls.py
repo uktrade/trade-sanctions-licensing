@@ -147,7 +147,7 @@ views_grounds_purpose_urls = [
 views_documents_urls = [
     path("upload-documents", views_documents.UploadDocumentsView.as_view(), name="upload_documents"),
     path("delete-documents", views_documents.DeleteDocumentsView.as_view(), name="delete_documents"),
-    path("download-document/<str:file_name>", views_documents.DownloadDocumentView.as_view(), name="download_document"),
+    path("download-document/<int:pk>", views_documents.DownloadDocumentView.as_view(), name="download_document"),
 ]
 
 views_end_urls = [

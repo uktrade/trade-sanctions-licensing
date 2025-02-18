@@ -18,7 +18,7 @@
     <div>
         <h1 class="govuk-heading-l">Check your answers</h1>
     </div>
-    {% if form_data.start.who_do_you_want_the_licence_to_cover != "myself" %}
+    {% if licence.who_do_you_want_the_licence_to_cover != "myself" %}
         <div class="action-wrapper">
             <h2 class="govuk-heading-m fl-left">Your details</h2>
             <dl class="govuk-summary-card__actions">
@@ -32,22 +32,22 @@
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Full name</dt>
                 <dd class="govuk-summary-list__value" data-testid="your-details-name">
-                    {{ form_data.your_details.applicant_full_name }}
+                    {{ licence.applicant_full_name }}
                 </dd>
             </div>
-            {% if form_data.your_details.applicant_business %}
+            {% if licence.applicant_business %}
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Business you work for</dt>
                     <dd class="govuk-summary-list__value" data-testid="your-details-business">
-                        {{ form_data.your_details.applicant_business }}
+                        {{ licence.applicant_business }}
                     </dd>
                 </div>
             {% endif %}
-            {% if form_data.your_details.applicant_role %}
+            {% if licence.applicant_role %}
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Your role</dt>
                     <dd class="govuk-summary-list__value" data-testid="your-details-role">
-                        {{ form_data.your_details.applicant_role }}
+                        {{ licence.applicant_role }}
                     </dd>
                 </div>
             {% endif %}
@@ -70,21 +70,21 @@
         </dl>
     {% endif %}
     <h2 class="govuk-heading-m">Who the licence covers</h2>
-    {% if form_data.start.who_do_you_want_the_licence_to_cover == "business" %}
-        {% for id, business in businesses.items %}
+    {% if licence.who_do_you_want_the_licence_to_cover == "business" %}
+        {% for business in businesses %}
             <div class="action-wrapper">
                 <h3 class="govuk-heading-s fl-left">Business {{ forloop.counter }}</h3>
                 <dl class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
-                        {% if business.cleaned_data.companies_house %}
+                        {% if business.business_registered_on_companies_house %}
                             <a class="govuk-link change_business_details_link"
-                               href="{% url 'do_you_know_the_registered_company_number' %}?business_uuid={{ id }}&redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">business {{ forloop.counter }} details</span></a>
+                               href="{% url 'do_you_know_the_registered_company_number' business_uuid=business.pk %}?redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">business {{ forloop.counter }} details</span></a>
                         {% else %}
                             <a class="govuk-link change_business_details_link"
-                               href="{% url 'add_a_business' location=business.cleaned_data.url_location business_uuid=id %}?redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">business {{ forloop.counter }} details</span></a>
+                               href="{% url 'add_a_business' location=business.where_is_the_address business_uuid=business.pk %}?redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">business {{ forloop.counter }} details</span></a>
                         {% endif %}
                     </dd>
-                    {% if request.session.businesses.keys|length > 1 %}
+                    {% if businesses|length > 1 %}
                         <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                             <form id="delete_business_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
                                   action="{% url 'delete_business' business_uuid=id %}&success_url=check_your_answers">
@@ -104,25 +104,25 @@
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Business name</dt>
                     <dd class="govuk-summary-list__value" data-testid="who-the-licence-covers-name">
-                        {{ business.cleaned_data.name }}
+                        {{ business.name }}
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Address</dt>
                     <dd class="govuk-summary-list__value" data-testid="who-the-licence-covers-address">
-                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=business.cleaned_data.readable_address|linebreaksbr %}
+                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=business.readable_address|linebreaksbr %}
                     </dd>
                 </div>
             </dl>
         {% endfor %}
         <dl class="govuk-summary-list">
             <a class="govuk-link"
-               href="{% url 'is_the_business_registered_with_companies_house' %}?change=yes&redirect_to_url=check_your_answers">
+               href="{% url 'is_the_business_registered_with_companies_house' business_uuid=new_business_uuid  %}?change=yes&redirect_to_url=check_your_answers">
                 Add another business
             </a>
         </dl>
     {% endif %}
-    {% if form_data.start.who_do_you_want_the_licence_to_cover == "myself" %}
+    {% if licence.who_do_you_want_the_licence_to_cover == "myself" %}
         <div class="action-wrapper">
             <h3 class="govuk-heading-s fl-left">Your details</h3>
             <dl class="govuk-summary-card__actions">
@@ -153,9 +153,9 @@
             </div>
         </dl>
         {% if individuals %}
-            {% for id, individual in individuals.items %}
+            {% for individual in individuals.items %}
                 {% if individual.address_data %}
-                        {# we want to make sure that the object has been fully completed, name + address data is necessary #}
+                    {# we want to make sure that the object has been fully completed, name + address data is necessary #}
                     <div class="action-wrapper">
                         <h3 class="govuk-heading-s fl-left">Individual {{ forloop.counter }}</h3>
                         <dl class="govuk-summary-card__actions">
@@ -207,11 +207,11 @@
             </a>
         </dl>
     {% endif %}
-    {% if form_data.start.who_do_you_want_the_licence_to_cover == "individual" %}
+    {% if licence.who_do_you_want_the_licence_to_cover == "individual" %}
         {% if individuals %}
             {% for id, individual in individuals.items %}
                 {% if individual.address_data %}
-                        {# we want to make sure that the object has been fully completed, name + address data is necessary #}
+                    {# we want to make sure that the object has been fully completed, name + address data is necessary #}
                     <div class="action-wrapper">
                         <h3 class="govuk-heading-s fl-left">Individual {{ forloop.counter }}</h3>
                         <dl class="govuk-summary-card__actions">
@@ -265,7 +265,7 @@
             </dl>
         {% endif %}
     {% endif %}
-    {% if form_data.start.who_do_you_want_the_licence_to_cover == "individual" %}
+    {% if licence.who_do_you_want_the_licence_to_cover == "individual" %}
         <div class="action-wrapper">
             <h2 class="govuk-heading-m fl-left">Business the individuals work for</h2>
             <dl class="govuk-summary-card__actions">
@@ -303,14 +303,14 @@
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Previous licence</dt>
             <dd class="govuk-summary-list__value" data-testid="previous-licence">
-                {{ form_data.previous_licence.held_existing_licence | capfirst }}
+                {{ licence.held_existing_licence | capfirst }}
             </dd>
         </div>
-        {% if form_data.previous_licence.held_existing_licence == 'yes' %}
+        {% if licence.held_existing_licence == 'yes' %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Previous licence numbers</dt>
                 <dd class="govuk-summary-list__value">
-                    {{ form_data.previous_licence.existing_licences|linebreaksbr }}
+                    {{ licence.existing_licences|linebreaksbr }}
                 </dd>
             </div>
         {% endif %}
@@ -320,18 +320,18 @@
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">What type of services do you want to provide?</dt>
             <dd class="govuk-summary-list__value" data-testid="services-type">
-                {{ forms.type_of_service.instance.get_type_of_service_display }}
+                {{ licence.get_type_of_service_display }}
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"
                    href="{% url 'type_of_service' %}?update=yes&redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">the type of services you want to provide</span></a>
             </dd>
         </div>
-        {% if form_data.professional_or_business_services %}
+        {% if licence.professional_or_business_services %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">What are the services?</dt>
                 <dd class="govuk-summary-list__value">
-                    {{ forms.professional_or_business_services.get_professional_or_business_service_display | linebreaksbr }}
+                    {{ licence.get_professional_or_business_service_display | linebreaksbr }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" data-testid="change_professional_business_services_link"
@@ -339,7 +339,7 @@
                 </dd>
             </div>
         {% endif %}
-        {% if form_data.which_sanctions_regime %}
+        {% if licence.regimes %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">What is the sanctions regime?</dt>
                 <dd class="govuk-summary-list__value">
@@ -356,7 +356,7 @@
                 Describe the specific activities within the services you want to provide
             </dt>
             <dd class="govuk-summary-list__value" data-testid="services-description">
-                {% include "apply_for_a_licence/partials/truncated_text.html" with text=form_data.service_activities.service_activities|linebreaksbr %}
+                {% include "apply_for_a_licence/partials/truncated_text.html" with text=licence.service_activities|linebreaksbr %}
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"
@@ -365,16 +365,16 @@
         </div>
     </dl>
     <h2 class="govuk-heading-m">Recipients of the services</h2>
-    {% if request.session.recipients %}
-        {% for id, recipient in request.session.recipients.items %}
+    {% if recipients %}
+        {% for recipient in recipients %}
             <div class="action-wrapper">
                 <h3 class="govuk-heading-s fl-left">Recipient {{ forloop.counter }}</h3>
                 <dl class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         <a class="govuk-link"
-                           href="{% url 'where_is_the_recipient_located' recipient_uuid=id %}?change=yes&redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">Recipient {{ forloop.counter }} details</span></a>
+                           href="{% url 'where_is_the_recipient_located' recipient_uuid=recipient.pk %}?change=yes&redirect_to_url=check_your_answers">Change<span class="govuk-visually-hidden">Recipient {{ forloop.counter }} details</span></a>
                     </dd>
-                    {% if request.session.recipients.keys|length > 1 %}
+                    {% if recipients|length > 1 %}
                         <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                             <form id="delete_recipient_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
                                   action="{% url 'delete_recipient' %}?recipient_uuid={{ id }}&success_url=check_your_answers">
@@ -483,14 +483,12 @@
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Upload supporting documents</dt>
             <dd class="govuk-summary-list__value" data-testid="supporting-documents">
-                {% if not session_files.items %}
+                {% for document in licence.documents.all %}
+                    <a class="govuk-link" href="{% url 'download_document' pk=document.pk %}" download>{{ document.original_file_name }}</a>
+                    <br><br>
+                {% empty %}
                     None uploaded
-                {% else %}
-                    {% for _, more_info in session_files.items %}
-                        <a class="govuk-link" href="{{ more_info.url }}" download>{{ more_info.file_name }}</a>
-                        <br>
-                    {% endfor %}
-                {% endif %}
+                {% endfor %}
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"

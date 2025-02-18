@@ -2,11 +2,11 @@ import logging
 import uuid
 from typing import Any
 
+from apply_for_a_licence import choices
 from apply_for_a_licence.forms.forms_end import DeclarationForm
-from apply_for_a_licence.utils import get_all_cleaned_data, get_all_forms
+from apply_for_a_licence.utils import get_all_cleaned_data
 from authentication.mixins import LoginRequiredMixin
-from core.document_storage import TemporaryDocumentStorage
-from core.views.base_views import BaseFormView
+from core.views.base_views import BaseFormView, BaseSaveAndReturnView
 from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponse
@@ -16,14 +16,13 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from utils.notifier import send_email
-from utils.s3 import get_all_session_files
 from utils.save_to_db import SaveToDB
 from view_a_licence.utils import get_view_a_licence_application_url
 
 logger = logging.getLogger(__name__)
 
 
-class CheckYourAnswersView(LoginRequiredMixin, TemplateView):
+class CheckYourAnswersView(BaseSaveAndReturnView, TemplateView):
     """View for the 'Check your answers' page."""
 
     template_name = "apply_for_a_licence/form_steps/check_your_answers.html"
@@ -33,24 +32,13 @@ class CheckYourAnswersView(LoginRequiredMixin, TemplateView):
         a lot of this data is present, as the user may have skipped some steps, so we import the form_step_conditions
         that are used to determine if a step should be shown, this is to avoid duplicating the logic here."""
         context = super().get_context_data(**kwargs)
-        all_cleaned_data = get_all_cleaned_data(self.request)
-        all_forms = get_all_forms(self.request)
-        context["form_data"] = all_cleaned_data
-        context["forms"] = all_forms
-        if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
-            context["session_files"] = session_files
-
-        if user_location := self.request.session.get("add_yourself_address", {}).get("country", ""):
-            context["add_yourself_address"] = "in-uk" if user_location == "GB" else "outside-uk"
-
-        if businesses := self.request.session.get("businesses", None):
-            context["businesses"] = businesses
-        if individuals := self.request.session.get("individuals", None):
-            context["individuals"] = individuals
-        if recipients := self.request.session.get("recipients", None):
-            context["recipients"] = recipients
-
+        licence = self.licence_object
+        context["licence"] = licence
+        context["recipients"] = licence.organisations.filter(type_of_relationship=choices.TypeOfRelationshipChoices.recipient)
+        context["businesses"] = licence.organisations.filter(type_of_relationship=choices.TypeOfRelationshipChoices.business)
+        context["individuals"] = licence.individuals.all()
         context["new_individual"] = str(uuid.uuid4())
+        context["new_business_uuid"] = str(uuid.uuid4())
         return context
 
 
