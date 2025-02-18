@@ -42,7 +42,8 @@
                                 Complete and submit before
                                 {{ application.get_date_till_deleted|date:'d F Y' }}
                             {% else %}
-                                {{ application.get_status_display }}
+                                {{ application.get_status_display }} on {{ application.submitted_at|date:"d F Y" }}<br>
+                                Your reference: <strong>{{ application.reference }}</strong>
                             {% endif %}
                         </td>
                         <td class="govuk-table__cell">
