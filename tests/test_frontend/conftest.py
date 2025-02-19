@@ -329,13 +329,13 @@ def patched_clean_document(monkeypatch):
     """Force the VirusFound exception to allow us to test the frontend implementation"""
     mock_document = MagicMock()
     mock_document.readline.side_effect = VirusFoundInFileException
-    original_clean_document = UploadDocumentsForm.clean_document
+    original_clean_document = UploadDocumentsForm.clean_file
 
     def mock_clean_document(self):
-        self.cleaned_data["document"] = [mock_document]
+        self.cleaned_data["file"] = [mock_document]
         return original_clean_document(self)
 
-    monkeypatch.setattr(UploadDocumentsForm, "clean_document", mock_clean_document)
+    monkeypatch.setattr(UploadDocumentsForm, "clean_file", mock_clean_document)
 
 
 @pytest.fixture(autouse=True, scope="function")
