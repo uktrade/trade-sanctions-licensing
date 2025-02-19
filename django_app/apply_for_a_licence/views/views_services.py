@@ -34,6 +34,7 @@ class TypeOfServiceView(BaseSaveAndReturnLicenceModelFormView):
 class ProfessionalOrBusinessServicesView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.ProfessionalOrBusinessServicesForm
     success_url = reverse_lazy("service_activities")
+    redirect_with_query_parameters = True
 
     def add_query_parameters_to_url(self, success_url: str) -> str:
         success_url = super().add_query_parameters_to_url(success_url)

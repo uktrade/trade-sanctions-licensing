@@ -20,6 +20,7 @@ class AddYourselfView(BaseIndividualFormView):
     form_class = forms.AddYourselfForm
     redirect_after_post = False
     pk_url_kwarg = "yourself_uuid"
+    redirect_with_query_parameters = True
 
     def dispatch(self, request, *args, **kwargs):
         Individual.objects.get_or_create(pk=self.kwargs["yourself_uuid"], licence=self.licence_object)

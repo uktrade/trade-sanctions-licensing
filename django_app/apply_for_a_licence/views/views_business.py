@@ -81,6 +81,7 @@ class DeleteBusinessView(DeleteAnEntityView):
 class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
     form_class = forms.IsTheBusinessRegisteredWithCompaniesHouseForm
     redirect_after_post = False
+    redirect_with_query_parameters = True
 
     @property
     def object(self) -> Organisation:
@@ -111,6 +112,7 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseBusinessModelFormView):
     form_class = forms.DoYouKnowTheRegisteredCompanyNumberForm
     template_name = "apply_for_a_licence/form_steps/conditional_radios_form.html"
     redirect_after_post = False
+    redirect_with_query_parameters = True
 
     def get_success_url(self) -> str:
         do_you_know_the_registered_company_number = self.form.cleaned_data["do_you_know_the_registered_company_number"]

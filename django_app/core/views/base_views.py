@@ -42,7 +42,7 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
     redirect_after_post = True
 
     # do we want to redirect the user to the next step with query parameters?
-    redirect_with_query_parameters = True
+    redirect_with_query_parameters = False
 
     def dispatch(self, request, *args, **kwargs):
         if self.request.GET.get("update", None) == "yes":

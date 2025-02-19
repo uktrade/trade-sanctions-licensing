@@ -13,6 +13,7 @@ class LicensingGroundsView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.LicensingGroundsForm
     redirect_after_post = False
     selected_legal_advisory = False
+    redirect_with_query_parameters = True
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
