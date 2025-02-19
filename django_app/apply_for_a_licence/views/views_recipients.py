@@ -102,3 +102,4 @@ class DeleteRecipientView(DeleteAnEntityView):
 class RelationshipProviderRecipientView(BaseRecipientFormView):
     form_class = forms.RelationshipProviderRecipientForm
     success_url = reverse_lazy("recipient_added")
+    redirect_with_query_parameters = False  # once we're done here, we don't care about the query parameters

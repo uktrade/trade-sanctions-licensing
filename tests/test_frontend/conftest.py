@@ -229,7 +229,14 @@ class StartBase(PlaywrightTestBase):
 
 
 class ProviderBase(PlaywrightTestBase):
+    def fill_your_details(self, page):
+        page.locator("name=[applicant_full_name]").fill("Test full name")
+        page.locator("name=[applicant_business]").fill("Test business")
+        page.locator("name=[applicant_role]").fill("Test role")
+        page.locator("text=Continue").click()
+
     def provider_business_located_in_uk(self, page):
+        self.fill_your_details(page)
         page.get_by_label("No", exact=True).check()
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("In the UK").check()
@@ -237,6 +244,7 @@ class ProviderBase(PlaywrightTestBase):
         self.fill_uk_address_details(page, "business")
 
     def provider_business_located_outside_uk(self, page):
+        self.fill_your_details(page)
         page.get_by_label("No", exact=True).check()
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("Outside the UK").check()

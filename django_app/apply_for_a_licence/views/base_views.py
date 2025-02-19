@@ -42,7 +42,9 @@ class AddAnEntityView(EntityView):
 
     @property
     def redirect_after_post(self) -> bool:
-        if self.request.GET.get("change") == "yes":
+        # if ?change is yes, then we want to redirect them to the next step, except for when we're not redirecting
+        # them with query parameters, because in that case we've said to ourselves that we're not going to redirect
+        if self.request.GET.get("change") == "yes" and self.redirect_with_query_parameters:
             # if we are creating a new one, then we want to take them to the next step
             return False
         else:
