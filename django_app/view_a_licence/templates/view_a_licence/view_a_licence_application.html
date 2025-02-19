@@ -11,7 +11,8 @@
     {% endblock download_link %}
 {% endcomment %}
 {% block column_content %}
-    <h1 class="govuk-heading-xl">Licence application: {{ licence.reference }}</h1>
+    <h1 class="govuk-heading-xl govuk-!-margin-bottom-0">Licence application: {{ licence.reference }}</h1>
+    <p class="govuk-hint govuk-!-margin-bottom-7">Submitted on: {{ licence.submitted_at|date:'d F Y' }} at {{ licence.submitted_at|date:"g:i a" }}</p>
     <dl class="govuk-summary-list">
         <h2 class="govuk-heading-m">Applicant details</h2>
         <div class="govuk-summary-list__row">
