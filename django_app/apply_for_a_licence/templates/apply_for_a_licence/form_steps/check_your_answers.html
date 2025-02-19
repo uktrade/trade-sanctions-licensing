@@ -470,7 +470,7 @@
                 {% else %}
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Licensing grounds</dt>
                 {% endif %}
-                <dd class="govuk-summary-list__value" data-testid="licensing-grounds">
+                <dd class="govuk-summary-list__value">
                     {% for ground in licence.get_licensing_grounds_display %}
                         {{ ground }}
                         {% if not forloop.last %}

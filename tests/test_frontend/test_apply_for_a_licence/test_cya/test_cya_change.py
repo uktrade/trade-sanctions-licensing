@@ -109,9 +109,11 @@ class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.page.get_by_label("What is your purpose").fill("test")
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_role("button", name="Continue").click()
-        assert (
-            "Licensing grounds for the relevant activity" in self.page.get_by_test_id("licensing_grounds_header").text_content()
-        )
+        # i wish we could do this differently.... I thought playwright was better than this, but it's not. Or more likely
+        # i'm being an idiot
+        assert "licensinggroundsfortherelevantactivity" in self.page.get_by_test_id(
+            "licensing_grounds_header"
+        ).text_content().replace("\n", "").replace(" ", "")
         assert (
             "Licensing grounds for other services (not legal advisory)"
             in self.page.get_by_test_id("licensing_other_grounds_header").text_content()
@@ -128,9 +130,9 @@ class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.page.locator("textarea").fill("test")
         self.page.get_by_role("button", name="Continue").click()
         expect(self.page).to_have_url(re.compile(r".*/check-your-answers"))
-        assert (
-            "Licensing grounds for the relevant activity" in self.page.get_by_test_id("licensing_grounds_header").text_content()
-        )
+        assert "licensinggroundsfortherelevantactivity" in self.page.get_by_test_id(
+            "licensing_grounds_header"
+        ).text_content().replace("\n", "").replace(" ", "")
         expect(self.page.get_by_test_id("licensing_other_grounds_header")).to_be_hidden()
 
         # now changing again
@@ -145,9 +147,11 @@ class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.page.locator("textarea").fill("test")
         self.page.get_by_role("button", name="Continue").click()
         expect(self.page).to_have_url(re.compile(r".*/check-your-answers"))
-        assert (
-            "Licensing grounds for the relevant activity"
-            not in self.page.get_by_test_id("licensing_grounds_header").text_content()
-        )
+        assert "licensinggroundsfortherelevantactivity" not in self.page.get_by_test_id(
+            "licensing_grounds_header"
+        ).text_content().replace("\n", "").replace(" ", "")
+        assert "licensinggrounds" in self.page.get_by_test_id("licensing_grounds_header").text_content().replace(
+            "\n", ""
+        ).replace(" ", "")
         assert "Licensing grounds" in self.page.get_by_test_id("licensing_grounds_header").text_content()
         expect(self.page.get_by_test_id("licensing_other_grounds_header")).to_be_hidden()

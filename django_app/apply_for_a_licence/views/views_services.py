@@ -80,7 +80,7 @@ class ServiceActivitiesView(BaseSaveAndReturnLicenceModelFormView):
 
         if self.update:
             success_url = reverse("purpose_of_provision")
-            if self.form.instance.professional_or_business_services == TypeOfServicesChoices.professional_and_business.value:
+            if self.form.instance.type_of_service == TypeOfServicesChoices.professional_and_business.value:
                 success_url = reverse("licensing_grounds")
 
         return success_url
