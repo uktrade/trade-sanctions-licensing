@@ -57,7 +57,7 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
         else:
             return redirect("is_the_business_registered_with_companies_house", kwargs={"business_uuid": uuid.uuid4()})
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         add_business = self.form.cleaned_data["do_you_want_to_add_another_business"]
         if add_business:
             return (

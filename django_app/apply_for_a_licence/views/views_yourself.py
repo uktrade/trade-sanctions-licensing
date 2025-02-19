@@ -34,10 +34,6 @@ class AddYourselfView(BaseIndividualFormView):
         return instance
 
     def get_success_url(self):
-        licence_object = self.licence_object
-        licence_object.applicant_full_name = self.instance.full_name
-        licence_object.save()
-
         is_uk_individual = self.form.cleaned_data["nationality_and_location"] in [
             NationalityAndLocation.uk_national_uk_location.value,
             NationalityAndLocation.dual_national_uk_location.value,
@@ -51,10 +47,6 @@ class AddYourselfView(BaseIndividualFormView):
                 "location": "in-uk" if is_uk_individual else "outside-uk",
             },
         )
-
-        # changed from UK address to another address or vice versa
-        if self.form.has_field_changed("nationality_and_location"):
-            self.request.session["add_yourself_address"] = {}
 
         return success_url
 

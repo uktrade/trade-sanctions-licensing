@@ -2,6 +2,7 @@ import logging
 
 from apply_for_a_licence.choices import ProfessionalOrBusinessServicesChoices
 from apply_for_a_licence.forms import forms_grounds_purpose as forms
+from apply_for_a_licence.models import Licence
 from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
 from django.urls import reverse, reverse_lazy
 
@@ -11,6 +12,7 @@ logger = logging.getLogger(__name__)
 class LicensingGroundsView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.LicensingGroundsForm
     redirect_after_post = False
+    selected_legal_advisory = False
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -30,19 +32,26 @@ class LicensingGroundsView(BaseSaveAndReturnLicenceModelFormView):
 
         return kwargs
 
-    def get_success_url(self) -> str:
-        licence = self.licence_object
-        if (
+    def save_form(self, form) -> Licence:
+        licence = super().save_form(form)
+
+        self.selected_legal_advisory = (
             licence.professional_or_business_services
             and ProfessionalOrBusinessServicesChoices.legal_advisory.value in licence.professional_or_business_services
             and len(licence.professional_or_business_services) > 1
-        ):
-            # the user has selected 'Legal advisory' as well as other services, redirect them to the legal advisory page
-            success_url = reverse("licensing_grounds_legal_advisory")
-        else:
+        )
+        if not self.selected_legal_advisory:
             # delete form data for legal advisory grounds
             licence.licensing_grounds_legal_advisory = None
             licence.save()
+
+        return licence
+
+    def get_success_url(self) -> str:
+        if self.selected_legal_advisory:
+            # the user has selected 'Legal advisory' as well as other services, redirect them to the legal advisory page
+            success_url = reverse("licensing_grounds_legal_advisory")
+        else:
             success_url = reverse("purpose_of_provision")
 
         return success_url

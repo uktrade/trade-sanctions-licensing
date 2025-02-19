@@ -22,10 +22,13 @@ class TypeOfServiceView(BaseSaveAndReturnLicenceModelFormView):
             case _:
                 success_url = reverse("service_activities")
 
-        if self.form.has_field_changed("type_of_service"):
-            self.redirect_after_post = False
-
         return success_url
+
+    def save_form(self, form):
+        licence = super().save_form(form)
+        if form.has_field_changed("type_of_service"):
+            self.redirect_after_post = False
+        return licence
 
 
 class ProfessionalOrBusinessServicesView(BaseSaveAndReturnLicenceModelFormView):

@@ -59,6 +59,6 @@ class DeleteAnEntityView(EntityView):
         entities = self.model.objects.filter(licence=self.licence_object)
         if self.allow_zero_entities or len(entities) > 1:
             self.object.delete()
-            return HttpResponseRedirect(self.get_success_url())
+            return HttpResponseRedirect(self.get_next_url())
         else:
             raise Http404()
