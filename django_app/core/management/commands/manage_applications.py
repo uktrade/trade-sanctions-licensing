@@ -34,7 +34,6 @@ class Command(BaseCommand):
                 email=licence_object.applicant_user_email_address,
                 template_id=settings.DELETE_LICENCE_APPLICATION_TEMPLATE_ID,
                 context={
-                    "name": licence_object.applicant_full_name,
                     "application_number": licence_object.reference,
                     "application_url": reverse("dashboard"),
                 },
