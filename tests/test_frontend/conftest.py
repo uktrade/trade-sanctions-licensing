@@ -230,10 +230,10 @@ class StartBase(PlaywrightTestBase):
 
 class ProviderBase(PlaywrightTestBase):
     def fill_your_details(self, page):
-        page.locator("name=[applicant_full_name]").fill("Test full name")
-        page.locator("name=[applicant_business]").fill("Test business")
-        page.locator("name=[applicant_role]").fill("Test role")
-        page.locator("text=Continue").click()
+        page.locator("#id_applicant_full_name").fill("Test full name")
+        page.locator("#id_applicant_business").fill("Test business")
+        page.locator("#id_applicant_role").fill("Test role")
+        page.get_by_role("button", name="Continue").click()
 
     def provider_business_located_in_uk(self, page):
         self.fill_your_details(page)
