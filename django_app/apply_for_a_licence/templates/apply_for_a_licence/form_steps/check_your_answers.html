@@ -331,7 +331,12 @@
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">What are the services?</dt>
                 <dd class="govuk-summary-list__value">
-                    {{ licence.get_professional_or_business_service_display | linebreaksbr }}
+                    {% for each in licence.get_professional_or_business_services_display %}
+                        {{ each }}
+                        {% if not forloop.last %}
+                            <br>
+                        {% endif %}
+                    {% endfor %}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" data-testid="change_professional_business_services_link"
@@ -377,7 +382,7 @@
                     {% if recipients|length > 1 %}
                         <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                             <form id="delete_recipient_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                                  action="{% url 'delete_recipient' %}?recipient_uuid={{ id }}&success_url=check_your_answers">
+                                  action="{% url 'delete_recipient' recipient_uuid=recipient.pk %}?success_url=check_your_answers">
                                 <input type="hidden" name="recipient_uuid" value="{{ id }}">
                                 <input type="hidden" name="success_url" value="check_your_answers">
                                 {% csrf_token %}
@@ -394,10 +399,10 @@
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Name and address</dt>
                     <dd class="govuk-summary-list__value" data-testid="recipient-name-and-address-{{forloop.counter}}">
-                        {{ recipient.cleaned_data.name }}
+                        {{ recipient.name }}
                         <br>
                         <br>
-                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=recipient.cleaned_data.readable_address|linebreaksbr %}
+                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=recipient.readable_address|linebreaksbr %}
                     </dd>
                 </div>
                 {% if recipient.cleaned_data.website %}
@@ -421,7 +426,7 @@
                         Relationship between the provider of the services and the recipient
                     </dt>
                     <dd class="govuk-summary-list__value" data-testid="recipient-relationship-{{forloop.counter}}">
-                        {{ recipient.relationship }}
+                        {{ recipient.relationship_provider }}
                     </dd>
                 </div>
             </dl>
