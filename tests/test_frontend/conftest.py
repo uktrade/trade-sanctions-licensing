@@ -208,7 +208,6 @@ class StartBase(PlaywrightTestBase):
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("Yes").check()
         page.get_by_role("button", name="Continue").click()
-        self.your_details(page, "business")
 
     def business_not_third_party(self, page):
         page.get_by_label("A business or businesses with").check()
