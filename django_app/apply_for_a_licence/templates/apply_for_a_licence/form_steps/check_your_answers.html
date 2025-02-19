@@ -54,15 +54,7 @@
             {% endif %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Are you an external third party?</dt>
-                {% if form_data.are_you_third_party.are_you_applying_on_behalf_of_someone_else %}
-                    <dd class="govuk-summary-list__value" data-testid="your-details-third-party">
-                        Yes
-                    </dd>
-                {% else %}
-                    <dd class="govuk-summary-list__value" data-testid="your-details-third-party">
-                        No
-                    </dd>
-                {% endif %}
+                {{ licence.is_third_party|yesno:"Yes,No" }}
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
                        href="{% url 'are_you_third_party' %}?redirect_to_url=check_your_answers">Change<span
@@ -368,7 +360,7 @@
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">What is the sanctions regime?</dt>
                 <dd class="govuk-summary-list__value">
-                    {{ forms.which_sanctions_regime.get_which_sanctions_regime_display | linebreaksbr }}
+                    {{ licence.regimes | linebreaksbr }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
@@ -469,9 +461,9 @@
     {% endif %}
     <h2 class="govuk-heading-m">Purpose of the services</h2>
     <dl class="govuk-summary-list">
-        {% if form_data.licensing_grounds %}
+        {% if licence.licensing_grounds %}
             <div class="govuk-summary-list__row" data-testid="licensing_grounds_header">
-                {% if "legal_advisory" in form_data.professional_or_business_services.professional_or_business_services %}
+                {% if "legal_advisory" in licence.professional_or_business_services %}
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Licensing grounds for the relevant
                         activity
                     </dt>
@@ -479,10 +471,15 @@
                     <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Licensing grounds</dt>
                 {% endif %}
                 <dd class="govuk-summary-list__value" data-testid="licensing-grounds">
-                    {% include "apply_for_a_licence/partials/truncated_text.html" with text=forms.licensing_grounds.get_licensing_grounds_display|linebreaksbr %}
+                    {% for ground in licence.get_licensing_grounds_display %}
+                        {{ ground }}
+                        {% if not forloop.last %}
+                            <br>
+                        {% endif %}
+                    {% endfor %}
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    {% if "legal_advisory" in form_data.professional_or_business_services.professional_or_business_services %}
+                    {% if "legal_advisory" in licence.professional_or_business_services %}
                         <a class="govuk-link"
                            href="{% url 'licensing_grounds' %}?redirect_to_url=check_your_answers">Change<span
                             class="govuk-visually-hidden">licensing grounds for the relevant activity</span></a>
@@ -494,14 +491,14 @@
                 </dd>
             </div>
         {% endif %}
-        {% if "legal_advisory" in form_data.professional_or_business_services.professional_or_business_services and form_data.professional_or_business_services.professional_or_business_services|length > 1 %}
+        {% if "legal_advisory" in licence.professional_or_business_services and licence.professional_or_business_services|length > 1 %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular"
                     data-testid="licensing_other_grounds_header">
                     Licensing grounds for other services (not legal advisory)
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {% include "apply_for_a_licence/partials/truncated_text.html" with text=forms.licensing_grounds_legal_advisory.get_licensing_grounds_display|linebreaksbr %}
+                    {% include "apply_for_a_licence/partials/truncated_text.html" with text=licence.get_licensing_grounds_legal_advisory_display|linebreaksbr %}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
