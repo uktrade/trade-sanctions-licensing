@@ -9,15 +9,15 @@ def add_original_file_name(apps, schema_editor):
     # todo - check this
     Document = apps.get_model("apply_for_a_licence", "Document")
     for document in Document.objects.all():
-        document.original_file_name = document.file.file.original_name
-        document.save()
+        document.original_file_name = document.file.name.split("/")[-1]
+        document.save(update_fields=["original_file_name"])
 
 
 def remove_original_file_name(apps, schema_editor):
     Document = apps.get_model("apply_for_a_licence", "Document")
     for document in Document.objects.all():
         document.original_file_name = None
-        document.save()
+        document.save(update_fields=["original_file_name"])
 
 
 class Migration(migrations.Migration):
