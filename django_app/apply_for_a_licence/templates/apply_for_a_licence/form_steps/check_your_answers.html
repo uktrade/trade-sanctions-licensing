@@ -167,7 +167,7 @@
                                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                                     <form id="delete_individual_from_yourself_form_{{ forloop.counter }}" method="post"
                                           enctype='multipart/form-data' novalidate
-                                          action="{% url 'delete_individual_from_yourself' pk=individual.pk %}?success_url=check_your_answers">
+                                          action="{% url 'delete_individual_from_yourself' pk=individual.pk %}?redirect_to_url=check_your_answers">
                                         <input type="hidden" name="individual_uuid" value="{{ individual.pk }}">
                                         <input type="hidden" name="success_url" value="check_your_answers">
                                         {% csrf_token %}
@@ -229,7 +229,7 @@
                                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                                     <form id="delete_individual_form_{{ forloop.counter }}" method="post"
                                           enctype='multipart/form-data' novalidate
-                                          action="{% url 'delete_individual' pk=individual.pk %}?success_url=check_your_answers">
+                                          action="{% url 'delete_individual' pk=individual.pk %}?redirect_to_url=check_your_answers">
                                         <input type="hidden" name="individual_uuid" value="{{ id }}">
                                         <input type="hidden" name="success_url" value="check_your_answers">
                                         {% csrf_token %}
@@ -398,7 +398,7 @@
                         <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                             <form id="delete_recipient_form_{{ forloop.counter }}" method="post"
                                   enctype='multipart/form-data' novalidate
-                                  action="{% url 'delete_recipient' recipient_uuid=recipient.pk %}?success_url=check_your_answers">
+                                  action="{% url 'delete_recipient' recipient_uuid=recipient.pk %}?redirect_to_url=check_your_answers">
                                 <input type="hidden" name="recipient_uuid" value="{{ id }}">
                                 <input type="hidden" name="success_url" value="check_your_answers">
                                 {% csrf_token %}
