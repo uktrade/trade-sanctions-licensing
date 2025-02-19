@@ -218,6 +218,7 @@ class Individual(BaseModelID, AddressMixin):
     relationship_provider = models.TextField(
         blank=True, null=True, db_comment="what is the relationship between the provider and the recipient?"
     )
+    is_applicant = models.BooleanField(default=False)
 
     @property
     def full_name(self) -> str:
