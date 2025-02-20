@@ -19,8 +19,8 @@ class TestSanctionsRegimeForm:
         assert form.has_error("regimes", "required")
 
     @patch(
-        "apply_for_a_licence.forms.forms_services.active_regimes",
-        [
+        "apply_for_a_licence.forms.forms_services.get_active_regimes",
+        return_value=[
             {"name": "test regime", "is_active": True},
             {"name": "test regime1", "is_active": True},
             {"name": "test regime2", "is_active": True},
@@ -33,6 +33,20 @@ class TestSanctionsRegimeForm:
         assert "test regime" in flat_choices
         assert "test regime1" in flat_choices
         assert "test regime2" in flat_choices
+
+    @patch(
+        "apply_for_a_licence.forms.forms_services.get_active_regimes",
+        return_value=[
+            {"name": "test regime", "is_active": True},
+        ],
+    )
+    def test_assert_unknown_regime_selected_error(self, request_object):
+        form = forms.WhichSanctionsRegimeForm(
+            data={"which_sanctions_regime": ["Unknown Regime", "test regime"]}, request=request_object
+        )
+        assert not form.is_valid()
+        assert "which_sanctions_regime" in form.errors
+        assert form.has_error("which_sanctions_regime", "invalid_choice")
 
 
 class TestProfessionalOrBusinessServicesForm:
