@@ -9,6 +9,7 @@ from apply_for_a_licence.choices import (
 from apply_for_a_licence.models import Licence
 from authentication.mixins import LoginRequiredMixin
 from core.sites import require_view_a_licence
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Count, Q, QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
@@ -91,10 +92,10 @@ class ManageUsersView(LoginRequiredMixin, StaffUserOnlyMixin, TemplateView):
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        staff_users = User.objects.exclude(username__startswith="urn:fdc:gov.uk:")
+        staff_users = User.objects.filter(groups__name=settings.INTERNAL_USER_GROUP_NAME)
         context["pending_staff_users"] = staff_users.filter(is_active=False)
         context["accepted_staff_users"] = staff_users.filter(is_active=True)
-        context["public_users"] = User.objects.filter(is_active=True, username__startswith="urn:fdc:gov.uk:").annotate(
+        context["public_users"] = User.objects.filter(is_active=True, groups__name=settings.PUBLIC_USER_GROUP_NAME).annotate(
             submitted_applications_count=Count(
                 "licence_applications", filter=Q(licence_applications__status=StatusChoices.submitted.value)
             ),

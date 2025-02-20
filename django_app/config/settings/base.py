@@ -261,6 +261,8 @@ GOV_UK_ONE_LOGIN_CONFIG = OneLoginConfig
 GOV_UK_ONE_LOGIN_ENABLED = False
 
 LOGIN_REDIRECT_URL = reverse_lazy("initial_redirect_view")
+PUBLIC_USER_GROUP_NAME = "public_users"
+INTERNAL_USER_GROUP_NAME = "internal_users"
 
 TRUNCATE_WORDS_LIMIT = 30
 
