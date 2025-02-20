@@ -22,6 +22,7 @@ class BaseRecipientFormView(AddAnEntityView):
 class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
     form_class = forms.WhereIsTheRecipientLocatedForm
     redirect_after_post = False
+    redirect_with_query_parameters = True
 
     @property
     def object(self) -> Organisation:
