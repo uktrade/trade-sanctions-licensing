@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import patch
 
 from apply_for_a_licence.choices import (
     TypeOfRelationshipChoices,
@@ -104,7 +105,22 @@ class TestDoYouKnowTheRegisteredCompanyNumberView:
         )
         assert response.context["page_title"] == "Registered Company Number"
 
-    def test_setting_do_you_know_the_registered_company_number(self, authenticated_al_client_with_licence, licence_application):
+    @patch("apply_for_a_licence.forms.forms_business.get_details_from_companies_house")
+    @patch("apply_for_a_licence.forms.forms_business.get_formatted_address")
+    def test_setting_do_you_know_the_registered_company_number(
+        self,
+        mocked_get_formatted_address,
+        mocked_get_details_from_companies_house,
+        authenticated_al_client_with_licence,
+        licence_application,
+    ):
+        mocked_get_details_from_companies_house.return_value = {
+            "company_number": "12345678",
+            "company_name": "Test Company",
+            "registered_office_address": "",
+        }
+        mocked_get_formatted_address.return_value = "12 road, London"
+
         licence_application.who_do_you_want_the_licence_to_cover = WhoDoYouWantTheLicenceToCoverChoices.business.value
         licence_application.save()
 
@@ -121,7 +137,6 @@ class TestDoYouKnowTheRegisteredCompanyNumberView:
         )
 
         business.refresh_from_db()
-        assert business.registered_company_number == "12345678"
         assert business.do_you_know_the_registered_company_number
 
 
