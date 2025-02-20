@@ -28,11 +28,11 @@ class TestViewALicenceApplicationView(PlaywrightTestBase):
         licence.save()
         self.page.goto(self.base_url + reverse("view_a_licence:view_application", kwargs={"reference": licence.reference}))
 
-        conditional_box = self.page.get_by_test_id("licensing-grounds-legal-advisory-box")
-        expect(conditional_box).to_be_visible()
-        assert "Licensing grounds (excluding legal advisory)" in conditional_box.text_content()
-        assert LicensingGroundsChoices.food.label in conditional_box.text_content()
-        assert LicensingGroundsChoices.safety.label in conditional_box.text_content()
+        expect(self.page.get_by_test_id("licensing-grounds-legal-advisory-box")).to_be_visible()
+        text_content = self.page.get_by_test_id("licensing-grounds-legal-advisory-box").text_content()
+        assert "Licensing grounds (excluding legal advisory)" in text_content
+        assert LicensingGroundsChoices.food.label in text_content
+        assert LicensingGroundsChoices.safety.label in text_content
 
         # now checking without legal advisory
         licence = LicenceFactory.create(
