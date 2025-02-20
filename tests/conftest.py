@@ -13,6 +13,13 @@ from tests.factories import LicenceFactory, OrganisationFactory
 from tests.helpers import get_test_client
 
 
+@pytest.fixture(autouse=True)
+def auth_groups(db):
+    Group.objects.get_or_create(name=settings.INTERNAL_USER_GROUP_NAME)
+    Group.objects.get_or_create(name=settings.PUBLIC_USER_GROUP_NAME)
+    Group.objects.get_or_create(name=settings.ADMIN_USER_GROUP_NAME)
+
+
 @pytest.fixture()
 def test_apply_user(db) -> User:
     user, created = User.objects.get_or_create(
@@ -26,9 +33,8 @@ def test_apply_user(db) -> User:
             "password": "test",
         },
     )
-    if created:
-        public_group = Group.objects.get(name=settings.PUBLIC_USER_GROUP_NAME)
-        user.groups.add(public_group)
+    public_group = Group.objects.get(name=settings.PUBLIC_USER_GROUP_NAME)
+    user.groups.add(public_group)
     return user
 
 
