@@ -73,7 +73,7 @@ class DeclarationView(BaseSaveAndReturnFormView):
 
         # Send confirmation email to the user
         send_email(
-            email=licence_object.applicant_user_email_address,
+            email=licence_object.user.email,
             template_id=settings.PUBLIC_USER_NEW_APPLICATION_TEMPLATE_ID,
             context={"name": licence_object.applicant_full_name, "application_number": licence_object.reference},
         )

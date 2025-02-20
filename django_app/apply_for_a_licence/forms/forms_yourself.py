@@ -50,12 +50,6 @@ class AddYourselfForm(BaseModelForm):
             ]
         return cleaned_data
 
-    def save(self, commit: bool = False) -> Individual:
-        instance = super().save(commit=False)
-        instance.is_applicant = True
-        instance.save()
-        return instance
-
 
 class AddYourselfUKAddressForm(BaseUKBusinessDetailsForm):
     form_h1_header = "What is your home address?"

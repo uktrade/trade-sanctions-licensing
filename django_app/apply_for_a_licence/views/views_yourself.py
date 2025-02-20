@@ -32,6 +32,11 @@ class AddYourselfView(BaseIndividualFormView):
         licence_object = self.licence_object
         licence_object.applicant_full_name = instance.full_name
         licence_object.save()
+
+        #  This is the applicant individual so marking it as such
+        instance.is_applicant = True
+        instance.save()
+
         return instance
 
     def get_success_url(self):

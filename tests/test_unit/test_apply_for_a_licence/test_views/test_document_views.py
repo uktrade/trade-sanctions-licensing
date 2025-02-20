@@ -82,7 +82,7 @@ class TestDeleteDocumentsView:
 
         response = authenticated_al_client_with_licence.post(
             reverse("delete_documents"),
-            data={"s3_key_to_delete": "test1231242342.png"},
+            data={"s3_key_to_delete": "test123124234.png"},
             headers={"x-requested-with": "XMLHttpRequest"},
         )
         assert response.status_code == 404
@@ -119,6 +119,16 @@ class TestDownloadDocumentMiddleman:
 
     def test_download_document_middleman_doesnt_belong_to_you(self, authenticated_al_client_with_licence):
         licence_application = LicenceFactory(user=None)
+        document_object = Document.objects.create(
+            licence=licence_application, file="test1231242342.png", original_file_name="test.png"
+        )
+        response = authenticated_al_client_with_licence.get(reverse("download_document", kwargs={"pk": document_object.pk}))
+        assert response.status_code == 404
+
+    def test_download_document_middleman_session_licence_doesnt_match(
+        self, authenticated_al_client_with_licence, test_apply_user
+    ):
+        licence_application = LicenceFactory(user=test_apply_user)
         document_object = Document.objects.create(
             licence=licence_application, file="test1231242342.png", original_file_name="test.png"
         )

@@ -43,7 +43,7 @@ class TestIsTheBusinessRegisteredWithCompaniesHouse:
         assert response.url == reverse("do_you_know_the_registered_company_number", kwargs={"business_uuid": business_uuid})
 
 
-class TestDoYouKnowTheRegisteredCompanyNumber:
+class TestDoYouKnowTheRegisteredCompanyNumberView:
     def test_know_the_registered_company_number_successful_post(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
             user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
@@ -103,6 +103,26 @@ class TestDoYouKnowTheRegisteredCompanyNumber:
             reverse("do_you_know_the_registered_company_number", kwargs={"business_uuid": business.id})
         )
         assert response.context["page_title"] == "Registered Company Number"
+
+    def test_setting_do_you_know_the_registered_company_number(self, authenticated_al_client_with_licence, licence_application):
+        licence_application.who_do_you_want_the_licence_to_cover = WhoDoYouWantTheLicenceToCoverChoices.business.value
+        licence_application.save()
+
+        business = Organisation.objects.create(
+            licence=licence_application,
+            business_registered_on_companies_house=YesNoDoNotKnowChoices.no,
+            type_of_relationship=TypeOfRelationshipChoices.business,
+        )
+        assert not business.do_you_know_the_registered_company_number
+        authenticated_al_client_with_licence.post(
+            reverse("do_you_know_the_registered_company_number", kwargs={"business_uuid": business.id}),
+            data={"do_you_know_the_registered_company_number": "yes", "registered_company_number": "12345678"},
+            follow=True,
+        )
+
+        business.refresh_from_db()
+        assert business.registered_company_number == "12345678"
+        assert business.do_you_know_the_registered_company_number
 
 
 class TestBusinessAddedView:
