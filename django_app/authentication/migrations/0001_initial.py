@@ -8,6 +8,7 @@ def create_user_groups(apps, schema_editor):
     Group = apps.get_model("auth", "Group")
     internal_user_group = Group.objects.create(name=settings.INTERNAL_USER_GROUP_NAME)
     public_user_group = Group.objects.create(name=settings.PUBLIC_USER_GROUP_NAME)
+    admin_user_group = Group.objects.create(name=settings.ADMIN_USER_GROUP_NAME)
 
     User = apps.get_model("auth", "User")
     # give all public users the public user group
@@ -18,11 +19,16 @@ def create_user_groups(apps, schema_editor):
     for user in User.objects.filter(username__endswith="id.trade.gov.uk"):
         user.groups.add(internal_user_group)
 
+    # give all staff users (currently user management users) access to the admin user group
+    for user in User.objects.filter(is_staff=True):
+        user.groups.add(admin_user_group)
+
 
 def delete_user_groups(apps, schema_editor):
     Group = apps.get_model("auth", "Group")
     Group.objects.get(name=settings.INTERNAL_USER_GROUP_NAME).delete()
     Group.objects.get(name=settings.PUBLIC_USER_GROUP_NAME).delete()
+    Group.objects.get(name=settings.ADMIN_USER_GROUP_NAME).delete()
 
 
 class Migration(migrations.Migration):

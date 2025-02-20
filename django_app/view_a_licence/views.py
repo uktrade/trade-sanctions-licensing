@@ -19,7 +19,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, RedirectView, TemplateView
 from feedback.models import FeedbackItem
 
-from .mixins import ActiveUserRequiredMixin, StaffUserOnlyMixin
+from .mixins import AdminUserOnlyMixin, InternalUserOnlyMixin
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class RedirectBaseViewerView(LoginRequiredMixin, ActiveUserRequiredMixin, RedirectView):
+class RedirectBaseViewerView(LoginRequiredMixin, InternalUserOnlyMixin, RedirectView):
     """Redirects view_a_licence base site visits to view-all-reports view"""
 
     @property
@@ -37,7 +37,7 @@ class RedirectBaseViewerView(LoginRequiredMixin, ActiveUserRequiredMixin, Redire
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class ApplicationListView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView):
+class ApplicationListView(LoginRequiredMixin, InternalUserOnlyMixin, ListView):
     template_name = "view_a_licence/application_list.html"
     success_url = reverse_lazy("view_a_licence:application_list")
     model = Licence
@@ -63,7 +63,7 @@ class ApplicationListView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView)
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class ViewALicenceApplicationView(LoginRequiredMixin, ActiveUserRequiredMixin, DetailView):
+class ViewALicenceApplicationView(LoginRequiredMixin, InternalUserOnlyMixin, DetailView):
     template_name = "view_a_licence/view_a_licence_application.html"
     context_object_name = "licence"
     model = Licence
@@ -87,7 +87,7 @@ class ViewALicenceApplicationView(LoginRequiredMixin, ActiveUserRequiredMixin, D
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class ManageUsersView(LoginRequiredMixin, StaffUserOnlyMixin, TemplateView):
+class ManageUsersView(LoginRequiredMixin, AdminUserOnlyMixin, TemplateView):
     template_name = "view_a_licence/manage_users.html"
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
@@ -127,7 +127,7 @@ class ManageUsersView(LoginRequiredMixin, StaffUserOnlyMixin, TemplateView):
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class ViewAllFeedbackView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView):
+class ViewAllFeedbackView(LoginRequiredMixin, AdminUserOnlyMixin, ListView):
     context_object_name = "feedback"
     model = FeedbackItem
     template_name = "view_a_licence/view_all_feedback.html"
@@ -142,7 +142,7 @@ class ViewAllFeedbackView(LoginRequiredMixin, ActiveUserRequiredMixin, ListView)
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class ViewFeedbackView(LoginRequiredMixin, ActiveUserRequiredMixin, DetailView):
+class ViewFeedbackView(LoginRequiredMixin, AdminUserOnlyMixin, DetailView):
     model = FeedbackItem
     template_name = "view_a_licence/view_feedback.html"
     context_object_name = "feedback"
