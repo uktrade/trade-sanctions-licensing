@@ -60,7 +60,7 @@ class TestAddRecipientView:
                 "postcode": "SW1A 1AA",
             },
         )
-        assert reverse("check_your_answers") in response.url
+        assert "provider-recipient-relationship" in response.url
 
         response = authenticated_al_client_with_licence.post(
             reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid})
