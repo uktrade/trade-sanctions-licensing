@@ -41,6 +41,7 @@ class TestViewALicenceApplicationView(PlaywrightTestBase):
             professional_or_business_services=[ProfessionalOrBusinessServicesChoices.architectural.value],
             licensing_grounds=[LicensingGroundsChoices.energy.value],
             licensing_grounds_legal_advisory=None,
+            status="submitted",
         )
         licence.assign_reference()
         licence.save()
