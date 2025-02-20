@@ -160,7 +160,7 @@ def viewer_rf(request_object):
 def licence_application(authenticated_al_client, test_apply_user) -> Licence:
     licence_object = LicenceFactory(user=test_apply_user)
     session = authenticated_al_client.session
-    session["licence_id"] = licence_object.id
+    session["licence_id"] = licence_object.pk  # type: ignore[attr-defined]
     session.save()
     return licence_object
 
