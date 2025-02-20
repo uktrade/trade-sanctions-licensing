@@ -63,7 +63,7 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
                 {
                     "success": False,
                     "error": form.errors["file"][0],
-                    "file_name": self.request.FILES["file"].name.rpartition("/")[2],
+                    "file_name": form.files["file"].original_name,
                 },
                 status=200,
             )
