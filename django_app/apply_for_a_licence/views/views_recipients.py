@@ -56,6 +56,8 @@ class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
 
 
 class AddARecipientView(BaseRecipientFormView):
+    redirect_after_post = False
+
     def get_form_class(self) -> Type[forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm]:
         if self.kwargs["location"] == "in-uk":
             form_class = forms.AddAUKRecipientForm

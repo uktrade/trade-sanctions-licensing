@@ -32,15 +32,15 @@ class TestUploadDocumentsForm:
 
         form = forms.UploadDocumentsForm(
             files={
-                "document": [
+                "file": [
                     bad_file,
                 ]
             },
             request=request_object,
         )
         assert not form.is_valid()
-        assert "document" in form.errors
-        assert form.errors.as_data()["document"][0].code == "invalid_file_type"
+        assert "file" in form.errors
+        assert form.errors.as_data()["file"][0].code == "invalid_file_type"
 
     def test_invalid_extension(self, request_object):
         bad_file = SimpleUploadedFile("bad.gif", b"%PDF-test_pdf")

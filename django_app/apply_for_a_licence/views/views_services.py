@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 class TypeOfServiceView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.TypeOfServiceForm
+    redirect_with_query_parameters = True
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["type_of_service"]
@@ -69,6 +70,7 @@ class WhichSanctionsRegimeView(BaseSaveAndReturnLicenceModelFormView):
 
 class ServiceActivitiesView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.ServiceActivitiesForm
+    redirect_with_query_parameters = True
 
     @property
     def redirect_after_post(self) -> bool:

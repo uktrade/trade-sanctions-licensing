@@ -70,7 +70,7 @@
                 <h3 class="govuk-heading-s fl-left">Business {{ forloop.counter }}</h3>
                 <dl class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
-                        {% if business.business_registered_on_companies_house %}
+                        {% if business.business_registered_on_companies_house == "yes" %}
                             <a class="govuk-link change_business_details_link"
                                href="{% url 'do_you_know_the_registered_company_number' business_uuid=business.pk %}?redirect_to_url=check_your_answers">Change<span
                                 class="govuk-visually-hidden">business {{ forloop.counter }} details</span></a>

@@ -52,7 +52,6 @@ class TestCYAChange(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
 
         # Change recipient
         self.page.get_by_role("link", name="Change Recipient 1 details").click()
-        self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("In the UK").check()
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("Name of recipient").fill("Test recipient change")

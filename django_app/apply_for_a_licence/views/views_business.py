@@ -132,6 +132,16 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseBusinessModelFormView):
         context["page_title"] = "Registered Company Number"
         return context
 
+    def save_form(self, form) -> Organisation:
+        instance = super().save_form(form)
+        if form.cleaned_data["do_you_know_the_registered_company_number"] == "yes":
+            instance.do_you_know_the_registered_company_number = True
+        else:
+            instance.do_you_know_the_registered_company_number = False
+
+        instance.save()
+        return instance
+
 
 class ManualCompaniesHouseInputView(BaseBusinessModelFormView):
     form_class = forms.ManualCompaniesHouseInputForm
