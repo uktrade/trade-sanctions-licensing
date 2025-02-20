@@ -198,6 +198,7 @@ def yourself(yourself_licence):
         licence=yourself_licence,
         first_name="Your",
         last_name="Name",
+        is_applicant=True,
     )
     return yourself
 

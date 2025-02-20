@@ -96,7 +96,7 @@ class TestThirdPartyView:
         assert response.status_code == 302
         licence_response = Licence.objects.get(pk=licence.id)
         assert not licence_response.is_third_party
-        assert "individual-details" in response.url
+        assert "your-details" in response.url
 
     def test_post_not_third_party_business(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
@@ -115,7 +115,7 @@ class TestThirdPartyView:
         assert response.status_code == 302
         licence_response = Licence.objects.get(pk=licence.id)
         assert not licence_response.is_third_party
-        assert "business-registered-with-companies-house" in response.url
+        assert "your-details" in response.url
 
 
 class TestYourDetailsView:

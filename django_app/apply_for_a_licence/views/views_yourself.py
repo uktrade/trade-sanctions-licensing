@@ -20,6 +20,7 @@ class AddYourselfView(BaseIndividualFormView):
     form_class = forms.AddYourselfForm
     redirect_after_post = False
     pk_url_kwarg = "yourself_uuid"
+    redirect_with_query_parameters = True
 
     def dispatch(self, request, *args, **kwargs):
         Individual.objects.get_or_create(pk=self.kwargs["yourself_uuid"], licence=self.licence_object)
@@ -31,13 +32,14 @@ class AddYourselfView(BaseIndividualFormView):
         licence_object = self.licence_object
         licence_object.applicant_full_name = instance.full_name
         licence_object.save()
+
+        #  This is the applicant individual so marking it as such
+        instance.is_applicant = True
+        instance.save()
+
         return instance
 
     def get_success_url(self):
-        licence_object = self.licence_object
-        licence_object.applicant_full_name = self.instance.full_name
-        licence_object.save()
-
         is_uk_individual = self.form.cleaned_data["nationality_and_location"] in [
             NationalityAndLocation.uk_national_uk_location.value,
             NationalityAndLocation.dual_national_uk_location.value,
@@ -51,10 +53,6 @@ class AddYourselfView(BaseIndividualFormView):
                 "location": "in-uk" if is_uk_individual else "outside-uk",
             },
         )
-
-        # changed from UK address to another address or vice versa
-        if self.form.has_field_changed("nationality_and_location"):
-            self.request.session["add_yourself_address"] = {}
 
         return success_url
 

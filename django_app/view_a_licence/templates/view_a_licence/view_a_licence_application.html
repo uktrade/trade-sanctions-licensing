@@ -27,7 +27,7 @@
                 Email address
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ licence.applicant_user_email_address }}
+                {{ licence.user.email }}
             </dd>
         </div>
         <div class="govuk-summary-list__row">
@@ -248,7 +248,9 @@
                     Additional contact information
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {% include "apply_for_a_licence/partials/truncated_text.html" with text=recipient.additional_contact_details|linebreaksbr %}
+                    {% if recipient.additional_contact_details %}
+                        {% include "apply_for_a_licence/partials/truncated_text.html" with text=recipient.additional_contact_details|linebreaksbr %}
+                    {% endif %}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
@@ -308,13 +310,14 @@
                 Supporting documents
             </dt>
             <dd class="govuk-summary-list__value">
-                {% if not licence.documents.exists %}
+                {% for document in licence.documents.all %}
+                    <a href="{{ document.url }}" download>{{ document.original_file_name }}</a>
+                    {% if not forloop.last %}
+                        <br><br>
+                    {% endif %}
+                {% empty %}
                     None uploaded
-                {% else %}
-                    {% for document in licence.documents.all %}
-                        <a href="{{ document.url }}" download>{{ document.file_name }}</a><br>
-                    {% endfor %}
-                {% endif %}
+                {% endfor %}
             </dd>
         </div>
     </dl>

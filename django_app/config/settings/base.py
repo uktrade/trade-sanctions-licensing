@@ -76,7 +76,6 @@ AWS_DEFAULT_ACL = "private"
 TEMPORARY_S3_BUCKET_ACCESS_KEY_ID = env.temporary_s3_bucket_configuration["access_key_id"]
 TEMPORARY_S3_BUCKET_SECRET_ACCESS_KEY = env.temporary_s3_bucket_configuration["secret_access_key"]
 TEMPORARY_S3_BUCKET_NAME = env.temporary_s3_bucket_configuration["bucket_name"]
-AWS_ACCESS_KEY_ID = TEMPORARY_S3_BUCKET_ACCESS_KEY_ID
 
 # Permanent document bucket
 PERMANENT_S3_BUCKET_ACCESS_KEY_ID = env.permanent_s3_bucket_configuration["access_key_id"]
@@ -87,7 +86,7 @@ PERMANENT_S3_BUCKET_NAME = env.permanent_s3_bucket_configuration["bucket_name"]
 AWS_ACCESS_KEY_ID = TEMPORARY_S3_BUCKET_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY = TEMPORARY_S3_BUCKET_SECRET_ACCESS_KEY
 AWS_REGION = AWS_S3_REGION_NAME
-AWS_STORAGE_BUCKET_NAME = TEMPORARY_S3_BUCKET_NAME
+AWS_STORAGE_BUCKET_NAME = TEMPORARY_S3_BUCKET_NAME  # where files are uploaded as part of django_chunk_upload_handlers
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
@@ -293,7 +292,7 @@ CACHES = {
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Session cookie age is set to 40 minutes
-SESSION_COOKIE_AGE = 40 * 60
+SESSION_COOKIE_AGE = 1000 * 60
 SESSION_LAST_ACTIVITY_KEY = "last_form_submission"
 
 # CSP policies

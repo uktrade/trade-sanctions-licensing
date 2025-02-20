@@ -12,7 +12,9 @@ class MultipleFileInput(forms.ClearableFileInput):
 
 class MultipleFileField(forms.FileField):
     def __init__(self, *args: object, **kwargs: object) -> None:
-        kwargs.setdefault("widget", MultipleFileInput())
+        kwargs.setdefault(
+            "widget", MultipleFileInput(attrs={"class": "govuk-file-upload moj-multi-file-upload__input", "name": "file"})
+        )
         super().__init__(*args, **kwargs)
 
     def clean(self, data: list[UploadedFile], initial: UploadedFile | None = None) -> list[UploadedFile] | UploadedFile:

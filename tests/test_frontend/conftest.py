@@ -208,7 +208,6 @@ class StartBase(PlaywrightTestBase):
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("Yes").check()
         page.get_by_role("button", name="Continue").click()
-        self.your_details(page, "business")
 
     def business_not_third_party(self, page):
         page.get_by_label("A business or businesses with").check()
@@ -229,7 +228,14 @@ class StartBase(PlaywrightTestBase):
 
 
 class ProviderBase(PlaywrightTestBase):
+    def fill_your_details(self, page):
+        page.locator("#id_applicant_full_name").fill("Test full name")
+        page.locator("#id_applicant_business").fill("Test business")
+        page.locator("#id_applicant_role").fill("Test role")
+        page.get_by_role("button", name="Continue").click()
+
     def provider_business_located_in_uk(self, page):
+        self.fill_your_details(page)
         page.get_by_label("No", exact=True).check()
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("In the UK").check()
@@ -237,6 +243,7 @@ class ProviderBase(PlaywrightTestBase):
         self.fill_uk_address_details(page, "business")
 
     def provider_business_located_outside_uk(self, page):
+        self.fill_your_details(page)
         page.get_by_label("No", exact=True).check()
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("Outside the UK").check()
@@ -329,13 +336,13 @@ def patched_clean_document(monkeypatch):
     """Force the VirusFound exception to allow us to test the frontend implementation"""
     mock_document = MagicMock()
     mock_document.readline.side_effect = VirusFoundInFileException
-    original_clean_document = UploadDocumentsForm.clean_document
+    original_clean_document = UploadDocumentsForm.clean_file
 
     def mock_clean_document(self):
-        self.cleaned_data["document"] = [mock_document]
+        self.cleaned_data["file"] = [mock_document]
         return original_clean_document(self)
 
-    monkeypatch.setattr(UploadDocumentsForm, "clean_document", mock_clean_document)
+    monkeypatch.setattr(UploadDocumentsForm, "clean_file", mock_clean_document)
 
 
 @pytest.fixture(autouse=True, scope="function")

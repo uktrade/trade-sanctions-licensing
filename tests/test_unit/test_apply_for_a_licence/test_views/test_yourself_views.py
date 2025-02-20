@@ -46,6 +46,24 @@ class TestAddYourselfView:
         assert yourself.first_name == "John"
         assert yourself.nationality_and_location == NationalityAndLocation.uk_national_uk_location
 
+    def test_is_applicant(self, authenticated_al_client_with_licence, yourself):
+        yourself.is_applicant = False
+        yourself.save()
+        assert not yourself.is_applicant
+
+        authenticated_al_client_with_licence.post(
+            reverse("add_yourself", kwargs={"yourself_uuid": yourself.id}),
+            data={
+                "first_name": "John",
+                "last_name": "Doe",
+                "nationality_and_location": NationalityAndLocation.uk_national_uk_location.value,
+            },
+            follow=True,
+        )
+
+        yourself.refresh_from_db()
+        assert yourself.is_applicant
+
 
 class TestAddYourselfAddressView:
     def test_successful_non_uk_address_post(self, authenticated_al_client, yourself):

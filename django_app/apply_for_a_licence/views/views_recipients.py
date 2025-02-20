@@ -22,6 +22,7 @@ class BaseRecipientFormView(AddAnEntityView):
 class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
     form_class = forms.WhereIsTheRecipientLocatedForm
     redirect_after_post = False
+    redirect_with_query_parameters = True
 
     @property
     def object(self) -> Organisation:
@@ -56,6 +57,8 @@ class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
 
 
 class AddARecipientView(BaseRecipientFormView):
+    redirect_after_post = False
+
     def get_form_class(self) -> Type[forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm]:
         if self.kwargs["location"] == "in-uk":
             form_class = forms.AddAUKRecipientForm
@@ -102,3 +105,4 @@ class DeleteRecipientView(DeleteAnEntityView):
 class RelationshipProviderRecipientView(BaseRecipientFormView):
     form_class = forms.RelationshipProviderRecipientForm
     success_url = reverse_lazy("recipient_added")
+    redirect_with_query_parameters = False  # once we're done here, we don't care about the query parameters

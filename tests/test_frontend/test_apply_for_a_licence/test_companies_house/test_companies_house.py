@@ -12,6 +12,7 @@ class TestCompaniesHouse(StartBase, ProviderBase):
     def test_companies_house_number_unknown(self):
         self.start_new_application()
         self.business_third_party(self.page)
+        self.fill_your_details(self.page)
         self.page.get_by_label("Yes", exact=True).check()
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("No", exact=True).check()
@@ -35,6 +36,7 @@ class TestCompaniesHouse(StartBase, ProviderBase):
     def test_companies_house_number_incorrect(self, patched_companies_house):
         self.start_new_application()
         self.business_third_party(self.page)
+        self.fill_your_details(self.page)
         self.page.get_by_label("Yes", exact=True).check()
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("Yes", exact=True).check()
@@ -62,6 +64,7 @@ class TestCompaniesHouse(StartBase, ProviderBase):
     def test_companies_house_number(self, patched_companies_house):
         self.start_new_application()
         self.business_third_party(self.page)
+        self.fill_your_details(self.page)
         self.page.get_by_label("Yes", exact=True).check()
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("Yes", exact=True).check()
@@ -89,6 +92,7 @@ class TestCompaniesHouse(StartBase, ProviderBase):
     def test_back_button_on_check_companies_details(self, patched_companies_house):
         self.start_new_application()
         self.business_third_party(self.page)
+        self.fill_your_details(self.page)
         self.page.get_by_label("Yes", exact=True).check()
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("Yes", exact=True).check()

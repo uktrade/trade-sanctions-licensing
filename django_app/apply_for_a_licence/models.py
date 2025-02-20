@@ -16,6 +16,7 @@ from utils.companies_house import get_formatted_address
 
 from . import choices
 from .types import Licensee
+from .utils import get_file_s3_key
 
 
 class Licence(BaseModel):
@@ -217,6 +218,7 @@ class Individual(BaseModelID, AddressMixin):
     relationship_provider = models.TextField(
         blank=True, null=True, db_comment="what is the relationship between the provider and the recipient?"
     )
+    is_applicant = models.BooleanField(default=False)
 
     @property
     def full_name(self) -> str:
@@ -231,10 +233,14 @@ class Document(BaseModel):
         blank=True,
         # if we're storing the document in the DB, we can assume it's in the permanent bucket
         storage=PermanentDocumentStorage(),
+        upload_to=get_file_s3_key,
     )
+    original_file_name = models.CharField(max_length=255, blank=True, null=True)
 
-    def file_name(self) -> str:
-        return self.file.name.split("/")[-1]
-
+    @property
     def url(self) -> str:
         return self.file.url
+
+    @property
+    def s3_key(self) -> str:
+        return self.file.file.obj.key

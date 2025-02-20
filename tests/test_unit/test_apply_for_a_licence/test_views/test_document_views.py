@@ -1,39 +1,28 @@
 import logging
 from unittest.mock import patch
 
-from django.core.cache import cache
+from apply_for_a_licence.models import Document
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
-from utils.s3 import get_user_uploaded_files
+
+from tests.factories import LicenceFactory
 
 logger = logging.getLogger(__name__)
 
 
-@patch("apply_for_a_licence.forms.forms_documents.get_all_session_files", new=lambda x, y: [])
-@patch("apply_for_a_licence.views.views_documents.get_all_session_files", new=lambda x, y: [])
 class TestDocumentUploadView:
-    def test_successful_post(self, authenticated_al_client):
-        response = authenticated_al_client.post(
+    def test_successful_post(self, authenticated_al_client_with_licence):
+        response = authenticated_al_client_with_licence.post(
             reverse("upload_documents"),
-            data={"document": SimpleUploadedFile("test.png", b"file_content")},
+            data={"file": SimpleUploadedFile("test.png", b"file_content")},
             headers={"x-requested-with": "XMLHttpRequest"},
         )
         assert response.status_code == 201
 
-    def test_file_names_stored_in_cache(self, authenticated_al_client):
-        cache.clear()
-        assert not get_user_uploaded_files(authenticated_al_client.session)
-        authenticated_al_client.post(
+    def test_unsuccessful_post(self, authenticated_al_client_with_licence):
+        response = authenticated_al_client_with_licence.post(
             reverse("upload_documents"),
-            data={"document": SimpleUploadedFile("test.png", b"file_content")},
-            headers={"x-requested-with": "XMLHttpRequest"},
-        )
-        assert get_user_uploaded_files(authenticated_al_client.session) == ["test.png"]
-
-    def test_unsuccessful_post(self, authenticated_al_client):
-        response = authenticated_al_client.post(
-            reverse("upload_documents"),
-            data={"document": SimpleUploadedFile("bad.gif", b"GIF8")},
+            data={"file": SimpleUploadedFile("bad.gif", b"GIF8")},
             headers={"x-requested-with": "XMLHttpRequest"},
         )
         assert response.status_code == 200
@@ -44,21 +33,20 @@ class TestDocumentUploadView:
             "PPT, PPTX, ODP, FODP, PDF, TXT, CSV, ZIP, HTML, JPEG, JPG or PNG" in response["error"]
         )
         assert response["file_name"] == "bad.gif"
-        assert "file_uploads" not in authenticated_al_client.session
 
-    def test_non_ajax_successful_post(self, authenticated_al_client):
-        response = authenticated_al_client.post(
+    def test_non_ajax_successful_post(self, authenticated_al_client_with_licence):
+        response = authenticated_al_client_with_licence.post(
             reverse("upload_documents"),
-            data={"document": SimpleUploadedFile("test.png", b"file_content")},
+            data={"file": SimpleUploadedFile("test.png", b"file_content")},
             follow=True,
         )
         assert response.status_code == 200
         assert response.request["PATH_INFO"] == "/apply/check-your-answers"
 
-    def test_non_ajax_unsuccessful_post(self, authenticated_al_client):
-        response = authenticated_al_client.post(
+    def test_non_ajax_unsuccessful_post(self, authenticated_al_client_with_licence):
+        response = authenticated_al_client_with_licence.post(
             reverse("upload_documents"),
-            data={"document": SimpleUploadedFile("bad.gif", b"GIF8")},
+            data={"file": SimpleUploadedFile("bad.gif", b"GIF8")},
             follow=True,
         )
         assert response.status_code == 200
@@ -71,41 +59,78 @@ class TestDocumentUploadView:
         )
 
 
-@patch("apply_for_a_licence.views.views_documents.TemporaryDocumentStorage.delete")
 class TestDeleteDocumentsView:
-    def test_successful_post(self, mocked_temporary_document_storage, authenticated_al_client):
-        response = authenticated_al_client.post(
-            reverse("delete_documents") + "?file_name=test.png",
+    @patch("apply_for_a_licence.models.Document.delete")
+    def test_successful_post(self, patched_document_delete, authenticated_al_client_with_licence, licence_application):
+        licence_application.status = "submitted"
+        licence_application.save()
+        Document.objects.create(licence=licence_application, file="test1231242342.png", original_file_name="test.png")
+
+        response = authenticated_al_client_with_licence.post(
+            reverse("delete_documents"),
+            data={"s3_key_to_delete": "test1231242342.png"},
             headers={"x-requested-with": "XMLHttpRequest"},
         )
         assert response.status_code == 200
         assert response.json() == {"success": True}
-        assert mocked_temporary_document_storage.call_count == 1
-        args, kwargs = mocked_temporary_document_storage.call_args
-        assert f"{authenticated_al_client.session.session_key}/test.png" in args
+        assert patched_document_delete.call_count == 1
 
-    def test_unsuccessful_post(self, mocked_temporary_document_storage, authenticated_al_client):
-        response = authenticated_al_client.post(
+    @patch("apply_for_a_licence.models.Document.delete")
+    def test_unsuccessful_post_doesnt_own(self, patched_document_delete, authenticated_al_client_with_licence):
+        licence = LicenceFactory(user=None)
+        Document.objects.create(licence=licence, file="test123124234.png", original_file_name="test.png")
+
+        response = authenticated_al_client_with_licence.post(
             reverse("delete_documents"),
+            data={"s3_key_to_delete": "test123124234.png"},
             headers={"x-requested-with": "XMLHttpRequest"},
         )
-        assert response.status_code == 400
-        assert response.json() == {"success": False}
-        assert mocked_temporary_document_storage.call_count == 0
+        assert response.status_code == 404
+        assert patched_document_delete.call_count == 0
+
+    @patch("apply_for_a_licence.models.Document.delete")
+    def test_unsuccessful_post_not_submitted(
+        self, patched_document_delete, authenticated_al_client_with_licence, licence_application
+    ):
+        licence_application.status = "draft"
+        licence_application.save()
+        Document.objects.create(licence=licence_application, file="test1231242342.png", original_file_name="test.png")
+
+        response = authenticated_al_client_with_licence.post(
+            reverse("delete_documents"),
+            data={"s3_key_to_delete": "test1231242342.png"},
+            headers={"x-requested-with": "XMLHttpRequest"},
+        )
+        assert response.status_code == 404
+        assert patched_document_delete.call_count == 0
 
 
 class TestDownloadDocumentMiddleman:
+    def test_download_document_middleman(self, caplog, authenticated_al_client_with_licence, licence_application):
+        document_object = Document.objects.create(
+            licence=licence_application, file="test1231242342.png", original_file_name="test.png"
+        )
 
-    @patch("apply_for_a_licence.views.views_documents.get_user_uploaded_files", return_value=["test.png"])
-    @patch("apply_for_a_licence.views.views_documents.generate_presigned_url", return_value="www.example.com")
-    def test_download_document_middleman(self, mocked_uploaded_files, mocked_url, caplog, authenticated_al_client):
         with caplog.at_level(logging.INFO, logger="apply_for_a_licence.views"):
-            response = authenticated_al_client.get(reverse("download_document", kwargs={"file_name": "test.png"}))
-            assert "User is downloading file: test.png" in caplog.text
+            response = authenticated_al_client_with_licence.get(reverse("download_document", kwargs={"pk": document_object.pk}))
+            assert f"User apply_test_user@example.com has downloaded file: test.png (PK {document_object.pk})" in caplog.text
         assert response.status_code == 302
-        assert response.url == "www.example.com"
+        assert "permanent-document-bucket" in response.url
 
-    @patch("apply_for_a_licence.views.views_documents.get_user_uploaded_files", return_value=["hello.png"])
-    def test_download_document_middleman_not_in_cache(self, mocked_uploaded_files, authenticated_al_client):
-        response = authenticated_al_client.get(reverse("download_document", kwargs={"file_name": "test.png"}))
+    def test_download_document_middleman_doesnt_belong_to_you(self, authenticated_al_client_with_licence):
+        licence_application = LicenceFactory(user=None)
+        document_object = Document.objects.create(
+            licence=licence_application, file="test1231242342.png", original_file_name="test.png"
+        )
+        response = authenticated_al_client_with_licence.get(reverse("download_document", kwargs={"pk": document_object.pk}))
+        assert response.status_code == 404
+
+    def test_download_document_middleman_session_licence_doesnt_match(
+        self, authenticated_al_client_with_licence, test_apply_user
+    ):
+        licence_application = LicenceFactory(user=test_apply_user)
+        document_object = Document.objects.create(
+            licence=licence_application, file="test1231242342.png", original_file_name="test.png"
+        )
+        response = authenticated_al_client_with_licence.get(reverse("download_document", kwargs={"pk": document_object.pk}))
         assert response.status_code == 404

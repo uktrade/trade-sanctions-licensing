@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 class TypeOfServiceView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.TypeOfServiceForm
+    redirect_with_query_parameters = True
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["type_of_service"]
@@ -22,15 +23,19 @@ class TypeOfServiceView(BaseSaveAndReturnLicenceModelFormView):
             case _:
                 success_url = reverse("service_activities")
 
-        if self.form.has_field_changed("type_of_service"):
-            self.redirect_after_post = False
-
         return success_url
+
+    def save_form(self, form):
+        licence = super().save_form(form)
+        if form.has_field_changed("type_of_service"):
+            self.redirect_after_post = False
+        return licence
 
 
 class ProfessionalOrBusinessServicesView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.ProfessionalOrBusinessServicesForm
     success_url = reverse_lazy("service_activities")
+    redirect_with_query_parameters = True
 
     def add_query_parameters_to_url(self, success_url: str) -> str:
         success_url = super().add_query_parameters_to_url(success_url)
@@ -65,6 +70,7 @@ class WhichSanctionsRegimeView(BaseSaveAndReturnLicenceModelFormView):
 
 class ServiceActivitiesView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.ServiceActivitiesForm
+    redirect_with_query_parameters = True
 
     @property
     def redirect_after_post(self) -> bool:
@@ -77,7 +83,7 @@ class ServiceActivitiesView(BaseSaveAndReturnLicenceModelFormView):
 
         if self.update:
             success_url = reverse("purpose_of_provision")
-            if self.form.instance.professional_or_business_services == TypeOfServicesChoices.professional_and_business.value:
+            if self.form.instance.type_of_service == TypeOfServicesChoices.professional_and_business.value:
                 success_url = reverse("licensing_grounds")
 
         return success_url

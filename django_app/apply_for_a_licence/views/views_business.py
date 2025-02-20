@@ -57,7 +57,7 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
         else:
             return redirect("is_the_business_registered_with_companies_house", kwargs={"business_uuid": uuid.uuid4()})
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         add_business = self.form.cleaned_data["do_you_want_to_add_another_business"]
         if add_business:
             return (
@@ -81,6 +81,7 @@ class DeleteBusinessView(DeleteAnEntityView):
 class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
     form_class = forms.IsTheBusinessRegisteredWithCompaniesHouseForm
     redirect_after_post = False
+    redirect_with_query_parameters = True
 
     @property
     def object(self) -> Organisation:
@@ -111,6 +112,7 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseBusinessModelFormView):
     form_class = forms.DoYouKnowTheRegisteredCompanyNumberForm
     template_name = "apply_for_a_licence/form_steps/conditional_radios_form.html"
     redirect_after_post = False
+    redirect_with_query_parameters = True
 
     def get_success_url(self) -> str:
         do_you_know_the_registered_company_number = self.form.cleaned_data["do_you_know_the_registered_company_number"]
@@ -129,6 +131,16 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseBusinessModelFormView):
         context = super().get_context_data()
         context["page_title"] = "Registered Company Number"
         return context
+
+    def save_form(self, form) -> Organisation:
+        instance = super().save_form(form)
+        if form.cleaned_data["do_you_know_the_registered_company_number"] == "yes":
+            instance.do_you_know_the_registered_company_number = True
+        else:
+            instance.do_you_know_the_registered_company_number = False
+
+        instance.save()
+        return instance
 
 
 class ManualCompaniesHouseInputView(BaseBusinessModelFormView):

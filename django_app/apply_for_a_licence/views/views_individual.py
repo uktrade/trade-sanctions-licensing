@@ -30,6 +30,7 @@ class BaseIndividualFormView(AddAnEntityView):
 class AddAnIndividualView(BaseIndividualFormView):
     form_class = forms.AddAnIndividualForm
     redirect_after_post = False
+    redirect_with_query_parameters = True
 
     def dispatch(self, request, *args, **kwargs):
         Individual.objects.get_or_create(pk=self.kwargs["individual_uuid"], defaults={"licence": self.licence_object})
