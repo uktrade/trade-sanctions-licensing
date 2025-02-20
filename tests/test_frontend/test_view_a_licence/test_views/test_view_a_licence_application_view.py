@@ -32,7 +32,7 @@ class TestViewALicenceApplicationView(PlaywrightTestBase):
         expect(conditional_box).to_be_visible()
         assert "Licensing grounds (excluding legal advisory)" in conditional_box.text_content()
         assert LicensingGroundsChoices.food.label in conditional_box.text_content()
-        assert LicensingGroundsChoices.safety.value in conditional_box.text_content()
+        assert LicensingGroundsChoices.safety.label in conditional_box.text_content()
 
         # now checking without legal advisory
         licence = LicenceFactory.create(
