@@ -7,12 +7,11 @@ def populate_is_applicant(apps, schema_editor):
     Licence = apps.get_model("apply_for_a_licence", "Licence")
     for licence in Licence.objects.filter(who_do_you_want_the_licence_to_cover="myself"):
         # we can assume that the first Individual created was the applicant (your-details)
-        applicant_individual = licence.individuals.first()
-
-        # we can confirm this by checking the name
-        if applicant_individual.full_name == licence.applicant_full_name:
-            applicant_individual.is_applicant = True
-            applicant_individual.save(update_fields=["is_applicant"])
+        if applicant_individual := licence.individuals.first():
+            # we can confirm this by checking the name
+            if applicant_individual.full_name == licence.applicant_full_name:
+                applicant_individual.is_applicant = True
+                applicant_individual.save(update_fields=["is_applicant"])
 
 
 def remove_is_applicant(apps, schema_editor):
