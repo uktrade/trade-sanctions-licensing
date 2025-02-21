@@ -1,4 +1,5 @@
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.contrib.auth.models import Group, User
 from django.urls import reverse
 
 from tests.factories import LicenceFactory, UserFactory
@@ -6,8 +7,14 @@ from tests.factories import LicenceFactory, UserFactory
 
 class TestManageUsersView:
     def test_get_context_data(self, vl_client_logged_in, staff_user):
+        internal_user_group = Group.objects.get(name=settings.INTERNAL_USER_GROUP_NAME)
+        public_user_group = Group.objects.get(name=settings.PUBLIC_USER_GROUP_NAME)
+
         inactive_staff_user = UserFactory.create(is_active=False, is_staff=False)
+        inactive_staff_user.groups.add(internal_user_group)
+
         public_user = UserFactory.create(username="urn:fdc:gov.uk:public_user", is_active=True)
+        public_user.groups.add(public_user_group)
 
         LicenceFactory.create_batch(2, user=public_user, status="submitted")
         LicenceFactory.create_batch(4, user=public_user, status="draft")

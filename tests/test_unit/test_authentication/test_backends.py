@@ -2,6 +2,7 @@ from unittest import mock
 
 from authentication.backends import AdminBackend, OneLoginBackend, StaffSSOBackend
 from authentication.types import UserInfo
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import override_settings
 from freezegun import freeze_time
@@ -60,6 +61,14 @@ class TestOneLoginBackend:
         user = OneLoginBackend().authenticate(viewer_rf)
         assert user is None
 
+    def test_group_membership(self):
+        profile: UserInfo = {"sub": "some-unique-key", "email": "test@example.com"}
+        user = OneLoginBackend().get_or_create_user(profile)
+        assert user.groups.exists()
+        assert user.groups.count() == 1
+        group = user.groups.get()
+        assert group.name == settings.PUBLIC_USER_GROUP_NAME
+
 
 class TestStaffSSOBackend:
     def test_get_or_create_user(self, db):
@@ -84,6 +93,19 @@ class TestStaffSSOBackend:
     def test_only_works_with_view(self, apply_rf):
         user = StaffSSOBackend().authenticate(apply_rf)
         assert user is None
+
+    def test_group_membership(self):
+        profile = {
+            "email_user_id": "caseworker",
+            "email": "caseworker@example.com",
+            "first_name": "Case",
+            "last_name": "Worker",
+        }
+        user = StaffSSOBackend().get_or_create_user(profile)
+        assert user.groups.exists()
+        assert user.groups.count() == 1
+        group = user.groups.get()
+        assert group.name == settings.INTERNAL_USER_GROUP_NAME
 
 
 class TestAdminBackend:

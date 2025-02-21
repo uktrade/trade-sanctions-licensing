@@ -3,7 +3,7 @@ from apply_for_a_licence.choices import WhoDoYouWantTheLicenceToCoverChoices
 from apply_for_a_licence.models import Individual, Licence
 from core.sites import SiteName
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.db import IntegrityError
 from django.test import Client, RequestFactory
@@ -13,9 +13,16 @@ from tests.factories import LicenceFactory, OrganisationFactory
 from tests.helpers import get_test_client
 
 
+@pytest.fixture(autouse=True)
+def auth_groups(db):
+    Group.objects.get_or_create(name=settings.INTERNAL_USER_GROUP_NAME)
+    Group.objects.get_or_create(name=settings.PUBLIC_USER_GROUP_NAME)
+    Group.objects.get_or_create(name=settings.ADMIN_USER_GROUP_NAME)
+
+
 @pytest.fixture()
 def test_apply_user(db) -> User:
-    user, _ = User.objects.get_or_create(
+    user, created = User.objects.get_or_create(
         username="urn:fdc:test_apply_user",
         defaults={
             "first_name": "Test",
@@ -26,6 +33,8 @@ def test_apply_user(db) -> User:
             "password": "test",
         },
     )
+    public_group = Group.objects.get(name=settings.PUBLIC_USER_GROUP_NAME)
+    user.groups.add(public_group)
     return user
 
 
@@ -78,12 +87,15 @@ def vl_client(db) -> Client:
 @pytest.fixture()
 def staff_user(db):
     try:
-        return User.objects.create_user(
+        user = User.objects.create_user(
             "staff",
             "staff@example.com",
             is_active=True,
             is_staff=True,
         )
+        internal_group = Group.objects.get(name=settings.INTERNAL_USER_GROUP_NAME)
+        user.groups.add(internal_group)
+        return user
     except IntegrityError:
         return User.objects.get(username="staff")
 
@@ -154,7 +166,7 @@ def viewer_rf(request_object):
 def licence_application(authenticated_al_client, test_apply_user) -> Licence:
     licence_object = LicenceFactory(user=test_apply_user)
     session = authenticated_al_client.session
-    session["licence_id"] = licence_object.id  # type: ignore[attr-defined]
+    session["licence_id"] = licence_object.pk  # type: ignore[attr-defined]
     session.save()
     return licence_object
 
