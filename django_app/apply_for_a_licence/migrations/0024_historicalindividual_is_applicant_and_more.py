@@ -9,7 +9,7 @@ def populate_is_applicant(apps, schema_editor):
         # we can assume that the first Individual created was the applicant (your-details)
         if applicant_individual := licence.individuals.first():
             # we can confirm this by checking the name
-            if applicant_individual.full_name == licence.applicant_full_name:
+            if f"{applicant_individual.first_name} {applicant_individual.last_name}" == licence.applicant_full_name:
                 applicant_individual.is_applicant = True
                 applicant_individual.save(update_fields=["is_applicant"])
 
