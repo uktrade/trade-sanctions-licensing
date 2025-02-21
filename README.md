@@ -87,13 +87,20 @@ Add the following to your etc/hosts file:
 127.0.0.1 view-a-licence
 ```
 
-### 6. Apply migrations to the database
+### 6. Install libmagic
+The project uses the python-magic library to determine the file type of uploaded files. This library requires the libmagic library to be installed on your system. You can install it with the following command:
+```
+brew install pipenv
+```
+
+
+### 7. Apply migrations to the database
 Run the following command to apply migrations to the database:
 ```
 invoke migrate
 ```
 
-### 7. Run the web server
+### 8. Run the web server
 After following the setup, use the following to run the web app
 
 ```
@@ -143,3 +150,12 @@ To run the frontend tests (more documentation can be found in the tests/test_fro
 ```
 invoke frontendtests
 ```
+
+### Accessing the viewer portal
+
+The first time accessing the viewer portal you will automatically be logged in as `vyvyan.holland@email.com` through the
+mock Staff SSO server. This user will by default not be able to access the viewer portal as `is_active` is set to False in the DB.
+
+Create a superuser with `pipenv run django_app/manage.py createsuperuser` and log in to the admin panel (`http://view-a-licence:8000/admin`) with the superuser credentials.
+
+Go to the User model and set `is_active` to True for the `vyvyan.holland@email.com` user to access the viewer portal.
