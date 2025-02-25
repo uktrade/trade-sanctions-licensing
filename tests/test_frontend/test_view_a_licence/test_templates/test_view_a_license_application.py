@@ -27,4 +27,4 @@ class TestApplicationDetails(PlaywrightTestBase):
             self.base_url + reverse("view_a_licence:view_application", kwargs={"reference": submitted_licence.reference})
         )
 
-        expect(self.page.get_by_text(f"Submitted on:{submitted_licence.submitted_at.strftime('%d %B %Y')}")).to_be_visible()
+        expect(self.page.get_by_text(f"Submitted on: {submitted_licence.submitted_at.strftime('%d %B %Y')}")).to_be_visible()
