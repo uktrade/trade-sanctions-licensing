@@ -15,7 +15,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, FormView, RedirectView
 from django_ratelimit.exceptions import Ratelimited
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import PdfMargins, sync_playwright
 
 
 class BaseFormView(LoginRequiredMixin, FormView):
@@ -143,7 +143,7 @@ class BaseDownloadPDFView(DetailView):
         filename = f"application-{self.reference}.pdf"
         pdf_data = None
         template_string = render_to_string(self.template_name, context=self.get_context_data(**kwargs))
-        margins = {"left": "1.25in", "right": "1.25in", "top": "1in", "bottom": "1in"}
+        margins = PdfMargins(left="1.25in", right="1.25in", top="1in", bottom="1in")
 
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True)
