@@ -94,7 +94,9 @@ def staff_user(db):
             is_staff=True,
         )
         internal_group = Group.objects.get(name=settings.INTERNAL_USER_GROUP_NAME)
+        admin_group = Group.objects.get(name=settings.ADMIN_USER_GROUP_NAME)
         user.groups.add(internal_group)
+        user.groups.add(admin_group)
         return user
     except IntegrityError:
         return User.objects.get(username="staff")
