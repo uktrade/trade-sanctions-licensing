@@ -5,7 +5,7 @@ from django.utils import timezone
 from playwright.sync_api import expect
 
 from tests.factories import LicenceFactory, UserFactory
-from tests.test_frontend.conftest import PlaywrightTestBase
+from tests.test_frontend.test_view_a_licence.conftest import PlaywrightTestBase
 
 
 class TestApplicationDetails(PlaywrightTestBase):
