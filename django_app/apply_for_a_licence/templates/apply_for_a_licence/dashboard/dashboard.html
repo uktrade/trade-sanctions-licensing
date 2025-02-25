@@ -51,7 +51,7 @@
                                 <div class="flex_container">
                                     <div>
                                         <a class="govuk-button"
-                                           href="{% get_tasklist_url pk=application.pk %}">Continue</a>
+                                           href="{% url 'triage' licence_pk=application.pk %}">Continue</a>
                                     </div>
                                     <div class="delete_application_link">
                                         <a class="govuk-link" href="{% url 'delete_application' pk=application.pk %}">

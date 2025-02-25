@@ -2,7 +2,7 @@ import logging
 import uuid
 from typing import Type
 
-from apply_for_a_licence.choices import TypeOfRelationshipChoices, TypeOfServicesChoices
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.forms import forms_recipients as forms
 from apply_for_a_licence.models import Organisation
 from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
@@ -87,11 +87,13 @@ class RecipientAddedView(BaseSaveAndReturnFormView):
         if add_recipient:
             success_url = reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()}) + "?new=yes"
         else:
+            success_url = reverse("tasklist")
+            """
             if self.licence_object.type_of_service == TypeOfServicesChoices.professional_and_business.value:
                 success_url = reverse("licensing_grounds")
             else:
                 success_url = reverse("purpose_of_provision")
-
+            """
         return success_url
 
 

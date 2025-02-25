@@ -9,9 +9,15 @@ from apply_for_a_licence.views import (
     views_recipients,
     views_services,
     views_start,
+    views_tasklist,
     views_yourself,
 )
 from django.urls import path
+
+views_misc_urls = [
+    path("task-list", views_tasklist.TasklistView.as_view(), name="tasklist"),
+    path("triage/<int:licence_pk>", views_tasklist.TriageView.as_view(), name="triage"),
+]
 
 views_dashboard_urls = [
     path("", views_dashboard.DashboardView.as_view(), name="dashboard"),
@@ -157,7 +163,8 @@ views_end_urls = [
 ]
 
 urlpatterns = (
-    views_dashboard_urls
+    views_misc_urls
+    + views_dashboard_urls
     + views_start_urls
     + views_business_urls
     + views_individual_urls

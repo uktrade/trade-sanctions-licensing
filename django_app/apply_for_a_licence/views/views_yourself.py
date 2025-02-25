@@ -114,7 +114,7 @@ class YourselfAndIndividualAddedView(BaseSaveAndReturnFormView):
                 + "?change=yes"
             )
         else:
-            return reverse("previous_licence")
+            return reverse("tasklist")
 
 
 class DeleteIndividualFromYourselfView(DeleteAnEntityView):

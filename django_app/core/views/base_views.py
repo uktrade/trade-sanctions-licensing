@@ -1,6 +1,7 @@
 import datetime
 
 from apply_for_a_licence.models import Licence
+from apply_for_a_licence.utils import can_user_edit_licence
 from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import BaseForm, BaseModelForm
 from django.conf import settings
@@ -28,10 +29,11 @@ class BaseSaveAndReturnView(BaseView):
         if licence_id := self.request.session.get("licence_id"):
             try:
                 licence = Licence.objects.get(pk=licence_id)
-                if licence.user != self.request.user:
+                if not can_user_edit_licence(self.request.user, licence):
                     raise Http404()
-                self._licence_object = licence
-                return licence
+                else:
+                    self._licence_object = licence
+                    return licence
             except Licence.DoesNotExist:
                 return None
         else:
