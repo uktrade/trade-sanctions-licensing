@@ -8,6 +8,7 @@ from apply_for_a_licence.choices import (
 )
 from apply_for_a_licence.models import Licence
 from authentication.mixins import LoginRequiredMixin
+from authentication.utils import get_group
 from core.sites import require_view_a_licence
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -108,6 +109,7 @@ class ManageUsersView(LoginRequiredMixin, AdminUserOnlyMixin, TemplateView):
     def get(self, request: HttpRequest, **kwargs: object) -> HttpResponse:
         if update_user := self.request.GET.get("accept_user", None):
             user_to_accept = User.objects.get(id=update_user)
+            user_to_accept.groups.add(get_group(settings.INTERNAL_USER_GROUP_NAME))
             user_to_accept.is_active = True
             user_to_accept.save()
 
