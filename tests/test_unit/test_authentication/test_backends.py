@@ -102,10 +102,7 @@ class TestStaffSSOBackend:
             "last_name": "Worker",
         }
         user = StaffSSOBackend().get_or_create_user(profile)
-        assert user.groups.exists()
-        assert user.groups.count() == 1
-        group = user.groups.get()
-        assert group.name == settings.INTERNAL_USER_GROUP_NAME
+        assert not user.groups.exists()
 
 
 class TestAdminBackend:

@@ -32,4 +32,4 @@ class InternalUserOnlyMixin(GroupsRequiredMixin):
 class AdminUserOnlyMixin(GroupsRequiredMixin):
     """Mixin to restrict access to admin users only"""
 
-    groups_required = [settings.INTERNAL_USER_GROUP_NAME, settings.ADMIN_USER_GROUP_NAME]
+    groups_required = [settings.ADMIN_USER_GROUP_NAME]

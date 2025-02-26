@@ -89,8 +89,6 @@ class StaffSSOBackend(AuthbrokerBackend):
                     is_staff=False,
                 )
                 new_user.set_unusable_password()
-                internal_user_group = Group.objects.get(name=settings.INTERNAL_USER_GROUP_NAME)
-                new_user.groups.add(internal_user_group)
                 new_user.save()
 
                 return new_user

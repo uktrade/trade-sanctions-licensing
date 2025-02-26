@@ -22,6 +22,7 @@ def create_user_groups(apps, schema_editor):
     # give all staff users (currently user management users) access to the admin user group
     for user in User.objects.filter(is_staff=True):
         user.groups.add(admin_user_group)
+        user.groups.add(internal_user_group)
 
 
 def delete_user_groups(apps, schema_editor):

@@ -119,8 +119,10 @@ class TestUserAdminView:
             "John",
             "email@example.com",
             is_active=True,
-            is_staff=False,
+            is_staff=True,
         )
+        # even with internal user group they should not have access
+        test_user.groups.add(get_group(settings.INTERNAL_USER_GROUP_NAME))
 
         vl_client.force_login(test_user, backend="authentication.backends.StaffSSOBackend")
         response = vl_client.get(reverse("view_a_licence:manage_users"))
