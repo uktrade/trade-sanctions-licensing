@@ -1,4 +1,4 @@
-from apply_for_a_licence.tasklist.base_classes import BaseTask
+from apply_for_a_licence.tasklist.base_classes import BaseSubTask, BaseTask
 from apply_for_a_licence.tasklist.sub_tasks import (
     CheckYourAnswersSubTask,
     DetailsOfTheEntityYouWantToCoverSubTask,
@@ -14,56 +14,60 @@ from apply_for_a_licence.tasklist.sub_tasks import (
 class AboutYouTask(BaseTask):
     name = "About you"
 
-    def get_sub_tasks(self):
-        sub_tasks = [YourDetailsSubTask(licence=self.licence)]
+    @property
+    def sub_tasks(self):
+        sub_tasks = [YourDetailsSubTask]
         if self.licence.who_do_you_want_the_licence_to_cover == "myself":
-            sub_tasks.append(PreviousLicensesHeldSubTask(licence=self.licence))
+            sub_tasks.append(PreviousLicensesHeldSubTask)
         return sub_tasks
 
 
 class WhoTheLicenceCoversTask(BaseTask):
     name = "Who the licence covers"
-
-    def get_sub_tasks(self):
-        sub_tasks = [
-            DetailsOfTheEntityYouWantToCoverSubTask(licence=self.licence),
-            PreviousLicensesHeldSubTask(licence=self.licence),
-        ]
-        return sub_tasks
+    sub_tasks = [
+        DetailsOfTheEntityYouWantToCoverSubTask,
+        PreviousLicensesHeldSubTask,
+    ]
 
 
 class AboutTheServicesTask(BaseTask):
     name = "About the services"
-
-    def get_sub_tasks(self):
-        sub_tasks = [
-            ServicesYouWantToProvideSubTask(licence=self.licence),
-            PurposeForProvidingServicesSubTask(licence=self.licence),
-        ]
-        return sub_tasks
+    sub_tasks = [
+        ServicesYouWantToProvideSubTask,
+        PurposeForProvidingServicesSubTask,
+    ]
 
 
 class RecipientsTask(BaseTask):
     name = "Recipients of the services"
-
-    def get_sub_tasks(self):
-        sub_tasks = [
-            RecipientContactDetailsSubTask(licence=self.licence),
-        ]
-        return sub_tasks
+    sub_tasks = [
+        RecipientContactDetailsSubTask,
+    ]
 
 
 class ReviewAndSubmitTask(BaseTask):
     name = "Review and submit"
+    sub_tasks = [
+        CheckYourAnswersSubTask,
+    ]
 
-    def get_sub_tasks(self):
-        sub_tasks = [CheckYourAnswersSubTask(licence=self.licence)]
+    def __init__(self, can_go_to_cya: bool, *args, **kwargs):
+        self.can_go_to_cya = can_go_to_cya
+        super().__init__(*args, **kwargs)
+
+    def get_sub_tasks(self) -> list[BaseSubTask]:
+        sub_tasks = super().get_sub_tasks()
+        for each in sub_tasks:
+            if self.can_go_to_cya:
+                each.status = "not_started"
+            else:
+                each.status = "cannot_start"
+
         return sub_tasks
 
 
 class UploadDocumentsTask(BaseTask):
     name = "Upload documents"
-
-    def get_sub_tasks(self):
-        sub_tasks = [UploadDocumentsSubTask(licence=self.licence)]
-        return sub_tasks
+    sub_tasks = [
+        UploadDocumentsSubTask,
+    ]

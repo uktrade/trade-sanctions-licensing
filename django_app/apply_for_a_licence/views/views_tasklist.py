@@ -1,5 +1,3 @@
-from typing import Literal, TypedDict
-
 from apply_for_a_licence.models import Licence
 from apply_for_a_licence.tasklist import Tasklist
 from apply_for_a_licence.utils import can_user_edit_licence
@@ -8,18 +6,6 @@ from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
-
-
-class SubTask(TypedDict):
-    name: str
-    help_text: str
-    status: Literal["complete", "incomplete"]
-    url: str
-
-
-class Task(TypedDict):
-    title: str
-    sub_tasks: list[SubTask]
 
 
 class TriageView(BaseView):

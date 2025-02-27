@@ -2,6 +2,7 @@ import logging
 import uuid
 from typing import Type
 
+from apply_for_a_licence import choices
 from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.forms import forms_recipients as forms
 from apply_for_a_licence.models import Organisation
@@ -108,3 +109,9 @@ class RelationshipProviderRecipientView(BaseRecipientFormView):
     form_class = forms.RelationshipProviderRecipientForm
     success_url = reverse_lazy("recipient_added")
     redirect_with_query_parameters = False  # once we're done here, we don't care about the query parameters
+
+    def save_form(self, form):
+        instance = form.save(commit=False)
+        instance.status = choices.EntityStatusChoices.complete
+        instance.save()
+        return instance

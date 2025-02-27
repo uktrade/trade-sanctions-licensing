@@ -28,12 +28,8 @@ class YourDetailsSubTask(BaseSubTask):
             return reverse("are_you_third_party")
 
     @property
-    def status(self):
-        status = "not_started"
-        if self.licence.applicant_full_name:
-            status = "complete"
-
-        return status
+    def is_completed(self):
+        return bool(self.licence.applicant_full_name)
 
 
 class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
@@ -71,26 +67,17 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
                 return reverse("add_an_individual", kwargs={"individual_uuid": str(uuid.uuid4())})
 
     @property
-    def status(self):
-        status = "not_started"
-        if self.is_business:
-            entity_qs = self.licence.organisations.filter(type_of_relationship=choices.TypeOfRelationshipChoices.business)
-
+    def is_completed(self) -> bool:
+        if self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.business:
+            return self.licence.organisations.filter(
+                type_of_relationship=choices.TypeOfRelationshipChoices.business, status="complete"
+            ).exists()
+        elif self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.individual:
+            return self.licence.individuals.filter(is_applicant=False, status="complete").exists()
+        elif self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.myself:
+            return self.licence.individuals.filter(is_applicant=True, status="complete").exists()
         else:
-            entity_qs = self.licence.individuals.filter(is_applicant=False)
-
-        # checking if any draft entities have been created but not completed yet
-        if entity_qs.filter(status="draft").exists():
-            status = "in_progress"
-        elif entity_qs.filter(status="complete").exists():
-            # checking if the business the individual(s) work for exists, only then are we complete
-            if self.licence.organisations.filter(
-                type_of_relationship=choices.TypeOfRelationshipChoices.named_individuals,
-                status=choices.EntityStatusChoices.complete,
-            ).exists():
-                status = "complete"
-
-        return status
+            return False
 
 
 class PreviousLicensesHeldSubTask(BaseSubTask):
@@ -99,15 +86,8 @@ class PreviousLicensesHeldSubTask(BaseSubTask):
     url = reverse_lazy("previous_licence")
 
     @property
-    def status(self):
-        status = "cannot_start"
-        if self.licence.held_existing_licence:
-            status = "complete"
-        entity_details_subtask = DetailsOfTheEntityYouWantToCoverSubTask(self.licence)
-        if entity_details_subtask.status == "complete":
-            status = "not_started"
-
-        return status
+    def is_completed(self):
+        return bool(self.licence.held_existing_licence)
 
 
 class ServicesYouWantToProvideSubTask(BaseSubTask):
@@ -116,12 +96,8 @@ class ServicesYouWantToProvideSubTask(BaseSubTask):
     url = reverse_lazy("type_of_service")
 
     @property
-    def status(self):
-        status = "not_started"
-        if self.licence.type_of_service:
-            status = "complete"
-
-        return status
+    def is_completed(self) -> bool:
+        return bool(self.licence.type_of_service)
 
 
 class PurposeForProvidingServicesSubTask(BaseSubTask):
@@ -129,14 +105,8 @@ class PurposeForProvidingServicesSubTask(BaseSubTask):
     help_text = "Licensing grounds or alignment with sanctions regulations"
 
     @property
-    def status(self):
-        status = "cannot_start"
-        if self.licence.type_of_service:
-            status = "not_started"
-        if self.licence.purpose_of_provision:
-            status = "complete"
-
-        return status
+    def is_completed(self):
+        return bool(self.licence.purpose_of_provision)
 
     @property
     def url(self):
@@ -152,24 +122,16 @@ class UploadDocumentsSubTask(BaseSubTask):
     url = reverse_lazy("upload_documents")
 
     @property
-    def status(self):
-        status = "not_started"
-        if self.licence.documents.exists():
-            status = "complete"
-
-        return status
+    def is_completed(self) -> bool:
+        return self.licence.documents.exists()
 
 
 class RecipientContactDetailsSubTask(BaseSubTask):
     name = "Recipient contact details"
 
     @property
-    def status(self):
-        status = "not_started"
-        if self.licence.recipients.exists():
-            status = "complete"
-
-        return status
+    def is_completed(self) -> bool:
+        return self.licence.recipients.filter(status=choices.EntityStatusChoices.complete).exists()
 
     @property
     def url(self) -> str:
@@ -184,11 +146,10 @@ class CheckYourAnswersSubTask(BaseSubTask):
     url = reverse_lazy("check_your_answers")
 
     @property
-    def status(self):
-        status = "cannot_start"
-        if self.licence.recipients.exists():
-            status = "not_started"
-        if self.licence.status == "submitted":
-            status = "complete"
+    def ready_to_start(self) -> bool:
+        # we can start the CYA the moment they've added recipients
+        return self.licence.recipients.filter(status=choices.EntityStatusChoices.complete).exists()
 
-        return status
+    @property
+    def is_completed(self) -> bool:
+        return self.licence.status == choices.StatusChoices.submitted

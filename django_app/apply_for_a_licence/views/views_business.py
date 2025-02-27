@@ -2,6 +2,7 @@ import logging
 import uuid
 from typing import Any, Dict
 
+from apply_for_a_licence import choices
 from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.forms import forms_business as forms
 from apply_for_a_licence.models import Organisation
@@ -64,7 +65,7 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
                 reverse("is_the_business_registered_with_companies_house", kwargs={"business_uuid": uuid.uuid4()}) + "?change=yes"
             )
         else:
-            return reverse("previous_licence")
+            return reverse("tasklist")
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -156,6 +157,12 @@ class CheckCompanyDetailsView(BaseBusinessModelFormView):
     template_name = "apply_for_a_licence/form_steps/check_company_details.html"
     success_url = reverse_lazy("business_added")
     form_class = forms.CheckCompanyDetailsForm
+
+    def save_form(self, form):
+        instance = super().save_form(form)
+        instance.status = choices.EntityStatusChoices.complete
+        instance.save()
+        return instance
 
 
 class WhereIsTheBusinessLocatedView(BaseBusinessModelFormView):

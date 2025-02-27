@@ -1,22 +1,6 @@
-from typing import Literal
+from typing import Literal, Type
 
-
-class BaseTask:
-    name: str = ""
-
-    def __init__(self, licence, *args, **kwargs):
-        self.licence = licence
-        super().__init__(*args, **kwargs)
-
-    @property
-    def id(self) -> str:
-        return self.name.lower().replace(" ", "-")
-
-    def get_sub_tasks(self):
-        raise NotImplementedError()
-
-    def can_start_sub_task(self) -> bool:
-        return True
+from apply_for_a_licence.models import Licence
 
 
 class BaseSubTask:
@@ -26,8 +10,12 @@ class BaseSubTask:
     url: str = ""
 
     def __init__(self, licence, *args, **kwargs):
-        self.licence = licence
+        self.licence: Licence = licence
         super().__init__(*args, **kwargs)
+
+    @property
+    def is_completed(self) -> bool:
+        return False
 
     @property
     def tag_colour(self) -> str:
@@ -57,3 +45,39 @@ class BaseSubTask:
             "complete": "Complete",
         }
         return status_mapping[self.status]
+
+
+class BaseTask:
+    name: str = ""
+    sub_tasks: list[Type[BaseSubTask]] = []
+
+    def __init__(self, licence, *args, **kwargs):
+        self.licence: Licence = licence
+        super().__init__(*args, **kwargs)
+
+    @property
+    def id(self) -> str:
+        return self.name.lower().replace(" ", "-")
+
+    def get_sub_tasks(self) -> list[BaseSubTask]:
+        """Gets an instantiated list of subtasks whilst also setting their status correctly.
+
+        If the previous sub-task has been completed, we can assume the next one is ready to start.
+        """
+        sub_tasks = [each(self.licence) for each in self.sub_tasks]
+        for index, each in enumerate(sub_tasks):
+            if each.is_completed:
+                each.status = "complete"
+                continue
+
+            if index == 0:
+                previous_task_completed = True
+            else:
+                previous_task_completed = sub_tasks[index - 1].is_completed
+
+            if previous_task_completed:
+                each.status = "not_started"
+            else:
+                each.status = "cannot_start"
+
+        return sub_tasks
