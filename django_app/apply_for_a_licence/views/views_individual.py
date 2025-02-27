@@ -34,7 +34,10 @@ class AddAnIndividualView(BaseIndividualFormView):
     redirect_with_query_parameters = True
 
     def dispatch(self, request, *args, **kwargs):
-        Individual.objects.get_or_create(pk=self.kwargs["individual_uuid"], defaults={"licence": self.licence_object})
+        Individual.objects.get_or_create(
+            pk=self.kwargs["individual_uuid"],
+            defaults={"licence": self.licence_object, "status": choices.EntityStatusChoices.draft},
+        )
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -83,6 +86,13 @@ class WhatIsIndividualsAddressView(BaseIndividualFormView):
             success_url = reverse("yourself_and_individual_added")
         return success_url
 
+    def save_form(self, form):
+        instance = form.save(commit=False)
+        # the individual should now be marked as 'complete'
+        instance.status = choices.EntityStatusChoices.complete
+        instance.save()
+        return instance
+
 
 class IndividualAddedView(BaseSaveAndReturnFormView):
     form_class = forms.IndividualAddedForm
@@ -123,17 +133,25 @@ class BusinessEmployingIndividualView(BaseSaveAndReturnModelFormView):
     @property
     def object(self) -> Organisation:
         instance, _ = Organisation.objects.get_or_create(
-            licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.named_individuals
+            licence=self.licence_object,
+            type_of_relationship=TypeOfRelationshipChoices.named_individuals,
+            defaults={"status": choices.EntityStatusChoices.draft},
         )
         return instance
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
-        if Individual.objects.filter(licence=self.licence_object).count() == 1:
-            kwargs["form_h1_header"] = "Details of the business employing the individual"
-        else:
+        if Individual.objects.filter(licence=self.licence_object).count() > 1:
             kwargs["form_h1_header"] = "Details of the business employing the individuals"
+        else:
+            kwargs["form_h1_header"] = "Details of the business employing the individual"
 
         kwargs["instance"] = self.object
         return kwargs
+
+    def save_form(self, form):
+        instance = form.save(commit=False)
+        instance.status = choices.EntityStatusChoices.complete
+        instance.save()
+        return instance

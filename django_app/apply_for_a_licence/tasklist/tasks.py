@@ -39,7 +39,6 @@ class AboutTheServicesTask(BaseTask):
         sub_tasks = [
             ServicesYouWantToProvideSubTask(licence=self.licence),
             PurposeForProvidingServicesSubTask(licence=self.licence),
-            UploadDocumentsSubTask(licence=self.licence),
         ]
         return sub_tasks
 
@@ -59,4 +58,12 @@ class ReviewAndSubmitTask(BaseTask):
 
     def get_sub_tasks(self):
         sub_tasks = [CheckYourAnswersSubTask(licence=self.licence)]
+        return sub_tasks
+
+
+class UploadDocumentsTask(BaseTask):
+    name = "Upload documents"
+
+    def get_sub_tasks(self):
+        sub_tasks = [UploadDocumentsSubTask(licence=self.licence)]
         return sub_tasks

@@ -69,6 +69,12 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
         request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
         return super().dispatch(request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get("skip_link"):
+            return HttpResponseRedirect(reverse("tasklist"))
+        else:
+            return super().post(request, *args, **kwargs)
+
     def get_form(self, form_class: BaseForm | None = None) -> BaseForm:
         form = super().get_form(form_class)
         self.form = form

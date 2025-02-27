@@ -187,6 +187,9 @@ class Organisation(BaseModelID, AddressMixin):
     relationship_provider = models.TextField(
         blank=False, null=True, db_comment="what is the relationship between the provider and the recipient?"
     )
+    status = models.CharField(
+        max_length=10, choices=choices.EntityStatusChoices.choices, default=choices.EntityStatusChoices.draft
+    )
 
     def readable_address(self) -> str:
         """If we have registered_office_address, use that instead of the address fields"""
@@ -219,6 +222,9 @@ class Individual(BaseModelID, AddressMixin):
         blank=True, null=True, db_comment="what is the relationship between the provider and the recipient?"
     )
     is_applicant = models.BooleanField(default=False)
+    status = models.CharField(
+        max_length=10, choices=choices.EntityStatusChoices.choices, default=choices.EntityStatusChoices.draft
+    )
 
     @property
     def full_name(self) -> str:

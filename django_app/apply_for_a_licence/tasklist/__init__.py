@@ -3,6 +3,7 @@ from .tasks import (
     AboutYouTask,
     RecipientsTask,
     ReviewAndSubmitTask,
+    UploadDocumentsTask,
     WhoTheLicenceCoversTask,
 )
 
@@ -17,6 +18,9 @@ class Tasklist:
             tasks.append(WhoTheLicenceCoversTask(licence=self.licence))
 
         tasks.append(AboutTheServicesTask(licence=self.licence))
+
         tasks.append(RecipientsTask(licence=self.licence))
+        tasks.append(UploadDocumentsTask(licence=self.licence))
+
         tasks.append(ReviewAndSubmitTask(licence=self.licence))
         return tasks

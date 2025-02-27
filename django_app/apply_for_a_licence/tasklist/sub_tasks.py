@@ -73,12 +73,21 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
     @property
     def status(self):
         status = "not_started"
-
         if self.is_business:
-            if self.licence.organisations.filter(type_of_relationship=choices.TypeOfRelationshipChoices.business).exists():
-                status = "complete"
+            entity_qs = self.licence.organisations.filter(type_of_relationship=choices.TypeOfRelationshipChoices.business)
+
         else:
-            if self.licence.individuals.filter(is_applicant=False).exists():
+            entity_qs = self.licence.individuals.filter(is_applicant=False)
+
+        # checking if any draft entities have been created but not completed yet
+        if entity_qs.filter(status="draft").exists():
+            status = "in_progress"
+        elif entity_qs.filter(status="complete").exists():
+            # checking if the business the individual(s) work for exists, only then are we complete
+            if self.licence.organisations.filter(
+                type_of_relationship=choices.TypeOfRelationshipChoices.named_individuals,
+                status=choices.EntityStatusChoices.complete,
+            ).exists():
                 status = "complete"
 
         return status
@@ -91,7 +100,7 @@ class PreviousLicensesHeldSubTask(BaseSubTask):
 
     @property
     def status(self):
-        status = "cannot_start_yet"
+        status = "cannot_start"
         if self.licence.held_existing_licence:
             status = "complete"
         entity_details_subtask = DetailsOfTheEntityYouWantToCoverSubTask(self.licence)

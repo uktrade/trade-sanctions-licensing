@@ -2,10 +2,9 @@ import re
 from typing import Any, List
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Layout, Size, Submit
+from crispy_forms_gds.layout import Layout, Size, Submit
 from django import forms
 from django.http import HttpRequest
-from django.urls import reverse
 from utils.companies_house import get_formatted_address
 
 
@@ -56,11 +55,10 @@ class BaseForm(forms.Form):
         if self.bold_labels:
             self.helper.label_size = Size.LARGE
 
-        skip_link_html = HTML(
-            f"<a href='{reverse('tasklist')}' class='govuk-link "
-            f"govuk-link--no-visited-state'>Skip for now and return to task list</a>"
+        self.helper.add_input(
+            Submit("skip_link", "Skip for now and return to task list", css_class="govuk-button govuk-button--secondary ml-2")
         )
-        self.helper.layout = Layout(*self.fields, skip_link_html)
+        self.helper.layout = Layout(*self.fields)
 
         # clearing the form data if 'change' is passed as a query parameter, and it's a GET request
         if self.request and self.request.method == "GET" and (self.request.GET.get("change") or self.request.GET.get("update")):
