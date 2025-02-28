@@ -146,10 +146,5 @@ class CheckYourAnswersSubTask(BaseSubTask):
     url = reverse_lazy("check_your_answers")
 
     @property
-    def ready_to_start(self) -> bool:
-        # we can start the CYA the moment they've added recipients
-        return self.licence.recipients.filter(status=choices.EntityStatusChoices.complete).exists()
-
-    @property
     def is_completed(self) -> bool:
         return self.licence.status == choices.StatusChoices.submitted
