@@ -45,6 +45,13 @@ class RecipientsTask(BaseTask):
     ]
 
 
+class UploadDocumentsTask(BaseTask):
+    name = "Upload documents"
+    sub_tasks = [
+        UploadDocumentsSubTask,
+    ]
+
+
 class ReviewAndSubmitTask(BaseTask):
     name = "Review and submit"
     sub_tasks = [
@@ -64,10 +71,3 @@ class ReviewAndSubmitTask(BaseTask):
                 each.status = "cannot_start"
 
         return sub_tasks
-
-
-class UploadDocumentsTask(BaseTask):
-    name = "Upload documents"
-    sub_tasks = [
-        UploadDocumentsSubTask,
-    ]
