@@ -294,8 +294,10 @@ CACHES = {
 }
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# Session cookie age is set to 40 minutes
-SESSION_COOKIE_AGE = 1000 * 60
+#
+# TODO: For save-and-return testing only, revert to 40 minutes BEFORE merge to main
+#
+SESSION_COOKIE_AGE = 5 * 60
 SESSION_LAST_ACTIVITY_KEY = "last_form_submission"
 
 # CSP policies
