@@ -1,5 +1,4 @@
 import logging
-import uuid
 
 from apply_for_a_licence.choices import TypeOfServicesChoices
 from apply_for_a_licence.forms import forms_services as forms
@@ -79,7 +78,7 @@ class ServiceActivitiesView(BaseSaveAndReturnLicenceModelFormView):
         return True
 
     def get_success_url(self) -> str:
-        success_url = reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()})
+        success_url = reverse("tasklist")
 
         if self.update:
             success_url = reverse("purpose_of_provision")

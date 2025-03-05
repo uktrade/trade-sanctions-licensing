@@ -122,6 +122,11 @@ class StatusChoices(models.TextChoices):
     submitted = "submitted", "Submitted"
 
 
+class EntityStatusChoices(models.TextChoices):
+    draft = "draft", "Draft"
+    complete = "complete", "Complete"
+
+
 class WhereIsTheAddressChoices(models.TextChoices):
     outside_uk = "outside-uk", "Outside the UK"
     in_uk = "in-uk", "In the UK"

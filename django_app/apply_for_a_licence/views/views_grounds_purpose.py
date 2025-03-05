@@ -80,4 +80,4 @@ class LicensingGroundsLegalAdvisoryView(BaseSaveAndReturnLicenceModelFormView):
 
 class PurposeOfProvisionView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.PurposeOfProvisionForm
-    success_url = reverse_lazy("upload_documents")
+    success_url = reverse_lazy("tasklist")

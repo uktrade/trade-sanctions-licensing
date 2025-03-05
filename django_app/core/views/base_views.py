@@ -1,6 +1,7 @@
 import datetime
 
 from apply_for_a_licence.models import Licence
+from apply_for_a_licence.utils import can_user_edit_licence
 from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import BaseForm, BaseModelForm
 from django.conf import settings
@@ -28,10 +29,11 @@ class BaseSaveAndReturnView(BaseView):
         if licence_id := self.request.session.get("licence_id"):
             try:
                 licence = Licence.objects.get(pk=licence_id)
-                if licence.user != self.request.user:
+                if not can_user_edit_licence(self.request.user, licence):
                     raise Http404()
-                self._licence_object = licence
-                return licence
+                else:
+                    self._licence_object = licence
+                    return licence
             except Licence.DoesNotExist:
                 return None
         else:
@@ -66,6 +68,12 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
         # now setting the last active to the current time
         request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
         return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get("skip_link"):
+            return HttpResponseRedirect(reverse("tasklist"))
+        else:
+            return super().post(request, *args, **kwargs)
 
     def get_form(self, form_class: BaseForm | None = None) -> BaseForm:
         form = super().get_form(form_class)

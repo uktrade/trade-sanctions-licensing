@@ -28,6 +28,7 @@ class BaseForm(forms.Form):
     # the submit button text
     submit_button_text = "Save and continue"
     save_and_return = False
+    show_skip_button = True
 
     def __init__(self, *args: object, **kwargs) -> None:
         self.request: HttpRequest | None = kwargs.pop("request", None)
@@ -46,6 +47,10 @@ class BaseForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.add_input(Submit("continue", self.submit_button_text, css_class="btn-primary"))
+        if self.show_skip_button:
+            self.helper.add_input(
+                Submit("skip_link", "Skip for now and return to task list", css_class="govuk-button govuk-button--secondary ml-2")
+            )
 
         if self.single_question_form and not self.form_h1_header:
             self.helper.label_tag = "h1"

@@ -2,6 +2,7 @@ import logging
 import uuid
 from typing import Type
 
+from apply_for_a_licence import choices
 from apply_for_a_licence.choices import NationalityAndLocation
 from apply_for_a_licence.forms import forms_individual as individual_forms
 from apply_for_a_licence.forms import forms_yourself as forms
@@ -76,6 +77,12 @@ class AddYourselfAddressView(BaseIndividualFormView):
             form_class = forms.AddYourselfNonUKAddressForm
         return form_class
 
+    def save_form(self, form):
+        instance = super().save_form(form)
+        instance.status = choices.EntityStatusChoices.complete
+        instance.save()
+        return instance
+
 
 class YourselfAndIndividualAddedView(BaseSaveAndReturnFormView):
     form_class = individual_forms.IndividualAddedForm
@@ -114,7 +121,7 @@ class YourselfAndIndividualAddedView(BaseSaveAndReturnFormView):
                 + "?change=yes"
             )
         else:
-            return reverse("previous_licence")
+            return reverse("tasklist")
 
 
 class DeleteIndividualFromYourselfView(DeleteAnEntityView):

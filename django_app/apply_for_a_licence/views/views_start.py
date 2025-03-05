@@ -1,10 +1,9 @@
 import logging
-import uuid
 
 from apply_for_a_licence.forms import forms_start as forms
 from core.decorators import reset_last_activity_session_timestamp
 from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 
 logger = logging.getLogger(__name__)
@@ -34,14 +33,7 @@ class SubmitterReferenceView(BaseSaveAndReturnLicenceModelFormView):
 @method_decorator(reset_last_activity_session_timestamp, name="dispatch")
 class StartView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.StartForm
-
-    def get_success_url(self) -> str | None:
-        answer = self.form.cleaned_data["who_do_you_want_the_licence_to_cover"]
-        if answer in ["business", "individual"]:
-            return reverse("are_you_third_party")
-        elif answer == "myself":
-            return reverse("add_yourself", kwargs={"yourself_uuid": str(uuid.uuid4())})
-        return None
+    success_url = reverse_lazy("tasklist")
 
 
 class ThirdPartyView(BaseSaveAndReturnLicenceModelFormView):
@@ -51,14 +43,4 @@ class ThirdPartyView(BaseSaveAndReturnLicenceModelFormView):
 
 class YourDetailsView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.YourDetailsForm
-
-    def get_success_url(self):
-        if self.instance.who_do_you_want_the_licence_to_cover == "business":
-            return reverse("is_the_business_registered_with_companies_house", kwargs={"business_uuid": str(uuid.uuid4())})
-        else:
-            return reverse(
-                "add_an_individual",
-                kwargs={
-                    "individual_uuid": str(uuid.uuid4()),
-                },
-            )
+    success_url = reverse_lazy("tasklist")

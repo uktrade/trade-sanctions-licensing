@@ -1,0 +1,52 @@
+{% extends 'core/base.html' %}
+
+{% block back_button %}{% endblock back_button %}
+
+{% block title %}Apply for a licence to provide sanctioned trade services{% endblock title %}
+
+{% block row_content %}
+    <div class="govuk-grid-column-full">
+        <span class="govuk-caption-l">Task list</span>
+        <h1 class="govuk-heading-l">Apply for a licence to provide sanctioned trade services</h1>
+        {% if licence.who_do_you_want_the_licence_to_cover == "business" %}
+            <p class="govuk-body">You have selected to apply for a licence for a business.</p>
+        {% elif licence.who_do_you_want_the_licence_to_cover == "individual" %}
+            <p class="govuk-body">You have selected to apply for a licence for a named individual.</p>
+        {% elif licence.who_do_you_want_the_licence_to_cover == "myself" %}
+            <p class="govuk-body">You have selected to apply for a licence for yourself.</p>
+        {% endif %}
+        {% for task in tasklist %}
+            <h2 class="govuk-heading-m">{{ task.name }}</h2>
+            <ul class="govuk-task-list">
+                {% for subtask in task.get_sub_tasks %}
+                    <li class="govuk-task-list__item govuk-task-list__item--with-link">
+                        <div class="govuk-task-list__name-and-hint">
+                            {% if subtask.can_start %}
+                                <a class="govuk-link govuk-task-list__link govuk-link--no-visited-state"
+                                   href="{{ subtask.url }}"
+                                   aria-describedby="{{ task.id }}-{{ subtask.id }}-status">
+                                    {{ subtask.name }}
+                                </a>
+                            {% else %}
+                                {{ subtask.name }}
+                            {% endif %}
+                            {% if subtask.help_text %}
+                                <div id="{{ task.id }}-{{ subtask.id }}-hint" class="govuk-task-list__hint">
+                                    {{ subtask.help_text }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="govuk-task-list__status" id="{{ task.id }}-{{ subtask.id }}-status">
+                            {% if subtask.should_show_tag %}
+                                <strong
+                                    class="govuk-tag govuk-tag--{{ subtask.tag_colour }}">{{ subtask.get_human_readable_status }}</strong>
+                            {% else %}
+                                {{ subtask.get_human_readable_status }}
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </div>
+{% endblock row_content %}

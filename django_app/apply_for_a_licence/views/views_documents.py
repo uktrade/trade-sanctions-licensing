@@ -22,7 +22,7 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
 
     form_class = forms.UploadDocumentsForm
     template_name = "apply_for_a_licence/form_steps/upload_documents.html"
-    success_url = reverse_lazy("check_your_answers")
+    success_url = reverse_lazy("tasklist")
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         """Retrieve the already uploaded files from the session storage and add them to the context."""
@@ -79,7 +79,7 @@ class DeleteDocumentsView(LoginRequiredMixin, View):
             if licence_object.user != self.request.user:
                 raise Http404()
 
-            if licence_object.status != StatusChoices.submitted:
+            if licence_object.status != StatusChoices.draft:
                 raise Http404()
 
             document_object.delete()

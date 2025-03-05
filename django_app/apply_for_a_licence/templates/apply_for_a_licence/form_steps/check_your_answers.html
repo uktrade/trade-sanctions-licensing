@@ -345,7 +345,7 @@
                     {% for each in licence.get_professional_or_business_services_display %}
                         {{ each }}
                         {% if not forloop.last %}
-                            <br>
+                            <br><br>
                         {% endif %}
                     {% endfor %}
                 </dd>
@@ -360,7 +360,12 @@
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">What is the sanctions regime?</dt>
                 <dd class="govuk-summary-list__value">
-                    {{ licence.regimes | linebreaksbr }}
+                    {% for each in licence.regimes %}
+                        {{ each }}
+                        {% if not forloop.last %}
+                            <br><br>
+                        {% endif %}
+                    {% endfor %}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
@@ -498,7 +503,12 @@
                     Licensing grounds for other services (not legal advisory)
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {% include "apply_for_a_licence/partials/truncated_text.html" with text=licence.get_licensing_grounds_legal_advisory_display|linebreaksbr %}
+                    {% for each in licence.get_licensing_grounds_legal_advisory_display %}
+                        {{ each }}
+                        {% if not forloop.last %}
+                            <br><br>
+                        {% endif %}
+                    {% endfor %}
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"

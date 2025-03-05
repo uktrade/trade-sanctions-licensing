@@ -17,6 +17,7 @@ class SubmitterReferenceForm(BaseModelForm):
     form_h1_header = "Give your application a name"
     bold_labels = False
     save_and_return = True
+    show_skip_button = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -28,6 +29,7 @@ class SubmitterReferenceForm(BaseModelForm):
 
 class StartForm(BaseModelForm):
     save_and_return = True
+    show_skip_button = False
 
     class Meta:
         model = Licence

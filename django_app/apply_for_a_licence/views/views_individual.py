@@ -2,6 +2,7 @@ import logging
 import uuid
 from typing import Any, Dict, Type
 
+from apply_for_a_licence import choices
 from apply_for_a_licence.choices import (
     NationalityAndLocation,
     TypeOfRelationshipChoices,
@@ -33,7 +34,10 @@ class AddAnIndividualView(BaseIndividualFormView):
     redirect_with_query_parameters = True
 
     def dispatch(self, request, *args, **kwargs):
-        Individual.objects.get_or_create(pk=self.kwargs["individual_uuid"], defaults={"licence": self.licence_object})
+        Individual.objects.get_or_create(
+            pk=self.kwargs["individual_uuid"],
+            defaults={"licence": self.licence_object, "status": choices.EntityStatusChoices.draft},
+        )
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -82,6 +86,13 @@ class WhatIsIndividualsAddressView(BaseIndividualFormView):
             success_url = reverse("yourself_and_individual_added")
         return success_url
 
+    def save_form(self, form):
+        instance = form.save(commit=False)
+        # the individual should now be marked as 'complete'
+        instance.status = choices.EntityStatusChoices.complete
+        instance.save()
+        return instance
+
 
 class IndividualAddedView(BaseSaveAndReturnFormView):
     form_class = forms.IndividualAddedForm
@@ -96,7 +107,7 @@ class IndividualAddedView(BaseSaveAndReturnFormView):
             # only allow access to this page if an individual has been added
             return super().dispatch(request, *args, **kwargs)
         else:
-            return redirect("add_an_individual", kwargs={"individual_uuid": uuid.uuid4()})
+            return redirect(reverse("add_an_individual", kwargs={"individual_uuid": uuid.uuid4()}))
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -106,29 +117,41 @@ class IndividualAddedView(BaseSaveAndReturnFormView):
     def get_success_url(self):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
-            return reverse("add_an_individual", kwargs={"individual_uuid": uuid.uuid4()}) + "?change=yes"
+            success_url = reverse("add_an_individual", kwargs={"individual_uuid": uuid.uuid4()}) + "?change=yes"
+        elif self.licence_object.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.individual:
+            success_url = reverse("business_employing_individual")
         else:
-            return reverse("previous_licence")
+            success_url = reverse("tasklist")
+
+        return success_url
 
 
 class BusinessEmployingIndividualView(BaseSaveAndReturnModelFormView):
     form_class = forms.BusinessEmployingIndividualForm
-    success_url = reverse_lazy("type_of_service")
+    success_url = reverse_lazy("tasklist")
 
     @property
     def object(self) -> Organisation:
         instance, _ = Organisation.objects.get_or_create(
-            licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.named_individuals
+            licence=self.licence_object,
+            type_of_relationship=TypeOfRelationshipChoices.named_individuals,
+            defaults={"status": choices.EntityStatusChoices.draft},
         )
         return instance
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
-        if Individual.objects.filter(licence=self.licence_object).count() == 1:
-            kwargs["form_h1_header"] = "Details of the business employing the individual"
-        else:
+        if Individual.objects.filter(licence=self.licence_object).count() > 1:
             kwargs["form_h1_header"] = "Details of the business employing the individuals"
+        else:
+            kwargs["form_h1_header"] = "Details of the business employing the individual"
 
         kwargs["instance"] = self.object
         return kwargs
+
+    def save_form(self, form):
+        instance = form.save(commit=False)
+        instance.status = choices.EntityStatusChoices.complete
+        instance.save()
+        return instance

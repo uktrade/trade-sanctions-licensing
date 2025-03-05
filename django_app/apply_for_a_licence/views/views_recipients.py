@@ -2,7 +2,8 @@ import logging
 import uuid
 from typing import Type
 
-from apply_for_a_licence.choices import TypeOfRelationshipChoices, TypeOfServicesChoices
+from apply_for_a_licence import choices
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.forms import forms_recipients as forms
 from apply_for_a_licence.models import Organisation
 from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
@@ -87,11 +88,7 @@ class RecipientAddedView(BaseSaveAndReturnFormView):
         if add_recipient:
             success_url = reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()}) + "?new=yes"
         else:
-            if self.licence_object.type_of_service == TypeOfServicesChoices.professional_and_business.value:
-                success_url = reverse("licensing_grounds")
-            else:
-                success_url = reverse("purpose_of_provision")
-
+            success_url = reverse("tasklist")
         return success_url
 
 
@@ -106,3 +103,9 @@ class RelationshipProviderRecipientView(BaseRecipientFormView):
     form_class = forms.RelationshipProviderRecipientForm
     success_url = reverse_lazy("recipient_added")
     redirect_with_query_parameters = False  # once we're done here, we don't care about the query parameters
+
+    def save_form(self, form):
+        instance = form.save(commit=False)
+        instance.status = choices.EntityStatusChoices.complete
+        instance.save()
+        return instance
