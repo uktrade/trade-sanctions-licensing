@@ -24,10 +24,12 @@ class Command(BaseCommand):
         for email in emails:
             try:
                 internal_user_group = Group.objects.get(name=settings.INTERNAL_USER_GROUP_NAME)
+                admin_user_group = Group.objects.create(name=settings.ADMIN_USER_GROUP_NAME)
                 existing_user = user_objects.get(email=email)
                 existing_user.is_staff = True
                 existing_user.is_active = True
                 existing_user.groups.add(internal_user_group)
+                existing_user.groups.add(admin_user_group)
                 existing_user.save()
                 self.stdout.write(self.style.SUCCESS("User updated successfully"))
 
