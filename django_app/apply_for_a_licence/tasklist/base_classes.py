@@ -18,6 +18,10 @@ class BaseSubTask:
         return False
 
     @property
+    def is_in_progress(self) -> bool:
+        return False
+
+    @property
     def tag_colour(self) -> str:
         if self.status == "in_progress":
             return "light-blue"
@@ -68,6 +72,10 @@ class BaseTask:
         for index, each in enumerate(sub_tasks):
             if each.is_completed:
                 each.status = "complete"
+                continue
+
+            if each.is_in_progress:
+                each.status = "in_progress"
                 continue
 
             if index == 0:
