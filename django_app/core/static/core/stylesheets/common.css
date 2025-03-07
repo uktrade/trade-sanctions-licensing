@@ -66,11 +66,6 @@
     .show-on-print {
         display: block !important;
     }
-
-    /* Making the printed version full-width */
-    .govuk-grid-column-two-thirds {
-        width: 100%;
-    }
 }
 
 dialog {
