@@ -41,7 +41,7 @@ class TestDocumentUploadView:
             follow=True,
         )
         assert response.status_code == 200
-        assert response.request["PATH_INFO"] == "/apply/check-your-answers"
+        assert response.request["PATH_INFO"] == "/apply/task-list"
 
     def test_non_ajax_unsuccessful_post(self, authenticated_al_client_with_licence):
         response = authenticated_al_client_with_licence.post(

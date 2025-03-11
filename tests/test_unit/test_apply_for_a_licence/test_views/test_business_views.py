@@ -150,13 +150,13 @@ class TestBusinessAddedView:
         session["licence_id"] = licence.id
         session.save()
         # create at least 1 business
-        Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+        Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business, status="complete")
 
         response = authenticated_al_client.post(
             reverse("business_added"),
             data={"do_you_want_to_add_another_business": False},
         )
-        assert response.url == reverse("previous_licence")
+        assert response.url == reverse("tasklist")
 
     def test_add_another_business_successful_post(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
@@ -167,7 +167,7 @@ class TestBusinessAddedView:
         session["licence_id"] = licence.id
         session.save()
         # create at least 1 business
-        Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+        Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business, status="complete")
 
         response = authenticated_al_client.post(
             reverse("business_added"),
