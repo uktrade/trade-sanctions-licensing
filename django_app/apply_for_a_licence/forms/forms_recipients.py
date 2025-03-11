@@ -175,7 +175,7 @@ class RecipientAddedForm(BaseForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
-        self.licence_object: bool = kwargs.pop("licence_object", None)
+        self.licence_object: object = kwargs.pop("licence_object", None)
         super().__init__(*args, **kwargs)
         self.helper.legend_size = Size.MEDIUM
         self.helper.legend_tag = None

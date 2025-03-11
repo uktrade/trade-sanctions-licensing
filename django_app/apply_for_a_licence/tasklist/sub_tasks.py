@@ -166,6 +166,8 @@ class PurposeForProvidingServicesSubTask(BaseSubTask):
     def is_in_progress(self) -> bool:
         if self.licence.type_of_service == choices.TypeOfServicesChoices.professional_and_business:
             return not self.is_completed and self.licence.licensing_grounds
+        else:
+            return False
 
 
 class UploadDocumentsSubTask(BaseSubTask):
