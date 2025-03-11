@@ -89,3 +89,11 @@ class BaseTask:
                 each.status = "cannot_start"
 
         return sub_tasks
+
+    def is_task_complete(self) -> bool:
+        """Returns a boolean whether all required subtasks (and therefore the task) has been completed"""
+        sub_tasks = self.get_sub_tasks()
+        for sub_task in sub_tasks:
+            if sub_task.status != "complete":
+                return False
+        return True
