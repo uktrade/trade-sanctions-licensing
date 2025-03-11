@@ -195,7 +195,7 @@ class RecipientAddedForm(BaseForm):
                 recipient_errors.append(f"Recipient {x + 1} must be completed or removed")
         if recipient_errors:
             raise forms.ValidationError(
-                mark_safe(f"{"<br/>".join(recipient_errors)}"),
+                mark_safe("<br/>".join(recipient_errors)),
                 code="incomplete_recipient",
             )
         return cleaned_data

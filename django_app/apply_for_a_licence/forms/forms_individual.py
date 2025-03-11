@@ -88,7 +88,7 @@ class IndividualAddedForm(BaseForm):
                 individual_errors.append(f"Individual {x + 1} must be completed or removed")
         if individual_errors:
             raise forms.ValidationError(
-                mark_safe(f"{"<br/>".join(individual_errors)}"),
+                mark_safe("<br/>".join(individual_errors)),
                 code="incomplete_individual",
             )
         return cleaned_data

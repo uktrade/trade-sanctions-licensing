@@ -327,7 +327,7 @@ class BusinessAddedForm(BaseForm):
                 business_errors.append(f"Business {x + 1} must be completed or removed")
         if business_errors:
             raise forms.ValidationError(
-                mark_safe(f"{"<br/>".join(business_errors)}"),
+                mark_safe("<br/>".join(business_errors)),
                 code="incomplete_business",
             )
         return cleaned_data
