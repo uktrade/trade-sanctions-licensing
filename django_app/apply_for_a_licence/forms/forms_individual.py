@@ -9,6 +9,7 @@ from core.forms.base_forms import (
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.layout import Field, Fieldset, Fluid, Layout, Size
 from django import forms
+from django.utils.safestring import mark_safe
 
 
 class AddAnIndividualForm(BaseModelForm):
@@ -70,12 +71,27 @@ class IndividualAddedForm(BaseForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.licence_object: bool = kwargs.pop("licence_object", None)
         super().__init__(*args, **kwargs)
         self.helper.legend_size = Size.MEDIUM
         self.helper.legend_tag = None
 
         if self.request.method == "GET":
             self.is_bound = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        individuals = Individual.objects.filter(licence=self.licence_object)
+        individual_errors = []
+        for x, individual in enumerate(individuals):
+            if individual.status == "draft":
+                individual_errors.append(f"Individual {x + 1} must be completed or removed")
+        if individual_errors:
+            raise forms.ValidationError(
+                mark_safe(f"{"<br/>".join(individual_errors)}"),
+                code="incomplete_individual",
+            )
+        return cleaned_data
 
 
 class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):

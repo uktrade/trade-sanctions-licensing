@@ -51,6 +51,11 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
     form_class = forms.BusinessAddedForm
     template_name = "apply_for_a_licence/form_steps/business_added.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["licence_object"] = self.licence_object
+        return kwargs
+
     def get_all_businesses(self) -> QuerySet[Organisation]:
         return Organisation.objects.filter(
             type_of_relationship=TypeOfRelationshipChoices.business,

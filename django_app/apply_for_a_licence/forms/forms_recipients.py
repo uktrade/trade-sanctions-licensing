@@ -1,3 +1,4 @@
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.models import Organisation
 from core.forms.base_forms import (
     BaseBusinessDetailsForm,
@@ -9,6 +10,7 @@ from core.forms.base_forms import (
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.layout import Field, Fieldset, Fluid, Layout, Size
 from django import forms
+from django.utils.safestring import mark_safe
 
 
 class WhereIsTheRecipientLocatedForm(BaseModelForm):
@@ -173,6 +175,7 @@ class RecipientAddedForm(BaseForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.licence_object: bool = kwargs.pop("licence_object", None)
         super().__init__(*args, **kwargs)
         self.helper.legend_size = Size.MEDIUM
         self.helper.legend_tag = None
@@ -180,6 +183,22 @@ class RecipientAddedForm(BaseForm):
         if self.request.method == "GET":
             # we never want to pre-fill this form
             self.is_bound = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        recipients = Organisation.objects.filter(
+            licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.recipient.value
+        )
+        recipient_errors = []
+        for x, recipient in enumerate(recipients):
+            if recipient.status == "draft":
+                recipient_errors.append(f"Recipient {x + 1} must be completed or removed")
+        if recipient_errors:
+            raise forms.ValidationError(
+                mark_safe(f"{"<br/>".join(recipient_errors)}"),
+                code="incomplete_recipient",
+            )
+        return cleaned_data
 
 
 class RelationshipProviderRecipientForm(BaseModelForm):

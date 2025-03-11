@@ -1,5 +1,6 @@
 from typing import Any
 
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.exceptions import (
     CompaniesHouse500Error,
     CompaniesHouseException,
@@ -23,6 +24,7 @@ from crispy_forms_gds.layout import (
     Size,
 )
 from django import forms
+from django.utils.safestring import mark_safe
 from utils.companies_house import (
     get_details_from_companies_house,
     get_formatted_address,
@@ -305,6 +307,7 @@ class BusinessAddedForm(BaseForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.licence_object: bool = kwargs.pop("licence_object", None)
         super().__init__(*args, **kwargs)
         self.helper.legend_size = Size.MEDIUM
         self.helper.legend_tag = None
@@ -312,6 +315,22 @@ class BusinessAddedForm(BaseForm):
         if self.request.method == "GET":
             # we never want to bind/pre-fill this form, always fresh for the user
             self.is_bound = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        businesses = Organisation.objects.filter(
+            licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.business.value
+        )
+        business_errors = []
+        for x, business in enumerate(businesses):
+            if business.status == "draft":
+                business_errors.append(f"Business {x + 1} must be completed or removed")
+        if business_errors:
+            raise forms.ValidationError(
+                mark_safe(f"{"<br/>".join(business_errors)}"),
+                code="incomplete_business",
+            )
+        return cleaned_data
 
 
 class CheckCompanyDetailsForm(BaseModelForm):
