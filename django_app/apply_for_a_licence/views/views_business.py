@@ -39,6 +39,13 @@ class AddABusinessView(BaseBusinessModelFormView):
             form_class = forms.AddANonUKBusinessForm
         return form_class
 
+    def save_form(self, form):
+        instance = form.save(commit=False)
+        # the business should now be marked as 'complete'
+        instance.status = choices.EntityStatusChoices.complete
+        instance.save()
+        return instance
+
 
 class BusinessAddedView(BaseSaveAndReturnFormView):
     form_class = forms.BusinessAddedForm
