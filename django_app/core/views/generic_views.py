@@ -1,3 +1,4 @@
+from authentication.utils import TOKEN_SESSION_KEY
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from core.utils import update_last_activity_session_timestamp
 from django.contrib.auth import logout
@@ -40,10 +41,14 @@ class SessionExpiredView(TemplateView):
         logout(request)
 
         gov_one_logout_url = "https://oidc.integration.account.gov.uk/logout"
-        post_logout_redirect_url = request.build_absolute_uri(reverse("session-expired"))
+        post_logout_redirect_url = request.build_absolute_uri(reverse("session_expired"))
 
-        if oidc_id_token := request.session.get("oidc_id_token", None):
+        if oidc_id_token := request.session.get(TOKEN_SESSION_KEY, None):
             gov_one_logout_url += f"?id_token_hint={oidc_id_token}&post_logout_redirect_uri={post_logout_redirect_url}"
+
+        print(oidc_id_token)
+        print(gov_one_logout_url)
+        print(request.session.items())
 
         super().get_context_data(**kwargs)
 
