@@ -62,7 +62,7 @@ class TestDocumentUploadView:
 class TestDeleteDocumentsView:
     @patch("apply_for_a_licence.models.Document.delete")
     def test_successful_post(self, patched_document_delete, authenticated_al_client_with_licence, licence_application):
-        licence_application.status = "submitted"
+        licence_application.status = "draft"
         licence_application.save()
         Document.objects.create(licence=licence_application, file="test1231242342.png", original_file_name="test.png")
 
@@ -78,6 +78,8 @@ class TestDeleteDocumentsView:
     @patch("apply_for_a_licence.models.Document.delete")
     def test_unsuccessful_post_doesnt_own(self, patched_document_delete, authenticated_al_client_with_licence):
         licence = LicenceFactory(user=None)
+        licence.status = "draft"
+        licence.save()
         Document.objects.create(licence=licence, file="test123124234.png", original_file_name="test.png")
 
         response = authenticated_al_client_with_licence.post(
@@ -89,10 +91,10 @@ class TestDeleteDocumentsView:
         assert patched_document_delete.call_count == 0
 
     @patch("apply_for_a_licence.models.Document.delete")
-    def test_unsuccessful_post_not_submitted(
+    def test_unsuccessful_post_submitted(
         self, patched_document_delete, authenticated_al_client_with_licence, licence_application
     ):
-        licence_application.status = "draft"
+        licence_application.status = "submitted"
         licence_application.save()
         Document.objects.create(licence=licence_application, file="test1231242342.png", original_file_name="test.png")
 
