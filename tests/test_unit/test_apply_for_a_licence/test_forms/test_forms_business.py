@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from apply_for_a_licence import choices
 from apply_for_a_licence.forms import forms_business as forms
+from apply_for_a_licence.models import Licence, Organisation
 
 
 class TestIsTheBusinessRegisteredWithCompaniesHouseForm:
@@ -142,3 +143,22 @@ class TestBusinessAddedForm:
     def test_never_bound(self, request_object):
         form = forms.BusinessAddedForm(data={"do_you_want_to_add_another_business": "Yes"}, request=request_object)
         assert not form.is_bound
+
+    def test_incomplete_business_raises_error(self, post_request_object, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=choices.WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+        Organisation.objects.create(
+            licence=licence,
+            business_registered_on_companies_house=choices.YesNoDoNotKnowChoices.yes,
+            type_of_relationship=choices.TypeOfRelationshipChoices.business.value,
+            status="draft",
+        )
+
+        form = forms.BusinessAddedForm(
+            data={"do_you_want_to_add_another_business": "Yes"}, request=post_request_object, licence_object=licence
+        )
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_business"

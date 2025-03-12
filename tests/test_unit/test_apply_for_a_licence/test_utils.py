@@ -1,7 +1,14 @@
 import builtins
 from builtins import __import__ as builtin_import
 
-from apply_for_a_licence.utils import get_active_regimes
+from apply_for_a_licence.utils import craft_apply_for_a_licence_url, get_active_regimes
+from django.test import override_settings
+
+
+@override_settings(PROTOCOL="https://", APPLY_FOR_A_LICENCE_DOMAIN="apply-for-a-licence.com")
+def test_craft_apply_for_a_licence_url():
+    url = craft_apply_for_a_licence_url("/apply/123/")
+    assert url == "https://apply-for-a-licence.com/apply/123/"
 
 
 def test_get_active_regimes_normal():
