@@ -98,3 +98,8 @@ class AuthCallbackView(View):
         next_url = get_next_url(request) or getattr(settings, "LOGIN_REDIRECT_URL", "/")
 
         return redirect(next_url)
+
+
+# class LogoutView(View):
+#     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+#         token =

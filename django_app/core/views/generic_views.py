@@ -1,7 +1,7 @@
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from core.utils import update_last_activity_session_timestamp
 from django.contrib.auth import logout
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
@@ -36,9 +36,18 @@ class PingSessionView(View):
 class SessionExpiredView(TemplateView):
     template_name = "core/session_expired.html"
 
-    def get(self, request: HttpRequest, *args, **kwargs):
+    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         logout(request)
-        return super().get(request, *args, **kwargs)
+
+        gov_one_logout_url = "https://oidc.integration.account.gov.uk/logout"
+        post_logout_redirect_url = request.build_absolute_uri(reverse("session-expired"))
+
+        if oidc_id_token := request.session.get("oidc_id_token", None):
+            gov_one_logout_url += f"?id_token_hint={oidc_id_token}&post_logout_redirect_uri={post_logout_redirect_url}"
+
+        super().get_context_data(**kwargs)
+
+        return HttpResponseRedirect(gov_one_logout_url)
 
 
 def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpResponse:
