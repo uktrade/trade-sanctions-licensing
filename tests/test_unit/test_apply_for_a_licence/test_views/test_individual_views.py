@@ -2,13 +2,21 @@ import uuid
 
 from apply_for_a_licence.choices import (
     NationalityAndLocation,
+    TypeOfRelationshipChoices,
     WhoDoYouWantTheLicenceToCoverChoices,
 )
-from apply_for_a_licence.models import Individual
+from apply_for_a_licence.models import Individual, Organisation
 from django.urls import reverse
 
 
 class TestIndividualAddedView:
+    def test_redirect_if_no_individual(self, authenticated_al_client):
+        response = authenticated_al_client.get(
+            reverse("individual_added"),
+        )
+        assert "individual-details" in response.url
+        assert response.status_code == 302
+
     def test_do_not_add_individual_successful_post(self, authenticated_al_client, individual):
 
         response = authenticated_al_client.post(
@@ -25,6 +33,17 @@ class TestIndividualAddedView:
         )
         assert "individual-details" in response.url
         assert "?change=yes" in response.url
+
+    def test_do_not_add_individual_myself_journey_successful_post(self, authenticated_al_client, yourself):
+        response = authenticated_al_client.post(
+            reverse("individual_added"),
+            data={"do_you_want_to_add_another_individual": False},
+        )
+        assert response.url == reverse("tasklist")
+
+    def test_get_context_data(self, authenticated_al_client, individual):
+        response = authenticated_al_client.get(reverse("individual_added"))
+        assert response.context["individuals"][0] == individual
 
 
 class TestDeleteIndividualView:
@@ -175,7 +194,7 @@ class TestAddAnIndividualView:
 
 
 class TestWhatIsIndividualsAddressView:
-    def test_successful_post(self, authenticated_al_client, individual):
+    def test_successful_post_uk_individual(self, authenticated_al_client, individual):
         assert not individual.country
         assert not individual.address_line_1
         assert not individual.county
@@ -204,6 +223,31 @@ class TestWhatIsIndividualsAddressView:
         assert individual.county == "Greater London"
         assert individual.town_or_city == "City"
         assert individual.postcode == "SW1A 1AA"
+
+    def test_successful_post_non_uk_individual(self, authenticated_al_client, individual):
+        assert not individual.country
+        assert not individual.address_line_1
+        assert not individual.county
+        assert not individual.town_or_city
+        assert not individual.postcode
+
+        response = authenticated_al_client.post(
+            reverse(
+                "what_is_individuals_address",
+                kwargs={"location": "outside-uk", "individual_uuid": individual.id},
+            ),
+            data={
+                "country": "NL",
+                "address_line_1": "Dutch address",
+                "town_or_city": "Dutch City",
+            },
+        )
+
+        assert response.url == reverse("individual_added")
+        individual = Individual.objects.get(id=individual.id)
+        assert individual.country == "NL"
+        assert individual.address_line_1 == "Dutch address"
+        assert individual.town_or_city == "Dutch City"
 
     def test_get_form_data(self, authenticated_al_client, individual):
         response = authenticated_al_client.get(
@@ -240,3 +284,35 @@ class TestWhatIsIndividualsAddressView:
         )
 
         assert response.url == reverse("yourself_and_individual_added")
+
+
+class TestBusinessEmployingIndividualView:
+    def test_successful_get(self, authenticated_al_client, individual_licence):
+        response = authenticated_al_client.get(reverse("business_employing_individual"))
+        form = response.context["form"]
+        assert form.form_h1_header == "Details of the business employing the individual"
+
+    def test_form_h1_header_multiple_individuals(self, authenticated_al_client, individual_licence):
+        Individual.objects.create(licence=individual_licence)
+        Individual.objects.create(licence=individual_licence)
+        response = authenticated_al_client.get(reverse("business_employing_individual"))
+        form = response.context["form"]
+        assert form.form_h1_header == "Details of the business employing the individuals"
+
+    def test_save_form(self, authenticated_al_client, individual_licence):
+        authenticated_al_client.post(
+            reverse("business_employing_individual"),
+            data={
+                "name": "John Smith",
+                "country": "GB",
+                "address_line_1": "new address 1",
+                "town_or_city": "City",
+                "postcode": "SW1A 1AA",
+            },
+        )
+        businesses = Organisation.objects.filter(
+            licence=individual_licence, type_of_relationship=TypeOfRelationshipChoices.named_individuals
+        )
+        assert len(businesses) == 1
+        assert businesses[0].status == "complete"
+        assert businesses[0].name == "John Smith"
