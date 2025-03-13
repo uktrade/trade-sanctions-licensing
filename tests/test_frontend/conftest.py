@@ -1,5 +1,6 @@
 import os
 import re
+from typing import List
 from unittest import mock
 from unittest.mock import MagicMock
 
@@ -296,7 +297,7 @@ class AboutTheServicesBase(PlaywrightTestBase):
         self.services_provide(page)
         self.purpose_for_providing_service(page)
 
-    def interception_or_monitoring_service(self, page, regimes: [str] = ["The Syria (Sanctions)"]):
+    def interception_or_monitoring_service(self, page, regimes: List[str] = ["The Syria (Sanctions)"]):
         page.get_by_role("link", name="The services you want to").click()
         page.get_by_label("Interception or monitoring").check()
         page.get_by_role("button", name="Save and continue").click()
@@ -305,7 +306,7 @@ class AboutTheServicesBase(PlaywrightTestBase):
             page.get_by_label(regime).check()
         page.get_by_role("button", name="Save and continue").click()
 
-    def professional_and_business_service(self, page, pbs_services: [str] = ["Advertising", "Public relations"]):
+    def professional_and_business_service(self, page, pbs_services: List[str] = ["Advertising", "Public relations"]):
         page.get_by_role("link", name="The services you want to").click()
         page.get_by_label("Professional and business").check()
         page.get_by_role("button", name="Save and continue").click()
