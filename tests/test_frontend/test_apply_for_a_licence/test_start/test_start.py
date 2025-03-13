@@ -20,26 +20,23 @@ class TestStart(PlaywrightTestBase):
         self.page.get_by_text("You must comply with UK").click()
         self.page.get_by_label("Named individuals with a UK").check()
 
-    def test_business_input_goes_to_third_party(self):
+    def test_business_input_goes_to_tasklist(self):
         self.start_new_application()
         self.page.get_by_role("heading", name="Who do you want the licence").click()
         self.page.get_by_label("A business or businesses with").check()
         self.page.get_by_role("button", name="Continue").click()
-        self.page.get_by_role("heading", name="Are you an external third-party").click()
-        expect(self.page).to_have_url(re.compile(r".*/third-party"))
+        expect(self.page).to_have_url(re.compile(r".*/task-list"))
 
-    def test_individual_input_goes_to_third_party(self):
+    def test_individual_input_goes_to_tasklist(self):
         self.start_new_application()
         self.page.get_by_role("heading", name="Who do you want the licence").click()
         self.page.get_by_label("Named individuals with a UK").check()
         self.page.get_by_role("button", name="Continue").click()
-        self.page.get_by_role("heading", name="Are you an external third-party").click()
-        expect(self.page).to_have_url(re.compile(r".*/third-party"))
+        expect(self.page).to_have_url(re.compile(r".*/task-list"))
 
-    def test_myself_input_goes_to_email(self):
+    def test_myself_input_goes_to_tasklist(self):
         self.start_new_application()
         self.page.get_by_role("heading", name="Who do you want the licence").click()
         self.page.get_by_label("Myself").check()
         self.page.get_by_role("button", name="Continue").click()
-        self.page.get_by_text("Your details", exact=True).click()
-        expect(self.page).to_have_url(re.compile(r".*/your-name-nationality-location"))
+        expect(self.page).to_have_url(re.compile(r".*/task-list"))

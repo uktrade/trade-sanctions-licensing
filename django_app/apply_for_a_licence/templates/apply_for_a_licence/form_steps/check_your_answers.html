@@ -54,7 +54,9 @@
             {% endif %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-font-weight-regular">Are you an external third party?</dt>
-                {{ licence.is_third_party|yesno:"Yes,No" }}
+                <dd class="govuk-summary-list__value" data-testid="your-details-third-party">
+                    {{ licence.is_third_party|yesno:"Yes,No" }}
+                </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
                        href="{% url 'are_you_third_party' %}?redirect_to_url=check_your_answers">Change<span
