@@ -29,7 +29,9 @@ class BaseView(LoginRequiredMixin, View):
             last_activity = datetime.datetime.fromisoformat(last_activity)
             # if the last recorded activity was more than the session cookie age ago, we assume the session has expired
             if now > (last_activity + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)):
-                return redirect(reverse("session_expired"))
+                return redirect(
+                    reverse("authentication:logout", kwargs={"token": self.request.session["_one_login_token"]["id_token"]})
+                )
 
         # now setting the last active to the current time
         request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
@@ -63,7 +65,7 @@ class BaseSaveAndReturnView(BaseView):
             last_activity = datetime.datetime.fromisoformat(last_activity)
             # if the last recorded activity was more than the session cookie age ago, we assume the session has expired
             if now > (last_activity + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)):
-                return redirect(reverse("session_expired"))
+                return redirect(reverse("authentication:logout"))
 
         # now setting the last active to the current time
         request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()

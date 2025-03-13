@@ -13,6 +13,9 @@ class DashboardView(BaseTemplateView):
     template_name = "apply_for_a_licence/dashboard/dashboard.html"
 
     def get(self, *args, **kwargs):
+
+        print(self.request.session.keys())
+
         self.applications = self.request.user.licence_applications.order_by("-created_at")
 
         if self.applications.count() == 0:
@@ -31,6 +34,7 @@ class DashboardView(BaseTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["id_token"] = self.request.session["_one_login_token"]["id_token"]
         context["applications"] = self.applications
         context["DRAFT_APPLICATION_EXPIRY_DAYS"] = settings.DRAFT_APPLICATION_EXPIRY_DAYS
         return context

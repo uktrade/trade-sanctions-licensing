@@ -4,12 +4,13 @@ from typing import Any
 from authlib.common.security import generate_token
 from authlib.jose.errors import InvalidClaimError
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login
+from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login, logout
 from django.core.exceptions import SuspiciousOperation
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView, View
 
 from .constants import AUTHENTICATION_LEVEL, CONFIDENCE_LEVEL
@@ -85,7 +86,10 @@ class AuthCallbackView(View):
             logger.error("Unable to validate token")
             raise SuspiciousOperation("Unable to validate token")
 
-        self.request.session[TOKEN_SESSION_KEY] = dict(token)
+        request.session[TOKEN_SESSION_KEY] = dict(token)
+        request.session.modified = True
+        request.session.save()
+
         request.session.delete(f"{TOKEN_SESSION_KEY}_oath_state")
         request.session.delete(f"{TOKEN_SESSION_KEY}_oauth_nonce")
 
@@ -100,6 +104,21 @@ class AuthCallbackView(View):
         return redirect(next_url)
 
 
-# class LogoutView(View):
-#     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-#         token =
+class LogoutView(View):
+
+    def get(self, *args: object, **kwargs: object) -> HttpResponse:
+        gov_one_logout_url = "https://oidc.integration.account.gov.uk/logout"
+        post_logout_redirect_url = self.request.build_absolute_uri(reverse("authentication:session_expired"))
+
+        if oidc_id_token := kwargs["token"]:
+            gov_one_logout_url += f"?id_token_hint={oidc_id_token}&post_logout_redirect_uri={post_logout_redirect_url}"
+
+        print(oidc_id_token)
+        print(gov_one_logout_url)
+
+        logout(self.request)
+        return HttpResponseRedirect(gov_one_logout_url)
+
+
+class SessionExpiredView(TemplateView):
+    template_name = "core/session_expired.html"
