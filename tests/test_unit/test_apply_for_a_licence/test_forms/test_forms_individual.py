@@ -38,9 +38,111 @@ class TestIndividualAddedForm:
         )
 
         form = forms.IndividualAddedForm(
-            data={"do_you_want_to_add_another_individual": "Yes"}, request=post_request_object, licence_object=licence
+            data={"do_you_want_to_add_another_individual": True}, request=post_request_object, licence_object=licence
         )
         assert form.errors.as_data()["__all__"][0].code == "incomplete_individual"
+        assert form.errors["__all__"][0] == (
+            "You cannot add another individual until Individual 1 details are "
+            "completed. Select 'change' and complete the details"
+        )
+
+        form = forms.IndividualAddedForm(
+            data={"do_you_want_to_add_another_individual": False}, request=post_request_object, licence_object=licence
+        )
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_individual"
+        assert form.errors["__all__"][0] == (
+            "Individual 1 details have not yet been completed. " "Select 'change' and complete the details"
+        )
+
+        form = forms.IndividualAddedForm(data={}, request=post_request_object, licence_object=licence)
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_individual"
+        assert form.errors["__all__"][0] == (
+            "Individual 1 details have not yet been completed. " "Select 'change' and complete the details"
+        )
+
+    def test_incomplete_individuals_raises_error(self, post_request_object, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user,
+            who_do_you_want_the_licence_to_cover=choices.WhoDoYouWantTheLicenceToCoverChoices.individual.value,
+        )
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+        Individual.objects.create(
+            licence=licence,
+            status="complete",
+        )
+        Individual.objects.create(
+            licence=licence,
+            status="draft",
+        )
+
+        form = forms.IndividualAddedForm(
+            data={"do_you_want_to_add_another_individual": True}, request=post_request_object, licence_object=licence
+        )
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_individual"
+        assert form.errors["__all__"][0] == (
+            "You cannot add another individual until Individual 2 details are either "
+            "completed or the individual is removed. Select 'change' and complete the "
+            "details, or select 'Remove' to remove Individual 2"
+        )
+
+        form = forms.IndividualAddedForm(
+            data={"do_you_want_to_add_another_individual": False}, request=post_request_object, licence_object=licence
+        )
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_individual"
+        assert form.errors["__all__"][0] == (
+            "Individual 2 details have not yet been completed. Select 'change' and "
+            "complete the details, or select 'Remove' to remove Individual 2"
+        )
+
+        form = forms.IndividualAddedForm(data={}, request=post_request_object, licence_object=licence)
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_individual"
+        assert form.errors["__all__"][0] == (
+            "Individual 2 details have not yet been completed. Select 'change' and "
+            "complete the details, or select 'Remove' to remove Individual 2"
+        )
+
+    def test_incomplete_individual_myself_journey_raises_error(
+        self, post_request_object, authenticated_al_client, test_apply_user
+    ):
+        licence = Licence.objects.create(
+            user=test_apply_user,
+            who_do_you_want_the_licence_to_cover=choices.WhoDoYouWantTheLicenceToCoverChoices.myself.value,
+        )
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+        Individual.objects.create(
+            licence=licence,
+            status="draft",
+        )
+
+        form = forms.IndividualAddedForm(
+            data={"do_you_want_to_add_another_individual": True}, request=post_request_object, licence_object=licence
+        )
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_individual"
+        assert form.errors["__all__"][0] == (
+            "You cannot add another individual until Individual 1 details are either "
+            "completed or the individual is removed. Select 'change' and complete the "
+            "details, or select 'Remove' to remove Individual 1"
+        )
+
+        form = forms.IndividualAddedForm(
+            data={"do_you_want_to_add_another_individual": False}, request=post_request_object, licence_object=licence
+        )
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_individual"
+        assert form.errors["__all__"][0] == (
+            "Individual 1 details have not yet been completed. Select 'change' and "
+            "complete the details, or select 'Remove' to remove Individual 1"
+        )
+
+        form = forms.IndividualAddedForm(data={}, request=post_request_object, licence_object=licence)
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_individual"
+        assert form.errors["__all__"][0] == (
+            "Individual 1 details have not yet been completed. Select 'change' and "
+            "complete the details, or select 'Remove' to remove Individual 1"
+        )
 
 
 class TestBusinessEmployingIndividualForm:
