@@ -43,7 +43,7 @@ class AddAUKRecipientForm(BaseUKBusinessDetailsForm):
         "additional_contact_details": "Additional contact details (optional)",
     }
     help_texts = {
-        "name": "This could be a business, an individual or a ship",
+        "name": "This could be a recipient, an individual or a ship",
     }
 
     class Meta(BaseUKBusinessDetailsForm.Meta):
@@ -106,7 +106,7 @@ class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
         "additional_contact_details": "Additional contact details (optional)",
     }
     help_texts = {
-        "name": "This could be a business, an individual or a ship",
+        "name": "This could be a recipient, an individual or a ship",
     }
 
     class Meta(BaseNonUKBusinessDetailsForm.Meta):
@@ -190,14 +190,46 @@ class RecipientAddedForm(BaseForm):
             licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.recipient.value
         )
         recipient_errors = []
+
         for x, recipient in enumerate(recipients):
             if recipient.status == "draft":
-                recipient_errors.append(f"Recipient {x + 1} must be completed or removed")
-        if recipient_errors:
-            raise forms.ValidationError(
-                mark_safe("<br/>".join(recipient_errors)),
-                code="incomplete_recipient",
-            )
+                recipient_errors.append(x + 1)
+
+        if len(recipient_errors) > 0:
+            if "do_you_want_to_add_another_recipient" not in cleaned_data:
+                del self.errors["do_you_want_to_add_another_recipient"]
+            if len(recipients) == 1:
+                if cleaned_data.get("do_you_want_to_add_another_recipient", False):
+                    error_message = (
+                        "You cannot add another recipient until Recipient 1 details "
+                        "are completed. Select 'change' and complete the details"
+                    )
+                else:
+                    error_message = "Recipient 1 details have not yet been completed. Select 'change' " "and complete the details"
+                raise forms.ValidationError(
+                    error_message,
+                    code="incomplete_recipient",
+                )
+            else:
+                error_messages = []
+                for recipient in recipient_errors:
+                    if cleaned_data.get("do_you_want_to_add_another_recipient", False):
+                        error_messages.append(
+                            f"You cannot add another recipient until Recipient {recipient} details are either "
+                            f"completed or the recipient is removed. Select 'change' and complete the details, "
+                            f"or select 'Remove' to remove Recipient {recipient}"
+                        )
+                    else:
+                        error_messages.append(
+                            f"Recipient {recipient} details have not yet been completed. Select 'change' and complete "
+                            f"the details, or select 'Remove' to remove Recipient {recipient}"
+                        )
+
+                raise forms.ValidationError(
+                    mark_safe("<br/>".join(error_messages)),
+                    code="incomplete_recipient",
+                )
+
         return cleaned_data
 
 

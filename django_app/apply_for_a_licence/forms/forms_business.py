@@ -322,14 +322,46 @@ class BusinessAddedForm(BaseForm):
             licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.business.value
         )
         business_errors = []
+
         for x, business in enumerate(businesses):
             if business.status == "draft":
-                business_errors.append(f"Business {x + 1} must be completed or removed")
-        if business_errors:
-            raise forms.ValidationError(
-                mark_safe("<br/>".join(business_errors)),
-                code="incomplete_business",
-            )
+                business_errors.append(x + 1)
+
+        if len(business_errors) > 0:
+            if "do_you_want_to_add_another_business" not in cleaned_data:
+                del self.errors["do_you_want_to_add_another_business"]
+            if len(businesses) == 1:
+                if cleaned_data.get("do_you_want_to_add_another_business", False):
+                    error_message = (
+                        "You cannot add another business until Business 1 "
+                        "details are completed. Select 'change' and complete the details"
+                    )
+                else:
+                    error_message = "Business 1 details have not yet been completed. " "Select 'change' and complete the details"
+                raise forms.ValidationError(
+                    error_message,
+                    code="incomplete_business",
+                )
+            else:
+                error_messages = []
+                for business in business_errors:
+                    if cleaned_data.get("do_you_want_to_add_another_business", False):
+                        error_messages.append(
+                            f"You cannot add another business until Business {business} details "
+                            f"are either completed or the business is removed. Select 'change' and "
+                            f"complete the details, or select 'Remove' to remove Business {business}"
+                        )
+                    else:
+                        error_messages.append(
+                            f"Business {business} details have not yet been completed. Select 'change' and complete "
+                            f"the details, or select 'Remove' to remove Business {business}"
+                        )
+
+                raise forms.ValidationError(
+                    mark_safe("<br/>".join(error_messages)),
+                    code="incomplete_business",
+                )
+
         return cleaned_data
 
 
