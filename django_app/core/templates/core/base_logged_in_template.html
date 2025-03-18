@@ -1,0 +1,65 @@
+{% extends "core/base.html" %}
+
+{% comment %}
+All templates that require the user should be logged in should inherit from this template
+as it provides the session expiry stuff.
+{% endcomment %}
+
+{% load static %}
+
+{% block body_end %}
+	{# session expiry dialog pop-up #}
+    <dialog id="session_expiry_dialog">
+        <p class="govuk-heading-l">You'll be signed out soon</p>
+        <p class="govuk-body">This is because you've been inactive for a while.</p>
+        <p class="govuk-body">You'll be signed out unless you continue within the time remaining.</p>
+        <p class="govuk-body">Any information you have not saved will be deleted for your security.</p>
+        <p class="govuk-body" autofocus>
+            <strong id="session_expiry_time_remaining" data-testid="session_expiry_time_remaining">
+                {{ SESSION_EXPIRY_MINUTES }} minutes
+            </strong>
+            remaining
+        </p>
+        <button class="govuk-button" id="ping_session_button" data-testid="ping_session_button">Stay signed in</button>
+        <a class="govuk-button govuk-button--secondary" data-testid="sign_out_button"
+           href="{% url 'session_expired' %}">Sign out</a>
+    </dialog>
+{% endblock body_end %}
+
+{% block row_start %}
+    <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-notification-banner hide-on-js-enabled show-on-js-disabled" role="region"
+             aria-labelledby="govuk-notification-banner-title"
+             data-module="govuk-notification-banner"
+             data-testid="non_js_session_expiry_banner"
+        >
+            <div class="govuk-notification-banner__header">
+                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                    Important
+                </h2>
+            </div>
+            <div class="govuk-notification-banner__content">
+                <p class="govuk-body">
+                    You'll be signed out if you're inactive for <strong>{{ SESSION_EXPIRY_MINUTES }} minutes</strong>.
+                </p>
+                <p class="govuk-body">
+                    Any information you have not saved will be deleted. We do this to protect your information.
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock row_start %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script src="{% static 'core/javascript/session_dialog.js' %}" nonce="{{ request.csp_nonce }}"></script>
+    <script nonce="{{ request.csp_nonce }}">
+        window.onload = function () {
+            setup_session_dialog(
+                session_expiry_seconds = {{ SESSION_EXPIRY_SECONDS }},
+                ping_session_url = "{% url 'ping_session' %}",
+                session_expiry_url = "{% url 'session_expired' %}"
+            )
+        }
+    </script>
+{% endblock extra_js %}

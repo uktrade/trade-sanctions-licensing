@@ -2,20 +2,20 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 
 
-{% block title %}You've added {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 or request.session.individuals.keys|length == 0 %}s{% endif %}{% endblock title %}
+{% block title %}You've added {{ individuals|length }} individual{% if individuals|length > 1 or individuals|length == 0 %}s{% endif %}{% endblock title %}
 
 {% block column_content %}
     <h1 class="govuk-heading-l">
-        You've added {{ request.session.individuals.keys|length }} individual{% if request.session.individuals.keys|length > 1 or request.session.individuals.keys|length == 0 %}s{% endif %}
+        You've added {{ individuals|length }} individual{% if individuals|length > 1 or individuals|length == 0 %}s{% endif %}
     </h1>
-    {% for id, individual in request.session.individuals.items %}
+    {% for individual in individuals %}
         <div class="action-wrapper">
             <div>
                 <h2 class="govuk-heading-m" style="float:left;">Individual {{ forloop.counter }} </h2>
                 <ul class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         <a class="govuk-link" style="font-size: 19px; text-align:right"
-                           href="{% url 'add_an_individual' individual_uuid=id %}">Change<span
+                           href="{% url 'add_an_individual' individual_uuid=individual.id %}">Change<span
                             class="govuk-visually-hidden"> individual {{forloop.counter}} details </span></a>
                     </dd>
                 </ul>
@@ -27,7 +27,7 @@
                     Name
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ individual.name_data.cleaned_data.first_name }} {{individual.name_data.cleaned_data.last_name}}
+                    {{ individual.first_name }} {{individual.last_name}}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
@@ -35,7 +35,7 @@
                     Nationality and location
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ individual.name_data.cleaned_data.nationality }}
+                    {{ individual.get_nationality_and_location_display }}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
@@ -43,13 +43,13 @@
                     Address
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ individual.address_data.cleaned_data.readable_address | linebreaksbr }}
+                    {{ individual.readable_address | linebreaksbr }}
                 </dd>
             </div>
-            {% if request.session.individuals.keys|length > 1 %}
+            {% if individuals|length > 1 %}
                 <form id="delete_individual_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                      action="{% url 'delete_individual' %}?individual_uuid={{ id }}">
-                    <input type="hidden" name="individual_uuid" value="{{ id }}">
+                      action="{% url 'delete_individual' pk=individual.id%}">
+                    <input type="hidden" name="individual_uuid" value="{{ individual.id }}">
                     {% csrf_token %}
                     <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_individual_form_{{ forloop.counter }}">
                         Remove individual {{ forloop.counter }}

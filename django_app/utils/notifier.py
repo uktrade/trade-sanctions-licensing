@@ -1,29 +1,10 @@
 from typing import Any
 
 import sentry_sdk
-from apply_for_a_licence.models import UserEmailVerification
 from django.conf import settings
-from django.contrib.sessions.models import Session
-from django.http import HttpRequest, HttpResponse
-from django.utils.crypto import get_random_string
+from django.http import HttpResponse
 from notifications_python_client.errors import HTTPError
 from notifications_python_client.notifications import NotificationsAPIClient
-
-
-def verify_email(reporter_email_address: str, request: HttpRequest) -> None:
-    verify_code = get_random_string(6, allowed_chars="0123456789")
-    user_session = Session.objects.get(session_key=request.session.session_key)
-    UserEmailVerification.objects.create(
-        user_session=user_session,
-        email_verification_code=verify_code,
-        verified=False,
-    )
-    print(verify_code)
-    send_email(
-        email=reporter_email_address,
-        context={"verification_code": verify_code},
-        template_id=settings.EMAIL_VERIFY_CODE_TEMPLATE_ID,
-    )
 
 
 def send_email(email: str, context: dict[str, Any], template_id: str, reference: str | None = None) -> HttpResponse | bool:

@@ -1,3 +1,4 @@
+from apply_for_a_licence.choices import WhoDoYouWantTheLicenceToCoverChoices
 from apply_for_a_licence.models import Individual, Organisation
 from core.forms.base_forms import (
     BaseBusinessDetailsForm,
@@ -9,11 +10,12 @@ from core.forms.base_forms import (
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.layout import Field, Fieldset, Fluid, Layout, Size
 from django import forms
+from django.utils.safestring import mark_safe
 
 
 class AddAnIndividualForm(BaseModelForm):
     form_h1_header = "Add an individual"
-
+    save_and_return = True
     nationality = forms.CharField(widget=forms.HiddenInput, required=False)
 
     class Meta:
@@ -70,6 +72,7 @@ class IndividualAddedForm(BaseForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.licence_object: object = kwargs.pop("licence_object", None)
         super().__init__(*args, **kwargs)
         self.helper.legend_size = Size.MEDIUM
         self.helper.legend_tag = None
@@ -77,8 +80,61 @@ class IndividualAddedForm(BaseForm):
         if self.request.method == "GET":
             self.is_bound = False
 
+    def clean(self):
+        cleaned_data = super().clean()
+        individuals = Individual.objects.filter(licence=self.licence_object, is_applicant=False)
+        individual_errors = []
+
+        for x, individual in enumerate(individuals):
+            if individual.status == "draft":
+                individual_errors.append(x + 1)
+
+        if len(individual_errors) > 0:
+            if "do_you_want_to_add_another_individual" not in cleaned_data:
+                del self.errors["do_you_want_to_add_another_individual"]
+            if (
+                len(individuals) == 1
+                and self.licence_object.who_do_you_want_the_licence_to_cover
+                == WhoDoYouWantTheLicenceToCoverChoices.individual.value
+            ):
+                if cleaned_data.get("do_you_want_to_add_another_individual", False):
+                    error_message = (
+                        "You cannot add another individual until Individual 1 "
+                        "details are completed. Select 'change' and complete the details"
+                    )
+                else:
+                    error_message = (
+                        "Individual 1 details have not yet been completed. " "Select 'change' and complete the details"
+                    )
+                raise forms.ValidationError(
+                    error_message,
+                    code="incomplete_individual",
+                )
+            else:
+                error_messages = []
+                for individual in individual_errors:
+                    if cleaned_data.get("do_you_want_to_add_another_individual", False):
+                        error_messages.append(
+                            f"You cannot add another individual until Individual {individual} details are either "
+                            f"completed or the individual is removed. Select 'change' and complete the details, "
+                            f"or select 'Remove' to remove Individual {individual}"
+                        )
+                    else:
+                        error_messages.append(
+                            f"Individual {individual} details have not yet been completed. Select 'change' and "
+                            f"complete the details, or select 'Remove' to remove Individual {individual}"
+                        )
+
+                raise forms.ValidationError(
+                    mark_safe("<br/>".join(error_messages)),
+                    code="incomplete_individual",
+                )
+
+        return cleaned_data
+
 
 class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
+    save_and_return = True
 
     class Meta(BaseBusinessDetailsForm.Meta):
         model = Organisation
@@ -99,7 +155,6 @@ class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-
         self.fields["country"].required = True
         self.fields["country"].empty_label = "Select country"
         self.fields["address_line_1"].error_messages["required"] = "Enter address line 1"
@@ -127,6 +182,7 @@ class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):
 
 class IndividualUKAddressForm(BaseUKBusinessDetailsForm):
     form_h1_header = "What is the individual's home address?"
+    save_and_return = True
 
     class Meta(BaseUKBusinessDetailsForm.Meta):
         model = Individual
@@ -160,6 +216,7 @@ class IndividualUKAddressForm(BaseUKBusinessDetailsForm):
 
 class IndividualNonUKAddressForm(BaseNonUKBusinessDetailsForm):
     form_h1_header = "What is the individual's home address?"
+    save_and_return = True
 
     class Meta(BaseNonUKBusinessDetailsForm.Meta):
         model = Individual

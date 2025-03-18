@@ -1,9 +1,6 @@
 cleaned_data = {
     "start": {"who_do_you_want_the_licence_to_cover": "business"},
     "are_you_third_party": {"are_you_applying_on_behalf_of_someone_else": False},
-    "what_is_your_email": {"email": "test@testmail.com"},
-    "email_verify": {"email_verification_code": "012345"},
-    "request_verify_code": {},
     "your_details": {"applicant_full_name": "John Doe", "applicant_business": "DBT", "applicant_role": "Role"},
     "is_the_business_registered_with_companies_house": {"business_registered_on_companies_house": "no"},
     "do_you_know_the_registered_company_number": {},

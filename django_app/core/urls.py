@@ -5,8 +5,11 @@ from django.contrib import admin
 from django.urls import include, path
 
 from .views import cookie_views, generic_views
-from .views.base_views import RedirectBaseDomainView
-from .views.generic_views import PingSessionView, SessionExpiredView
+from .views.generic_views import (
+    PingSessionView,
+    RedirectBaseDomainView,
+    SessionExpiredView,
+)
 from .views.shared_views import DownloadPDFView
 
 public_urls = [
@@ -20,7 +23,7 @@ public_urls = [
     path("hide_cookies", cookie_views.HideCookiesView.as_view(), name="hide_cookies"),
     path("reset_session", generic_views.ResetSessionView.as_view(), name="reset_session"),
     path("ping_session/", PingSessionView.as_view(), name="ping_session"),
-    path("inactive-application-deleted/", SessionExpiredView.as_view(), name="session_expired"),
+    path("inactive-signed-out/", SessionExpiredView.as_view(), name="session_expired"),
     path("accessibility-statement", generic_views.AccessibilityStatementView.as_view(), name="accessibility_statement"),
     path("download_application/", DownloadPDFView.as_view(), name="download_application"),
     path("staff-sso/", include("authbroker_client.urls")),

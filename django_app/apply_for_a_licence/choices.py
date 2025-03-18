@@ -115,3 +115,18 @@ class TypeOfRelationshipChoices(models.TextChoices):
     recipient = "recipient", "Recipient"
     business = "business", "Business"
     named_individuals = "named_individuals", "Named Individuals"
+
+
+class StatusChoices(models.TextChoices):
+    draft = "draft", "Draft"
+    submitted = "submitted", "Submitted"
+
+
+class EntityStatusChoices(models.TextChoices):
+    draft = "draft", "Draft"
+    complete = "complete", "Complete"
+
+
+class WhereIsTheAddressChoices(models.TextChoices):
+    outside_uk = "outside-uk", "Outside the UK"
+    in_uk = "in-uk", "In the UK"

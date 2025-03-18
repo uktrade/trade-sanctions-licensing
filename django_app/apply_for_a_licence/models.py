@@ -1,38 +1,42 @@
 # mypy: disable-error-code="attr-defined,misc"
+import datetime
 import uuid
 
 from core.document_storage import PermanentDocumentStorage
 from core.models import BaseModel, BaseModelID
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.sessions.models import Session
 from django.db import models
 from django.db.models import QuerySet
 from django.forms import model_to_dict
+from django.utils import timezone
 from django_countries.fields import CountryField
 from utils.companies_house import get_formatted_address
 
 from . import choices
 from .types import Licensee
+from .utils import get_file_s3_key
 
 
 class Licence(BaseModel):
     """The chief model for the application for a licence. Represents an application"""
 
-    licensing_grounds = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
-    licensing_grounds_legal_advisory = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
-    regimes = ArrayField(base_field=models.CharField(max_length=255), blank=True, null=True)
-    reference = models.CharField(max_length=6)
     business_registered_on_companies_house = models.CharField(
         choices=choices.YesNoDoNotKnowChoices.choices,
         max_length=11,
         blank=False,
     )
+    licensing_grounds = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
+    licensing_grounds_legal_advisory = ArrayField(models.CharField(choices=choices.LicensingGroundsChoices.choices), null=True)
+    regimes = ArrayField(base_field=models.CharField(max_length=255), blank=False, null=True)
+    reference = models.CharField(max_length=6)
+    submitter_reference = models.CharField(max_length=255, blank=False, null=True)
     type_of_service = models.CharField(choices=choices.TypeOfServicesChoices.choices)
     professional_or_business_services = ArrayField(
         models.CharField(choices=choices.ProfessionalOrBusinessServicesChoices.choices), null=True
     )
-    service_activities = models.TextField()
+    service_activities = models.TextField(blank=False, null=True)
     description_provision = models.TextField(blank=True, null=True)
     purpose_of_provision = models.TextField(blank=True, null=True)
     held_existing_licence = models.CharField(
@@ -42,7 +46,6 @@ class Licence(BaseModel):
     )
     existing_licences = models.TextField(null=True, blank=True)
     is_third_party = models.BooleanField(null=True, blank=False)
-    user_email_verification = models.OneToOneField("UserEmailVerification", on_delete=models.SET_NULL, blank=False, null=True)
     who_do_you_want_the_licence_to_cover = models.CharField(
         max_length=255,
         choices=choices.WhoDoYouWantTheLicenceToCoverChoices.choices,
@@ -57,7 +60,9 @@ class Licence(BaseModel):
     applicant_full_name = models.CharField(max_length=255, null=True, blank=False)
     applicant_business = models.CharField(max_length=300, verbose_name="Business you work for", blank=False, null=True)
     applicant_role = models.CharField(max_length=255, blank=False, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="licence_applications")
+    status = models.CharField(max_length=10, choices=choices.StatusChoices.choices, default=choices.StatusChoices.draft)
+    submitted_at = models.DateTimeField(null=True, blank=True)
 
     def assign_reference(self) -> str:
         """Assigns a unique reference to this Licence object"""
@@ -118,12 +123,15 @@ class Licence(BaseModel):
         else:
             return []
 
+    def get_date_till_deleted(self) -> datetime.datetime:
+        return self.created_at + datetime.timedelta(days=settings.DRAFT_APPLICATION_EXPIRY_DAYS)
 
-class UserEmailVerification(BaseModelID):
-    user_session = models.ForeignKey(Session, on_delete=models.CASCADE)
-    email_verification_code = models.CharField(max_length=6)
-    date_created = models.DateTimeField(auto_now_add=True)
-    verified = models.BooleanField(default=False)
+    def is_expired(self) -> bool:
+        """Returns True if the licence has been in draft for more than the set expiry days"""
+        if self.status == choices.StatusChoices.draft:
+            return timezone.now() > self.get_date_till_deleted()
+        else:
+            return False
 
 
 class AddressMixin(models.Model):
@@ -135,6 +143,9 @@ class AddressMixin(models.Model):
     country = CountryField(blank_label="Select country", blank=True, null=True)
     town_or_city = models.CharField(max_length=250, blank=True, null=True)
     county = models.CharField(max_length=250, null=True, blank=True)
+    where_is_the_address = models.CharField(
+        max_length=20, blank=False, null=True, choices=choices.WhereIsTheAddressChoices.choices
+    )
 
     class Meta:
         abstract = True
@@ -144,15 +155,17 @@ class AddressMixin(models.Model):
         return get_formatted_address(model_to_dict(self))
 
 
-class Organisation(BaseModel, AddressMixin):
+class Organisation(BaseModelID, AddressMixin):
+    class Meta:
+        ordering = ["created_at"]
+
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="organisations")
     # two name fields required for the case of recipients
-    name = models.CharField()
+    name = models.CharField(null=True, blank=False)
     website = models.URLField(null=True, blank=True)
-    do_you_know_the_registered_company_number = models.CharField(
-        choices=choices.YesNoChoices.choices,
-        blank=False,
-        null=True,
+    do_you_know_the_registered_company_number = models.CharField(choices=choices.YesNoChoices.choices, blank=False, null=True)
+    business_registered_on_companies_house = models.CharField(
+        choices=choices.YesNoDoNotKnowChoices.choices, max_length=11, blank=False, null=True
     )
     registered_company_number = models.CharField(max_length=15, blank=True, null=True)
     registered_office_address = models.CharField(null=True, blank=True)
@@ -172,7 +185,10 @@ class Organisation(BaseModel, AddressMixin):
         blank=False,
     )
     relationship_provider = models.TextField(
-        blank=True, null=True, db_comment="what is the relationship between the provider and the recipient?"
+        blank=False, null=True, db_comment="what is the relationship between the provider and the recipient?"
+    )
+    status = models.CharField(
+        max_length=10, choices=choices.EntityStatusChoices.choices, default=choices.EntityStatusChoices.draft
     )
 
     def readable_address(self) -> str:
@@ -182,8 +198,21 @@ class Organisation(BaseModel, AddressMixin):
         else:
             return super().readable_address()
 
+    def clear_address_data(self) -> None:
+        """Clears the address data on the model instance"""
+        self.address_line_1 = None
+        self.address_line_2 = None
+        self.address_line_3 = None
+        self.address_line_4 = None
+        self.postcode = None
+        self.country = None  # type: ignore[assignment]
+        self.town_or_city = None
+        self.county = None
+        self.where_is_the_address = None
+        self.save()
 
-class Individual(BaseModel, AddressMixin):
+
+class Individual(BaseModelID, AddressMixin):
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="individuals")
     first_name = models.CharField(max_length=255, blank=False)
     last_name = models.CharField(max_length=255, blank=False)
@@ -191,6 +220,10 @@ class Individual(BaseModel, AddressMixin):
     additional_contact_details = models.CharField(blank=True, null=True)
     relationship_provider = models.TextField(
         blank=True, null=True, db_comment="what is the relationship between the provider and the recipient?"
+    )
+    is_applicant = models.BooleanField(default=False)
+    status = models.CharField(
+        max_length=10, choices=choices.EntityStatusChoices.choices, default=choices.EntityStatusChoices.draft
     )
 
     @property
@@ -206,10 +239,14 @@ class Document(BaseModel):
         blank=True,
         # if we're storing the document in the DB, we can assume it's in the permanent bucket
         storage=PermanentDocumentStorage(),
+        upload_to=get_file_s3_key,
     )
+    original_file_name = models.CharField(max_length=255, blank=True, null=True)
 
-    def file_name(self) -> str:
-        return self.file.name.split("/")[-1]
-
+    @property
     def url(self) -> str:
         return self.file.url
+
+    @property
+    def s3_key(self) -> str:
+        return self.file.file.obj.key

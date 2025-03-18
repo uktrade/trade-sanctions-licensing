@@ -114,7 +114,7 @@ $.MultiFileUpload.prototype.getErrorHtml = function (response) {
     html += response.error
     html += '</span>'
     html += '<br><br>'
-    html += '<input id="' + id + '" type="file" name="upload_documents-document" class="file-upload-error-input hidden">'
+    html += '<input id="' + id + '" type="file" name="upload_documents-file" class="file-upload-error-input hidden">'
     html += '<label for="' + id + '" class="govuk-button govuk-button--secondary">Choose file</label>'
     html += '</div>'
     return html
@@ -172,8 +172,8 @@ $.MultiFileUpload.prototype.getFileRowHtml = function (file) {
     return html;
 };
 
-$.MultiFileUpload.prototype.getDeleteButtonHtml = function (file_name) {
-    var html = '<a class="moj-multi-file-upload__delete govuk-!-margin-bottom-0" href="javascript:void(0)" data-file-name="' + file_name + '">';
+$.MultiFileUpload.prototype.getDeleteButtonHtml = function (file_name, s3_key) {
+    var html = '<a class="moj-multi-file-upload__delete govuk-!-margin-bottom-0" href="javascript:void(0)" data-s3-key="' + s3_key + '">';
     html += 'Remove <span class="govuk-visually-hidden">' + file_name + '</span>';
     html += '</a>';
     return html;
@@ -189,7 +189,7 @@ $.MultiFileUpload.prototype.deleteRowContainerIfNoFilesUploaded = function () {
 $.MultiFileUpload.prototype.uploadFile = function (file) {
     this.params.uploadFileEntryHook(this, file);
     var formData = new FormData();
-    formData.append('document', file);
+    formData.append('file', file);
     var item = $(this.getFileRowHtml(file));
     this.feedbackContainer.find('.moj-multi-file-upload__list').append(item);
 
@@ -208,7 +208,7 @@ $.MultiFileUpload.prototype.uploadFile = function (file) {
             if (response.success) {
                 item.find('.moj-multi-file-upload__message').html(this.getSuccessHtml(response.file_name, response.file_url));
                 this.status.html("Success");
-                item.find('.moj-multi-file-upload__actions').append(this.getDeleteButtonHtml(response.file_name));
+                item.find('.moj-multi-file-upload__actions').append(this.getDeleteButtonHtml(response.file_name, response.s3_key));
             } else {
                 item.remove()
                 this.deleteRowContainerIfNoFilesUploaded()
@@ -245,10 +245,13 @@ $.MultiFileUpload.prototype.uploadFile = function (file) {
 $.MultiFileUpload.prototype.onFileDeleteClick = function (e) {
     e.preventDefault(); // if user refreshes page and then deletes
     var delete_link = $(e.currentTarget);
-    let file_name = delete_link.data('file-name');
+    let s3_key = delete_link.data('s3-key');
     var token = $('input[name="csrfmiddlewaretoken"]').attr('value');
     $.ajax({
-        url: this.params.deleteUrl + "?file_name=" + file_name,
+        url: this.params.deleteUrl,
+        data: {
+            s3_key_to_delete: s3_key
+        },
         type: 'post',
         dataType: 'json',
         headers: {

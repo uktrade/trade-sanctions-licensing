@@ -1,4 +1,4 @@
-{% extends "core/base.html" %}
+{% extends "core/base_logged_in_template.html" %}
 {% load crispy_forms_tags crispy_forms_gds static %}
 
 {% block extra_css %}
@@ -17,44 +17,9 @@
     {% endif %}
 {% endblock title %}
 
-{% block body_end %}
-	{# session expiry dialog pop-up #}
-    <dialog id="session_expiry_dialog">
-        <p class="govuk-heading-l">Your application will time out soon</p>
-        <p class="govuk-body">You've been inactive for a while.</p>
-        <p class="govuk-body">Your application will be deleted unless you continue within the time remaining.</p>
-        <p class="govuk-body">We do this for your security.</p>
-        <p class="govuk-body" autofocus><strong id="session_expiry_time_remaining" data-testid="session_expiry_time_remaining">{{ session_expiry_minutes }}
-            minutes</strong> remaining</p>
-        <button class="govuk-button" id="ping_session_button" data-testid="ping_session_button">Continue</button>
-    </dialog>
-{% endblock body_end %}
-
-{% block column_start %}
-    <div class="govuk-notification-banner hide-on-js-enabled show-on-js-disabled" role="region"
-         aria-labelledby="govuk-notification-banner-title"
-         data-module="govuk-notification-banner"
-         data-testid="non_js_session_expiry_banner"
-    >
-        <div class="govuk-notification-banner__header">
-            <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                Important
-            </h2>
-        </div>
-        <div class="govuk-notification-banner__content">
-            <p class="govuk-body">
-                Your application will be deleted if you're inactive for <strong>{{ session_expiry_minutes }} minutes</strong>.
-            </p>
-            <p class="govuk-body">
-                We do this to protect your information.
-            </p>
-        </div>
-    </div>
-{% endblock column_start %}
-
 {% block column_content %}
     {% error_summary form %}
-    <form action="{{ request.get_full_path }}" method="post" enctype='multipart/form-data' novalidate>
+    <form action="{% block form_action %}{{ request.get_full_path }}{% endblock form_action %}" method="post" enctype='multipart/form-data' novalidate>
         {% if form.form_h1_header %}
             <h1 class="govuk-heading-l">{{ form.form_h1_header }}</h1>
         {% endif %}
@@ -66,15 +31,6 @@
 {% endblock column_content %}
 
 {% block extra_js %}
+    {{ block.super }}
     {{ form.media.js }}
-    <script src="{% static 'core/javascript/session_dialog.js' %}" nonce="{{ request.csp_nonce }}"></script>
-    <script nonce="{{ request.csp_nonce }}">
-        window.onload = function () {
-            setup_session_dialog(
-                session_expiry_seconds = {{ session_expiry_seconds }},
-                ping_session_url = "{% url 'ping_session' %}",
-                session_expiry_url = "{% url 'session_expired' %}"
-            )
-        }
-    </script>
 {% endblock extra_js %}

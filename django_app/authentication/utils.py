@@ -7,6 +7,7 @@ from authlib.jose import jwt
 from authlib.oauth2.rfc7523 import PrivateKeyJWT
 from authlib.oidc.core import IDToken
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.http import HttpRequest
 from django.urls import reverse
 
@@ -86,3 +87,7 @@ def get_userinfo(client: OAuth2Session) -> types.UserInfo:
     resp.raise_for_status()
 
     return resp.json()
+
+
+def get_group(group_name: str) -> Group:
+    return Group.objects.get(name=group_name)

@@ -9,6 +9,7 @@ from playwright.sync_api import sync_playwright
 
 class DownloadPDFView(TemplateView):
     # TODO: update the template when DST-798 is complete
+    # todo - only show licence applications that belong to the requesting user
     template_name = "core/application_pdf.html"
 
     def get(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
