@@ -5,7 +5,13 @@ from apply_for_a_licence.utils import can_user_edit_licence
 from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import BaseForm, BaseModelForm
 from django.conf import settings
-from django.http import Http404, HttpResponseRedirect
+from django.http import (
+    Http404,
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBase,
+    HttpResponseRedirect,
+)
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -16,7 +22,20 @@ from django.views.generic.detail import SingleObjectMixin
 
 
 class BaseView(LoginRequiredMixin, View):
-    pass
+
+    def dispatch(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponseBase:
+        if last_activity := request.session.get(settings.SESSION_LAST_ACTIVITY_KEY, None):
+            now = timezone.now()
+            last_activity = datetime.datetime.fromisoformat(last_activity)
+            # if the last recorded activity was more than the session cookie age ago, we assume the session has expired
+            if now > (last_activity + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)):
+                return redirect(
+                    reverse("authentication:logout", kwargs={"token": self.request.session["_one_login_token"]["id_token"]})
+                )
+
+        # now setting the last active to the current time
+        request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
+        return super().dispatch(request, *args, **kwargs)
 
 
 class BaseTemplateView(BaseView, TemplateView):
@@ -39,6 +58,25 @@ class BaseSaveAndReturnView(BaseView):
         else:
             return None
 
+    def dispatch(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponseRedirect | HttpResponseBase:
+        # checking for session expiry
+        if last_activity := request.session.get(settings.SESSION_LAST_ACTIVITY_KEY, None):
+            now = timezone.now()
+            last_activity = datetime.datetime.fromisoformat(last_activity)
+            # if the last recorded activity was more than the session cookie age ago, we assume the session has expired
+            if now > (last_activity + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)):
+                return redirect(reverse("authentication:logout"))
+
+        # now setting the last active to the current time
+        request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["id_token"] = self.request.session["_one_login_token"]["id_token"]
+        return context
+
 
 class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
     template_name = "core/base_form_step.html"
@@ -48,25 +86,12 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
     # do we want to redirect the user to the next step with query parameters?
     redirect_with_query_parameters = False
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs) -> HttpResponse:
         if self.request.GET.get("update", None) == "yes":
             self.update = True
         else:
             self.update = False
 
-        # checking for session expiry
-        if last_activity := request.session.get(settings.SESSION_LAST_ACTIVITY_KEY, None):
-            now = timezone.now()
-            last_activity = datetime.datetime.fromisoformat(last_activity)
-            # if the last recorded activity was more than the session cookie age ago, we assume the session has expired
-            if now > (last_activity + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)):
-                return redirect(reverse("session_expired"))
-        else:
-            # if we don't have a last activity, we assume the session has expired
-            return redirect(reverse("session_expired"))
-
-        # now setting the last active to the current time
-        request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):

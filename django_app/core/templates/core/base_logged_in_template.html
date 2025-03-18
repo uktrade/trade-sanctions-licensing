@@ -22,7 +22,7 @@ as it provides the session expiry stuff.
         </p>
         <button class="govuk-button" id="ping_session_button" data-testid="ping_session_button">Stay signed in</button>
         <a class="govuk-button govuk-button--secondary" data-testid="sign_out_button"
-           href="{% url 'session_expired' %}">Sign out</a>
+           href="{% url 'authentication:logout' token=id_token %}">Sign out</a>
     </dialog>
 {% endblock body_end %}
 
@@ -58,7 +58,7 @@ as it provides the session expiry stuff.
             setup_session_dialog(
                 session_expiry_seconds = {{ SESSION_EXPIRY_SECONDS }},
                 ping_session_url = "{% url 'ping_session' %}",
-                session_expiry_url = "{% url 'session_expired' %}"
+                session_expiry_url = "{% url 'authentication:logout' token=id_token %}"
             )
         }
     </script>
