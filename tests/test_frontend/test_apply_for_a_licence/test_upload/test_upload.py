@@ -5,14 +5,14 @@ from django.conf import settings
 from playwright.sync_api import expect
 
 from tests.test_frontend.conftest import (
-    LicensingGroundsBase,
+    AboutTheServicesBase,
     ProviderBase,
     RecipientBase,
     StartBase,
 )
 
 
-class TestUpload(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
+class TestUpload(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase):
     """Test upload works"""
 
     def get_to_upload_page(self):
@@ -20,11 +20,12 @@ class TestUpload(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
-        self.recipient_simple(self.page)
+        self.previous_licence(self.page)
+        self.simple_about_the_service_task(self.page)
+        self.recipient(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.no_more_additions(self.page)
-        self.page.get_by_label("What is your purpose for").fill("Test purpose")
-        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_role("link", name="Upload documents").click()
         self.page.wait_for_timeout(2000)  # Wait for the page to load
 
     def test_upload(self):

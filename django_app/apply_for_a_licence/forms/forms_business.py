@@ -1,5 +1,6 @@
 from typing import Any
 
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.exceptions import (
     CompaniesHouse500Error,
     CompaniesHouseException,
@@ -23,6 +24,7 @@ from crispy_forms_gds.layout import (
     Size,
 )
 from django import forms
+from django.utils.safestring import mark_safe
 from utils.companies_house import (
     get_details_from_companies_house,
     get_formatted_address,
@@ -305,6 +307,7 @@ class BusinessAddedForm(BaseForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.licence_object: object = kwargs.pop("licence_object", None)
         super().__init__(*args, **kwargs)
         self.helper.legend_size = Size.MEDIUM
         self.helper.legend_tag = None
@@ -312,6 +315,54 @@ class BusinessAddedForm(BaseForm):
         if self.request.method == "GET":
             # we never want to bind/pre-fill this form, always fresh for the user
             self.is_bound = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        businesses = Organisation.objects.filter(
+            licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.business.value
+        )
+        business_errors = []
+
+        for x, business in enumerate(businesses):
+            if business.status == "draft":
+                business_errors.append(x + 1)
+
+        if len(business_errors) > 0:
+            if "do_you_want_to_add_another_business" not in cleaned_data:
+                del self.errors["do_you_want_to_add_another_business"]
+            if len(businesses) == 1:
+                if cleaned_data.get("do_you_want_to_add_another_business", False):
+                    error_message = (
+                        "You cannot add another business until Business 1 "
+                        "details are completed. Select 'change' and complete the details"
+                    )
+                else:
+                    error_message = "Business 1 details have not yet been completed. " "Select 'change' and complete the details"
+                raise forms.ValidationError(
+                    error_message,
+                    code="incomplete_business",
+                )
+            else:
+                error_messages = []
+                for business in business_errors:
+                    if cleaned_data.get("do_you_want_to_add_another_business", False):
+                        error_messages.append(
+                            f"You cannot add another business until Business {business} details "
+                            f"are either completed or the business is removed. Select 'change' and "
+                            f"complete the details, or select 'Remove' to remove Business {business}"
+                        )
+                    else:
+                        error_messages.append(
+                            f"Business {business} details have not yet been completed. Select 'change' and complete "
+                            f"the details, or select 'Remove' to remove Business {business}"
+                        )
+
+                raise forms.ValidationError(
+                    mark_safe("<br/>".join(error_messages)),
+                    code="incomplete_business",
+                )
+
+        return cleaned_data
 
 
 class CheckCompanyDetailsForm(BaseModelForm):

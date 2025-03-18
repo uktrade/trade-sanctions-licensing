@@ -18,6 +18,10 @@ class BaseSubTask:
         return False
 
     @property
+    def is_in_progress(self) -> bool:
+        return False
+
+    @property
     def tag_colour(self) -> str:
         if self.status == "in_progress":
             return "light-blue"
@@ -70,6 +74,10 @@ class BaseTask:
                 each.status = "complete"
                 continue
 
+            if each.is_in_progress:
+                each.status = "in_progress"
+                continue
+
             if index == 0:
                 previous_task_completed = True
             else:
@@ -81,3 +89,11 @@ class BaseTask:
                 each.status = "cannot_start"
 
         return sub_tasks
+
+    def is_task_complete(self) -> bool:
+        """Returns a boolean whether all required subtasks (and therefore the task) has been completed"""
+        sub_tasks = self.get_sub_tasks()
+        for sub_task in sub_tasks:
+            if sub_task.status != "complete":
+                return False
+        return True

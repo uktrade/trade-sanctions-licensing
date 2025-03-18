@@ -1,5 +1,6 @@
 import os
 import re
+from typing import List
 from unittest import mock
 from unittest.mock import MagicMock
 
@@ -117,12 +118,13 @@ class PlaywrightTestBase(LiveServerTestCase):
 
         return submitter_reference
 
-    def check_your_answers(self, page, third_party=True, type="business"):
+    def check_your_answers(self, page, third_party=True, type="business", service="Energy-related services (Russia)"):
+        page.get_by_role("link", name="Check your answers before you").click()
         expect(page).to_have_url(re.compile(r".*/check-your-answers"))
         if type != "myself":
             self.cya_your_details(page, third_party)
         expect(page.get_by_test_id("previous-licence")).to_have_text("No")
-        self.cya_overview(page)
+        self.cya_service(page, service=service)
         self.cya_recipients(page)
         self.cya_purposes(page)
 
@@ -176,13 +178,13 @@ class PlaywrightTestBase(LiveServerTestCase):
             expect(page.get_by_test_id("your-details-name")).to_have_text("Test full name")
             expect(page.get_by_test_id("your-details-business")).to_have_text("Test business")
             expect(page.get_by_test_id("your-details-role")).to_have_text("Test role")
-            # expect(page.get_by_test_id("your-details-third-party")).to_have_text("Yes")
+            expect(page.get_by_test_id("your-details-third-party")).to_have_text("Yes")
         else:
             expect(page.get_by_test_id("your-details-third-party")).to_have_text("No")
 
     @staticmethod
-    def cya_overview(page):
-        expect(page.get_by_test_id("services-type")).to_have_text("Energy-related services (Russia)")
+    def cya_service(page, service):
+        expect(page.get_by_test_id("services-type")).to_have_text(service)
         expect(page.get_by_test_id("services-description")).to_have_text("Test description")
 
     @staticmethod
@@ -206,18 +208,21 @@ class StartBase(PlaywrightTestBase):
     def business_third_party(self, page):
         page.get_by_label("A business or businesses with").check()
         page.get_by_role("button", name="Continue").click()
+        page.get_by_role("link", name="Your details").click()
         page.get_by_label("Yes").check()
         page.get_by_role("button", name="Continue").click()
 
     def business_not_third_party(self, page):
         page.get_by_label("A business or businesses with").check()
         page.get_by_role("button", name="Continue").click()
+        page.get_by_role("link", name="Your details").click()
         page.get_by_label("No").check()
         page.get_by_role("button", name="Continue").click()
 
     def individual_third_party(self, page):
         page.get_by_label("Named individuals with a UK").check()
         page.get_by_role("button", name="Continue").click()
+        page.get_by_role("link", name="Your details").click()
         page.get_by_label("Yes").check()
         page.get_by_role("button", name="Continue").click()
         self.your_details(page, "individual")
@@ -225,6 +230,7 @@ class StartBase(PlaywrightTestBase):
     def myself(self, page):
         page.get_by_label("Myself").check()
         page.get_by_role("button", name="Continue").click()
+        page.get_by_role("link", name="Your details").click()
 
 
 class ProviderBase(PlaywrightTestBase):
@@ -236,6 +242,7 @@ class ProviderBase(PlaywrightTestBase):
 
     def provider_business_located_in_uk(self, page):
         self.fill_your_details(page)
+        page.get_by_role("link", name="Details of the business you want to cover").click()
         page.get_by_label("No", exact=True).check()
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("In the UK").check()
@@ -244,81 +251,92 @@ class ProviderBase(PlaywrightTestBase):
 
     def provider_business_located_outside_uk(self, page):
         self.fill_your_details(page)
+        page.get_by_role("link", name="Details of the business you want to cover").click()
         page.get_by_label("No", exact=True).check()
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("Outside the UK").check()
         page.get_by_role("button", name="Continue").click()
         self.fill_non_uk_address_details(page)
 
-    def provider_individual_located_in_uk(self, page, first_name: str = "Test full name", last_name: str = "Test last name"):
+    def provider_individual_located_in_uk(self, page, first_name: str = "Test first name", last_name: str = "Test last name"):
         page.get_by_label("First name").fill(first_name)
         page.get_by_label("Last name").fill(last_name)
         page.get_by_label("UK national located in the UK", exact=True).check()
         page.get_by_role("button", name="Continue").click()
         self.fill_uk_address_details(page, "individual")
 
+    def details_of_business_employing_individual(self, page):
+        self.fill_non_uk_address_details(page)
+
     def provider_myself_located_in_uk(self, page):
         self.your_details(page, "myself")
         self.fill_uk_address_details(page, "individual")
 
+    def previous_licence(self, page, previous_licence: str = "No"):
+        page.get_by_role("link", name="Previous licences").click()
+        page.get_by_label(previous_licence).check()
+        page.get_by_role("button", name="Save and continue").click()
 
-class RecipientBase(PlaywrightTestBase):
-    def recipient(self, page, service_type):
+
+class AboutTheServicesBase(PlaywrightTestBase):
+    def services_provide(self, page, service_type: str = "Energy-related services"):
+        page.get_by_role("link", name="The services you want to").click()
         page.get_by_label(service_type).check()
         page.get_by_role("button", name="Continue").click()
         page.get_by_label("Describe the specific").fill("Test description")
         page.get_by_role("button", name="Continue").click()
+
+    def purpose_for_providing_service(self, page):
+        page.get_by_role("link", name="Your purpose for providing").click()
+        page.get_by_text("What is your purpose for providing these services?", exact=True).click()
+        page.get_by_label("What is your purpose for").click()
+        page.get_by_label("What is your purpose for").fill("Test purpose")
+        page.get_by_role("button", name="Save and continue").click()
+
+    def simple_about_the_service_task(self, page):
+        self.services_provide(page)
+        self.purpose_for_providing_service(page)
+
+    def interception_or_monitoring_service(self, page, regimes: List[str] = ["The Syria (Sanctions)"]):
+        page.get_by_role("link", name="The services you want to").click()
+        page.get_by_label("Interception or monitoring").check()
+        page.get_by_role("button", name="Save and continue").click()
+        expect(page).to_have_url(re.compile(r".*/sanctions-regime"))
+        for regime in regimes:
+            page.get_by_label(regime).check()
+        page.get_by_role("button", name="Save and continue").click()
+
+    def professional_and_business_service(self, page, pbs_services: List[str] = ["Advertising", "Public relations"]):
+        page.get_by_role("link", name="The services you want to").click()
+        page.get_by_label("Professional and business").check()
+        page.get_by_role("button", name="Save and continue").click()
+        for pbs_service in pbs_services:
+            page.get_by_label(pbs_service).check()
+        page.get_by_role("button", name="Save and continue").click()
+        page.get_by_label("Describe the specific").fill("Test description")
+        page.get_by_role("button", name="Continue").click()
+
+    def licensing_grounds_simple(self, page):
+        page.get_by_label("What is your purpose for").fill("Test purpose")
+        page.get_by_role("button", name="Continue").click()
+
+        # now we're on the upload documents page
+        expect(page).to_have_url(re.compile(r".*/upload-documents"))
+        page.get_by_role("button", name="Continue").click()
+
+
+class RecipientBase(PlaywrightTestBase):
+    def recipient(self, page):
+        page.get_by_role("link", name="Recipient contact details").click()
         page.get_by_label("In the UK").check()
         page.get_by_role("button", name="Continue").click()
         self.fill_uk_address_details(page, "recipient")
         page.get_by_label("What is the relationship").fill("Test relationship")
         page.get_by_role("button", name="Continue").click()
 
-    def recipient_simple(self, page, reporter_type="business"):
-        page.get_by_label("No").check()
-        page.get_by_role("button", name="Continue").click()
-        if reporter_type == "individual":
-            self.fill_non_uk_address_details(page)
-        self.recipient(page, "Energy-related services (")
 
-    def recipient_legal(self, page, reporter_type="business"):
-        page.get_by_label("No").check()
-        page.get_by_role("button", name="Continue").click()
-        if reporter_type == "individual":
-            self.fill_non_uk_address_details(page)
-        page.get_by_label("Professional and business").check()
-        page.get_by_role("button", name="Continue").click()
-        self.recipient(page, "Legal advisory")
-
-    def recipient_non_legal(self, page, reporter_type="business"):
-        page.get_by_label("No").check()
-        page.get_by_role("button", name="Continue").click()
-        if reporter_type == "individual":
-            self.fill_non_uk_address_details(page)
-        page.get_by_label("Professional and business").check()
-        page.get_by_role("button", name="Continue").click()
-        self.recipient(page, "Auditing")
-
-    def recipient_legal_and_other(
-        self,
-        page,
-        reporter_type="business",
-    ):
-        page.get_by_label("No").check()
-        page.get_by_role("button", name="Continue").click()
-        if reporter_type == "individual":
-            self.fill_non_uk_address_details(page)
-        page.get_by_label("Professional and business").check()
-        page.get_by_role("button", name="Continue").click()
-        page.get_by_label("Auditing").check()
-        self.recipient(page, "Legal advisory")
-
-
-class LicensingGroundsBase(PlaywrightTestBase):
-    def licensing_grounds_simple(self, page):
-        page.get_by_label("What is your purpose for").fill("Test purpose")
-        page.get_by_role("button", name="Continue").click()
-
+class UploadDocumentsBase(PlaywrightTestBase):
+    def upload_documents(self, page):
         # now we're on the upload documents page
         expect(page).to_have_url(re.compile(r".*/upload-documents"))
         page.get_by_role("button", name="Continue").click()

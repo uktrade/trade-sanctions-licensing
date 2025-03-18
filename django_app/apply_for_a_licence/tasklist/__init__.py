@@ -1,4 +1,3 @@
-from .sub_tasks import UploadDocumentsSubTask
 from .tasks import (
     AboutTheServicesTask,
     AboutYouTask,
@@ -23,13 +22,7 @@ class Tasklist:
         tasks.append(RecipientsTask(licence=self.licence))
         tasks.append(UploadDocumentsTask(licence=self.licence))
 
-        # now we need to get the status of each of the sub-tasks so we can figure out if the user is allowed to start
-        # the CYA. Basically they should all be complete apart from UploadDocuments because that is optional.
-
-        # note - this code is messy, hard to understand, and resource-wasteful.
-        # Please consider optimising I'm sure it can be done better
-        all_sub_tasks = [sub_task for task in tasks for sub_task in task.get_sub_tasks()]
-        if all([sub_task.is_completed for sub_task in all_sub_tasks if not isinstance(sub_task, UploadDocumentsSubTask)]):
+        if all([task.is_task_complete() for task in tasks]):
             can_go_to_cya = True
         else:
             can_go_to_cya = False

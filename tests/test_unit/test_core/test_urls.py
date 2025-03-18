@@ -24,7 +24,7 @@ def test_private_urls_false(settings, authenticated_al_client_with_licence, lice
     )
 
     assert response.status_code == 302
-    assert "your-name-nationality-location" in response.url
+    assert "task-list" in response.url
 
     # assert view urls return 404 not found
     response = authenticated_al_client_with_licence.get("/view/")
@@ -43,7 +43,7 @@ def test_private_urls_true(settings, authenticated_al_client_with_licence, licen
     )
 
     assert response.status_code == 302
-    assert "your-name-nationality-location" in response.url
+    assert "task-list" in response.url
 
     # assert view urls return 403 forbidden
     response = authenticated_al_client_with_licence.get("/view/")

@@ -30,7 +30,7 @@ def test_session_not_expired(authenticated_al_client, test_apply_user):
     assert response.status_code == 200
 
     # we want to make sure we're actually being progressed to the next step
-    assert response.resolver_match.url_name == "add_an_individual"
+    assert response.resolver_match.url_name == "tasklist"
 
 
 def test_session_expired(authenticated_al_client):
