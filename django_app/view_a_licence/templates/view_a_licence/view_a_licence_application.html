@@ -8,16 +8,11 @@
             <a class="govuk-back-link govuk-link--no-visited-state"
                href="{% url 'view_a_licence:application_list' %}">{{ back_button_text }}</a>
         </div>
-        {% block download_link %}{% endblock download_link %}
+        {% block download_link %}<div class="govuk-grid-column-one-half govuk-!-text-align-right govuk-!-margin-top-3 hide-on-print">
+            <a href="{% url 'view_a_licence:download_application' %}?reference={{ licence.reference }}" class="govuk-link--muted govuk-body-s" target="_blank">Download application</a>
+        </div>{% endblock download_link %}
     </div>
 {% endblock back_button %}
-{% comment %}
-    TODO: remove comments and update dummy template when DST-798 is complete
-    {% block download_link %}
-    <div class="govuk-grid-column-one-half govuk-!-text-align-right govuk-!-margin-top-3 hide-on-print">
-        <a href="{% url 'view_a_licence:download_application' %}?reference={{ licence.reference }}" class="govuk-link--muted govuk-body-s" target="_blank">Download application</a>
-    </div>
-{% endblock download_link %}
 
 {% block column_content %}
     <h1 class="govuk-heading-xl">Licence application: {{ licence.reference }}</h1>
