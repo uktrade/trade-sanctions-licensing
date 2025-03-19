@@ -108,14 +108,14 @@
             <strong>Name and address:</strong>
             {{ recipient.name }}
             <br><br>
-            {{ recipient.readable_address }}
+            {{ recipient.readable_address }}<br>
             {% if  recipient.website %}
 
                 <strong>Website:</strong> {{ recipient.website }}<br>
             {% endif %}
             {% if  recipient.additional_contact_details %}
 
-                <strong>Additional contact information:</strong> {{ recipient.additional_contact_details|linebreaksbr }}
+                <strong>Additional contact information:</strong> {{ recipient.additional_contact_details|linebreaksbr }}<br>
             {% endif %}
 
             <strong>Relationship between the provider of the services and the recipient:</strong> {{ recipient.relationship_provider }}
@@ -147,7 +147,7 @@
             {% endfor %}
         {% endif %}
 
-        <strong>Purpose for providing the services:</strong> {{ licence.purpose_of_provision|linebreaksbr }}
+        <strong>Purpose for providing the services:</strong> {{ licence.purpose_of_provision|linebreaksbr }}<br>
 
         <strong>Upload supporting documents:</strong>
         {% if not licence.documents.exists %}
