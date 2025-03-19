@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "~=4.2.17"
+django = "~=4.2.20"
 sentry-sdk = "*"
 pydantic-settings = "~=2.2"
 dbt-copilot-python = "~=0.2"
