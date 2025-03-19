@@ -1,8 +1,10 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+from django.test import RequestFactory
 from django.urls import reverse
 
+from django_app.apply_for_a_licence.views.views_end import DownloadPDFView
 from tests.conftest import LicenceFactory
 
 
@@ -72,3 +74,21 @@ class TestDeclarationView:
         assert kwargs.get("is_on_companies_house") is False
         assert kwargs.get("is_individual") is False
         assert kwargs.get("is_third_party") is True
+
+
+class TestDownloadPDFView:
+    @patch("apply_for_a_licence.models.Licence.objects.get", return_value=MagicMock())
+    @patch("core.views.base_views.BaseDownloadPDFView")
+    def test_successful_get(self, mock_download, mock_licence):
+        test_reference = "DE1234"
+        request = RequestFactory().get("?reference=" + test_reference)
+        expected_header = "Apply for a licence to provide sanctioned trade services: application submitted "
+
+        view = DownloadPDFView()
+        view.reference = test_reference
+        view.setup(request)
+        response = view.get_context_data()
+
+        assert response["header"] == expected_header
+        assert response["reference"] == test_reference
+        mock_licence.assert_called_with(reference=test_reference)
