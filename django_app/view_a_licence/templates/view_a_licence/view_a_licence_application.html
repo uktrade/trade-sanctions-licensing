@@ -2,6 +2,15 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 {% block cookie_banner %}{% endblock cookie_banner %}
 {% block title %}View Licence Application{% endblock title %}
+{% block back_button %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            <a class="govuk-back-link govuk-link--no-visited-state"
+               href="{% url 'view_a_licence:application_list' %}">{{ back_button_text }}</a>
+        </div>
+        {% block download_link %}{% endblock download_link %}
+    </div>
+{% endblock back_button %}
 {% comment %}
     TODO: remove comments and update dummy template when DST-798 is complete
     {% block download_link %}
