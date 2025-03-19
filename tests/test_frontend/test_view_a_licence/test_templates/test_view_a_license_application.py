@@ -43,7 +43,6 @@ class TestApplicationList(PlaywrightTestBase):
             submitted_licence.save()
 
         self.page.goto(self.base_url + reverse("view_a_licence:application_list"))
-
         pagination = self.page.locator(".govuk-pagination")
         expect(pagination).to_be_visible()
 
@@ -58,6 +57,10 @@ class TestApplicationList(PlaywrightTestBase):
         # Check that each page only shows 10 licenses
         license_items = self.page.locator("h3.govuk-heading-s:has-text('View licence application reference:')")
         expect(license_items).to_have_count(10)
+
+        # Go to page 4
+        page_4_link = self.page.locator(".govuk-pagination__item a:has-text('4')")
+        page_4_link.click()
 
         # Check that page 4 has 1 item
         license_items = self.page.locator("h3.govuk-heading-s:has-text('View licence application reference:')")
