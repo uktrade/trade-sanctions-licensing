@@ -69,7 +69,7 @@ let clients = [
         }
     }
 ]
-console.log(clients)
+console.log(config.clientId)
 
 const oidcConfig = {
     features: {
