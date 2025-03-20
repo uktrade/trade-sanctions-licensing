@@ -88,10 +88,7 @@
             <strong>What are the services?:</strong>
             {% for service in licence.get_professional_or_business_services_display %}
                 {% if forloop.first %}<br>{% endif %}
-                {{ service }}
-                {% if not forloop.last %}
-                    <br>
-                {% endif %}
+                {{ service }}<br>
             {% endfor %}
 
         {% endif %}
@@ -131,9 +128,9 @@
                 <strong>Licensing grounds:</strong>
             {% endif %}
             {% for ground in licence.get_licensing_grounds_display %}
-                {{ ground }}
+                {{ ground }}<br>
                 {% if not forloop.last %}
-                    <br><br>
+                    <br>
                 {% endif %}
             {% endfor %}
         {% endif %}

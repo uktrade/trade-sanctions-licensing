@@ -50,7 +50,7 @@
                     <h3 class="govuk-heading-s">Business {{ forloop.counter }}</h3>
                     <strong>Business name:</strong> {{ organisation.name }}<br>
 
-                    <strong>Address:</strong> {{ organisation.readable_address | linebreaksbr }}<br>
+                    <strong>Address:</strong><br>{{ organisation.readable_address | linebreaksbr }}<br>
                 {% endif %}
             {% endfor %}
         {% endif %}
@@ -83,17 +83,14 @@
     <h2 class="govuk-heading-m">Overview of the services</h2>
     <p style="line-height: 1.4; font-family: Arial, Helvetica, sans-serif;">
         <strong>Type of services:</strong>
-        {{ licence.get_type_of_service_display }}
+        {{ licence.get_type_of_service_display }}<br>
 
         {% if licence.professional_or_business_services %}
 
             <strong>Specific services:</strong>
             {% for service in licence.get_professional_or_business_services_display %}
                 {% if forloop.first %}<br>{% endif %}
-                {{ service }}
-                {% if not forloop.last %}
-                    <br>
-                {% endif %}
+                {{ service }}<br>
             {% endfor %}
 
         {% endif %}
@@ -105,7 +102,7 @@
         <p style="line-height: 1.4; font-family: Arial, Helvetica, sans-serif;">
             <h3 class="govuk-heading-s">Recipient {{ forloop.counter }}</h3>
 
-            <strong>Name and address:</strong>
+            <strong>Name and address:</strong><br>
             {{ recipient.name }}
             <br><br>
             {{ recipient.readable_address }}<br>
@@ -132,10 +129,7 @@
             <strong>Licensing grounds:</strong>
         {% endif %}
         {% for ground in licence.get_licensing_grounds_display %}
-            {{ ground }}
-            {% if not forloop.last %}
-                <br><br>
-            {% endif %}
+            {{ ground }}<br>
         {% endfor %}
 
     {% endif %}
@@ -143,10 +137,7 @@
 
         <strong>Licensing grounds for other services (not legal advisory):</strong>
         {% for ground in licence.get_licensing_grounds_legal_advisory_display %}
-            {{ ground }}
-            {% if not forloop.last %}
-                <br><br>
-            {% endif %}
+            {{ ground }}<br>
         {% endfor %}
 
     {% endif %}
