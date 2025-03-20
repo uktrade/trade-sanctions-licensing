@@ -1,8 +1,8 @@
 from apply_for_a_licence.choices import TypeOfRelationshipChoices
+from apply_for_a_licence.forms.base_forms import BaseEntityAddedForm
 from apply_for_a_licence.models import Organisation
 from core.forms.base_forms import (
     BaseBusinessDetailsForm,
-    BaseForm,
     BaseModelForm,
     BaseNonUKBusinessDetailsForm,
     BaseUKBusinessDetailsForm,
@@ -10,7 +10,6 @@ from core.forms.base_forms import (
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.layout import Field, Fieldset, Fluid, Layout, Size
 from django import forms
-from django.utils.safestring import mark_safe
 
 
 class WhereIsTheRecipientLocatedForm(BaseModelForm):
@@ -159,9 +158,9 @@ class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
         )
 
 
-class RecipientAddedForm(BaseForm):
-    revalidate_on_done = False
-
+class RecipientAddedForm(BaseEntityAddedForm):
+    entities = None
+    entity_name = "recipient"
     do_you_want_to_add_another_recipient = forms.TypedChoiceField(
         choices=(
             Choice(True, "Yes"),
@@ -176,61 +175,10 @@ class RecipientAddedForm(BaseForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         self.licence_object: object = kwargs.pop("licence_object", None)
-        super().__init__(*args, **kwargs)
-        self.helper.legend_size = Size.MEDIUM
-        self.helper.legend_tag = None
-
-        if self.request.method == "GET":
-            # we never want to pre-fill this form
-            self.is_bound = False
-
-    def clean(self):
-        cleaned_data = super().clean()
-        recipients = Organisation.objects.filter(
+        self.entities = Organisation.objects.filter(
             licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.recipient.value
         )
-        recipient_errors = []
-
-        for x, recipient in enumerate(recipients):
-            if recipient.status == "draft":
-                recipient_errors.append(x + 1)
-
-        if len(recipient_errors) > 0:
-            if "do_you_want_to_add_another_recipient" not in cleaned_data:
-                del self.errors["do_you_want_to_add_another_recipient"]
-            if len(recipients) == 1:
-                if cleaned_data.get("do_you_want_to_add_another_recipient", False):
-                    error_message = (
-                        "You cannot add another recipient until Recipient 1 details "
-                        "are completed. Select 'change' and complete the details"
-                    )
-                else:
-                    error_message = "Recipient 1 details have not yet been completed. Select 'change' " "and complete the details"
-                raise forms.ValidationError(
-                    error_message,
-                    code="incomplete_recipient",
-                )
-            else:
-                error_messages = []
-                for recipient in recipient_errors:
-                    if cleaned_data.get("do_you_want_to_add_another_recipient", False):
-                        error_messages.append(
-                            f"You cannot add another recipient until Recipient {recipient} details are either "
-                            f"completed or the recipient is removed. Select 'change' and complete the details, "
-                            f"or select 'Remove' to remove Recipient {recipient}"
-                        )
-                    else:
-                        error_messages.append(
-                            f"Recipient {recipient} details have not yet been completed. Select 'change' and complete "
-                            f"the details, or select 'Remove' to remove Recipient {recipient}"
-                        )
-
-                raise forms.ValidationError(
-                    mark_safe("<br/>".join(error_messages)),
-                    code="incomplete_recipient",
-                )
-
-        return cleaned_data
+        super().__init__(*args, **kwargs)
 
 
 class RelationshipProviderRecipientForm(BaseModelForm):
