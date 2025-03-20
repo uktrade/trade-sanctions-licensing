@@ -198,21 +198,12 @@ class TestRecipientAddedView:
             reverse("recipient_added"),
             data={"do_you_want_to_add_another_recipient": "False"},
         )
-        assert response.url == reverse("purpose_of_provision")
+        assert response.url == reverse("tasklist")
 
         response = authenticated_al_client_with_licence.post(
             reverse("recipient_added"), data={"do_you_want_to_add_another_recipient": "True"}, follow=True
         )
         assert response.wsgi_request.path == reverse("where_is_the_recipient_located", kwargs=response.resolver_match.kwargs)
-
-        licence_application.type_of_service = TypeOfServicesChoices.professional_and_business.value
-        licence_application.save()
-
-        response = authenticated_al_client_with_licence.post(
-            reverse("recipient_added"),
-            data={"do_you_want_to_add_another_recipient": "False"},
-        )
-        assert response.url == reverse("licensing_grounds")
 
 
 class TestRelationshipProviderRecipientView:

@@ -98,6 +98,11 @@ class IndividualAddedView(BaseSaveAndReturnFormView):
     form_class = forms.IndividualAddedForm
     template_name = "apply_for_a_licence/form_steps/individual_added.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["licence_object"] = self.licence_object
+        return kwargs
+
     def get_all_individuals(self) -> QuerySet[Individual]:
         return Individual.objects.filter(licence=self.licence_object)
 

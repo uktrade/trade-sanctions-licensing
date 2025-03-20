@@ -141,6 +141,13 @@ class TestDoYouKnowTheRegisteredCompanyNumberView:
 
 
 class TestBusinessAddedView:
+    def test_redirect_if_no_business(self, authenticated_al_client):
+        response = authenticated_al_client.get(
+            reverse("business_added"),
+        )
+        assert "business-registered-with-companies-house" in response.url
+        assert response.status_code == 302
+
     def test_do_not_add_business_successful_post(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
             user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
@@ -150,13 +157,13 @@ class TestBusinessAddedView:
         session["licence_id"] = licence.id
         session.save()
         # create at least 1 business
-        Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+        Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business, status="complete")
 
         response = authenticated_al_client.post(
             reverse("business_added"),
             data={"do_you_want_to_add_another_business": False},
         )
-        assert response.url == reverse("previous_licence")
+        assert response.url == reverse("tasklist")
 
     def test_add_another_business_successful_post(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
@@ -167,7 +174,7 @@ class TestBusinessAddedView:
         session["licence_id"] = licence.id
         session.save()
         # create at least 1 business
-        Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+        Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business, status="complete")
 
         response = authenticated_al_client.post(
             reverse("business_added"),
@@ -175,6 +182,12 @@ class TestBusinessAddedView:
         )
         assert "business-registered-with-companies-house" in response.url
         assert "?change=yes" in response.url
+
+    def test_get_context_data(self, authenticated_al_client, organisation):
+        organisation.type_of_relationship = "business"
+        organisation.save()
+        response = authenticated_al_client.get(reverse("business_added"))
+        assert response.context["businesses"][0] == organisation
 
 
 class TestDeleteBusinessView:
@@ -297,3 +310,133 @@ class TestCheckCompanyDetailsView:
         )
         response = authenticated_al_client.get(reverse("check_company_details", kwargs={"business_uuid": business.id}))
         assert response.context["business"] == business
+
+
+class TestAddABusinessView:
+    def test_successful_post_uk_business(self, authenticated_al_client, organisation):
+        organisation.type_of_relationship = "business"
+        organisation.save()
+        assert not organisation.country
+        assert not organisation.address_line_1
+        assert not organisation.county
+        assert not organisation.town_or_city
+        assert not organisation.postcode
+
+        response = authenticated_al_client.post(
+            reverse(
+                "add_a_business",
+                kwargs={"location": "in-uk", "business_uuid": organisation.id},
+            ),
+            data={
+                "name": "DBT",
+                "country": "GB",
+                "address_line_1": "new address 1",
+                "address_line_2": "new address 2",
+                "county": "Greater London",
+                "town_or_city": "City",
+                "postcode": "SW1A 1AA",
+            },
+        )
+
+        assert response.url == reverse("business_added")
+        organisation = Organisation.objects.get(id=organisation.id)
+        assert organisation.country == "GB"
+        assert organisation.address_line_1 == "new address 1"
+        assert organisation.county == "Greater London"
+        assert organisation.town_or_city == "City"
+        assert organisation.postcode == "SW1A 1AA"
+
+    def test_successful_post_non_uk_business(self, authenticated_al_client, organisation):
+        organisation.type_of_relationship = "business"
+        organisation.save()
+        assert not organisation.country
+        assert not organisation.address_line_1
+        assert not organisation.town_or_city
+
+        response = authenticated_al_client.post(
+            reverse(
+                "add_a_business",
+                kwargs={"location": "outside-uk", "business_uuid": organisation.id},
+            ),
+            data={
+                "name": "DBT",
+                "country": "NL",
+                "address_line_1": "Dutch address",
+                "town_or_city": "Dutch City",
+            },
+        )
+
+        assert response.url == reverse("business_added")
+        organisation = Organisation.objects.get(id=organisation.id)
+        assert organisation.country == "NL"
+        assert organisation.address_line_1 == "Dutch address"
+        assert organisation.town_or_city == "Dutch City"
+
+    def test_get_form_data(self, authenticated_al_client, organisation):
+        organisation.type_of_relationship = "business"
+        organisation.save()
+        response = authenticated_al_client.get(
+            reverse(
+                "add_a_business",
+                kwargs={
+                    "location": "in-uk",
+                    "business_uuid": organisation.id,
+                },
+            )
+        )
+        assert not response.context["form"].is_bound
+
+    def test_get_success_url(self, authenticated_al_client, licence, organisation):
+        organisation.type_of_relationship = "business"
+        organisation.save()
+        licence.who_do_you_want_the_licence_to_cover = WhoDoYouWantTheLicenceToCoverChoices.business
+        licence.save()
+
+        response = authenticated_al_client.post(
+            reverse(
+                "add_a_business",
+                kwargs={
+                    "location": "in-uk",
+                    "business_uuid": organisation.id,
+                },
+            ),
+            data={
+                "name": "DBT",
+                "country": "GB",
+                "address_line_1": "new address 1",
+                "address_line_2": "new address 2",
+                "county": "Greater London",
+                "town_or_city": "City",
+                "postcode": "SW1A 1AA",
+            },
+        )
+
+        assert response.url == reverse("business_added")
+
+    def test_save_form(self, authenticated_al_client, licence_application, organisation):
+        organisation.type_of_relationship = "business"
+        organisation.save()
+        licence_application.who_do_you_want_the_licence_to_cover = WhoDoYouWantTheLicenceToCoverChoices.business
+        licence_application.save()
+        authenticated_al_client.post(
+            reverse(
+                "add_a_business",
+                kwargs={
+                    "location": "in-uk",
+                    "business_uuid": organisation.id,
+                },
+            ),
+            data={
+                "name": "DBT",
+                "country": "GB",
+                "address_line_1": "new address 1",
+                "town_or_city": "City",
+                "postcode": "SW1A 1AA",
+            },
+        )
+        businesses = Organisation.objects.filter(
+            licence=licence_application,
+        )
+        assert len(businesses) == 1
+        assert businesses[0].status == "complete"
+        assert businesses[0].name == "DBT"

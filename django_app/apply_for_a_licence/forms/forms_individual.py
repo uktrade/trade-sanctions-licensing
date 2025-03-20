@@ -1,7 +1,8 @@
+from apply_for_a_licence.choices import WhoDoYouWantTheLicenceToCoverChoices
+from apply_for_a_licence.forms.base_forms import BaseEntityAddedForm
 from apply_for_a_licence.models import Individual, Organisation
 from core.forms.base_forms import (
     BaseBusinessDetailsForm,
-    BaseForm,
     BaseModelForm,
     BaseNonUKBusinessDetailsForm,
     BaseUKBusinessDetailsForm,
@@ -54,9 +55,9 @@ class AddAnIndividualForm(BaseModelForm):
         return cleaned_data
 
 
-class IndividualAddedForm(BaseForm):
-    revalidate_on_done = False
-
+class IndividualAddedForm(BaseEntityAddedForm):
+    entity_name = "individual"
+    entities = None
     do_you_want_to_add_another_individual = forms.TypedChoiceField(
         choices=(
             Choice(True, "Yes"),
@@ -70,12 +71,15 @@ class IndividualAddedForm(BaseForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.licence_object: object | None = kwargs.pop("licence_object", None)
+        self.entities = Individual.objects.filter(licence=self.licence_object, is_applicant=False)
+        if self.licence_object:
+            if (
+                self.licence_object.who_do_you_want_the_licence_to_cover  # type: ignore[attr-defined]
+                == WhoDoYouWantTheLicenceToCoverChoices.myself.value
+            ):
+                self.allow_zero_entities = True
         super().__init__(*args, **kwargs)
-        self.helper.legend_size = Size.MEDIUM
-        self.helper.legend_tag = None
-
-        if self.request.method == "GET":
-            self.is_bound = False
 
 
 class BusinessEmployingIndividualForm(BaseBusinessDetailsForm):

@@ -29,7 +29,7 @@ class TestStartView:
         assert response.status_code == 302
         licence_response = Licence.objects.get(pk=licence_application.id)
         assert licence_response.who_do_you_want_the_licence_to_cover == "myself"
-        assert "your-name-nationality-location" in response.url
+        assert "task-list" in response.url
 
     def test_post_business(self, authenticated_al_client_with_licence, licence_application, test_apply_user):
         response = authenticated_al_client_with_licence.post(
@@ -40,7 +40,7 @@ class TestStartView:
         assert response.status_code == 302
         licence_response = Licence.objects.get(pk=licence_application.id)
         assert licence_response.who_do_you_want_the_licence_to_cover == "business"
-        assert response.url == reverse("are_you_third_party")
+        assert response.url == reverse("tasklist")
 
 
 class TestThirdPartyView:
@@ -137,7 +137,7 @@ class TestYourDetailsView:
         assert response.status_code == 302
         licence_response = Licence.objects.get(pk=licence.id)
         assert licence_response.applicant_role == "role 1"
-        assert "individual-details" in response.url
+        assert "task-list" in response.url
 
     def test_post_business(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
@@ -158,4 +158,4 @@ class TestYourDetailsView:
         assert response.status_code == 302
         licence_response = Licence.objects.get(pk=licence.id)
         assert licence_response.applicant_role == "role 2"
-        assert "business-registered-with-companies-house" in response.url
+        assert "task-list" in response.url

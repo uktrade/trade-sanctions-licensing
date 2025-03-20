@@ -69,3 +69,21 @@ class TestTypeOfServiceView:
         licence_application.refresh_from_db()
         assert not licence_application.service_activities
         assert not licence_application.purpose_of_provision
+
+
+class TestServiceActivitiesView:
+    def test_get_success_url(self, authenticated_al_client_with_licence):
+        response = authenticated_al_client_with_licence.post(
+            reverse("service_activities"),
+            data={"service_activities": "activities"},
+        )
+
+        assert response.url == reverse("tasklist")
+
+    def test_get_update_success_url(self, authenticated_al_client, request_object):
+        request_object.GET = {"change": "yes"}
+        response = authenticated_al_client.post(
+            reverse("service_activities") + "?update=yes", data={"service_activities": "activities"}
+        )
+
+        assert response.url == reverse("purpose_of_provision") + "?update=yes"
