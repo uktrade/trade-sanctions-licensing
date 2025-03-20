@@ -71,10 +71,13 @@ class IndividualAddedForm(BaseEntityAddedForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
-        self.licence_object: object = kwargs.pop("licence_object", None)
+        self.licence_object: object | None = kwargs.pop("licence_object", None)
         self.entities = Individual.objects.filter(licence=self.licence_object, is_applicant=False)
         if self.licence_object:
-            if self.licence_object.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.myself.value:
+            if (
+                self.licence_object.who_do_you_want_the_licence_to_cover  # type: ignore[attr-defined]
+                == WhoDoYouWantTheLicenceToCoverChoices.myself.value
+            ):
                 self.allow_zero_entities = True
         super().__init__(*args, **kwargs)
 
