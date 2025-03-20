@@ -4,8 +4,10 @@ from typing import Any
 
 from apply_for_a_licence import choices
 from apply_for_a_licence.forms.forms_end import DeclarationForm
-from apply_for_a_licence.models import Individual, Organisation
+from apply_for_a_licence.models import Individual, Licence, Organisation
+from authentication.mixins import LoginRequiredMixin
 from core.views.base_views import (
+    BaseDownloadPDFView,
     BaseSaveAndReturnFormView,
     BaseSaveAndReturnView,
     BaseTemplateView,
@@ -101,3 +103,14 @@ class DeclarationView(BaseSaveAndReturnFormView):
 
 class CompleteView(BaseTemplateView):
     template_name = "apply_for_a_licence/complete.html"
+
+
+class DownloadPDFView(LoginRequiredMixin, BaseDownloadPDFView):
+    template_name = "apply_for_a_licence/download_application_pdf.html"
+    header = "Apply for a licence to provide sanctioned trade services: application submitted "
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        self.reference = self.request.GET.get("reference", "")
+        context["licence"] = Licence.objects.get(reference=self.reference)
+        return context

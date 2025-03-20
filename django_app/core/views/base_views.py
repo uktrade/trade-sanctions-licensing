@@ -1,26 +1,21 @@
 import datetime
+from typing import Any
 
 from apply_for_a_licence.models import Licence
 from apply_for_a_licence.utils import can_user_edit_licence
-from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import BaseForm, BaseModelForm
+from core.views.base_views import BaseView
 from django.conf import settings
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views import View
-from django.views.generic import FormView, TemplateView
+from django.utils.safestring import mark_safe
+from django.views.generic import DetailView, FormView
 from django.views.generic.detail import SingleObjectMixin
-
-
-class BaseView(LoginRequiredMixin, View):
-    pass
-
-
-class BaseTemplateView(BaseView, TemplateView):
-    pass
+from playwright.sync_api import PdfMargins, sync_playwright
 
 
 class BaseSaveAndReturnView(BaseView):
@@ -139,3 +134,34 @@ class BaseSaveAndReturnLicenceModelFormView(BaseSaveAndReturnModelFormView):
         kwargs = super().get_form_kwargs()
         kwargs["instance"] = self.object
         return kwargs
+
+
+class BaseDownloadPDFView(DetailView):
+    template_name = "core/base_download_pdf.html"
+    header = "Apply for a licence to provide sanctioned trade services"
+
+    def get(self, request: HttpRequest, **kwargs: object) -> HttpResponse:
+        self.reference = self.request.GET.get("reference", "")
+        filename = f"application-{self.reference}.pdf"
+        pdf_data = None
+        template_string = render_to_string(self.template_name, context=self.get_context_data(**kwargs))
+        margins = PdfMargins(left="1.25in", right="1.25in", top="1in", bottom="1in")
+
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.set_content(mark_safe(template_string))
+            page.wait_for_function("document.fonts.ready.then(fonts => fonts.status === 'loaded')")
+            pdf_data = page.pdf(format="A4", tagged=True, margin=margins)
+            browser.close()
+
+        response = HttpResponse(pdf_data, content_type="application/pdf")
+        response["Content-Disposition"] = f"inline; filename={filename}"
+        return response
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        self.object: list[Any] = []
+        context = super().get_context_data(**kwargs)
+        context["header"] = self.header
+        context["reference"] = self.reference
+        return context
