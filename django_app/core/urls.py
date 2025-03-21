@@ -24,6 +24,7 @@ public_urls = [
     path("ping_session/", PingSessionView.as_view(), name="ping_session"),
     path("inactive-signed-out/", SessionExpiredView.as_view(), name="session_expired"),
     path("accessibility-statement", generic_views.AccessibilityStatementView.as_view(), name="accessibility_statement"),
+    path("help-support", generic_views.HelpAndSupportView.as_view(), name="help_and_support"),
     path("staff-sso/", include("authbroker_client.urls")),
     path("authentication/", include("authentication.urls")),
 ]
