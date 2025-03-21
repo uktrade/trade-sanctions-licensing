@@ -63,6 +63,8 @@ class ApplicationListView(LoginRequiredMixin, InternalUserOnlyMixin, ListView):
         context["selected_sort"] = self.request.session.pop("sort", "newest")
         return context
 
+    paginate_by = 10
+
 
 @method_decorator(require_view_a_licence(), name="dispatch")
 class ViewALicenceApplicationView(LoginRequiredMixin, InternalUserOnlyMixin, DetailView):
