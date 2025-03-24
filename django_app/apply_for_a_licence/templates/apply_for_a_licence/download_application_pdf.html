@@ -137,9 +137,9 @@
         {% if licence.licensing_grounds_legal_advisory %}
             <strong>Licensing grounds for other services (not legal advisory):</strong>
             {% for ground in licence.get_licensing_grounds_legal_advisory_display %}
-                {{ ground }}
+                {{ ground }}<br>
                 {% if not forloop.last %}
-                    <br><br>
+                    <br>
                 {% endif %}
             {% endfor %}
         {% endif %}
