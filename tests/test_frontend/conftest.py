@@ -118,7 +118,9 @@ class PlaywrightTestBase(LiveServerTestCase):
 
         return submitter_reference
 
-    def check_your_answers(self, page, third_party=True, type="business", service="Energy-related services (Russia)"):
+    def check_your_answers(
+        self, page, third_party=True, type="business", service="Energy-related services (Russia)", upload_text="None uploaded"
+    ):
         page.get_by_role("link", name="Check your answers before you").click()
         expect(page).to_have_url(re.compile(r".*/check-your-answers"))
         if type != "myself":
@@ -127,6 +129,7 @@ class PlaywrightTestBase(LiveServerTestCase):
         self.cya_service(page, service=service)
         self.cya_recipients(page)
         self.cya_purposes(page)
+        self.cya_upload_documents(page, upload_text=upload_text)
 
     @staticmethod
     def fill_uk_address_details(page, type="business", details=data.UK_ADDRESS_DETAILS):
@@ -195,7 +198,10 @@ class PlaywrightTestBase(LiveServerTestCase):
     @staticmethod
     def cya_purposes(page):
         expect(page.get_by_test_id("purpose")).to_have_text("Test purpose")
-        expect(page.get_by_test_id("supporting-documents")).to_have_text("None uploaded")
+
+    @staticmethod
+    def cya_upload_documents(page, upload_text):
+        expect(page.get_by_test_id("supporting-documents")).to_have_text(upload_text)
 
     @staticmethod
     def check_submission_complete_page(page):
