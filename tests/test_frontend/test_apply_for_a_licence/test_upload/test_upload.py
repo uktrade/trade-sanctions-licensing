@@ -36,7 +36,7 @@ class TestUpload(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase):
         expect(self.page.locator(".moj-multi-file-upload__filename")).to_be_visible()
         assert self.page.locator(".moj-multi-file-upload__filename").text_content() == "Test.pdf"
         self.page.get_by_role("button", name="Continue").click()
-        expect(self.page.get_by_test_id("supporting-documents")).to_have_text("Test.pdf")
+        self.check_your_answers(self.page, third_party=True, upload_text="Test.pdf")
 
     @pytest.mark.usefixtures("patched_clean_document")
     def test_malware_file_raises_error(self):
@@ -65,4 +65,9 @@ class TestUpload(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase):
         expect(self.page.locator(".moj-multi-file__uploaded-files")).not_to_be_visible()
         # you should still be able to continue
         self.page.get_by_role("button", name="Continue").click()
-        expect(self.page).to_have_url(re.compile(r".*/check-your-answers"))
+        expect(self.page).to_have_url(re.compile(r".*/task-list"))
+        self.check_your_answers(self.page, third_party=True)
+        self.page.get_by_role("link", name="Continue").click()
+        self.declaration_and_complete_page(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/application-complete"))
+        self.check_submission_complete_page(self.page)
