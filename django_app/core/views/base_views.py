@@ -6,7 +6,13 @@ from apply_for_a_licence.utils import can_user_edit_licence
 from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import BaseForm, BaseModelForm
 from django.conf import settings
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import (
+    Http404,
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBase,
+    HttpResponseRedirect,
+)
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -20,7 +26,17 @@ from playwright.sync_api import PdfMargins, sync_playwright
 
 
 class BaseView(LoginRequiredMixin, View):
-    pass
+    def dispatch(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponseBase:
+        if last_activity := request.session.get(settings.SESSION_LAST_ACTIVITY_KEY, None):
+            now = timezone.now()
+            last_activity = datetime.datetime.fromisoformat(last_activity)
+            # if the last recorded activity was more than the session cookie age ago, we assume the session has expired
+            if now > (last_activity + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)):
+                return redirect(reverse("session_expired"))
+
+        # now setting the last active to the current time
+        request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
+        return super().dispatch(request, *args, **kwargs)
 
 
 class BaseTemplateView(BaseView, TemplateView):
@@ -58,19 +74,6 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
         else:
             self.update = False
 
-        # checking for session expiry
-        if last_activity := request.session.get(settings.SESSION_LAST_ACTIVITY_KEY, None):
-            now = timezone.now()
-            last_activity = datetime.datetime.fromisoformat(last_activity)
-            # if the last recorded activity was more than the session cookie age ago, we assume the session has expired
-            if now > (last_activity + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)):
-                return redirect(reverse("session_expired"))
-        else:
-            # if we don't have a last activity, we assume the session has expired
-            return redirect(reverse("session_expired"))
-
-        # now setting the last active to the current time
-        request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
