@@ -40,7 +40,7 @@ class TestSessionExpiry(PlaywrightTestBase):
     def test_non_javascript_version(self):
         non_js_page = self.browser.new_context(java_script_enabled=False).new_page()
         self.go_to_path(reverse("submitter_reference"), page=non_js_page)
-        # expect(non_js_page.get_by_test_id("non_js_session_expiry_banner")).to_be_visible()
+        expect(non_js_page.get_by_test_id("non_js_session_expiry_banner")).to_be_visible()
         expect(non_js_page.get_by_text("You'll be signed out if you're inactive for 1 minute")).to_be_visible()
 
         # now testing this does not appear on normal

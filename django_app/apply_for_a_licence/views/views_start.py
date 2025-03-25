@@ -41,7 +41,8 @@ class StartView(BaseSaveAndReturnLicenceModelFormView):
         if previous_answer := self.licence_object.who_do_you_want_the_licence_to_cover:
             if previous_answer != form.cleaned_data["who_do_you_want_the_licence_to_cover"]:
                 # The applicant has changed their answer, remove their previously entered licence data
-                Licence.objects.filter(pk=self.licence_object.id).delete()
+                user_licence_obj = Licence.objects.filter(pk=self.licence_object.id)
+                user_licence_obj.delete()
 
         return super().form_valid(form)
 
