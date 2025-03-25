@@ -3,6 +3,7 @@ from typing import Any
 
 from apply_for_a_licence.models import Licence
 from apply_for_a_licence.utils import can_user_edit_licence
+from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import BaseForm, BaseModelForm
 from django.conf import settings
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
@@ -13,12 +14,20 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.safestring import mark_safe
 from django.views import View
-from django.views.generic import DetailView, FormView
+from django.views.generic import DetailView, FormView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from playwright.sync_api import PdfMargins, sync_playwright
 
 
-class BaseSaveAndReturnView(View):
+class BaseView(LoginRequiredMixin, View):
+    pass
+
+
+class BaseTemplateView(BaseView, TemplateView):
+    pass
+
+
+class BaseSaveAndReturnView(BaseView):
     @property
     def licence_object(self) -> Licence | None:
         if licence_id := self.request.session.get("licence_id"):

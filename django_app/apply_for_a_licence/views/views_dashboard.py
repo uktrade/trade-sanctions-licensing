@@ -1,15 +1,15 @@
 from apply_for_a_licence.choices import StatusChoices
 from authentication.mixins import LoginRequiredMixin
 from core.decorators import reset_last_activity_session_timestamp
+from core.views.base_views import BaseTemplateView
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 
 
-class DashboardView(TemplateView):
+class DashboardView(BaseTemplateView):
     template_name = "apply_for_a_licence/dashboard/dashboard.html"
 
     def get(self, *args, **kwargs):
@@ -37,7 +37,7 @@ class DashboardView(TemplateView):
 
 
 @method_decorator(reset_last_activity_session_timestamp, name="dispatch")
-class NewApplicationView(TemplateView):
+class NewApplicationView(BaseTemplateView):
     template_name = "apply_for_a_licence/dashboard/start_a_new_application.html"
 
     def get_context_data(self, **kwargs):

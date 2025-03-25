@@ -153,6 +153,7 @@ class ViewFeedbackView(LoginRequiredMixin, AdminUserOnlyMixin, DetailView):
     context_object_name = "feedback"
 
 
+# TODO: update unit tests for required mixins
 @method_decorator(require_view_a_licence(), name="dispatch")
 class DownloadPDFView(LoginRequiredMixin, InternalUserOnlyMixin, BaseDownloadPDFView):
     template_name = "view_a_licence/view_application_pdf.html"
