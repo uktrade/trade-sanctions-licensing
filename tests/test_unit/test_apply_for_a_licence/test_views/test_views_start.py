@@ -42,6 +42,28 @@ class TestStartView:
         assert licence_response.who_do_you_want_the_licence_to_cover == "business"
         assert response.url == reverse("tasklist")
 
+    def test_licence_data_delete(self, authenticated_al_client_with_licence, licence_application, test_apply_user):
+        licence_application.is_third_party = True
+        licence_application.save()
+
+        authenticated_al_client_with_licence.post(
+            reverse("start", kwargs={"pk": licence_application.id}),
+            data={"who_do_you_want_the_licence_to_cover": WhoDoYouWantTheLicenceToCoverChoices.business.value},
+        )
+
+        new_choice = {"who_do_you_want_the_licence_to_cover": WhoDoYouWantTheLicenceToCoverChoices.myself.value}
+
+        response = authenticated_al_client_with_licence.post(
+            reverse("start", kwargs={"pk": licence_application.id}),
+            data=new_choice,
+        )
+
+        assert response.status_code == 302
+        licence_response = Licence.objects.get(pk=licence_application.id)
+        assert licence_response.who_do_you_want_the_licence_to_cover == "myself"
+        assert licence_response.is_third_party is False
+        assert response.url == reverse("tasklist")
+
 
 class TestThirdPartyView:
     def test_post_third_party_individual(self, authenticated_al_client, test_apply_user):
