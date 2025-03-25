@@ -1,14 +1,15 @@
 from apply_for_a_licence.models import Licence
 from apply_for_a_licence.tasklist import Tasklist
 from apply_for_a_licence.utils import can_user_edit_licence
-from core.views.base_views import BaseSaveAndReturnView, BaseView
+from core.views.base_views import BaseSaveAndReturnView
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.views import View
 from django.views.generic import TemplateView
 
 
-class TriageView(BaseView):
+class TriageView(View):
     """Triage view to take users to where they need to be.
 
     Checks that the licence belongs to them and that they can edit it. If so assign the PK to the session

@@ -7,7 +7,7 @@ from apply_for_a_licence.choices import (
     WhoDoYouWantTheLicenceToCoverChoices,
 )
 from apply_for_a_licence.models import Licence
-from authentication.mixins import ActiveUserRequiredMixin, LoginRequiredMixin
+from authentication.mixins import LoginRequiredMixin
 from authentication.utils import get_group
 from core.sites import require_view_a_licence
 from core.views.base_views import BaseDownloadPDFView
@@ -154,7 +154,7 @@ class ViewFeedbackView(LoginRequiredMixin, AdminUserOnlyMixin, DetailView):
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
-class DownloadPDFView(LoginRequiredMixin, ActiveUserRequiredMixin, BaseDownloadPDFView):
+class DownloadPDFView(LoginRequiredMixin, InternalUserOnlyMixin, BaseDownloadPDFView):
     template_name = "view_a_licence/view_application_pdf.html"
     header = "Apply for a licence to provide sanctioned trade services: application submitted "
 

@@ -3,6 +3,7 @@ import logging
 from apply_for_a_licence.forms import forms_start as forms
 from core.decorators import reset_last_activity_session_timestamp
 from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
+from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 
@@ -34,6 +35,14 @@ class SubmitterReferenceView(BaseSaveAndReturnLicenceModelFormView):
 class StartView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.StartForm
     success_url = reverse_lazy("tasklist")
+
+    def form_valid(self, form: forms.StartForm) -> HttpResponse:
+        if previous_answer := self.licence_object.who_do_you_want_the_licence_to_cover:
+            if previous_answer != form.cleaned_data["who_do_you_want_the_licence_to_cover"]:
+                # The applicant has changed their answer, remove their previously entered licence data
+                self.licence_object.delete()
+
+        return super().form_valid(form)
 
 
 class ThirdPartyView(BaseSaveAndReturnLicenceModelFormView):
