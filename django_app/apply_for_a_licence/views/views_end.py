@@ -10,6 +10,7 @@ from core.views.base_views import (
     BaseDownloadPDFView,
     BaseSaveAndReturnFormView,
     BaseSaveAndReturnView,
+    BaseTemplateView,
 )
 from django.conf import settings
 from django.http import HttpResponse
@@ -100,7 +101,7 @@ class DeclarationView(BaseSaveAndReturnFormView):
         return redirect(self.success_url)
 
 
-class CompleteView(TemplateView):
+class CompleteView(BaseTemplateView):
     template_name = "apply_for_a_licence/complete.html"
 
 
