@@ -16,7 +16,7 @@ def test_all_templates_inherit_from_base_logged_in_template(patched_reverse, req
 
     apply_templates = get_all_templates_files_for_app(app_name)
     for template in apply_templates:
-        if "partials" in template.parts or "download_application_pdf" in template.parts:
+        if "partials" in template.parts or "download_application_pdf" in str(template):
             continue
         else:
             django_template_object = get_template(template)
