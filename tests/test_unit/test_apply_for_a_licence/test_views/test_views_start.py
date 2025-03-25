@@ -44,7 +44,9 @@ class TestStartView:
 
     def test_licence_data_delete(self, authenticated_al_client_with_licence, licence_application, test_apply_user):
         licence_application.is_third_party = True
-        licence_application.save()
+        session = authenticated_al_client_with_licence.session
+        session["licence_id"] = licence_application.id
+        session.save()
 
         authenticated_al_client_with_licence.post(
             reverse("start", kwargs={"pk": licence_application.id}),

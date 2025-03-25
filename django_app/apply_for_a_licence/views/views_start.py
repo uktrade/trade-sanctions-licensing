@@ -1,6 +1,7 @@
 import logging
 
 from apply_for_a_licence.forms import forms_start as forms
+from apply_for_a_licence.models import Licence
 from core.decorators import reset_last_activity_session_timestamp
 from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
 from django.http import HttpResponse
@@ -40,7 +41,7 @@ class StartView(BaseSaveAndReturnLicenceModelFormView):
         if previous_answer := self.licence_object.who_do_you_want_the_licence_to_cover:
             if previous_answer != form.cleaned_data["who_do_you_want_the_licence_to_cover"]:
                 # The applicant has changed their answer, remove their previously entered licence data
-                self.licence_object.delete()
+                Licence.objects.filter(pk=self.licence_object.id).delete()
 
         return super().form_valid(form)
 
