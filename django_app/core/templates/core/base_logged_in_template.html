@@ -28,11 +28,10 @@ as it provides the session expiry stuff.
 
 {% block row_start %}
     <div class="govuk-grid-column-two-thirds">
-        <div class="govuk-notification-banner hide-on-js-enabled show-on-js-disabled" role="region"
+        <div class="govuk-notification-banner show-on-js-disabled hide-on-js-enabled" role="region"
              aria-labelledby="govuk-notification-banner-title"
              data-module="govuk-notification-banner"
-             data-testid="non_js_session_expiry_banner"
-        >
+             data-testid="non_js_session_expiry_banner">
             <div class="govuk-notification-banner__header">
                 <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
                     Important
@@ -49,11 +48,13 @@ as it provides the session expiry stuff.
         </div>
     </div>
 {% endblock row_start %}
-
 {% block extra_js %}
     {{ block.super }}
     <script src="{% static 'core/javascript/session_dialog.js' %}" nonce="{{ request.csp_nonce }}"></script>
     <script nonce="{{ request.csp_nonce }}">
+        document.documentElement.classList.add("js-enabled");
+        document.documentElement.classList.remove("js-disabled");
+
         window.onload = function () {
             setup_session_dialog(
                 session_expiry_seconds = {{ SESSION_EXPIRY_SECONDS }},

@@ -61,7 +61,7 @@
 
                                 </div>
                             {% else %}
-                                <a class="govuk-link" href="/">Download and view application (opens in new tab)</a>
+                                <a class="govuk-link" href="{% url 'download_application' %}?reference={{ application.reference }}">Download application</a>
                             {% endif %}
                         </td>
                     </tr>
