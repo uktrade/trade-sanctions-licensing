@@ -5,7 +5,8 @@ from apply_for_a_licence.models import Licence
 from core.decorators import reset_last_activity_session_timestamp
 from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
 from django.http import HttpResponse
-from django.urls import reverse_lazy
+from django.shortcuts import redirect
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 
 logger = logging.getLogger(__name__)
@@ -41,8 +42,19 @@ class StartView(BaseSaveAndReturnLicenceModelFormView):
         if previous_answer := self.licence_object.who_do_you_want_the_licence_to_cover:
             if previous_answer != form.cleaned_data["who_do_you_want_the_licence_to_cover"]:
                 # The applicant has changed their answer, remove their previously entered licence data
-                user_licence_obj = Licence.objects.filter(pk=self.licence_object.id)
-                user_licence_obj.delete()
+                Licence.objects.filter(pk=self.licence_object.id).delete()
+                self.request.session.pop("licence_id", None)
+
+                new_licence = Licence.objects.create(
+                    user=self.request.user,
+                    who_do_you_want_the_licence_to_cover=form.cleaned_data["who_do_you_want_the_licence_to_cover"],
+                )
+
+                self.request.session["licence_id"] = new_licence.id
+                self.request.session.save()
+                self._licence_object = new_licence
+
+                return redirect(reverse("tasklist"))
 
         return super().form_valid(form)
 
