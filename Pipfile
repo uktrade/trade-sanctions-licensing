@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "~=4.2.17"
+django = "~=4.2.20"
 sentry-sdk = "*"
 pydantic-settings = "~=2.2"
 dbt-copilot-python = "~=0.2"
@@ -18,7 +18,7 @@ django-audit-log-middleware = "~=0.0.4"
 notifications-python-client = "~=9.0"
 django-countries = "~=7.5"
 django-storages = "~=1.14"
-gunicorn = "~=22.0"
+gunicorn = "~=23.0"
 django-log-formatter-ecs = "~=0.0.5"
 django-log-formatter-asim = "*"
 boto3 = "~=1.34"

@@ -11,7 +11,7 @@ class TestYourselfAndIndividualAddedView:
             reverse("yourself_and_individual_added"),
             data={"do_you_want_to_add_another_individual": False},
         )
-        assert response.url == reverse("previous_licence")
+        assert response.url == reverse("tasklist")
         assert response.status_code == 302
 
     def test_add_another_individual_successful_post(self, authenticated_al_client, yourself):

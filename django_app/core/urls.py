@@ -6,7 +6,6 @@ from django.urls import include, path
 
 from .views import cookie_views, generic_views
 from .views.generic_views import PingSessionView, RedirectBaseDomainView
-from .views.shared_views import DownloadPDFView
 
 public_urls = [
     path("", RedirectBaseDomainView.as_view(), name="initial_redirect_view"),
@@ -20,7 +19,7 @@ public_urls = [
     path("reset_session", generic_views.ResetSessionView.as_view(), name="reset_session"),
     path("ping_session/", PingSessionView.as_view(), name="ping_session"),
     path("accessibility-statement", generic_views.AccessibilityStatementView.as_view(), name="accessibility_statement"),
-    path("download_application/", DownloadPDFView.as_view(), name="download_application"),
+    path("help-support", generic_views.HelpAndSupportView.as_view(), name="help_and_support"),
     path("staff-sso/", include("authbroker_client.urls")),
     path("authentication/", include("authentication.urls")),
 ]

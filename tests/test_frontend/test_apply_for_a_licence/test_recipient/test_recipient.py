@@ -3,14 +3,14 @@ import re
 from playwright.sync_api import expect
 
 from tests.test_frontend.conftest import (
-    LicensingGroundsBase,
+    AboutTheServicesBase,
     ProviderBase,
     RecipientBase,
     StartBase,
 )
 
 
-class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
+class TestRecipient(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase):
     """Tests for different journeys during the recipient part of the journey"""
 
     def test_interception_or_monitoring_journey(self):
@@ -19,13 +19,8 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
-        self.page.get_by_label("No").check()
-        self.page.get_by_role("button", name="Continue").click()
-        self.page.get_by_label("Interception or monitoring").check()
-        self.page.get_by_role("button", name="Continue").click()
-        expect(self.page).to_have_url(re.compile(r".*/sanctions-regime"))
-        self.page.get_by_label("The Syria (Sanctions) (EU").check()
-        self.page.get_by_role("button", name="Continue").click()
+        self.previous_licence(self.page)
+        self.interception_or_monitoring_service(self.page)
         expect(self.page).to_have_url(re.compile(r".*/describe-specific-activities"))
 
     def test_add_another_recipient_and_remove(self):
@@ -34,7 +29,8 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
-        self.recipient_simple(self.page)
+        self.previous_licence(self.page)
+        self.recipient(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.page.get_by_label("Yes").check()
         self.page.get_by_role("button", name="Continue").click()
@@ -55,7 +51,8 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
-        self.recipient_simple(self.page)
+        self.previous_licence(self.page)
+        self.recipient(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.page.get_by_text("Change").click()
         self.page.get_by_text("In the UK").click()
@@ -73,7 +70,8 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
-        self.recipient_simple(self.page)
+        self.previous_licence(self.page)
+        self.recipient(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.page.get_by_text("Change").click()
         self.page.get_by_text("Outside the UK").click()

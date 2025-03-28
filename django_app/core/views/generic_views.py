@@ -24,6 +24,10 @@ class AccessibilityStatementView(TemplateView):
     template_name = "core/accessibility_statement.html"
 
 
+class HelpAndSupportView(TemplateView):
+    template_name = "core/help_and_support.html"
+
+
 class PingSessionView(View):
     """Pings the session to keep it alive"""
 

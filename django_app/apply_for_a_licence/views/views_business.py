@@ -39,10 +39,22 @@ class AddABusinessView(BaseBusinessModelFormView):
             form_class = forms.AddANonUKBusinessForm
         return form_class
 
+    def save_form(self, form):
+        instance = form.save(commit=False)
+        # the business should now be marked as 'complete'
+        instance.status = choices.EntityStatusChoices.complete
+        instance.save()
+        return instance
+
 
 class BusinessAddedView(BaseSaveAndReturnFormView):
     form_class = forms.BusinessAddedForm
     template_name = "apply_for_a_licence/form_steps/business_added.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["licence_object"] = self.licence_object
+        return kwargs
 
     def get_all_businesses(self) -> QuerySet[Organisation]:
         return Organisation.objects.filter(
@@ -56,7 +68,7 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
             # only allow access to this page if a business has been added
             return super().dispatch(request, *args, **kwargs)
         else:
-            return redirect("is_the_business_registered_with_companies_house", kwargs={"business_uuid": uuid.uuid4()})
+            return redirect(reverse("is_the_business_registered_with_companies_house", kwargs={"business_uuid": uuid.uuid4()}))
 
     def get_success_url(self) -> str:
         add_business = self.form.cleaned_data["do_you_want_to_add_another_business"]

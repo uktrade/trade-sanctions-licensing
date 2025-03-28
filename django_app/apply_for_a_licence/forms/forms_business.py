@@ -1,9 +1,11 @@
 from typing import Any
 
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.exceptions import (
     CompaniesHouse500Error,
     CompaniesHouseException,
 )
+from apply_for_a_licence.forms.base_forms import BaseEntityAddedForm
 from apply_for_a_licence.models import Organisation
 from core.forms.base_forms import (
     BaseForm,
@@ -289,9 +291,9 @@ class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
         )
 
 
-class BusinessAddedForm(BaseForm):
-    revalidate_on_done = False
-
+class BusinessAddedForm(BaseEntityAddedForm):
+    entity_name = "business"
+    entities = None
     do_you_want_to_add_another_business = forms.TypedChoiceField(
         choices=(
             Choice(True, "Yes"),
@@ -305,13 +307,11 @@ class BusinessAddedForm(BaseForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.licence_object: object = kwargs.pop("licence_object", None)
+        self.entities = Organisation.objects.filter(
+            licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.business.value
+        )
         super().__init__(*args, **kwargs)
-        self.helper.legend_size = Size.MEDIUM
-        self.helper.legend_tag = None
-
-        if self.request.method == "GET":
-            # we never want to bind/pre-fill this form, always fresh for the user
-            self.is_bound = False
 
 
 class CheckCompanyDetailsForm(BaseModelForm):

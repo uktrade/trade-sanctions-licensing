@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 
 from apply_for_a_licence.models import Licence
 from apply_for_a_licence.utils import can_user_edit_licence
@@ -13,29 +14,34 @@ from django.http import (
     HttpResponseRedirect,
 )
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.safestring import mark_safe
 from django.views import View
-from django.views.generic import FormView, TemplateView
+from django.views.generic import DetailView, FormView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
+from playwright.sync_api import PdfMargins, sync_playwright
 
 
 class BaseView(LoginRequiredMixin, View):
-
     def dispatch(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponseBase:
         if last_activity := request.session.get(settings.SESSION_LAST_ACTIVITY_KEY, None):
             now = timezone.now()
             last_activity = datetime.datetime.fromisoformat(last_activity)
             # if the last recorded activity was more than the session cookie age ago, we assume the session has expired
             if now > (last_activity + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)):
-                return redirect(
-                    reverse("authentication:logout", kwargs={"token": self.request.session["_one_login_token"]["id_token"]})
-                )
+                return redirect(reverse("authentication:logout"))
 
         # now setting the last active to the current time
         request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["id_token"] = self.request.session["_one_login_token"]["id_token"]
+        return context
 
 
 class BaseTemplateView(BaseView, TemplateView):
@@ -57,25 +63,6 @@ class BaseSaveAndReturnView(BaseView):
                 return None
         else:
             return None
-
-    def dispatch(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponseRedirect | HttpResponseBase:
-        # checking for session expiry
-        if last_activity := request.session.get(settings.SESSION_LAST_ACTIVITY_KEY, None):
-            now = timezone.now()
-            last_activity = datetime.datetime.fromisoformat(last_activity)
-            # if the last recorded activity was more than the session cookie age ago, we assume the session has expired
-            if now > (last_activity + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)):
-                return redirect(reverse("authentication:logout"))
-
-        # now setting the last active to the current time
-        request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["id_token"] = self.request.session["_one_login_token"]["id_token"]
-        return context
 
 
 class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
@@ -164,3 +151,34 @@ class BaseSaveAndReturnLicenceModelFormView(BaseSaveAndReturnModelFormView):
         kwargs = super().get_form_kwargs()
         kwargs["instance"] = self.object
         return kwargs
+
+
+class BaseDownloadPDFView(DetailView):
+    template_name = "core/base_download_pdf.html"
+    header = "Apply for a licence to provide sanctioned trade services"
+
+    def get(self, request: HttpRequest, **kwargs: object) -> HttpResponse:
+        self.reference = self.request.GET.get("reference", "")
+        filename = f"application-{self.reference}.pdf"
+        pdf_data = None
+        template_string = render_to_string(self.template_name, context=self.get_context_data(**kwargs))
+        margins = PdfMargins(left="1.25in", right="1.25in", top="1in", bottom="1in")
+
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.set_content(mark_safe(template_string))
+            page.wait_for_function("document.fonts.ready.then(fonts => fonts.status === 'loaded')")
+            pdf_data = page.pdf(format="A4", tagged=True, margin=margins)
+            browser.close()
+
+        response = HttpResponse(pdf_data, content_type="application/pdf")
+        response["Content-Disposition"] = f"inline; filename={filename}"
+        return response
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        self.object: list[Any] = []
+        context = super().get_context_data(**kwargs)
+        context["header"] = self.header
+        context["reference"] = self.reference
+        return context

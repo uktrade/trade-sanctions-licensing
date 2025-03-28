@@ -199,9 +199,7 @@ def yourself_licence(authenticated_al_client, test_apply_user):
 
 @pytest.fixture()
 def individual(individual_licence):
-    individual = Individual.objects.create(
-        licence=individual_licence,
-    )
+    individual = Individual.objects.create(licence=individual_licence, status="complete")
     return individual
 
 
@@ -209,24 +207,20 @@ def individual(individual_licence):
 def yourself(yourself_licence):
     yourself_licence.applicant_full_name = "Your Name"
     yourself = Individual.objects.create(
-        licence=yourself_licence,
-        first_name="Your",
-        last_name="Name",
-        is_applicant=True,
+        licence=yourself_licence, first_name="Your", last_name="Name", is_applicant=True, status="complete"
     )
     return yourself
 
 
 @pytest.fixture()
 def organisation(licence_application):
-    organisation = OrganisationFactory(
-        licence=licence_application,
-    )
+    organisation = OrganisationFactory(licence=licence_application, status="complete")
     return organisation
 
 
 @pytest.fixture()
 def recipient_organisation(organisation):
     organisation.type_of_relationship = "recipient"
+    organisation.status = "complete"
     organisation.save()
     return organisation

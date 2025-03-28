@@ -1,7 +1,8 @@
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
+from apply_for_a_licence.forms.base_forms import BaseEntityAddedForm
 from apply_for_a_licence.models import Organisation
 from core.forms.base_forms import (
     BaseBusinessDetailsForm,
-    BaseForm,
     BaseModelForm,
     BaseNonUKBusinessDetailsForm,
     BaseUKBusinessDetailsForm,
@@ -41,7 +42,7 @@ class AddAUKRecipientForm(BaseUKBusinessDetailsForm):
         "additional_contact_details": "Additional contact details (optional)",
     }
     help_texts = {
-        "name": "This could be a business, an individual or a ship",
+        "name": "This could be a recipient, an individual or a ship",
     }
 
     class Meta(BaseUKBusinessDetailsForm.Meta):
@@ -104,7 +105,7 @@ class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
         "additional_contact_details": "Additional contact details (optional)",
     }
     help_texts = {
-        "name": "This could be a business, an individual or a ship",
+        "name": "This could be a recipient, an individual or a ship",
     }
 
     class Meta(BaseNonUKBusinessDetailsForm.Meta):
@@ -157,9 +158,9 @@ class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
         )
 
 
-class RecipientAddedForm(BaseForm):
-    revalidate_on_done = False
-
+class RecipientAddedForm(BaseEntityAddedForm):
+    entities = None
+    entity_name = "recipient"
     do_you_want_to_add_another_recipient = forms.TypedChoiceField(
         choices=(
             Choice(True, "Yes"),
@@ -173,13 +174,11 @@ class RecipientAddedForm(BaseForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.licence_object: object = kwargs.pop("licence_object", None)
+        self.entities = Organisation.objects.filter(
+            licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.recipient.value
+        )
         super().__init__(*args, **kwargs)
-        self.helper.legend_size = Size.MEDIUM
-        self.helper.legend_tag = None
-
-        if self.request.method == "GET":
-            # we never want to pre-fill this form
-            self.is_bound = False
 
 
 class RelationshipProviderRecipientForm(BaseModelForm):

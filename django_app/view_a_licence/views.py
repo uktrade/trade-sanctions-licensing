@@ -10,6 +10,7 @@ from apply_for_a_licence.models import Licence
 from authentication.mixins import LoginRequiredMixin
 from authentication.utils import get_group
 from core.sites import require_view_a_licence
+from core.views.base_views import BaseDownloadPDFView
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Count, Q, QuerySet
@@ -61,6 +62,8 @@ class ApplicationListView(LoginRequiredMixin, InternalUserOnlyMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["selected_sort"] = self.request.session.pop("sort", "newest")
         return context
+
+    paginate_by = 10
 
 
 @method_decorator(require_view_a_licence(), name="dispatch")
@@ -148,3 +151,16 @@ class ViewFeedbackView(LoginRequiredMixin, AdminUserOnlyMixin, DetailView):
     model = FeedbackItem
     template_name = "view_a_licence/view_feedback.html"
     context_object_name = "feedback"
+
+
+# TODO: update unit tests for required mixins
+@method_decorator(require_view_a_licence(), name="dispatch")
+class DownloadPDFView(LoginRequiredMixin, InternalUserOnlyMixin, BaseDownloadPDFView):
+    template_name = "view_a_licence/view_application_pdf.html"
+    header = "Apply for a licence to provide sanctioned trade services: application submitted "
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        self.reference = self.request.GET.get("reference", "")
+        context["licence"] = Licence.objects.get(reference=self.reference)
+        return context

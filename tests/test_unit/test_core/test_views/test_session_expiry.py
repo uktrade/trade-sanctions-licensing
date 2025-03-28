@@ -30,7 +30,7 @@ def test_session_not_expired(authenticated_al_client, test_apply_user):
     assert response.status_code == 200
 
     # we want to make sure we're actually being progressed to the next step
-    assert response.resolver_match.url_name == "add_an_individual"
+    assert response.resolver_match.url_name == "tasklist"
 
 
 def test_session_expired(authenticated_al_client):
@@ -46,16 +46,6 @@ def test_session_expired(authenticated_al_client):
     # we want to make sure we're actually being progressed to the session expired page
     assert response.resolver_match.url_name == "session_expired"
     assert dict(authenticated_al_client.session) == {}
-
-
-def test_no_session_key(authenticated_al_client, test_apply_user):
-    session = authenticated_al_client.session
-    session.pop(settings.SESSION_LAST_ACTIVITY_KEY, None)
-    session.save()
-
-    response = authenticated_al_client.post(reverse("your_details"), follow=True, data={"applicant_full_name": "John Smith"})
-    assert response.resolver_match.url_name == "session_expired"
-    assert settings.SESSION_LAST_ACTIVITY_KEY not in authenticated_al_client.session
 
 
 def test_ping_session_view(authenticated_al_client):

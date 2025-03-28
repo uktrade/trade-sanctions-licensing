@@ -1,7 +1,14 @@
 import builtins
 from builtins import __import__ as builtin_import
 
-from apply_for_a_licence.utils import get_active_regimes
+from apply_for_a_licence.utils import craft_apply_for_a_licence_url, get_active_regimes
+from django.test import override_settings
+
+
+@override_settings(PROTOCOL="https://", APPLY_FOR_A_LICENCE_DOMAIN="apply-for-a-licence.com")
+def test_craft_apply_for_a_licence_url():
+    url = craft_apply_for_a_licence_url("/apply/123/")
+    assert url == "https://apply-for-a-licence.com/apply/123/"
 
 
 def test_get_active_regimes_normal():
@@ -13,8 +20,11 @@ def test_get_active_regimes_normal():
 
 def test_get_active_regimes_import_error(monkeypatch):
     def mock_import(*args, **kwargs):
-        if args[3][0] == "active_regimes":
-            raise ImportError
+        if len(args[3]) > 0:
+            if args[3][0] == "active_regimes":
+                raise ImportError
+            else:
+                return builtin_import(*args, **kwargs)
         else:
             # we need to provide some route to the original import as the teardown of the test will fail otherwise
             return builtin_import(*args, **kwargs)

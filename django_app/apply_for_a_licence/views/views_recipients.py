@@ -76,6 +76,11 @@ class RecipientAddedView(BaseSaveAndReturnFormView):
     form_class = forms.RecipientAddedForm
     template_name = "apply_for_a_licence/form_steps/recipient_added.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["licence_object"] = self.licence_object
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["recipients"] = Organisation.objects.filter(
