@@ -38,11 +38,6 @@ class BaseView(LoginRequiredMixin, View):
         request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["id_token"] = self.request.session["_one_login_token"]["id_token"]
-        return context
-
 
 class BaseTemplateView(BaseView, TemplateView):
     pass

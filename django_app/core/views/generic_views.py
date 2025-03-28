@@ -36,26 +36,6 @@ class PingSessionView(View):
         return HttpResponse("pong")
 
 
-# class SessionExpiredView(TemplateView):
-#     template_name = "core/session_expired.html"
-#
-#     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-#         logout(request)
-#
-#         gov_one_logout_url = "https://oidc.integration.account.gov.uk/logout"
-#         post_logout_redirect_url = request.build_absolute_uri(reverse("session_expired"))
-#
-#         if oidc_id_token := request.session.get(TOKEN_SESSION_KEY, {}).get("id_token", ""):
-#             gov_one_logout_url += f"?id_token_hint={oidc_id_token}&post_logout_redirect_uri={post_logout_redirect_url}"
-#
-#         print(oidc_id_token)
-#         print(gov_one_logout_url)
-#
-#         super().get_context_data(**kwargs)
-#
-#         return HttpResponseRedirect(gov_one_logout_url)
-
-
 def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpResponse:
     return HttpResponse("You have made too many", status=429)
 
