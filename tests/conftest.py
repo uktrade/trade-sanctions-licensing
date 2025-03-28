@@ -1,19 +1,28 @@
 import pytest
+from apply_for_a_licence.choices import WhoDoYouWantTheLicenceToCoverChoices
+from apply_for_a_licence.models import Individual, Licence
 from core.sites import SiteName
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.db import IntegrityError
 from django.test import Client, RequestFactory
 from django.utils import timezone
 
-from tests.factories import LicenceFactory
+from tests.factories import LicenceFactory, OrganisationFactory
 from tests.helpers import get_test_client
+
+
+@pytest.fixture(autouse=True)
+def auth_groups(db):
+    Group.objects.get_or_create(name=settings.INTERNAL_USER_GROUP_NAME)
+    Group.objects.get_or_create(name=settings.PUBLIC_USER_GROUP_NAME)
+    Group.objects.get_or_create(name=settings.ADMIN_USER_GROUP_NAME)
 
 
 @pytest.fixture()
 def test_apply_user(db) -> User:
-    user, _ = User.objects.get_or_create(
+    user, created = User.objects.get_or_create(
         username="urn:fdc:test_apply_user",
         defaults={
             "first_name": "Test",
@@ -24,6 +33,8 @@ def test_apply_user(db) -> User:
             "password": "test",
         },
     )
+    public_group = Group.objects.get(name=settings.PUBLIC_USER_GROUP_NAME)
+    user.groups.add(public_group)
     return user
 
 
@@ -50,6 +61,20 @@ def authenticated_al_client(al_client, test_apply_user) -> Client:
 
 
 @pytest.fixture()
+def authenticated_al_client_with_licence(authenticated_al_client, test_apply_user, licence_application) -> Client:
+    """Client used to access the apply-for-a-licence site.
+
+    The test_apply_user user is logged in with this client and a licence is created belonging to this user
+    """
+    session = authenticated_al_client.session
+    licence_application.user = test_apply_user
+    licence_application.save()
+    session["licence_id"] = licence_application.id
+    session.save()
+    return authenticated_al_client
+
+
+@pytest.fixture()
 def vl_client(db) -> Client:
     """Client used to access the view-a-licence site.
 
@@ -62,12 +87,17 @@ def vl_client(db) -> Client:
 @pytest.fixture()
 def staff_user(db):
     try:
-        return User.objects.create_user(
+        user = User.objects.create_user(
             "staff",
             "staff@example.com",
             is_active=True,
             is_staff=True,
         )
+        internal_group = Group.objects.get(name=settings.INTERNAL_USER_GROUP_NAME)
+        admin_group = Group.objects.get(name=settings.ADMIN_USER_GROUP_NAME)
+        user.groups.add(internal_group)
+        user.groups.add(admin_group)
+        return user
     except IntegrityError:
         return User.objects.get(username="staff")
 
@@ -91,6 +121,7 @@ def request_object(authenticated_al_client: Client, test_apply_user: User):
     request_object.user = test_apply_user
     request_object.GET = {}
     request_object.POST = {}
+    request_object.META = {}
     return request_object
 
 
@@ -118,7 +149,7 @@ def licence_request_object(request_object):
 
 @pytest.fixture()
 def licence():
-    return LicenceFactory()
+    return LicenceFactory(status="submitted")
 
 
 @pytest.fixture()
@@ -131,3 +162,65 @@ def apply_rf(request_object):
 def viewer_rf(request_object):
     request_object.site = Site.objects.get(name=SiteName.view_a_licence)
     return request_object
+
+
+@pytest.fixture()
+def licence_application(authenticated_al_client, test_apply_user) -> Licence:
+    licence_object = LicenceFactory(user=test_apply_user)
+    session = authenticated_al_client.session
+    session["licence_id"] = licence_object.pk  # type: ignore[attr-defined]
+    session.save()
+    return licence_object
+
+
+@pytest.fixture()
+def individual_licence(authenticated_al_client, test_apply_user):
+    licence_object = Licence.objects.create(
+        user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
+    )
+
+    session = authenticated_al_client.session
+    session["licence_id"] = licence_object.id
+    session.save()
+    return licence_object
+
+
+@pytest.fixture()
+def yourself_licence(authenticated_al_client, test_apply_user):
+    licence_object = Licence.objects.create(
+        user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.myself.value
+    )
+
+    session = authenticated_al_client.session
+    session["licence_id"] = licence_object.id
+    session.save()
+    return licence_object
+
+
+@pytest.fixture()
+def individual(individual_licence):
+    individual = Individual.objects.create(licence=individual_licence, status="complete")
+    return individual
+
+
+@pytest.fixture()
+def yourself(yourself_licence):
+    yourself_licence.applicant_full_name = "Your Name"
+    yourself = Individual.objects.create(
+        licence=yourself_licence, first_name="Your", last_name="Name", is_applicant=True, status="complete"
+    )
+    return yourself
+
+
+@pytest.fixture()
+def organisation(licence_application):
+    organisation = OrganisationFactory(licence=licence_application, status="complete")
+    return organisation
+
+
+@pytest.fixture()
+def recipient_organisation(organisation):
+    organisation.type_of_relationship = "recipient"
+    organisation.status = "complete"
+    organisation.save()
+    return organisation

@@ -3,40 +3,34 @@ import re
 from playwright.sync_api import expect
 
 from tests.test_frontend.conftest import (
-    LicensingGroundsBase,
+    AboutTheServicesBase,
     ProviderBase,
     RecipientBase,
     StartBase,
 )
 
 
-class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
+class TestRecipient(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase):
     """Tests for different journeys during the recipient part of the journey"""
 
     def test_interception_or_monitoring_journey(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
-        self.page.get_by_label("No").check()
-        self.page.get_by_role("button", name="Continue").click()
-        self.page.get_by_label("Interception or monitoring").check()
-        self.page.get_by_role("button", name="Continue").click()
-        expect(self.page).to_have_url(re.compile(r".*/sanctions-regime"))
-        self.page.get_by_label("The Syria (Sanctions) (EU").check()
-        self.page.get_by_role("button", name="Continue").click()
+        self.previous_licence(self.page)
+        self.interception_or_monitoring_service(self.page)
         expect(self.page).to_have_url(re.compile(r".*/describe-specific-activities"))
 
     def test_add_another_recipient_and_remove(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
-        self.recipient_simple(self.page)
+        self.previous_licence(self.page)
+        self.recipient(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.page.get_by_label("Yes").check()
         self.page.get_by_role("button", name="Continue").click()
@@ -52,34 +46,34 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase
         expect(self.page.get_by_role("heading", name="You've added 1 recipient")).to_be_visible()
 
     def test_changing_recipient_same_location(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
-        self.recipient_simple(self.page)
+        self.previous_licence(self.page)
+        self.recipient(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.page.get_by_text("Change").click()
         self.page.get_by_text("In the UK").click()
         self.page.get_by_role("button", name="Continue").click()
         assert self.page.locator("input[name='name']").input_value() == "business"  # checking pre-fill
         self.page.get_by_role("button", name="Continue").click()
-        assert self.page.locator("input[name='relationship']").input_value() == "Test relationship"  # checking pre-fill
+        assert self.page.locator("[name='relationship_provider']").input_value() == "Test relationship"  # checking pre-fill
         self.page.get_by_role("button", name="Continue").click()
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         expect(self.page.get_by_role("heading", name="You've added 1 recipient")).to_be_visible()
 
     def test_changing_recipient_different_location(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
-        self.recipient_simple(self.page)
+        self.previous_licence(self.page)
+        self.recipient(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.page.get_by_text("Change").click()
         self.page.get_by_text("Outside the UK").click()
         self.page.get_by_role("button", name="Continue").click()
-        assert self.page.locator("input[name='name']").input_value() == ""  # should be wiped
+        assert self.page.locator("input[name='address_line_1']").input_value() == ""  # should be wiped

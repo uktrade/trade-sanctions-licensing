@@ -5,9 +5,16 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static "core/stylesheets/moj-frontend.css" %}">
+    <style>
+        .button-that-looks-like-link {
+            color: #0000ee;
+            margin-top: 0;
+        }
+    </style>
 {% endblock extra_css %}
 
 {% block extra_js %}
+    {{ block.super }}
     <script src="{% static "core/javascript/moj-multi-file-upload.js" %}" nonce="{{ request.csp_nonce }}"></script>
     <script nonce="{{ request.csp_nonce }}">
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -45,16 +52,16 @@
                 }
             });
         })
-
-
     </script>
 {% endblock extra_js %}
 
 {% block column_content %}
     {% error_summary form %}
     <h1 class="govuk-heading-l">Upload documents (optional)</h1>
-    <div id="upload_documents_hint" class="govuk-hint">You can upload items that you consider relevant to your application.
-        This might include control structure charts (an organogram), or detailed plans for divestment or wind-down of operations.
+    <div id="upload_documents_hint" class="govuk-hint">You can upload items that you consider relevant to your
+        application.
+        This might include control structure charts (an organogram), or detailed plans for divestment or wind-down of
+        operations.
         If you're applying on behalf of a client or a services provider, you could upload a letter of instruction.
     </div>
 
@@ -65,27 +72,30 @@
             {% crispy form %}
         </form>
 
-        <div class="moj-multi-file__uploaded-files {% if not session_files %}moj-hidden{% endif %}">
+        <div class="moj-multi-file__uploaded-files {% if not uploaded_files %}moj-hidden{% endif %}">
             <h2 class="govuk-heading-m">Files added</h2>
             <div class="govuk-summary-list moj-multi-file-upload__list">
-                {% for object_key, more_info in session_files.items %}
+                {% for file in uploaded_files %}
                     <div class="govuk-summary-list__row moj-multi-file-upload__row">
-                        <dd class="govuk-summary-list__value moj-multi-file-upload__message">
+                        <div class="govuk-summary-list__value moj-multi-file-upload__message">
                             <span class="moj-multi-file-upload__filename">
-                                {{ more_info.file_name }}
+                                {{ file.original_file_name }}
                             </span>
-                        </dd>
+                        </div>
                         <dd class="govuk-summary-list__actions moj-multi-file-upload__actions">
-                            <form id="delete_documents_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                                  action="{% url 'delete_documents' %}?file_name={{ object_key }}" class="show-on-js-disabled hide-on-js-enabled">
+                            <form id="delete_documents_form_{{ forloop.counter }}" method="post"
+                                  enctype='multipart/form-data' novalidate
+                                  action="{% url 'delete_documents' %}" class="show-on-js-disabled hide-on-js-enabled">
+                                <input type="hidden" name="s3_key_to_delete" value="{{ file.s3_key }}">
                                 {% csrf_token %}
-                                <button type="submit" class=" govuk-link button-that-looks-like-link" form="delete_documents_form_{{ forloop.counter }}">
+                                <button type="submit" class=" govuk-link button-that-looks-like-link"
+                                        form="delete_documents_form_{{ forloop.counter }}">
                                     Remove
                                 </button>
                             </form>
                             <a class="moj-multi-file-upload__delete govuk-!-margin-bottom-0 hide-on-js-disabled show-on-js-enabled button-that-looks-like-link"
-                               href="javascript:void(0)" data-file-name="{{ more_info.file_name }}">
-                                Remove<span class="govuk-visually-hidden">{{ more_info.file_name }} </span>
+                               href="javascript:void(0)" data-s3-key="{{ file.s3_key }}">
+                                Remove<span class="govuk-visually-hidden">{{ file.original_file_name }} </span>
                             </a>
                         </dd>
                     </div>
@@ -94,7 +104,8 @@
         </div>
     </div>
 
-    <button type="submit" class="govuk-button" data-module="govuk-button" form="main_file_upload_form" data-testid="upload-documents-continue">
+    <button type="submit" class="govuk-button" data-module="govuk-button" form="main_file_upload_form"
+            data-testid="upload-documents-continue">
         Continue
     </button>
 

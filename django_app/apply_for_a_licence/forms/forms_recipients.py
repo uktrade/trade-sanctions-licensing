@@ -1,7 +1,9 @@
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
+from apply_for_a_licence.forms.base_forms import BaseEntityAddedForm
 from apply_for_a_licence.models import Organisation
 from core.forms.base_forms import (
     BaseBusinessDetailsForm,
-    BaseForm,
+    BaseModelForm,
     BaseNonUKBusinessDetailsForm,
     BaseUKBusinessDetailsForm,
 )
@@ -10,16 +12,25 @@ from crispy_forms_gds.layout import Field, Fieldset, Fluid, Layout, Size
 from django import forms
 
 
-class WhereIsTheRecipientLocatedForm(BaseForm):
-    where_is_the_address = forms.ChoiceField(
-        label="Where is the recipient of the services located?",
-        choices=(
-            ("outside-uk", "Outside the UK"),
-            ("in-uk", "In the UK"),
-        ),
-        widget=forms.RadioSelect,
-        error_messages={"required": "Select if the recipient of the services is located outside the UK or in the UK"},
-    )
+class WhereIsTheRecipientLocatedForm(BaseModelForm):
+    class Meta:
+        model = Organisation
+        fields = ("where_is_the_address",)
+        widgets = {
+            "where_is_the_address": forms.RadioSelect,
+        }
+        labels = {
+            "where_is_the_address": "Where is the recipient of the services located?",
+        }
+        error_messages = {
+            "where_is_the_address": {
+                "required": "Select if the recipient of the services is located outside the UK or in the UK"
+            },
+        }
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["where_is_the_address"].choices.pop(0)
 
 
 class AddAUKRecipientForm(BaseUKBusinessDetailsForm):
@@ -30,13 +41,8 @@ class AddAUKRecipientForm(BaseUKBusinessDetailsForm):
         "website": "Website address (optional)",
         "additional_contact_details": "Additional contact details (optional)",
     }
-    additional_contact_details = forms.CharField(
-        widget=forms.Textarea,
-        label="Additional contact details",
-        required=False,
-    )
     help_texts = {
-        "name": "This could be a business, an individual or a ship",
+        "name": "This could be a recipient, an individual or a ship",
     }
 
     class Meta(BaseUKBusinessDetailsForm.Meta):
@@ -51,11 +57,15 @@ class AddAUKRecipientForm(BaseUKBusinessDetailsForm):
             "town_or_city",
             "county",
             "postcode",
+            "additional_contact_details",
         )
         widgets = BaseBusinessDetailsForm.Meta.widgets
         labels = BaseBusinessDetailsForm.Meta.labels
         error_messages = BaseBusinessDetailsForm.Meta.error_messages | {
             "address_line_1": {"required": "Enter address line 1, typically the building and street"},
+        }
+        help_texts = {
+            "additional_contact_details": "This could be a phone number, or details of a jurisdiction instead of a country"
         }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
@@ -94,13 +104,8 @@ class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
         "website": "Website address (optional)",
         "additional_contact_details": "Additional contact details (optional)",
     }
-    additional_contact_details = forms.CharField(
-        widget=forms.Textarea,
-        label="Additional contact details",
-        required=False,
-    )
     help_texts = {
-        "name": "This could be a business, an individual or a ship",
+        "name": "This could be a recipient, an individual or a ship",
     }
 
     class Meta(BaseNonUKBusinessDetailsForm.Meta):
@@ -115,16 +120,19 @@ class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
             "address_line_2",
             "address_line_3",
             "address_line_4",
+            "additional_contact_details",
         )
         widgets = BaseBusinessDetailsForm.Meta.widgets
         labels = BaseBusinessDetailsForm.Meta.labels
         error_messages = BaseBusinessDetailsForm.Meta.error_messages | {
             "address_line_1": {"required": "Enter address line 1"},
         }
+        help_texts = {
+            "additional_contact_details": "This could be a phone number, or details of a jurisdiction instead of a country"
+        }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-
         address_layout = Fieldset(
             Field.text("country", field_width=Fluid.TWO_THIRDS),
             Field.text("town_or_city", field_width=Fluid.TWO_THIRDS),
@@ -136,10 +144,6 @@ class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
             legend_size=Size.MEDIUM,
             legend_tag="h2",
         )
-        self.fields["additional_contact_details"].help_text = (
-            "This could be a phone number, or details of a jurisdiction instead of a country"
-        )
-
         self.helper.layout = Layout(
             Fieldset(
                 Field.text("name", field_width=Fluid.TWO_THIRDS),
@@ -154,9 +158,9 @@ class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
         )
 
 
-class RecipientAddedForm(BaseForm):
-    revalidate_on_done = False
-
+class RecipientAddedForm(BaseEntityAddedForm):
+    entities = None
+    entity_name = "recipient"
     do_you_want_to_add_another_recipient = forms.TypedChoiceField(
         choices=(
             Choice(True, "Yes"),
@@ -170,23 +174,28 @@ class RecipientAddedForm(BaseForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.licence_object: object = kwargs.pop("licence_object", None)
+        self.entities = Organisation.objects.filter(
+            licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.recipient.value
+        )
         super().__init__(*args, **kwargs)
-        self.helper.legend_size = Size.MEDIUM
-        self.helper.legend_tag = None
-
-        if self.request.method == "GET":
-            # we never want to pre-fill this form
-            self.is_bound = False
 
 
-class RelationshipProviderRecipientForm(BaseForm):
-    relationship = forms.CharField(
-        label="What is the relationship between the provider of the services and the recipient?",
-        help_text="For example, the recipient is a subsidiary of the provider; " "or there is no relationship",
-        required=True,
-        error_messages={"required": "Enter the relationship between the provider of the services and the recipient"},
-    )
-
-    def __init__(self, *args: object, **kwargs: object) -> None:
-        super().__init__(*args, **kwargs)
-        self.fields["relationship"].widget.attrs = {"rows": 5}
+class RelationshipProviderRecipientForm(BaseModelForm):
+    class Meta:
+        model = Organisation
+        fields = ("relationship_provider",)
+        labels = {
+            "relationship_provider": "What is the relationship between the provider of the services and the recipient?",
+        }
+        help_texts = {
+            "relationship_provider": "For example, the recipient is a subsidiary of the provider; or there is no relationship",
+        }
+        error_messages = {
+            "relationship_provider": {
+                "required": "Enter the relationship between the provider of the services and the recipient"
+            },
+        }
+        widgets = {
+            "relationship_provider": forms.Textarea(attrs={"rows": 5}),
+        }

@@ -10,10 +10,10 @@ class TestCompaniesHouse(StartBase, ProviderBase):
     """Tests for the companies house journey"""
 
     def test_companies_house_number_unknown(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
-        self.your_details(self.page)
+        self.fill_your_details(self.page)
+        self.page.get_by_role("link", name="Details of the business you want to cover").click()
         self.page.get_by_label("Yes", exact=True).check()
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("No", exact=True).check()
@@ -35,10 +35,10 @@ class TestCompaniesHouse(StartBase, ProviderBase):
         },
     )
     def test_companies_house_number_incorrect(self, patched_companies_house):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
-        self.your_details(self.page)
+        self.fill_your_details(self.page)
+        self.page.get_by_role("link", name="Details of the business you want to cover").click()
         self.page.get_by_label("Yes", exact=True).check()
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("Yes", exact=True).check()
@@ -64,10 +64,10 @@ class TestCompaniesHouse(StartBase, ProviderBase):
         },
     )
     def test_companies_house_number(self, patched_companies_house):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
-        self.your_details(self.page)
+        self.fill_your_details(self.page)
+        self.page.get_by_role("link", name="Details of the business you want to cover").click()
         self.page.get_by_label("Yes", exact=True).check()
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("Yes", exact=True).check()
@@ -93,10 +93,10 @@ class TestCompaniesHouse(StartBase, ProviderBase):
         },
     )
     def test_back_button_on_check_companies_details(self, patched_companies_house):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
-        self.your_details(self.page)
+        self.fill_your_details(self.page)
+        self.page.get_by_role("link", name="Details of the business you want to cover").click()
         self.page.get_by_label("Yes", exact=True).check()
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("Yes", exact=True).check()

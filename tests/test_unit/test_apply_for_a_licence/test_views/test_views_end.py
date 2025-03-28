@@ -1,79 +1,74 @@
 from unittest.mock import MagicMock, patch
 
-import pytest
-from django.test import RequestFactory
+from apply_for_a_licence.views.views_end import DownloadPDFView
+from django.conf import settings
+from django.test import RequestFactory, override_settings
 from django.urls import reverse
 
-from django_app.apply_for_a_licence.views.views_end import DownloadPDFView
-from tests.conftest import LicenceFactory
+from tests.factories import IndividualFactory, OrganisationFactory
 
 
-@pytest.mark.django_db
-@patch("apply_for_a_licence.views.views_end.SaveToDB", return_value=MagicMock())
-@patch("apply_for_a_licence.views.views_end.send_email", new=MagicMock())
+class TestCheckYourAnswersView:
+    def test_get_context_data(self, authenticated_al_client_with_licence, licence_application):
+        OrganisationFactory.create_batch(3, licence=licence_application, type_of_relationship="recipient")
+        OrganisationFactory.create_batch(3, licence=licence_application, type_of_relationship="business")
+        IndividualFactory.create_batch(3, licence=licence_application, is_applicant=False)
+        applicant_individual = IndividualFactory(licence=licence_application, is_applicant=True)
+        business_individual_works_for = OrganisationFactory(licence=licence_application, type_of_relationship="named_individuals")
+
+        response = authenticated_al_client_with_licence.get(reverse("check_your_answers"))
+        assert response.status_code == 200
+
+        assert response.context["licence"] == licence_application
+        assert len(response.context["recipients"]) == 3
+        assert len(response.context["businesses"]) == 3
+        assert len(response.context["individuals"]) == 3
+        assert response.context["applicant_individual"] == applicant_individual
+        assert response.context["business_individual_works_for"] == business_individual_works_for
+        assert response.context["new_individual_uuid"]
+        assert response.context["new_business_uuid"]
+
+
+@patch("apply_for_a_licence.views.views_end.send_email")
 class TestDeclarationView:
-    """We're just testing the view logic here, not the chunky save_to_db stuff"""
+    def test_licence_application_status_is_changed(
+        self, patched_send_email, authenticated_al_client_with_licence, licence_application
+    ):
+        licence_application.status = "draft"
+        licence_application.submitted_at = None
+        licence_application.reference = ""
+        licence_application.save()
 
-    @patch("apply_for_a_licence.views.views_end.get_all_cleaned_data")
-    def test_is_individual(self, patched_clean_data, patched_save_to_db, authenticated_al_client, licence_request_object):
-        licence_request_object.session["start"]["who_do_you_want_the_licence_to_cover"] = "individual"
-        licence_request_object.session.save()
-        patched_clean_data.return_value = licence_request_object.session
-        patched_save_to_db.return_value.save_licence.return_value = LicenceFactory()
+        response = authenticated_al_client_with_licence.post(reverse("declaration"), data={"declaration": True})
+        assert response.status_code == 302
+        licence_application.refresh_from_db()
+        assert licence_application.status == "submitted"
+        assert licence_application.reference
+        assert licence_application.submitted_at
 
-        authenticated_al_client.post(reverse("declaration"), data={"declaration": "on"})
-        args, kwargs = patched_save_to_db.call_args
-        assert kwargs.get("is_individual") is True
-        assert kwargs.get("is_third_party") is False
-        assert kwargs.get("is_on_companies_house") is False
-        assert patched_save_to_db.return_value.save_individuals.called
-
-    @patch("apply_for_a_licence.views.views_end.get_all_cleaned_data")
-    def test_is_myself(self, patched_clean_data, patched_save_to_db, authenticated_al_client, licence_request_object):
-        licence_request_object.session["start"]["who_do_you_want_the_licence_to_cover"] = "myself"
-        licence_request_object.session.save()
-        patched_clean_data.return_value = licence_request_object.session
-        patched_save_to_db.return_value.save_licence.return_value = LicenceFactory()
-
-        authenticated_al_client.post(reverse("declaration"), data={"declaration": "on"})
-        args, kwargs = patched_save_to_db.call_args
-        assert kwargs.get("is_individual") is False
-        assert kwargs.get("is_third_party") is False
-        assert kwargs.get("is_on_companies_house") is False
-        assert patched_save_to_db.return_value.save_individuals.called
-
-    @patch("apply_for_a_licence.views.views_end.get_all_cleaned_data")
-    def test_is_on_companies_house(self, patched_clean_data, patched_save_to_db, authenticated_al_client, licence_request_object):
-        licence_request_object.session["start"]["who_do_you_want_the_licence_to_cover"] = "business"
-        licence_request_object.session["is_the_business_registered_with_companies_house"][
-            "business_registered_on_companies_house"
-        ] = "yes"
-        licence_request_object.session["do_you_know_the_registered_company_number"][
-            "do_you_know_the_registered_company_number"
-        ] = "yes"
-        licence_request_object.session.save()
-        patched_clean_data.return_value = licence_request_object.session
-
-        patched_save_to_db.return_value.save_licence.return_value = LicenceFactory()
-
-        authenticated_al_client.post(reverse("declaration"), data={"declaration": "on"})
-        args, kwargs = patched_save_to_db.call_args
-        assert kwargs.get("is_on_companies_house") is True
-        assert kwargs.get("is_individual") is False
-
-    @patch("apply_for_a_licence.views.views_end.get_all_cleaned_data")
-    def test_is_third_party(self, patched_clean_data, patched_save_to_db, authenticated_al_client, licence_request_object):
-        licence_request_object.session["start"]["who_do_you_want_the_licence_to_cover"] = "business"
-        licence_request_object.session["are_you_third_party"]["are_you_applying_on_behalf_of_someone_else"] = "True"
-        licence_request_object.session.save()
-        patched_clean_data.return_value = licence_request_object.session
-        patched_save_to_db.return_value.save_licence.return_value = LicenceFactory()
-
-        authenticated_al_client.post(reverse("declaration"), data={"declaration": "on"})
-        args, kwargs = patched_save_to_db.call_args
-        assert kwargs.get("is_on_companies_house") is False
-        assert kwargs.get("is_individual") is False
-        assert kwargs.get("is_third_party") is True
+    @override_settings(NEW_APPLICATION_ALERT_RECIPIENTS=["test1@example.com"])
+    @patch("apply_for_a_licence.views.views_end.get_view_a_licence_application_url")
+    def test_send_emails(
+        self,
+        patched_get_view_a_licence_application_url,
+        patched_send_email,
+        authenticated_al_client_with_licence,
+        licence_application,
+    ):
+        patched_get_view_a_licence_application_url.return_value = "http://test.com"
+        authenticated_al_client_with_licence.post(reverse("declaration"), data={"declaration": True})
+        licence_application.refresh_from_db()
+        assert patched_send_email.call_count == 2
+        patched_send_email.assert_any_call(
+            email=licence_application.user.email,
+            template_id=settings.PUBLIC_USER_NEW_APPLICATION_TEMPLATE_ID,
+            context={"name": licence_application.applicant_full_name, "application_number": licence_application.reference},
+        )
+        patched_send_email.assert_any_call(
+            email="test1@example.com",
+            template_id=settings.OTSI_NEW_APPLICATION_TEMPLATE_ID,
+            context={"application_number": licence_application.reference, "url": "http://test.com"},
+        )
 
 
 class TestDownloadPDFView:

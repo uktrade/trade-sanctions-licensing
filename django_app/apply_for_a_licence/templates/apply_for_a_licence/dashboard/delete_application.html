@@ -1,0 +1,13 @@
+{% extends 'core/base_form_step.html' %}
+
+{% block form_action %}{% url 'delete_application' pk=application.pk %}{% endblock form_action %}
+
+{% block title %}Are you sure you want to delete your application named test?{% endblock title %}
+
+{% block form_content %}
+    <h1 class="govuk-heading-l">Are you sure you want to delete your application named {{ application.submitter_reference }}?</h1>
+    <div class="govuk-button-group">
+        <button class="govuk-button" type="submit">Delete this application</button>
+        <a class="govuk-button govuk-button--secondary" href="{% url 'dashboard' %}">Cancel</a>
+    </div>
+{% endblock form_content %}

@@ -1,0 +1,90 @@
+{% extends 'core/base_logged_in_template.html' %}
+{% load get_tasklist_url %}
+{% block back_button %}{% endblock %}
+
+{% block title %}Your applications{% endblock title %}
+
+{% block extra_css %}
+    <style>
+        .govuk-table__cell {
+            vertical-align: middle;
+        }
+
+        .govuk-table__cell .govuk-button {
+            margin-bottom: 0;
+        }
+
+        .delete_application_link {
+            padding-top: 7px;
+            margin-left: 20px;
+        }
+    </style>
+{% endblock extra_css %}
+
+{% block row_content %}
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-l">Your applications</h1>
+
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Your application name</th>
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Submission status</th>
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-half">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for application in applications %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">{{ application.submitter_reference }}</td>
+                        <td class="govuk-table__cell">
+                            {% if application.status == "draft" %}
+                                Complete and submit before
+                                {{ application.get_date_till_deleted|date:'d F Y' }}
+                            {% else %}
+                                {{ application.get_status_display }} on {{ application.submitted_at|date:"d F Y" }}<br>
+                                Your reference: <strong>{{ application.reference }}</strong>
+                            {% endif %}
+                        </td>
+                        <td class="govuk-table__cell">
+                            {% if application.status == "draft" %}
+                                <div class="flex_container">
+                                    <div>
+                                        <a class="govuk-button"
+                                           href="{% url 'triage' licence_pk=application.pk %}">Continue</a>
+                                    </div>
+                                    <div class="delete_application_link">
+                                        <a class="govuk-link" href="{% url 'delete_application' pk=application.pk %}">
+                                            Delete draft
+                                        </a>
+                                    </div>
+
+                                </div>
+                            {% else %}
+                                <a class="govuk-link" href="{% url 'download_application' %}?reference={{ application.reference }}">Download application</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="govuk-button-group">
+            <a class="govuk-button govuk-button--secondary" href="{% url 'new_application' %}" data-testid="start_new_application_link">Start a new
+                application</a>
+        </div>
+
+        <details class="govuk-details">
+            <summary class="govuk-details__summary">
+                <span class="govuk-details__summary-text">
+                    How long will a draft application be saved for?
+                </span>
+            </summary>
+            <div class="govuk-details__text">
+                Once you start a new application, you have {{ DRAFT_APPLICATION_EXPIRY_DAYS }} days to submit it or it
+                will be deleted. You can amend
+                your application at any time until you submit it.
+            </div>
+        </details>
+    </div>
+{% endblock row_content %}

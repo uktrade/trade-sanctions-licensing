@@ -1,4 +1,6 @@
+from apply_for_a_licence import choices
 from apply_for_a_licence.forms import forms_recipients as forms
+from apply_for_a_licence.models import Licence, Organisation
 
 
 class TestWhereIsTheRecipientLocatedForm:
@@ -68,10 +70,94 @@ class TestRecipientAddedForm:
         form = forms.RecipientAddedForm(request=request_object, data={"do_you_want_to_add_another_recipient": "True"})
         assert not form.is_bound
 
+    def test_incomplete_recipient_raises_error(self, post_request_object, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=choices.WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+        Organisation.objects.create(
+            licence=licence,
+            business_registered_on_companies_house=choices.YesNoDoNotKnowChoices.yes,
+            type_of_relationship=choices.TypeOfRelationshipChoices.recipient.value,
+            status="draft",
+        )
+
+        form = forms.RecipientAddedForm(
+            data={"do_you_want_to_add_another_recipient": True}, request=post_request_object, licence_object=licence
+        )
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_recipient"
+        assert form.errors["__all__"][0] == (
+            "You cannot add another recipient until Recipient 1 details are "
+            "completed. Select 'change' and complete the details"
+        )
+
+        form = forms.RecipientAddedForm(
+            data={"do_you_want_to_add_another_recipient": False}, request=post_request_object, licence_object=licence
+        )
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_recipient"
+        assert form.errors["__all__"][0] == (
+            "Recipient 1 details have not yet been completed. " "Select 'change' and complete the details"
+        )
+
+        form = forms.RecipientAddedForm(data={}, request=post_request_object, licence_object=licence)
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_recipient"
+        assert form.errors["__all__"][0] == (
+            "Recipient 1 details have not yet been completed. " "Select 'change' and complete the details"
+        )
+
+    def test_incomplete_recipients_raises_error(self, post_request_object, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=choices.WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+        Organisation.objects.create(
+            licence=licence,
+            business_registered_on_companies_house=choices.YesNoDoNotKnowChoices.yes,
+            type_of_relationship=choices.TypeOfRelationshipChoices.recipient.value,
+            status="complete",
+        )
+
+        Organisation.objects.create(
+            licence=licence,
+            business_registered_on_companies_house=choices.YesNoDoNotKnowChoices.yes,
+            type_of_relationship=choices.TypeOfRelationshipChoices.recipient.value,
+            status="draft",
+        )
+
+        form = forms.RecipientAddedForm(
+            data={"do_you_want_to_add_another_recipient": True}, request=post_request_object, licence_object=licence
+        )
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_recipient"
+        assert form.errors["__all__"][0] == (
+            "You cannot add another recipient until Recipient 2 details are either "
+            "completed or the recipient is removed. Select 'change' and complete "
+            "the details, or select 'Remove' to remove Recipient 2"
+        )
+
+        form = forms.RecipientAddedForm(
+            data={"do_you_want_to_add_another_recipient": False}, request=post_request_object, licence_object=licence
+        )
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_recipient"
+        assert form.errors["__all__"][0] == (
+            "Recipient 2 details have not yet been completed. Select 'change' and "
+            "complete the details, or select 'Remove' to remove Recipient 2"
+        )
+
+        form = forms.RecipientAddedForm(data={}, request=post_request_object, licence_object=licence)
+        assert form.errors.as_data()["__all__"][0].code == "incomplete_recipient"
+        assert form.errors["__all__"][0] == (
+            "Recipient 2 details have not yet been completed. Select 'change' and "
+            "complete the details, or select 'Remove' to remove Recipient 2"
+        )
+
 
 class TestRelationshipProviderRecipientForm:
     def test_required(self, request_object):
-        form = forms.RelationshipProviderRecipientForm(data={"relationship": None}, request=request_object)
+        form = forms.RelationshipProviderRecipientForm(data={"relationship_provider": None}, request=request_object)
         assert not form.is_valid()
-        assert "relationship" in form.errors
-        assert form.errors.as_data()["relationship"][0].code == "required"
+        assert "relationship_provider" in form.errors
+        assert form.errors.as_data()["relationship_provider"][0].code == "required"

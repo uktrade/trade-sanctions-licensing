@@ -1,7 +1,6 @@
 import os
 
-from apply_for_a_licence.fields import MultipleFileField
-from apply_for_a_licence.models import Document
+from apply_for_a_licence.fields import MultipleFileField, MultipleFileInput
 from core.document_storage import TemporaryDocumentStorage
 from core.forms.base_forms import BaseForm
 from core.utils import get_mime_type
@@ -13,36 +12,37 @@ from utils.s3 import get_all_session_files
 
 
 class UploadDocumentsForm(BaseForm):
-    revalidate_on_done = False
-    document = MultipleFileField(
+
+    file = MultipleFileField(
+        required=False,
         label="Upload a file",
         help_text="Maximum individual file size 100MB. Maximum number of uploads 10.",
-        required=False,
+        widget=MultipleFileInput(
+            attrs={
+                "class": "govuk-file-upload moj-multi-file-upload__input",
+                "name": "file",
+            }
+        ),
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.fields["document"].widget.attrs["class"] = "govuk-file-upload moj-multi-file-upload__input"
-        self.fields["document"].widget.attrs["name"] = "document"
         # redefining this to remove the 'Continue' button from the helper
         self.helper = FormHelper()
-        self.helper.layout = Layout("document")
+        self.helper.layout = Layout("file")
 
-    def clean_document(self) -> list[Document]:
-        documents = self.cleaned_data.get("document")
-        for document in documents:
-
-            # does the document contain a virus?
+    def clean_file(self):
+        files = self.cleaned_data["file"]
+        for file in files:
             try:
-                document.readline()
+                file.readline()
             except VirusFoundInFileException:
-                documents.remove(document)
                 raise forms.ValidationError(
                     "The selected file contains a virus",
                 )
 
             # is the document a valid file type?
-            mimetype = get_mime_type(document.file)
+            mimetype = get_mime_type(file.file)
             valid_mimetype = mimetype in [
                 # word documents
                 "application/msword",
@@ -95,7 +95,7 @@ class UploadDocumentsForm(BaseForm):
                 ".png",
             ]
 
-            _, file_extension = os.path.splitext(document.name)
+            _, file_extension = os.path.splitext(file.name)
             valid_extension = file_extension.lower() in valid_extensions
             valid_file_types = (
                 ", ".join(valid_extensions[:-1]).replace(".", "").upper() + " or " + valid_extensions[-1].replace(".", "").upper()
@@ -103,7 +103,7 @@ class UploadDocumentsForm(BaseForm):
 
             if not valid_mimetype or not valid_extension:
                 raise forms.ValidationError(
-                    f"{document.original_name} cannot be uploaded.\n\nThe selected file must be a {valid_file_types}",
+                    f"{file.original_name} cannot be uploaded.\n\nThe selected file must be a {valid_file_types}",
                     code="invalid_file_type",
                 )
 
@@ -113,7 +113,7 @@ class UploadDocumentsForm(BaseForm):
                     raise forms.ValidationError("You can only select up to 10 files at the same time", code="too_many")
 
             # is the document too large?
-            if document.size > 104857600:
+            if file.size > 104857600:
                 raise forms.ValidationError("The selected file must be smaller than 100 MB", code="too_large")
 
-        return documents
+        return files

@@ -1,3 +1,5 @@
+from time import sleep
+
 from apply_for_a_licence.choices import (
     LicensingGroundsChoices,
     ProfessionalOrBusinessServicesChoices,
@@ -22,16 +24,17 @@ class TestViewALicenceApplicationView(PlaywrightTestBase):
             ],
             licensing_grounds=[LicensingGroundsChoices.energy.value],
             licensing_grounds_legal_advisory=[LicensingGroundsChoices.food.value, LicensingGroundsChoices.safety.value],
+            status="submitted",
         )
         licence.assign_reference()
         licence.save()
         self.page.goto(self.base_url + reverse("view_a_licence:view_application", kwargs={"reference": licence.reference}))
-
-        conditional_box = self.page.get_by_test_id("licensing-grounds-legal-advisory-box")
-        expect(conditional_box).to_be_visible()
-        assert "Licensing grounds (excluding legal advisory)" in conditional_box.text_content()
-        assert LicensingGroundsChoices.food.label in conditional_box.text_content()
-        assert LicensingGroundsChoices.safety.value in conditional_box.text_content()
+        sleep(1)
+        expect(self.page.get_by_test_id("licensing-grounds-legal-advisory-box")).to_be_visible()
+        text_content = self.page.get_by_test_id("licensing-grounds-legal-advisory-box").text_content()
+        assert "Licensing grounds (excluding legal advisory)" in text_content
+        assert LicensingGroundsChoices.food.label in text_content
+        assert LicensingGroundsChoices.safety.label in text_content
 
         # now checking without legal advisory
         licence = LicenceFactory.create(
@@ -40,6 +43,7 @@ class TestViewALicenceApplicationView(PlaywrightTestBase):
             professional_or_business_services=[ProfessionalOrBusinessServicesChoices.architectural.value],
             licensing_grounds=[LicensingGroundsChoices.energy.value],
             licensing_grounds_legal_advisory=None,
+            status="submitted",
         )
         licence.assign_reference()
         licence.save()

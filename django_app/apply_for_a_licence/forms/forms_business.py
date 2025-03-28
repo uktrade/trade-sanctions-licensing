@@ -1,10 +1,12 @@
 from typing import Any
 
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.exceptions import (
     CompaniesHouse500Error,
     CompaniesHouseException,
 )
-from apply_for_a_licence.models import Licence, Organisation
+from apply_for_a_licence.forms.base_forms import BaseEntityAddedForm
+from apply_for_a_licence.models import Organisation
 from core.forms.base_forms import (
     BaseForm,
     BaseModelForm,
@@ -30,8 +32,10 @@ from utils.companies_house import (
 
 
 class IsTheBusinessRegisteredWithCompaniesHouseForm(BaseModelForm):
+    save_and_return = True
+
     class Meta:
-        model = Licence
+        model = Organisation
         fields = ["business_registered_on_companies_house"]
         widgets = {"business_registered_on_companies_house": forms.RadioSelect}
         labels = {
@@ -47,18 +51,21 @@ class IsTheBusinessRegisteredWithCompaniesHouseForm(BaseModelForm):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.fields["business_registered_on_companies_house"].choices.pop(0)
+        self.fields["business_registered_on_companies_house"].required = True
 
 
 class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
+    save_and_return = True
     hide_optional_label_fields = ["registered_company_number"]
-
-    registered_company_name = forms.CharField(required=False)
-    registered_office_address = forms.CharField(required=False)
 
     class Meta:
         model = Organisation
-        fields = ["do_you_know_the_registered_company_number", "registered_company_number"]
-        widgets = {"do_you_know_the_registered_company_number": forms.RadioSelect}
+        fields = ["do_you_know_the_registered_company_number", "registered_company_number", "name", "registered_office_address"]
+        widgets = {
+            "do_you_know_the_registered_company_number": forms.RadioSelect,
+            "name": forms.HiddenInput,
+            "registered_office_address": forms.HiddenInput,
+        }
         labels = {
             "do_you_know_the_registered_company_number": "Do you know the registered company number?",
             "registered_company_number": "Registered company number",
@@ -74,7 +81,7 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-
+        self.fields["name"].required = False
         # remove companies house 500 error if it exists
         self.request.session.pop("company_details_500", None)
         self.request.session.modified = True
@@ -124,7 +131,7 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
                 try:
                     company_details = get_details_from_companies_house(registered_company_number)
                     cleaned_data["registered_company_number"] = company_details["company_number"]
-                    cleaned_data["registered_company_name"] = company_details["company_name"]
+                    cleaned_data["name"] = company_details["company_name"]
                     cleaned_data["registered_office_address"] = get_formatted_address(
                         company_details["registered_office_address"]
                     )
@@ -172,20 +179,28 @@ class ManualCompaniesHouseInputForm(BaseForm):
         )
 
 
-class WhereIsTheBusinessLocatedForm(BaseForm):
-    where_is_the_address = forms.ChoiceField(
-        label="Where is the business located?",
-        choices=(
-            ("in-uk", "In the UK"),
-            ("outside-uk", "Outside the UK"),
-        ),
-        widget=forms.RadioSelect,
-        error_messages={"required": "Select if the business is located in the UK or outside the UK"},
-    )
+class WhereIsTheBusinessLocatedForm(BaseModelForm):
+    class Meta:
+        model = Organisation
+        fields = ("where_is_the_address",)
+        widgets = {
+            "where_is_the_address": forms.RadioSelect,
+        }
+        labels = {
+            "where_is_the_address": "Where is the business located?",
+        }
+        error_messages = {
+            "where_is_the_address": {"required": "Select if the business is located in the UK or outside the UK"},
+        }
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["where_is_the_address"].choices.pop(0)
 
 
 class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
     form_h1_header = "Business details"
+    save_and_return = True
 
     class Meta(BaseUKBusinessDetailsForm.Meta):
         model = Organisation
@@ -231,6 +246,7 @@ class AddAUKBusinessForm(BaseUKBusinessDetailsForm):
 
 class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
     form_h1_header = "Business details"
+    save_and_return = True
 
     class Meta(BaseNonUKBusinessDetailsForm.Meta):
         model = Organisation
@@ -275,9 +291,9 @@ class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
         )
 
 
-class BusinessAddedForm(BaseForm):
-    revalidate_on_done = False
-
+class BusinessAddedForm(BaseEntityAddedForm):
+    entity_name = "business"
+    entities = None
     do_you_want_to_add_another_business = forms.TypedChoiceField(
         choices=(
             Choice(True, "Yes"),
@@ -291,10 +307,24 @@ class BusinessAddedForm(BaseForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.licence_object: object = kwargs.pop("licence_object", None)
+        self.entities = Organisation.objects.filter(
+            licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.business.value
+        )
         super().__init__(*args, **kwargs)
-        self.helper.legend_size = Size.MEDIUM
-        self.helper.legend_tag = None
 
-        if self.request.method == "GET":
-            # we never want to bind/pre-fill this form, always fresh for the user
-            self.is_bound = False
+
+class CheckCompanyDetailsForm(BaseModelForm):
+    class Meta:
+        model = Organisation
+        fields = ["name", "registered_company_number", "registered_office_address"]
+        widgets = {
+            "name": forms.HiddenInput,
+            "registered_company_number": forms.HiddenInput,
+            "registered_office_address": forms.HiddenInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.Meta.fields:
+            self.fields[field].required = False

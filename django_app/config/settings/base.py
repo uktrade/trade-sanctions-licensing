@@ -18,6 +18,7 @@ import sentry_sdk
 from authentication.config import OneLoginConfig
 from config.env import env
 from django.conf.locale.en import formats as en_formats
+from django.urls import reverse_lazy
 from sentry_sdk.integrations.django import DjangoIntegration
 
 is_dbt_platform = "COPILOT_ENVIRONMENT_NAME" in os.environ
@@ -75,7 +76,6 @@ AWS_DEFAULT_ACL = "private"
 TEMPORARY_S3_BUCKET_ACCESS_KEY_ID = env.temporary_s3_bucket_configuration["access_key_id"]
 TEMPORARY_S3_BUCKET_SECRET_ACCESS_KEY = env.temporary_s3_bucket_configuration["secret_access_key"]
 TEMPORARY_S3_BUCKET_NAME = env.temporary_s3_bucket_configuration["bucket_name"]
-AWS_ACCESS_KEY_ID = TEMPORARY_S3_BUCKET_ACCESS_KEY_ID
 
 # Permanent document bucket
 PERMANENT_S3_BUCKET_ACCESS_KEY_ID = env.permanent_s3_bucket_configuration["access_key_id"]
@@ -86,7 +86,7 @@ PERMANENT_S3_BUCKET_NAME = env.permanent_s3_bucket_configuration["bucket_name"]
 AWS_ACCESS_KEY_ID = TEMPORARY_S3_BUCKET_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY = TEMPORARY_S3_BUCKET_SECRET_ACCESS_KEY
 AWS_REGION = AWS_S3_REGION_NAME
-AWS_STORAGE_BUCKET_NAME = TEMPORARY_S3_BUCKET_NAME
+AWS_STORAGE_BUCKET_NAME = TEMPORARY_S3_BUCKET_NAME  # where files are uploaded as part of django_chunk_upload_handlers
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
@@ -209,6 +209,7 @@ EMAIL_VERIFY_CODE_TEMPLATE_ID = env.email_verify_code_template_id
 NEW_OTSI_USER_TEMPLATE_ID = env.new_otsi_user_template_id
 PUBLIC_USER_NEW_APPLICATION_TEMPLATE_ID = env.public_user_new_application_template_id
 OTSI_NEW_APPLICATION_TEMPLATE_ID = env.otsi_new_application_template_id
+DELETE_LICENCE_APPLICATION_TEMPLATE_ID = env.delete_licence_application_template_id
 if "," in env.new_application_alert_recipients:  # check if multiple recipients
     NEW_APPLICATION_ALERT_RECIPIENTS = env.new_application_alert_recipients.split(",")
 else:
@@ -259,6 +260,11 @@ GOV_UK_ONE_LOGIN_CLIENT_SECRET = env.gov_uk_one_login_client_secret
 GOV_UK_ONE_LOGIN_CONFIG = OneLoginConfig
 GOV_UK_ONE_LOGIN_ENABLED = False
 
+LOGIN_REDIRECT_URL = reverse_lazy("initial_redirect_view")
+PUBLIC_USER_GROUP_NAME = "public_users"
+INTERNAL_USER_GROUP_NAME = "internal_users"
+ADMIN_USER_GROUP_NAME = "admin_users"
+
 TRUNCATE_WORDS_LIMIT = 30
 
 en_formats.DATE_FORMAT = "d/m/Y"
@@ -288,8 +294,11 @@ CACHES = {
 }
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# Session cookie age is set to 40 minutes
-SESSION_COOKIE_AGE = 40 * 60
+#
+# TODO: For save-and-return testing only, revert to 40 minutes BEFORE merge to main
+#
+
+SESSION_COOKIE_AGE = 10 * 60
 SESSION_LAST_ACTIVITY_KEY = "last_form_submission"
 
 # CSP policies
@@ -368,3 +377,6 @@ SESSION_COOKIE_HTTPONLY = True
 CURRENT_BRANCH = env.current_branch
 CURRENT_TAG = env.current_tag
 CURRENT_COMMIT = env.current_commit
+
+# Save & Return
+DRAFT_APPLICATION_EXPIRY_DAYS = 28  # the number of days a draft application is valid for

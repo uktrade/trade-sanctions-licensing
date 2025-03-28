@@ -3,27 +3,27 @@ import re
 from playwright.sync_api import expect
 
 from tests.test_frontend.conftest import (
-    LicensingGroundsBase,
+    AboutTheServicesBase,
     ProviderBase,
     RecipientBase,
     StartBase,
 )
 
 
-class TestAddBusiness(StartBase, ProviderBase, RecipientBase, LicensingGroundsBase):
+class TestAddBusiness(StartBase, ProviderBase, AboutTheServicesBase, RecipientBase):
     """Tests for the business journey."""
 
     def test_third_party_located_in_uk(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
-        self.recipient_simple(self.page)
+        self.previous_licence(self.page)
+        self.simple_about_the_service_task(self.page)
+        self.recipient(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.no_more_additions(self.page)
-        self.licensing_grounds_simple(self.page)
         self.check_your_answers(self.page)
         expect(self.page.get_by_test_id("who-the-licence-covers-name")).to_have_text("business")
         expect(self.page.get_by_test_id("who-the-licence-covers-address")).to_have_text("A1, Town, AA0 0AA, United Kingdom")
@@ -32,16 +32,16 @@ class TestAddBusiness(StartBase, ProviderBase, RecipientBase, LicensingGroundsBa
         self.check_submission_complete_page(self.page)
 
     def test_not_third_party_located_outside_uk(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_not_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_outside_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.no_more_additions(self.page)
-        self.recipient_simple(self.page)
+        self.previous_licence(self.page)
+        self.simple_about_the_service_task(self.page)
+        self.recipient(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         self.no_more_additions(self.page)
-        self.licensing_grounds_simple(self.page)
         self.check_your_answers(self.page, third_party=False)
         expect(self.page.get_by_test_id("who-the-licence-covers-name")).to_have_text("business")
         expect(self.page.get_by_test_id("who-the-licence-covers-address")).to_have_text("A1, Town, Germany")
@@ -51,9 +51,8 @@ class TestAddBusiness(StartBase, ProviderBase, RecipientBase, LicensingGroundsBa
         self.check_submission_complete_page(self.page)
 
     def test_add_another_business_and_remove(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_not_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         self.page.get_by_label("Yes").check()
@@ -70,9 +69,8 @@ class TestAddBusiness(StartBase, ProviderBase, RecipientBase, LicensingGroundsBa
         expect(self.page.get_by_role("heading", name="You've added 1 business")).to_be_visible()
 
     def test_back_button_doesnt_duplicate(self):
-        self.page.goto(self.base_url)
+        self.start_new_application()
         self.business_third_party(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-details"))
         self.provider_business_located_in_uk(self.page)
 
         expect(self.page.get_by_role("heading", name="You've added 1 business")).to_be_visible()

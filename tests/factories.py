@@ -56,6 +56,7 @@ class OrganisationFactory(factory.django.DjangoModelFactory):
     email = factory.Faker("email")
     type_of_relationship = ModelFieldLazyChoice(Organisation, "type_of_relationship")
     relationship_provider = factory.Faker("text")
+    where_is_the_address = ModelFieldLazyChoice(Organisation, "where_is_the_address")
 
 
 class IndividualFactory(factory.django.DjangoModelFactory):
