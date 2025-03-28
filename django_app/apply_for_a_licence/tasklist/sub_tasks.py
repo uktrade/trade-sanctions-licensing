@@ -1,7 +1,8 @@
 import uuid
 
 from apply_for_a_licence import choices
-from apply_for_a_licence.models import Individual
+from apply_for_a_licence.choices import TypeOfRelationshipChoices
+from apply_for_a_licence.models import Individual, Organisation
 from apply_for_a_licence.tasklist.base_classes import BaseSubTask
 from django.urls import reverse, reverse_lazy
 
@@ -72,10 +73,14 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
     @property
     def url(self):
         if self.is_business:
-            if self.licence.organisations.filter(type_of_relationship=choices.TypeOfRelationshipChoices.business).exists():
-                return reverse("business_added")
+            for obj in Organisation.objects.filter(licence=self.licence):
+                if obj.status == "complete":
+                    return reverse("business_added")
             else:
-                return reverse("is_the_business_registered_with_companies_house", kwargs={"business_uuid": str(uuid.uuid4())})
+                new_business = Organisation.objects.create(
+                    licence=self.licence, type_of_relationship=TypeOfRelationshipChoices.business
+                )
+                return reverse("is_the_business_registered_with_companies_house", kwargs={"business_id": new_business.id})
         else:
             if self.licence.individuals.filter(is_applicant=False).exists():
                 return reverse("individual_added")

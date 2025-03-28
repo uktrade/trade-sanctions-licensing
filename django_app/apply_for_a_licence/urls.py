@@ -34,22 +34,22 @@ views_start_urls = [
 
 views_business_urls = [
     path(
-        "business-registered-with-companies-house/<uuid:business_uuid>",
+        "business-registered-with-companies-house/<int:business_id>",
         views_business.IsTheBusinessRegisteredWithCompaniesHouseView.as_view(),
         name="is_the_business_registered_with_companies_house",
     ),
     path(
-        "registered-company-number/<uuid:business_uuid>",
+        "registered-company-number/<int:business_id>",
         views_business.DoYouKnowTheRegisteredCompanyNumberView.as_view(),
         name="do_you_know_the_registered_company_number",
     ),
     path(
-        "where-business-located/<uuid:business_uuid>",
+        "where-business-located/<int:business_id>",
         views_business.WhereIsTheBusinessLocatedView.as_view(),
         name="where_is_the_business_located",
     ),
     path(
-        "check-company-details/<uuid:business_uuid>",
+        "check-company-details/<int:business_id>",
         views_business.CheckCompanyDetailsView.as_view(),
         name="check_company_details",
     ),
@@ -58,17 +58,15 @@ views_business_urls = [
         views_business.ManualCompaniesHouseInputView.as_view(),
         name="manual_companies_house_input",
     ),
-    path(
-        "business-details/<str:location>/<uuid:business_uuid>", views_business.AddABusinessView.as_view(), name="add_a_business"
-    ),
-    path("delete-business/<uuid:business_uuid>", views_business.DeleteBusinessView.as_view(), name="delete_business"),
+    path("business-details/<str:location>/<int:business_id>", views_business.AddABusinessView.as_view(), name="add_a_business"),
+    path("delete-business/<int:business_id>", views_business.DeleteBusinessView.as_view(), name="delete_business"),
     path("add-business", views_business.BusinessAddedView.as_view(), name="business_added"),
 ]
 
 views_individual_urls = [
-    path("individual-details/<uuid:individual_uuid>", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
+    path("individual-details/<int:business_id>", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
     path(
-        "individuals-home-address/<str:location>/<uuid:individual_uuid>",
+        "individuals-home-address/<str:location>/<int:business_id>",
         views_individual.WhatIsIndividualsAddressView.as_view(),
         name="what_is_individuals_address",
     ),
