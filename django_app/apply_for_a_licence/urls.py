@@ -34,7 +34,7 @@ views_start_urls = [
 
 views_business_urls = [
     path(
-        "business-registered-with-companies-house/<int:business_id>",
+        "business-registered-with-companies-house/",
         views_business.IsTheBusinessRegisteredWithCompaniesHouseView.as_view(),
         name="is_the_business_registered_with_companies_house",
     ),
@@ -115,24 +115,24 @@ views_services_urls = [
 
 views_recipients_urls = [
     path(
-        "recipient-location/<uuid:recipient_uuid>",
+        "recipient-location/<int:recipient_id>",
         views_recipients.WhereIsTheRecipientLocatedView.as_view(),
         name="where_is_the_recipient_located",
     ),
     path(
         "recipient-location",
         views_recipients.WhereIsTheRecipientLocatedView.as_view(),
-        name="where_is_the_recipient_located_no_uuid",
+        name="where_is_the_recipient_located_no_id",
     ),
     path(
-        "recipient-details/<str:location>/<uuid:recipient_uuid>",
+        "recipient-details/<str:location>/<int:recipient_id>",
         views_recipients.AddARecipientView.as_view(),
         name="add_a_recipient",
     ),
-    path("delete-recipient/<uuid:recipient_uuid>", views_recipients.DeleteRecipientView.as_view(), name="delete_recipient"),
+    path("delete-recipient/<int:recipient_id>", views_recipients.DeleteRecipientView.as_view(), name="delete_recipient"),
     path("add-recipient", views_recipients.RecipientAddedView.as_view(), name="recipient_added"),
     path(
-        "provider-recipient-relationship/<str:recipient_uuid>",
+        "provider-recipient-relationship/<int:recipient_id>",
         views_recipients.RelationshipProviderRecipientView.as_view(),
         name="relationship_provider_recipient",
     ),

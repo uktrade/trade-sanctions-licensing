@@ -74,10 +74,7 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
             new_business = Organisation.objects.create(
                 licence=self.licence_object, relationship=TypeOfRelationshipChoices.business
             )
-            return (
-                reverse("is_the_business_registered_with_companies_house", kwargs={"business_id": new_business.id})
-                + "?change=yes"
-            )
+            return reverse("is_the_business_registered_with_companies_house") + f"?business_id={new_business.id}&change=yes"
         else:
             return reverse("tasklist")
 
@@ -98,16 +95,18 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
     redirect_after_post = False
     redirect_with_query_parameters = True
 
-    # @property
-    # def object(self) -> Organisation:
-    #     # let's create a new business if it doesn't exist
-    #     instance, _ = Organisation.objects.get_or_create(
-    #         defaults={
-    #             "licence": self.licence_object,
-    #             "type_of_relationship": TypeOfRelationshipChoices.business,
-    #         },
-    #     )
-    #     return instance
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.method == "GET":
+            if business_provided := self.request.GET.get("business_id"):
+                self.kwargs[self.pk_url_kwarg] = business_provided
+
+            else:
+                new_business = Organisation.objects.create(
+                    licence=self.licence_object, relationship=TypeOfRelationshipChoices.business
+                )
+                self.kwargs[self.pk_url_kwarg] = new_business.id
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["business_registered_on_companies_house"]

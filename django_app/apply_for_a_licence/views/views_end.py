@@ -56,7 +56,6 @@ class CheckYourAnswersView(BaseSaveAndReturnView, TemplateView):
         context["business_individual_works_for"] = business_individual_works_for
 
         context["new_individual_uuid"] = str(uuid.uuid4())
-        context["new_business_uuid"] = str(uuid.uuid4())
         return context
 
 

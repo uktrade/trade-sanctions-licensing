@@ -80,7 +80,7 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
                 new_business = Organisation.objects.create(
                     licence=self.licence, type_of_relationship=TypeOfRelationshipChoices.business
                 )
-                return reverse("is_the_business_registered_with_companies_house", kwargs={"business_id": new_business.id})
+                return reverse("is_the_business_registered_with_companies_house") + f"business_id={new_business.id}"
         else:
             if self.licence.individuals.filter(is_applicant=False).exists():
                 return reverse("individual_added")
@@ -201,10 +201,12 @@ class RecipientContactDetailsSubTask(BaseSubTask):
 
     @property
     def url(self) -> str:
-        if self.licence.recipients.exists():
-            return reverse("recipient_added")
+        for obj in Organisation.objects.filter(licence=self.licence):
+            if obj.type_of_relationship == "recipient" and obj.status == "completed":
+                return reverse("recipient_added")
         else:
-            return reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()})
+            new_recipient = Organisation.objects.create(licence=self.licence, type_of_relationship="recipient")
+            return reverse("where_is_the_recipient_located", kwargs={"recipient_id": new_recipient.id})
 
 
 class CheckYourAnswersSubTask(BaseSubTask):

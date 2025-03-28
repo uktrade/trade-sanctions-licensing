@@ -74,11 +74,11 @@
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         {% if business.business_registered_on_companies_house == "yes" %}
                             <a class="govuk-link change_business_details_link"
-                               href="{% url 'do_you_know_the_registered_company_number' business_uuid=business.pk %}?redirect_to_url=check_your_answers">Change<span
+                               href="{% url 'do_you_know_the_registered_company_number' business_id=business.pk %}?redirect_to_url=check_your_answers">Change<span
                                 class="govuk-visually-hidden">business {{ forloop.counter }} details</span></a>
                         {% else %}
                             <a class="govuk-link change_business_details_link"
-                               href="{% url 'add_a_business' location=business.where_is_the_address business_uuid=business.pk %}?redirect_to_url=check_your_answers">Change<span
+                               href="{% url 'add_a_business' location=business.where_is_the_address business_id=business.pk %}?redirect_to_url=check_your_answers">Change<span
                                 class="govuk-visually-hidden">business {{ forloop.counter }} details</span></a>
                         {% endif %}
                     </dd>
@@ -86,7 +86,7 @@
                         <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                             <form id="delete_business_form_{{ forloop.counter }}" method="post"
                                   enctype='multipart/form-data' novalidate
-                                  action="{% url 'delete_business' business_uuid=business.pk %}?redirect_to_url=check_your_answers">
+                                  action="{% url 'delete_business' business_id=business.pk %}?redirect_to_url=check_your_answers">
                                 <input type="hidden" name="business_uuid" value="{{ id }}">
                                 <input type="hidden" name="success_url" value="check_your_answers">
                                 {% csrf_token %}
@@ -117,7 +117,7 @@
         {% endfor %}
         <dl class="govuk-summary-list">
             <a class="govuk-link"
-               href="{% url 'is_the_business_registered_with_companies_house' business_uuid=new_business_uuid %}?change=yes&redirect_to_url=check_your_answers">
+               href="{% url 'is_the_business_registered_with_companies_house' %}?change=yes&redirect_to_url=check_your_answers">
                 Add another business
             </a>
         </dl>
@@ -398,14 +398,14 @@
                 <dl class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         <a class="govuk-link"
-                           href="{% url 'where_is_the_recipient_located' recipient_uuid=recipient.pk %}?change=yes&redirect_to_url=check_your_answers">Change<span
+                           href="{% url 'where_is_the_recipient_located' recipient_id=recipient.pk %}?change=yes&redirect_to_url=check_your_answers">Change<span
                             class="govuk-visually-hidden">Recipient {{ forloop.counter }} details</span></a>
                     </dd>
                     {% if recipients|length > 1 %}
                         <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                             <form id="delete_recipient_form_{{ forloop.counter }}" method="post"
                                   enctype='multipart/form-data' novalidate
-                                  action="{% url 'delete_recipient' recipient_uuid=recipient.pk %}?redirect_to_url=check_your_answers">
+                                  action="{% url 'delete_recipient' recipient_id=recipient.pk %}?redirect_to_url=check_your_answers">
                                 <input type="hidden" name="recipient_uuid" value="{{ id }}">
                                 <input type="hidden" name="success_url" value="check_your_answers">
                                 {% csrf_token %}
@@ -461,7 +461,7 @@
         {% endfor %}
         <dl class="govuk-summary-list">
             <a class="govuk-link"
-               href="{% url 'where_is_the_recipient_located_no_uuid' %}?redirect_to_url=check_your_answers&change=yes">
+               href="{% url 'where_is_the_recipient_located_no_id' %}?redirect_to_url=check_your_answers&change=yes">
                 Add another recipient
             </a>
         </dl>
