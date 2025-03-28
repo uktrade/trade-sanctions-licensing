@@ -17,7 +17,10 @@ class EntityView(BaseSaveAndReturnModelFormView):
 
     @property
     def object(self):
-        pk = self.kwargs[self.pk_url_kwarg]
+        print(self.kwargs)
+        print(self.pk_url_kwarg)
+        pk = int(self.kwargs[self.pk_url_kwarg])
+
         try:
             child_object = self.model.objects.get(
                 pk=pk,

@@ -80,7 +80,7 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
                 new_business = Organisation.objects.create(
                     licence=self.licence, type_of_relationship=TypeOfRelationshipChoices.business
                 )
-                return reverse("is_the_business_registered_with_companies_house") + f"business_id={new_business.id}"
+                return reverse("is_the_business_registered_with_companies_house") + f"?business_id={new_business.id}"
         else:
             if self.licence.individuals.filter(is_applicant=False).exists():
                 return reverse("individual_added")

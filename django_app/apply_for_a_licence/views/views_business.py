@@ -95,27 +95,36 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
     redirect_after_post = False
     redirect_with_query_parameters = True
 
-    def dispatch(self, request, *args, **kwargs):
-        if self.request.method == "GET":
-            if business_provided := self.request.GET.get("business_id"):
-                self.kwargs[self.pk_url_kwarg] = business_provided
+    def get_business_id(self):
+        business_id = self.request.GET.get("business_id") or self.kwargs[self.pk_url_kwarg]
+        if business_id:
+            try:
+                return int(business_id)
+            except Exception as err:
+                raise err
+        return None
 
-            else:
-                new_business = Organisation.objects.create(
-                    licence=self.licence_object, relationship=TypeOfRelationshipChoices.business
-                )
-                self.kwargs[self.pk_url_kwarg] = new_business.id
+    def dispatch(self, request, *args, **kwargs):
+        business_id = self.get_business_id()
+        if business_id:
+            self.kwargs[self.pk_url_kwarg] = business_id
+        if self.request.method == "GET" and not business_id:
+            new_business = Organisation.objects.create(
+                licence=self.licence_object, relationship=TypeOfRelationshipChoices.business
+            )
+            self.kwargs[self.pk_url_kwarg] = new_business.id
 
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["business_registered_on_companies_house"]
+        business_id = self.kwargs.get(self.pk_url_kwarg)
+        if not business_id:
+            raise ValueError("Missing business_id")
         if answer == "yes":
-            success_url = reverse(
-                "do_you_know_the_registered_company_number", kwargs={"business_id": self.kwargs.get("business_id")}
-            )
+            success_url = reverse("do_you_know_the_registered_company_number", kwargs={"business_id": business_id})
         else:
-            success_url = reverse("where_is_the_business_located", kwargs={"business_uuid": self.kwargs.get("business_id")})
+            success_url = reverse("where_is_the_business_located", kwargs={"business_id": business_id})
 
         return success_url
 
@@ -180,6 +189,7 @@ class CheckCompanyDetailsView(BaseBusinessModelFormView):
 class WhereIsTheBusinessLocatedView(BaseBusinessModelFormView):
     form_class = forms.WhereIsTheBusinessLocatedForm
     redirect_after_post = False
+    pk_url_kwarg = "business_id"
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
