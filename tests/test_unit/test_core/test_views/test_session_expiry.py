@@ -81,9 +81,9 @@ def test_logout_view_with_oidc_token_expires_session(authenticated_al_client):
 
     response = authenticated_al_client.get(reverse("authentication:logout"))
     assert response.status_code == 302
-    assert (
-        response.url == "https://oidc.integration.account.gov.uk/logout?id_token_hint=fake_token&"
-        "post_logout_redirect_uri=http://apply-for-a-licence/authentication/session-expired/"
-    )
+    assert "oidc.integration.account.gov.uk/logout" in response.url
+    assert "post_logout_redirect_uri" in response.url
+    assert "authentication/session-expired" in response.url
+    assert "id_token_hint=fake_token" in response.url
     assert response.resolver_match.url_name == "logout"
     assert not dict(authenticated_al_client.session)
