@@ -31,7 +31,6 @@ class DashboardView(BaseTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["id_token"] = self.request.session["_one_login_token"]["id_token"]
         context["applications"] = self.applications
         context["DRAFT_APPLICATION_EXPIRY_DAYS"] = settings.DRAFT_APPLICATION_EXPIRY_DAYS
         return context
@@ -43,7 +42,6 @@ class NewApplicationView(BaseTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["id_token"] = self.request.session["_one_login_token"]["id_token"]
         context["DRAFT_APPLICATION_EXPIRY_DAYS"] = settings.DRAFT_APPLICATION_EXPIRY_DAYS
         return context
 
