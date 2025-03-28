@@ -32,7 +32,7 @@ class BaseView(LoginRequiredMixin, View):
             last_activity = datetime.datetime.fromisoformat(last_activity)
             # if the last recorded activity was more than the session cookie age ago, we assume the session has expired
             if now > (last_activity + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)):
-                return redirect(reverse("session_expired"))
+                return redirect(reverse("authentication:logout"))
 
         # now setting the last active to the current time
         request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
@@ -68,7 +68,7 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
     # do we want to redirect the user to the next step with query parameters?
     redirect_with_query_parameters = False
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs) -> HttpResponse:
         if self.request.GET.get("update", None) == "yes":
             self.update = True
         else:

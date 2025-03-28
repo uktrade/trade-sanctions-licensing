@@ -1,6 +1,5 @@
 from core.sites import is_apply_for_a_licence_site, is_view_a_licence_site
 from core.utils import update_last_activity_session_timestamp
-from django.contrib.auth import logout
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -35,14 +34,6 @@ class PingSessionView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
         update_last_activity_session_timestamp(request)
         return HttpResponse("pong")
-
-
-class SessionExpiredView(TemplateView):
-    template_name = "core/session_expired.html"
-
-    def get(self, request: HttpRequest, *args, **kwargs):
-        logout(request)
-        return super().get(request, *args, **kwargs)
 
 
 def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpResponse:

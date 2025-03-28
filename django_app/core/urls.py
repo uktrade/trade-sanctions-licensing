@@ -5,11 +5,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 from .views import cookie_views, generic_views
-from .views.generic_views import (
-    PingSessionView,
-    RedirectBaseDomainView,
-    SessionExpiredView,
-)
+from .views.generic_views import PingSessionView, RedirectBaseDomainView
 
 public_urls = [
     path("", RedirectBaseDomainView.as_view(), name="initial_redirect_view"),
@@ -22,7 +18,6 @@ public_urls = [
     path("hide_cookies", cookie_views.HideCookiesView.as_view(), name="hide_cookies"),
     path("reset_session", generic_views.ResetSessionView.as_view(), name="reset_session"),
     path("ping_session/", PingSessionView.as_view(), name="ping_session"),
-    path("inactive-signed-out/", SessionExpiredView.as_view(), name="session_expired"),
     path("accessibility-statement", generic_views.AccessibilityStatementView.as_view(), name="accessibility_statement"),
     path("help-support", generic_views.HelpAndSupportView.as_view(), name="help_and_support"),
     path("staff-sso/", include("authbroker_client.urls")),
