@@ -1,5 +1,4 @@
 import logging
-import uuid
 from typing import Type
 
 from apply_for_a_licence import choices
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class BaseRecipientFormView(AddAnEntityView):
-    pk_url_kwarg = "recipient_uuid"
+    pk_url_kwarg = "recipient_id"
     model = Organisation
     context_object_name = "recipient"
 
@@ -25,22 +24,25 @@ class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
     redirect_after_post = False
     redirect_with_query_parameters = True
 
-    @property
-    def object(self) -> Organisation:
-        # let's create a new recipient if it doesn't exist
-        instance, _ = Organisation.objects.get_or_create(
-            pk=self.kwargs[self.pk_url_kwarg],
-            defaults={
-                "licence": self.licence_object,
-                "type_of_relationship": TypeOfRelationshipChoices.recipient.value,
-            },
-        )
-        return instance
+    # @property
+    # def object(self) -> Organisation:
+    #     # let's create a new recipient if it doesn't exist
+    #     instance, _ = Organisation.objects.get_or_create(
+    #         defaults={
+    #             "licence": self.licence_object,
+    #             "type_of_relationship": TypeOfRelationshipChoices.recipient.value,
+    #         },
+    #     )
+    #     return instance
 
     def dispatch(self, request, *args, **kwargs):
         if not self.kwargs.get(self.pk_url_kwarg, ""):
             # if they've entered here via CYA 'add new recipient', we need to come up with one
-            return redirect(reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()}))
+            new_recipient = Organisation.objects.create(
+                licence=self.licence_object,
+                type_of_relationship=TypeOfRelationshipChoices.recipient.value,
+            )
+            return redirect(reverse("where_is_the_recipient_located", kwargs={"recipient_id": new_recipient.id}))
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -53,12 +55,16 @@ class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
-        success_url = reverse("add_a_recipient", kwargs={"location": location, "recipient_uuid": self.kwargs["recipient_uuid"]})
+        success_url = reverse("add_a_recipient", kwargs={"location": location, "recipient_id": self.kwargs[self.pk_url_kwarg]})
         return success_url
 
 
 class AddARecipientView(BaseRecipientFormView):
     redirect_after_post = False
+
+    def setup(self, request, *args, **kwargs):
+        self.location = kwargs["location"]
+        return super().setup(request, *args, **kwargs)
 
     def get_form_class(self) -> Type[forms.AddAUKRecipientForm | forms.AddANonUKRecipientForm]:
         if self.kwargs["location"] == "in-uk":
@@ -68,7 +74,7 @@ class AddARecipientView(BaseRecipientFormView):
         return form_class
 
     def get_success_url(self):
-        success_url = reverse("relationship_provider_recipient", kwargs={"recipient_uuid": self.form.instance.pk})
+        success_url = reverse("relationship_provider_recipient", kwargs={"recipient_id": self.kwargs[self.pk_url_kwarg]})
         return success_url
 
 
@@ -91,7 +97,11 @@ class RecipientAddedView(BaseSaveAndReturnFormView):
     def get_success_url(self) -> str:
         add_recipient = self.form.cleaned_data["do_you_want_to_add_another_recipient"]
         if add_recipient:
-            success_url = reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": uuid.uuid4()}) + "?new=yes"
+            new_recipient = Organisation.objects.create(
+                licence=self.licence_object,
+                type_of_relationship=TypeOfRelationshipChoices.recipient.value,
+            )
+            success_url = reverse("where_is_the_recipient_located", kwargs={"recipient_id": new_recipient.id}) + "?new=yes"
         else:
             success_url = reverse("tasklist")
         return success_url
@@ -100,7 +110,7 @@ class RecipientAddedView(BaseSaveAndReturnFormView):
 class DeleteRecipientView(DeleteAnEntityView):
     success_url = reverse_lazy("recipient_added")
     model = Organisation
-    pk_url_kwarg = "recipient_uuid"
+    pk_url_kwarg = "recipient_id"
     allow_zero_entities = True
 
 
