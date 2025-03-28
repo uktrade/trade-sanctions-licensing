@@ -55,12 +55,13 @@ class TestSessionExpiry(PlaywrightTestBase):
         # might as well test the grammar rule
         assert self.page.get_by_test_id("session_expiry_time_remaining").text_content() == "1 second"
         sleep(1)
-        expect(self.page.get_by_role("heading", name="You've been signed out")).to_be_visible()
+        expect(self.page.get_by_role("heading", name="You have signed out")).to_be_visible()
+        expect(self.page).to_have_url(re.compile(r".*/signed-out"))
 
     @override_settings(SESSION_COOKIE_AGE=5)
     def test_logout_works(self):
         self.go_to_path(reverse("submitter_reference"))
         expect(self.page.get_by_test_id("session_expiry_time_remaining")).to_be_visible()
         self.page.get_by_test_id("sign_out_button").click()
-        expect(self.page.get_by_role("heading", name="You've been signed out")).to_be_visible()
-        expect(self.page).to_have_url(re.compile(r".*/inactive-signed-out"))
+        expect(self.page.get_by_role("heading", name="You have signed out")).to_be_visible()
+        expect(self.page).to_have_url(re.compile(r".*/signed-out"))
