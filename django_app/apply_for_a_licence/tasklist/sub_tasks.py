@@ -1,5 +1,3 @@
-import uuid
-
 from apply_for_a_licence import choices
 from apply_for_a_licence.models import Individual, Organisation
 from apply_for_a_licence.tasklist.base_classes import BaseSubTask
@@ -22,9 +20,13 @@ class YourDetailsSubTask(BaseSubTask):
         if self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.myself:
             try:
                 applicant_individual = self.licence.individuals.filter(is_applicant=True).get()
-                return reverse("add_yourself", kwargs={"yourself_uuid": applicant_individual.pk})
+                return reverse("add_yourself", kwargs={"yourself_id": applicant_individual.id})
             except Individual.DoesNotExist:
-                return reverse("add_yourself", kwargs={"yourself_uuid": uuid.uuid4()})
+                applicant_individual = Individual.objects.create(
+                    licence=self.licence,
+                    is_applicant=True,
+                )
+                return reverse("add_yourself", kwargs={"yourself_id": applicant_individual.id})
         else:
             return reverse("are_you_third_party")
 
@@ -91,7 +93,10 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
             if self.licence.individuals.filter(is_applicant=False).exists():
                 return reverse("individual_added")
             else:
-                return reverse("add_an_individual", kwargs={"individual_uuid": str(uuid.uuid4())})
+                new_individual = Individual.objects.create(
+                    licence=self.licence,
+                )
+                return reverse("add_an_individual") + f"?individual_id={new_individual.id}"
 
     @property
     def is_completed(self) -> bool:

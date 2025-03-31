@@ -64,9 +64,9 @@ views_business_urls = [
 ]
 
 views_individual_urls = [
-    path("individual-details/<int:business_id>", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
+    path("individual-details/", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
     path(
-        "individuals-home-address/<str:location>/<int:business_id>",
+        "individuals-home-address/<str:location>/<int:individual_id>",
         views_individual.WhatIsIndividualsAddressView.as_view(),
         name="what_is_individuals_address",
     ),
@@ -80,9 +80,9 @@ views_individual_urls = [
 ]
 
 views_yourself_urls = [
-    path("your-name-nationality-location/<uuid:yourself_uuid>", views_yourself.AddYourselfView.as_view(), name="add_yourself"),
+    path("your-name-nationality-location/<int:yourself_id>", views_yourself.AddYourselfView.as_view(), name="add_yourself"),
     path(
-        "your-home-address/<str:location>/<uuid:yourself_uuid>",
+        "your-home-address/<str:location>/<int:yourself_id>",
         views_yourself.AddYourselfAddressView.as_view(),
         name="add_yourself_address",
     ),

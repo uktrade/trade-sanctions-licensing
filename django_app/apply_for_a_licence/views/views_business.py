@@ -53,7 +53,6 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["licence_object"] = self.licence_object
-        print(kwargs)
         return kwargs
 
     def get_all_businesses(self) -> QuerySet[Organisation]:
@@ -61,7 +60,6 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
 
     def dispatch(self, request, *args, **kwargs):
         businesses = self.get_all_businesses()
-        print(businesses)
         if len(businesses) > 0:
             # only allow access to this page if a business has been added
             return super().dispatch(request, *args, **kwargs)
