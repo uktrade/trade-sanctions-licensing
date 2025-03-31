@@ -96,12 +96,17 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
     redirect_with_query_parameters = True
 
     def get_business_id(self):
-        business_id = self.request.GET.get("business_id") or self.kwargs[self.pk_url_kwarg]
-        if business_id:
-            try:
-                return int(business_id)
-            except Exception as err:
-                raise err
+        if self.request.GET.get("redirect_to_url", "") == "check_your_answers":
+            # The user wants to add a new business, create it now and assign the id
+            new_business = Organisation.objects.create(licence=self.licence_object, type_of_relationship="business")
+            return new_business.id
+        else:
+            business_id = self.request.GET.get("business_id") or self.kwargs[self.pk_url_kwarg]
+            if business_id:
+                try:
+                    return int(business_id)
+                except Exception as err:
+                    raise err
         return None
 
     def dispatch(self, request, *args, **kwargs):

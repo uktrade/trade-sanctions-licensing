@@ -1,9 +1,9 @@
 import uuid
 
 from apply_for_a_licence import choices
-from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.models import Individual, Organisation
 from apply_for_a_licence.tasklist.base_classes import BaseSubTask
+from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse, reverse_lazy
 
 
@@ -73,14 +73,20 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
     @property
     def url(self):
         if self.is_business:
-            for obj in Organisation.objects.filter(licence=self.licence):
-                if obj.status == "complete":
-                    return reverse("business_added")
+            business_objects = Organisation.objects.filter(
+                licence=self.licence, type_of_relationship=choices.TypeOfRelationshipChoices.business.value
+            )
+            if business_objects.filter(status="complete"):
+                return reverse("business_added")
             else:
-                new_business = Organisation.objects.create(
-                    licence=self.licence, type_of_relationship=TypeOfRelationshipChoices.business
-                )
-                return reverse("is_the_business_registered_with_companies_house") + f"?business_id={new_business.id}"
+                try:
+                    business = business_objects.get(status="draft")
+                    return reverse("is_the_business_registered_with_companies_house") + f"?business_id={business.id}"
+                except ObjectDoesNotExist:
+                    business = Organisation.objects.create(
+                        licence=self.licence, type_of_relationship=choices.TypeOfRelationshipChoices.business.value
+                    )
+                    return reverse("is_the_business_registered_with_companies_house") + f"?business_id={business.id}"
         else:
             if self.licence.individuals.filter(is_applicant=False).exists():
                 return reverse("individual_added")
@@ -201,12 +207,20 @@ class RecipientContactDetailsSubTask(BaseSubTask):
 
     @property
     def url(self) -> str:
-        for obj in Organisation.objects.filter(licence=self.licence):
-            if obj.type_of_relationship == "recipient" and obj.status == "completed":
-                return reverse("recipient_added")
+        org_objects = Organisation.objects.filter(
+            licence=self.licence, type_of_relationship=choices.TypeOfRelationshipChoices.recipient.value
+        )
+        if org_objects.filter(status="complete"):
+            return reverse("recipient_added")
         else:
-            new_recipient = Organisation.objects.create(licence=self.licence, type_of_relationship="recipient")
-            return reverse("where_is_the_recipient_located", kwargs={"recipient_id": new_recipient.id})
+            try:
+                recipient = org_objects.get(status="draft")
+                return reverse("where_is_the_recipient_located", kwargs={"recipient_id": recipient.id})
+            except ObjectDoesNotExist:
+                recipient = Organisation.objects.create(
+                    licence=self.licence, type_of_relationship=choices.TypeOfRelationshipChoices.recipient.value
+                )
+                return reverse("where_is_the_recipient_located", kwargs={"recipient_id": recipient.id})
 
 
 class CheckYourAnswersSubTask(BaseSubTask):
