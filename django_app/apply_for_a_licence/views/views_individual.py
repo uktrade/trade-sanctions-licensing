@@ -32,11 +32,23 @@ class AddAnIndividualView(BaseIndividualFormView):
     redirect_after_post = False
     redirect_with_query_parameters = True
 
+    def get_individual_id(self):
+        if self.request.GET.get("redirect_to_url", "") == "check_your_answers" or self.request.GET.get("change", ""):
+            # The user wants to add a new individual, create it now and assign the id
+            new_individual = Individual.objects.create(licence=self.licence_object)
+            return new_individual.id
+        else:
+            individual_id = self.request.GET.get("individual_id") or self.kwargs[self.pk_url_kwarg]
+            if individual_id:
+                try:
+                    return int(individual_id)
+                except Exception as err:
+                    raise err
+        return None
+
     def dispatch(self, request, *args, **kwargs):
-        Individual.objects.get_or_create(
-            pk=self.kwargs["individual_id"],
-            defaults={"licence": self.licence_object, "status": choices.EntityStatusChoices.draft},
-        )
+        if individual_id := self.get_individual_id():
+            self.kwargs[self.pk_url_kwarg] = individual_id
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
