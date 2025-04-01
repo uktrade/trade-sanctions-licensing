@@ -16,13 +16,14 @@ class TestIsTheBusinessRegisteredWithCompaniesHouse:
         licence = Licence.objects.create(
             user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
         )
+        business = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
 
         session = authenticated_al_client.session
         session["licence_id"] = licence.id
         session.save()
 
         response = authenticated_al_client.post(
-            reverse("is_the_business_registered_with_companies_house", kwargs={"business_uuid": uuid.uuid4()}),
+            reverse("is_the_business_registered_with_companies_house") + f"?business_id={business.id}",
             data={"business_registered_on_companies_house": "no"},
             follow=True,
         )
@@ -32,16 +33,16 @@ class TestIsTheBusinessRegisteredWithCompaniesHouse:
         licence = Licence.objects.create(
             user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
         )
+        business = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
 
         session = authenticated_al_client.session
         session["licence_id"] = licence.id
         session.save()
-        business_uuid = uuid.uuid4()
         response = authenticated_al_client.post(
-            reverse("is_the_business_registered_with_companies_house", kwargs={"business_uuid": business_uuid}),
+            reverse("is_the_business_registered_with_companies_house") + f"?business_id={business.id}",
             data={"business_registered_on_companies_house": "yes"},
         )
-        assert response.url == reverse("do_you_know_the_registered_company_number", kwargs={"business_uuid": business_uuid})
+        assert response.url == reverse("do_you_know_the_registered_company_number", kwargs={"business_id": business.id})
 
 
 class TestDoYouKnowTheRegisteredCompanyNumberView:
