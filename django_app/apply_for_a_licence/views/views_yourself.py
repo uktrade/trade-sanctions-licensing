@@ -22,8 +22,23 @@ class AddYourselfView(BaseIndividualFormView):
     pk_url_kwarg = "yourself_id"
     redirect_with_query_parameters = True
 
+    def get_yourself_id(self):
+        if self.request.GET.get("redirect_to_url", "") == "check_your_answers" or self.request.GET.get("change", ""):
+            # The user wants to add a new individual, create it now and assign the id
+            new_individual = Individual.objects.create(licence=self.licence_object)
+            return new_individual.id
+        else:
+            yourself_id = self.request.GET.get("yourself_id") or self.kwargs[self.pk_url_kwarg]
+            if yourself_id:
+                try:
+                    return int(yourself_id)
+                except Exception as err:
+                    raise err
+        return None
+
     def dispatch(self, request, *args, **kwargs):
-        Individual.objects.get_or_create(pk=self.kwargs["yourself_id"], licence=self.licence_object)
+        if yourself_id := self.get_yourself_id():
+            self.kwargs[self.pk_url_kwarg] = yourself_id
         return super().dispatch(request, *args, **kwargs)
 
     def save_form(self, form):
@@ -115,7 +130,8 @@ class YourselfAndIndividualAddedView(BaseSaveAndReturnFormView):
     def get_success_url(self):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
-            return reverse("add_an_individual") + "?change=yes"
+            new_individual = Individual.objects.create(licence=self.licence_object)
+            return reverse("add_an_individual") + f"?individual_id={new_individual.id}&change=yes"
         else:
             return reverse("tasklist")
 

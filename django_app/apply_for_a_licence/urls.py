@@ -92,7 +92,7 @@ views_yourself_urls = [
         name="yourself_and_individual_added",
     ),
     path(
-        "delete-individual-from-yourself/<pk>",
+        "delete-individual-from-yourself/<int:individual_id>",
         views_yourself.DeleteIndividualFromYourselfView.as_view(),
         name="delete_individual_from_yourself",
     ),

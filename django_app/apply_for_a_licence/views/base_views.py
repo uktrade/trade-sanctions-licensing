@@ -17,8 +17,6 @@ class EntityView(BaseSaveAndReturnModelFormView):
 
     @property
     def object(self):
-        print(self.kwargs)
-        print(self.pk_url_kwarg)
         pk = int(self.kwargs[self.pk_url_kwarg])
 
         try:

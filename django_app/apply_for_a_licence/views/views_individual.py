@@ -34,8 +34,8 @@ class AddAnIndividualView(BaseIndividualFormView):
 
     def get_individual_id(self):
         if self.request.GET.get("redirect_to_url", "") == "check_your_answers" or self.request.GET.get("change", ""):
-            # The user wants to add a new individual, create it now and assign the id
-            new_individual = Individual.objects.create(licence=self.licence_object)
+            # The user wants to add a new individual
+            new_individual, created = Individual.objects.get_or_create(licence=self.licence_object, status="draft")
             return new_individual.id
         else:
             individual_id = self.request.GET.get("individual_id") or self.kwargs[self.pk_url_kwarg]

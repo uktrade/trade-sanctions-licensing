@@ -163,13 +163,13 @@
                             <dl class="govuk-summary-card__actions">
                                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                                     <a class="govuk-link"
-                                       href="{% url 'add_an_individual' individual_id=individual.pk %}?redirect_to_url=check_your_answers">Change<span
+                                       href="{% url 'add_an_individual' %}?redirect_to_url=check_your_answers">Change<span
                                         class="govuk-visually-hidden">Individual {{ forloop.counter }} details</span></a>
                                 </dd>
                                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                                     <form id="delete_individual_from_yourself_form_{{ forloop.counter }}" method="post"
                                           enctype='multipart/form-data' novalidate
-                                          action="{% url 'delete_individual_from_yourself' pk=individual.pk %}?redirect_to_url=check_your_answers">
+                                          action="{% url 'delete_individual_from_yourself' individual_id=individual.pk %}?redirect_to_url=check_your_answers">
                                         <input type="hidden" name="individual_id" value="{{ individual.pk }}">
                                         <input type="hidden" name="success_url" value="check_your_answers">
                                         {% csrf_token %}
