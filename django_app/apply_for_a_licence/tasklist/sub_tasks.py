@@ -90,13 +90,18 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
                     )
                     return reverse("is_the_business_registered_with_companies_house") + f"?business_id={business.id}"
         else:
-            if self.licence.individuals.filter(is_applicant=False).exists():
+            individual_objects = Individual.objects.filter(licence=self.licence)
+            if individual_objects.filter(status="complete"):
                 return reverse("individual_added")
             else:
-                new_individual = Individual.objects.create(
-                    licence=self.licence,
-                )
-                return reverse("add_an_individual") + f"?individual_id={new_individual.id}"
+                try:
+                    new_individual = individual_objects.get(status="draft")
+                    return reverse("add_an_individual") + f"?individual_id={new_individual.id}"
+                except ObjectDoesNotExist:
+                    new_individual = Individual.objects.create(
+                        licence=self.licence,
+                    )
+                    return reverse("add_an_individual") + f"?individual_id={new_individual.id}"
 
     @property
     def is_completed(self) -> bool:
