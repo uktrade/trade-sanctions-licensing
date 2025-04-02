@@ -132,18 +132,24 @@ class IndividualAddedView(BaseSaveAndReturnFormView):
         return context
 
     def get_success_url(self):
-        add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
-        if add_individual:
-            new_individual = Individual.objects.create(
-                licence=self.licence_object,
-            )
-            success_url = reverse("add_an_individual") + f"?individual_id={new_individual.id}"
-        elif self.licence_object.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.individual:
-            success_url = reverse("business_employing_individual")
-        else:
-            success_url = reverse("tasklist")
+        try:
+            add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
+            if add_individual:
+                new_individual = Individual.objects.create(
+                    licence=self.licence_object,
+                )
+                success_url = reverse("add_an_individual") + f"?individual_id={new_individual.id}"
+            elif (
+                self.licence_object.who_do_you_want_the_licence_to_cover
+                == choices.WhoDoYouWantTheLicenceToCoverChoices.individual
+            ):
+                success_url = reverse("business_employing_individual")
+            else:
+                success_url = reverse("tasklist")
 
-        return success_url
+            return success_url
+        except AttributeError:
+            return reverse("tasklist")
 
 
 class BusinessEmployingIndividualView(BaseSaveAndReturnModelFormView):

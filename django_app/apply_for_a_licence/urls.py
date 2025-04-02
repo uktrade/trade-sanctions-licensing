@@ -70,7 +70,7 @@ views_individual_urls = [
         views_individual.WhatIsIndividualsAddressView.as_view(),
         name="what_is_individuals_address",
     ),
-    path("delete-individual/<pk>", views_individual.DeleteIndividualView.as_view(), name="delete_individual"),
+    path("delete-individual/<int:individual_id>", views_individual.DeleteIndividualView.as_view(), name="delete_individual"),
     path("add-individual", views_individual.IndividualAddedView.as_view(), name="individual_added"),
     path(
         "business-details",

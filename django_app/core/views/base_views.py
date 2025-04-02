@@ -120,10 +120,7 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
     def add_query_parameters_to_url(self, success_url: str) -> str:
         """Add GET query parameters to the success URL so they're retained."""
         if get_parameters := self.request.GET.urlencode():
-            print(get_parameters)
             updated_parameters = re.sub(r"(business|yourself|individual)_id=\d+", "", get_parameters)
-            print(updated_parameters)
-            updated_parameters = re.sub("&", "&amp;", updated_parameters)
             if updated_parameters:
                 success_url += "?" + updated_parameters
         return success_url
