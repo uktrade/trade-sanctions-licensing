@@ -67,13 +67,17 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
             return redirect(self.get_success_url())
 
     def get_success_url(self) -> str:
-        add_business = self.form.cleaned_data["do_you_want_to_add_another_business"]
-        if add_business:
-            new_business = Organisation.objects.create(
-                licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.business
-            )
-            return reverse("is_the_business_registered_with_companies_house") + f"?business_id={new_business.id}"
-        else:
+        try:
+            add_business = self.form.cleaned_data["do_you_want_to_add_another_business"]
+            if add_business:
+                new_business = Organisation.objects.create(
+                    licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.business
+                )
+                return reverse("is_the_business_registered_with_companies_house") + f"?business_id={new_business.id}"
+            else:
+                return reverse("tasklist")
+        except AttributeError:
+            # No form object, send the user back to the tasklist to initiate the journey again
             return reverse("tasklist")
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
