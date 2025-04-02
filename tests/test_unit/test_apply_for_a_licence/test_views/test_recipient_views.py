@@ -1,5 +1,3 @@
-import uuid
-
 from apply_for_a_licence.choices import TypeOfServicesChoices
 from apply_for_a_licence.models import Organisation
 from django.urls import reverse
@@ -10,16 +8,14 @@ from tests.factories import OrganisationFactory
 class TestAddRecipientView:
     def test_successful_post(self, authenticated_al_client_with_licence, licence_application):
         assert authenticated_al_client_with_licence.session.get("recipients") is None
-        recipient_uuid = str(uuid.uuid4())
 
         organisation = OrganisationFactory(
-            pk=recipient_uuid,
             licence=licence_application,
             where_is_the_address="in-uk",
         )
 
         authenticated_al_client_with_licence.post(
-            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid}),
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_id": organisation.id}),
             data={
                 "name": "COOL BEANS LTD",
                 "email": "thisismyemail@obviously.com",
@@ -40,17 +36,13 @@ class TestAddRecipientView:
         assert organisation.postcode == "SW1A 1AA"
 
     def test_redirect_after_post(self, authenticated_al_client_with_licence, licence_application):
-        recipient_uuid = str(uuid.uuid4())
-
-        OrganisationFactory(
-            pk=recipient_uuid,
+        organisation = OrganisationFactory(
             licence=licence_application,
             where_is_the_address="in-uk",
         )
 
         response = authenticated_al_client_with_licence.post(
-            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid})
-            + "?redirect_to_url=check_your_answers",
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_id": organisation.id}),
             data={
                 "name": "COOL BEANS LTD",
                 "email": "thisismyemail@obviously.com",
@@ -63,8 +55,7 @@ class TestAddRecipientView:
         assert "provider-recipient-relationship" in response.url
 
         response = authenticated_al_client_with_licence.post(
-            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": recipient_uuid})
-            + "?redirect_to_url=check_your_answers&change=yes",
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_id": organisation.id}),
             data={
                 "name": "COOL BEANS LTD",
                 "email": "thisismyemail@obviously.com",
@@ -78,7 +69,7 @@ class TestAddRecipientView:
 
     def test_get_form_new_recipient(self, authenticated_al_client, organisation):
         response = authenticated_al_client.get(
-            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": organisation.pk})
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_id": organisation.id})
         )
         assert response.context["form"].is_bound is False
         assert response.status_code == 200
@@ -91,7 +82,7 @@ class TestAddRecipientView:
         response = authenticated_al_client.post(
             reverse(
                 "where_is_the_recipient_located",
-                kwargs={"recipient_uuid": organisation.pk},
+                kwargs={"recipient_id": organisation.id},
             )
             + "?change=yes",
             data={"where_is_the_address": "outside-uk"},
@@ -99,7 +90,7 @@ class TestAddRecipientView:
         assert response.status_code == 302
         assert (
             response.url
-            == reverse("add_a_recipient", kwargs={"location": "outside-uk", "recipient_uuid": organisation.pk}) + "?change=yes"
+            == reverse("add_a_recipient", kwargs={"location": "outside-uk", "recipient_id": organisation.id}) + "?change=yes"
         )
         organisation.refresh_from_db()
         assert not organisation.address_line_1
@@ -112,7 +103,7 @@ class TestAddRecipientView:
         response = authenticated_al_client.post(
             reverse(
                 "where_is_the_recipient_located",
-                kwargs={"recipient_uuid": organisation.pk},
+                kwargs={"recipient_id": organisation.id},
             )
             + "?change=yes",
             data={"where_is_the_address": "in-uk"},
@@ -120,7 +111,7 @@ class TestAddRecipientView:
         assert response.status_code == 302
         assert (
             response.url
-            == reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": organisation.pk}) + "?change=yes"
+            == reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_id": organisation.pk}) + "?change=yes"
         )
         organisation.refresh_from_db()
         assert organisation.address_line_1 == "13 I live here"
@@ -130,7 +121,7 @@ class TestAddRecipientView:
         organisation.save()
 
         response = authenticated_al_client_with_licence.post(
-            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_uuid": organisation.pk})
+            reverse("add_a_recipient", kwargs={"location": "in-uk", "recipient_id": organisation.id})
             + "?redirect_to_url=check_your_answers&change=yes",
             data={
                 "name": "COOL BEANS LTD",
@@ -153,7 +144,7 @@ class TestDeleteRecipientView:
         organisation.save()
 
         response = authenticated_al_client_with_licence.post(
-            reverse("delete_recipient", kwargs={"recipient_uuid": organisation.pk}),
+            reverse("delete_recipient", kwargs={"recipient_id": organisation.id}),
         )
         try:
             organisation.refresh_from_db()
@@ -169,7 +160,7 @@ class TestDeleteRecipientView:
         # does not delete last recipient
         for recipient in recipients[:-1]:
             response = authenticated_al_client_with_licence.post(
-                reverse("delete_recipient", kwargs={"recipient_uuid": recipient.pk}),
+                reverse("delete_recipient", kwargs={"recipient_id": recipient.id}),
             )
             try:
                 recipient.refresh_from_db()
@@ -183,7 +174,7 @@ class TestDeleteRecipientView:
 
     def test_unsuccessful_post(self, authenticated_al_client_with_licence, organisation):
         response = authenticated_al_client_with_licence.post(
-            reverse("delete_recipient", kwargs={"recipient_uuid": uuid.uuid4()}),
+            reverse("delete_recipient", kwargs={"recipient_id": 1111111}),
         )
         organisation.refresh_from_db()
         assert response.status_code == 404
@@ -209,7 +200,7 @@ class TestRecipientAddedView:
 class TestRelationshipProviderRecipientView:
     def test_successful_post(self, authenticated_al_client_with_licence, recipient_organisation):
         authenticated_al_client_with_licence.post(
-            reverse("relationship_provider_recipient", kwargs={"recipient_uuid": recipient_organisation.pk}),
+            reverse("relationship_provider_recipient", kwargs={"recipient_id": recipient_organisation.id}),
             data={"relationship_provider": "this is a relationship"},
         )
         recipient_organisation.refresh_from_db()
@@ -220,13 +211,13 @@ class TestRelationshipProviderRecipientView:
         recipient_organisation.save()
 
         response = authenticated_al_client_with_licence.get(
-            reverse("relationship_provider_recipient", kwargs={"recipient_uuid": recipient_organisation.pk}),
+            reverse("relationship_provider_recipient", kwargs={"recipient_id": recipient_organisation.id}),
         )
         assert response.context["form"].initial["relationship_provider"] == "this is a test"
 
     def test_get_not_bound(self, authenticated_al_client_with_licence):
         response = authenticated_al_client_with_licence.get(
-            reverse("relationship_provider_recipient", kwargs={"recipient_uuid": uuid.uuid4()}),
+            reverse("relationship_provider_recipient", kwargs={"recipient_id": 11111111}),
         )
         assert response.status_code == 404
 
@@ -238,27 +229,25 @@ class TestWhereIsTheRecipientLocatedView:
         recipient_organisation.save()
 
         response = authenticated_al_client_with_licence.post(
-            reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": recipient_organisation.pk}),
+            reverse("where_is_the_recipient_located", kwargs={"recipient_id": recipient_organisation.id}),
             data={"where_is_the_address": "in-uk"},
         )
 
         assert response.status_code == 302
-        assert response.url == reverse(
-            "add_a_recipient", kwargs={"recipient_uuid": recipient_organisation.pk, "location": "in-uk"}
-        )
+        assert response.url == reverse("add_a_recipient", kwargs={"recipient_id": recipient_organisation.id, "location": "in-uk"})
         recipient_organisation.refresh_from_db()
         assert recipient_organisation.where_is_the_address == "in-uk"
 
         # change first recipients location
         response = authenticated_al_client_with_licence.post(
-            reverse("where_is_the_recipient_located", kwargs={"recipient_uuid": recipient_organisation.pk}) + "?change=true",
+            reverse("where_is_the_recipient_located", kwargs={"recipient_id": recipient_organisation.id}) + "?change=true",
             data={"where_is_the_address": "outside-uk"},
         )
 
         assert response.status_code == 302
         assert (
             response.url
-            == reverse("add_a_recipient", kwargs={"recipient_uuid": recipient_organisation.pk, "location": "outside-uk"})
+            == reverse("add_a_recipient", kwargs={"recipient_id": recipient_organisation.id, "location": "outside-uk"})
             + "?change=true"
         )
         recipient_organisation.refresh_from_db()

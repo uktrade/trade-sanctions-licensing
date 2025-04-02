@@ -25,8 +25,6 @@ class TestCheckYourAnswersView:
         assert len(response.context["individuals"]) == 3
         assert response.context["applicant_individual"] == applicant_individual
         assert response.context["business_individual_works_for"] == business_individual_works_for
-        assert response.context["new_individual_uuid"]
-        assert response.context["new_business_uuid"]
 
 
 @patch("apply_for_a_licence.views.views_end.send_email")
