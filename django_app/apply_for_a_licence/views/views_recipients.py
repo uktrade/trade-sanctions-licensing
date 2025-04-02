@@ -34,10 +34,7 @@ class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
         else:
             recipient_id = self.request.GET.get("recipient_id") or self.kwargs[self.pk_url_kwarg]
             if recipient_id:
-                try:
-                    return int(recipient_id)
-                except Exception as err:
-                    raise err
+                return int(recipient_id)
         return None
 
     def dispatch(self, request, *args, **kwargs):

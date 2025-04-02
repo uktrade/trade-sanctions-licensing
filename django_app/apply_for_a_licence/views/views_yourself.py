@@ -31,10 +31,8 @@ class AddYourselfView(BaseIndividualFormView):
         else:
             yourself_id = self.request.GET.get("yourself_id") or self.kwargs[self.pk_url_kwarg]
             if yourself_id:
-                try:
-                    return int(yourself_id)
-                except Exception as err:
-                    raise err
+                return int(yourself_id)
+
         return None
 
     def dispatch(self, request, *args, **kwargs):

@@ -108,10 +108,7 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
         else:
             business_id = self.request.GET.get("business_id") or self.kwargs[self.pk_url_kwarg]
             if business_id:
-                try:
-                    return int(business_id)
-                except Exception as err:
-                    raise err
+                return int(business_id)
         return None
 
     def dispatch(self, request, *args, **kwargs):
