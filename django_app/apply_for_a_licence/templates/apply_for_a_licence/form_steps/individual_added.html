@@ -48,7 +48,7 @@
             </div>
             {% if individuals|length > 1 %}
                 <form id="delete_individual_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                      action="{% url 'delete_individual' pk=individual.id%}">
+                      action="{% url 'delete_individual' individual_id=individual.id%}">
                     <input type="hidden" name="individual_id" value="{{ individual.id }}">
                     {% csrf_token %}
                     <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_individual_form_{{ forloop.counter }}">

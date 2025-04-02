@@ -231,7 +231,7 @@
                                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                                     <form id="delete_individual_form_{{ forloop.counter }}" method="post"
                                           enctype='multipart/form-data' novalidate
-                                          action="{% url 'delete_individual' pk=individual.pk %}?redirect_to_url=check_your_answers">
+                                          action="{% url 'delete_individual' individual_id=individual.id %}?redirect_to_url=check_your_answers">
                                         <input type="hidden" name="individual_id" value="{{ id }}">
                                         <input type="hidden" name="success_url" value="check_your_answers">
                                         {% csrf_token %}
