@@ -41,7 +41,7 @@ class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
         return None
 
     def dispatch(self, request, *args, **kwargs):
-        if recipient_id := self.get_yourself_id():
+        if recipient_id := self.get_recipient_id():
             self.kwargs[self.pk_url_kwarg] = recipient_id
         return super().dispatch(request, *args, **kwargs)
 
