@@ -7,7 +7,6 @@ from apply_for_a_licence.forms import forms_recipients as forms
 from apply_for_a_licence.models import Organisation
 from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
 from core.views.base_views import BaseSaveAndReturnFormView
-from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 
 logger = logging.getLogger(__name__)
@@ -24,25 +23,26 @@ class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
     redirect_after_post = False
     redirect_with_query_parameters = True
 
-    # @property
-    # def object(self) -> Organisation:
-    #     # let's create a new recipient if it doesn't exist
-    #     instance, _ = Organisation.objects.get_or_create(
-    #         defaults={
-    #             "licence": self.licence_object,
-    #             "type_of_relationship": TypeOfRelationshipChoices.recipient.value,
-    #         },
-    #     )
-    #     return instance
+    def get_recipient_id(self):
+        if self.request.GET.get("new", ""):
+            # The user wants to add a new recipient, create it now and assign the id
+            # Lookup first to make sure there are no ghost ids
+            new_recipient, created = Organisation.objects.get_or_create(
+                licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.recipient, status="draft"
+            )
+            return new_recipient.id
+        else:
+            recipient_id = self.request.GET.get("recipient_id") or self.kwargs[self.pk_url_kwarg]
+            if recipient_id:
+                try:
+                    return int(recipient_id)
+                except Exception as err:
+                    raise err
+        return None
 
     def dispatch(self, request, *args, **kwargs):
-        if not self.kwargs.get(self.pk_url_kwarg, ""):
-            # if they've entered here via CYA 'add new recipient', we need to come up with one
-            new_recipient = Organisation.objects.create(
-                licence=self.licence_object,
-                type_of_relationship=TypeOfRelationshipChoices.recipient.value,
-            )
-            return redirect(reverse("where_is_the_recipient_located", kwargs={"recipient_id": new_recipient.id}))
+        if recipient_id := self.get_yourself_id():
+            self.kwargs[self.pk_url_kwarg] = recipient_id
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -99,9 +99,9 @@ class RecipientAddedView(BaseSaveAndReturnFormView):
         if add_recipient:
             new_recipient = Organisation.objects.create(
                 licence=self.licence_object,
-                type_of_relationship=TypeOfRelationshipChoices.recipient.value,
+                type_of_relationship=TypeOfRelationshipChoices.recipient,
             )
-            success_url = reverse("where_is_the_recipient_located", kwargs={"recipient_id": new_recipient.id}) + "?new=yes"
+            success_url = reverse("where_is_the_recipient_located", kwargs={"recipient_id": new_recipient.id})
         else:
             success_url = reverse("tasklist")
         return success_url

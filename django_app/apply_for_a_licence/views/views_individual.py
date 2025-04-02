@@ -33,8 +33,9 @@ class AddAnIndividualView(BaseIndividualFormView):
     redirect_with_query_parameters = True
 
     def get_individual_id(self):
-        if self.request.GET.get("redirect_to_url", "") == "check_your_answers" or self.request.GET.get("change", ""):
+        if self.request.GET.get("new", ""):
             # The user wants to add a new individual
+            # Lookup first to make sure there are no ghost ids
             new_individual, created = Individual.objects.get_or_create(licence=self.licence_object, status="draft")
             return new_individual.id
         else:
@@ -136,7 +137,7 @@ class IndividualAddedView(BaseSaveAndReturnFormView):
             new_individual = Individual.objects.create(
                 licence=self.licence_object,
             )
-            success_url = reverse("add_an_individual") + f"?individual_id={new_individual.id}&change=yes"
+            success_url = reverse("add_an_individual") + f"?individual_id={new_individual.id}"
         elif self.licence_object.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.individual:
             success_url = reverse("business_employing_individual")
         else:

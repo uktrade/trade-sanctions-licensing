@@ -72,7 +72,7 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
             new_business = Organisation.objects.create(
                 licence=self.licence_object, relationship=TypeOfRelationshipChoices.business
             )
-            return reverse("is_the_business_registered_with_companies_house") + f"?business_id={new_business.id}&change=yes"
+            return reverse("is_the_business_registered_with_companies_house") + f"?business_id={new_business.id}"
         else:
             return reverse("tasklist")
 
@@ -94,9 +94,12 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
     redirect_with_query_parameters = True
 
     def get_business_id(self):
-        if self.request.GET.get("redirect_to_url", "") == "check_your_answers" or self.request.GET.get("change", ""):
+        if self.request.GET.get("new", ""):
             # The user wants to add a new business, create it now and assign the id
-            new_business = Organisation.objects.create(licence=self.licence_object, type_of_relationship="business")
+            # Lookup first to make sure there are no ghost ids
+            new_business, created = Organisation.objects.get_or_create(
+                licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.business, status="draft"
+            )
             return new_business.id
         else:
             business_id = self.request.GET.get("business_id") or self.kwargs[self.pk_url_kwarg]

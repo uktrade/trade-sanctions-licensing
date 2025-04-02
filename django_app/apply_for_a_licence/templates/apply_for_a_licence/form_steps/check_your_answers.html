@@ -24,7 +24,7 @@
             <dl class="govuk-summary-card__actions">
                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                     <a class="govuk-link" data-testid="change_your_details_link"
-                       href="{% url 'your_details' %}?redirect_to_url=check_your_answers">Change<span
+                       href="{% url 'your_details' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                         class="govuk-visually-hidden">your details</span></a>
                 </dd>
             </dl>
@@ -59,7 +59,7 @@
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
-                       href="{% url 'are_you_third_party' %}?redirect_to_url=check_your_answers">Change<span
+                       href="{% url 'are_you_third_party' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                         class="govuk-visually-hidden">whether you're a third party or not</span></a>
                 </dd>
             </div>
@@ -74,11 +74,11 @@
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         {% if business.business_registered_on_companies_house == "yes" %}
                             <a class="govuk-link change_business_details_link"
-                               href="{% url 'do_you_know_the_registered_company_number' business_id=business.pk %}?redirect_to_url=check_your_answers">Change<span
+                               href="{% url 'do_you_know_the_registered_company_number' business_id=business.pk %}?redirect_to_url=check_your_answers&change=yes">Change<span
                                 class="govuk-visually-hidden">business {{ forloop.counter }} details</span></a>
                         {% else %}
                             <a class="govuk-link change_business_details_link"
-                               href="{% url 'add_a_business' location=business.where_is_the_address business_id=business.pk %}?redirect_to_url=check_your_answers">Change<span
+                               href="{% url 'add_a_business' location=business.where_is_the_address business_id=business.pk %}?redirect_to_url=check_your_answers&change=yes">Change<span
                                 class="govuk-visually-hidden">business {{ forloop.counter }} details</span></a>
                         {% endif %}
                     </dd>
@@ -117,7 +117,7 @@
         {% endfor %}
         <dl class="govuk-summary-list">
             <a class="govuk-link"
-               href="{% url 'is_the_business_registered_with_companies_house' %}?change=yes&redirect_to_url=check_your_answers">
+               href="{% url 'is_the_business_registered_with_companies_house' %}?new=yes&redirect_to_url=check_your_answers">
                 Add another business
             </a>
         </dl>
@@ -128,7 +128,7 @@
             <dl class="govuk-summary-card__actions">
                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                     <a class="govuk-link"
-                       href="{% url 'add_yourself' yourself_id=applicant_individual.pk %}?redirect_to_url=check_your_answers">Change<span
+                       href="{% url 'add_yourself' yourself_id=applicant_individual.pk %}?redirect_to_url=check_your_answers&change=yes">Change<span
                         class="govuk-visually-hidden">your details</span></a>
                 </dd>
             </dl>
@@ -163,7 +163,7 @@
                             <dl class="govuk-summary-card__actions">
                                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                                     <a class="govuk-link"
-                                       href="{% url 'add_an_individual' %}?redirect_to_url=check_your_answers">Change<span
+                                       href="{% url 'add_an_individual' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                                         class="govuk-visually-hidden">Individual {{ forloop.counter }} details</span></a>
                                 </dd>
                                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
@@ -224,7 +224,7 @@
                         <dl class="govuk-summary-card__actions">
                             <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                                 <a class="govuk-link"
-                                   href="{% url 'add_an_individual' %}?redirect_to_url=check_your_answers">Change<span
+                                   href="{% url 'add_an_individual' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                                     class="govuk-visually-hidden">Individual {{ forloop.counter }} details</span></a>
                             </dd>
                             {% if individuals|length > 1 %}
@@ -279,7 +279,7 @@
             <dl class="govuk-summary-card__actions">
                 <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                     <a class="govuk-link"
-                       href="{% url 'business_employing_individual' %}?redirect_to_url=check_your_answers">Change<span
+                       href="{% url 'business_employing_individual' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                         class="govuk-visually-hidden">business the individuals work for</span></a>
                 </dd>
             </dl>
@@ -304,7 +304,7 @@
         <dl class="govuk-summary-card__actions">
             <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                 <a class="govuk-link"
-                   href="{% url 'previous_licence' %}?redirect_to_url=check_your_answers">Change<span
+                   href="{% url 'previous_licence' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                     class="govuk-visually-hidden">previous licence details</span></a>
             </dd>
         </dl>
@@ -353,7 +353,7 @@
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" data-testid="change_professional_business_services_link"
-                       href="{% url 'professional_or_business_services' %}?redirect_to_url=check_your_answers">Change<span
+                       href="{% url 'professional_or_business_services' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                         class="govuk-visually-hidden">the services</span></a>
                 </dd>
             </div>
@@ -371,7 +371,7 @@
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
-                       href="{% url 'which_sanctions_regime' %}?redirect_to_url=check_your_answers">Change<span
+                       href="{% url 'which_sanctions_regime' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                         class="govuk-visually-hidden">sanctions regime</span></a>
                 </dd>
             </div>
@@ -385,7 +385,7 @@
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"
-                   href="{% url 'service_activities' %}?redirect_to_url=check_your_answers">Change<span
+                   href="{% url 'service_activities' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                     class="govuk-visually-hidden"> the description of the specific activities within the services you want to provide</span></a>
             </dd>
         </div>
@@ -461,7 +461,7 @@
         {% endfor %}
         <dl class="govuk-summary-list">
             <a class="govuk-link"
-               href="{% url 'where_is_the_recipient_located_no_id' %}?redirect_to_url=check_your_answers&change=yes">
+               href="{% url 'where_is_the_recipient_located_no_id' %}?redirect_to_url=check_your_answers&new=yes">
                 Add another recipient
             </a>
         </dl>
@@ -488,11 +488,11 @@
                 <dd class="govuk-summary-list__actions">
                     {% if "legal_advisory" in licence.professional_or_business_services %}
                         <a class="govuk-link"
-                           href="{% url 'licensing_grounds' %}?redirect_to_url=check_your_answers">Change<span
+                           href="{% url 'licensing_grounds' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                             class="govuk-visually-hidden">licensing grounds for the relevant activity</span></a>
                     {% else %}
                         <a class="govuk-link"
-                           href="{% url 'licensing_grounds' %}?redirect_to_url=check_your_answers">Change<span
+                           href="{% url 'licensing_grounds' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                             class="govuk-visually-hidden">licensing grounds</span></a>
                     {% endif %}
                 </dd>
@@ -514,7 +514,7 @@
                 </dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link"
-                       href="{% url 'licensing_grounds_legal_advisory' %}?redirect_to_url=check_your_answers">Change<span
+                       href="{% url 'licensing_grounds_legal_advisory' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                         class="govuk-visually-hidden">licensing grounds for other services (not legal advisory)</span></a>
                 </dd>
             </div>
@@ -526,7 +526,7 @@
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"
-                   href="{% url 'purpose_of_provision' %}?redirect_to_url=check_your_answers">Change<span
+                   href="{% url 'purpose_of_provision' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                     class="govuk-visually-hidden">purpose for providing the services</span></a>
             </dd>
         </div>
@@ -543,7 +543,7 @@
             </dd>
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link"
-                   href="{% url 'upload_documents' %}?redirect_to_url=check_your_answers">Change<span
+                   href="{% url 'upload_documents' %}?redirect_to_url=check_your_answers&change=yes">Change<span
                     class="govuk-visually-hidden">supporting documents</span></a>
             </dd>
         </div>

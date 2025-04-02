@@ -23,9 +23,10 @@ class AddYourselfView(BaseIndividualFormView):
     redirect_with_query_parameters = True
 
     def get_yourself_id(self):
-        if self.request.GET.get("redirect_to_url", "") == "check_your_answers" or self.request.GET.get("change", ""):
+        if self.request.GET.get("new", ""):
             # The user wants to add a new individual, create it now and assign the id
-            new_individual = Individual.objects.create(licence=self.licence_object)
+            # Lookup first to make sure there are no ghost ids
+            new_individual, created = Individual.objects.get_or_create(licence=self.licence_object, status="draft")
             return new_individual.id
         else:
             yourself_id = self.request.GET.get("yourself_id") or self.kwargs[self.pk_url_kwarg]
@@ -131,7 +132,7 @@ class YourselfAndIndividualAddedView(BaseSaveAndReturnFormView):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
             new_individual = Individual.objects.create(licence=self.licence_object)
-            return reverse("add_an_individual") + f"?individual_id={new_individual.id}&change=yes"
+            return reverse("add_an_individual") + f"?individual_id={new_individual.id}"
         else:
             return reverse("tasklist")
 
