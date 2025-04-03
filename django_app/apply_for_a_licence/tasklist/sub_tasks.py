@@ -85,23 +85,17 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
                     business = business_objects.get(status="draft")
                     return reverse("is_the_business_registered_with_companies_house") + f"?business_id={business.id}"
                 except ObjectDoesNotExist:
-                    business = Organisation.objects.create(
-                        licence=self.licence, type_of_relationship=choices.TypeOfRelationshipChoices.business.value
-                    )
-                    return reverse("is_the_business_registered_with_companies_house") + f"?business_id={business.id}"
+                    return reverse("is_the_business_registered_with_companies_house") + "?new=yes"
         else:
             individual_objects = Individual.objects.filter(licence=self.licence)
             if individual_objects.filter(status="complete"):
                 return reverse("individual_added")
             else:
                 try:
-                    new_individual = individual_objects.get(status="draft")
-                    return reverse("add_an_individual") + f"?individual_id={new_individual.id}"
+                    individual = individual_objects.get(status="draft")
+                    return reverse("add_an_individual") + f"?individual_id={individual.id}"
                 except ObjectDoesNotExist:
-                    new_individual = Individual.objects.create(
-                        licence=self.licence,
-                    )
-                    return reverse("add_an_individual") + f"?individual_id={new_individual.id}"
+                    return reverse("add_an_individual") + "?new=yes"
 
     @property
     def is_completed(self) -> bool:
@@ -225,12 +219,9 @@ class RecipientContactDetailsSubTask(BaseSubTask):
         else:
             try:
                 recipient = org_objects.get(status="draft")
-                return reverse("where_is_the_recipient_located", kwargs={"recipient_id": recipient.id})
+                return reverse("where_is_the_recipient_located") + f"?recipient_id={recipient.id}"
             except ObjectDoesNotExist:
-                recipient = Organisation.objects.create(
-                    licence=self.licence, type_of_relationship=choices.TypeOfRelationshipChoices.recipient.value
-                )
-                return reverse("where_is_the_recipient_located", kwargs={"recipient_id": recipient.id})
+                return reverse("where_is_the_recipient_located") + "?new=yes"
 
 
 class CheckYourAnswersSubTask(BaseSubTask):
