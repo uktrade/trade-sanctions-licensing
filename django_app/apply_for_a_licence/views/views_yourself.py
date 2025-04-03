@@ -1,5 +1,4 @@
 import logging
-import uuid
 from typing import Type
 
 from apply_for_a_licence import choices
@@ -20,11 +19,25 @@ logger = logging.getLogger(__name__)
 class AddYourselfView(BaseIndividualFormView):
     form_class = forms.AddYourselfForm
     redirect_after_post = False
-    pk_url_kwarg = "yourself_uuid"
+    pk_url_kwarg = "yourself_id"
     redirect_with_query_parameters = True
 
+    def get_yourself_id(self):
+        if self.request.GET.get("new", ""):
+            # The user wants to add a new individual, create it now and assign the id
+            # Lookup first to make sure there are no ghost ids
+            new_individual, created = Individual.objects.get_or_create(licence=self.licence_object, status="draft")
+            return new_individual.id
+        else:
+            yourself_id = self.request.GET.get("yourself_id") or self.kwargs[self.pk_url_kwarg]
+            if yourself_id:
+                return int(yourself_id)
+
+        return None
+
     def dispatch(self, request, *args, **kwargs):
-        Individual.objects.get_or_create(pk=self.kwargs["yourself_uuid"], licence=self.licence_object)
+        if yourself_id := self.get_yourself_id():
+            self.kwargs[self.pk_url_kwarg] = yourself_id
         return super().dispatch(request, *args, **kwargs)
 
     def save_form(self, form):
@@ -50,7 +63,7 @@ class AddYourselfView(BaseIndividualFormView):
         success_url = reverse(
             "add_yourself_address",
             kwargs={
-                "yourself_uuid": self.instance.id,
+                "yourself_id": self.instance.id,
                 "location": "in-uk" if is_uk_individual else "outside-uk",
             },
         )
@@ -60,10 +73,10 @@ class AddYourselfView(BaseIndividualFormView):
 
 class AddYourselfAddressView(BaseIndividualFormView):
     success_url = reverse_lazy("yourself_and_individual_added")
-    pk_url_kwarg = "yourself_uuid"
+    pk_url_kwarg = "yourself_id"
 
     def get_form_class(self) -> Type[forms.AddYourselfUKAddressForm | forms.AddYourselfNonUKAddressForm]:
-        yourself_id = self.kwargs.get("yourself_uuid")
+        yourself_id = self.kwargs.get("yourself_id")
         licence_object = get_licence_object(self.request)
         instance = get_object_or_404(Individual, pk=yourself_id, licence=licence_object)
 
@@ -116,15 +129,8 @@ class YourselfAndIndividualAddedView(BaseSaveAndReturnFormView):
     def get_success_url(self):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
-            return (
-                reverse(
-                    "add_an_individual",
-                    kwargs={
-                        "individual_uuid": uuid.uuid4(),
-                    },
-                )
-                + "?change=yes"
-            )
+            new_individual = Individual.objects.create(licence=self.licence_object)
+            return reverse("add_an_individual") + f"?individual_id={new_individual.id}"
         else:
             return reverse("tasklist")
 
@@ -133,4 +139,4 @@ class DeleteIndividualFromYourselfView(DeleteAnEntityView):
     model = Individual
     success_url = reverse_lazy("yourself_and_individual_added")
     allow_zero_entities = True
-    pk_url_kwarg = "pk"
+    pk_url_kwarg = "individual_id"

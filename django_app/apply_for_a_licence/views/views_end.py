@@ -1,5 +1,4 @@
 import logging
-import uuid
 from typing import Any
 
 from apply_for_a_licence import choices
@@ -55,8 +54,6 @@ class CheckYourAnswersView(BaseSaveAndReturnView, TemplateView):
             business_individual_works_for = None
         context["business_individual_works_for"] = business_individual_works_for
 
-        context["new_individual_uuid"] = str(uuid.uuid4())
-        context["new_business_uuid"] = str(uuid.uuid4())
         return context
 
 

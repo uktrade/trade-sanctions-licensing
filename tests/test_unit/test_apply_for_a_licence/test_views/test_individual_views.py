@@ -1,5 +1,3 @@
-import uuid
-
 from apply_for_a_licence.choices import (
     NationalityAndLocation,
     TypeOfRelationshipChoices,
@@ -14,11 +12,10 @@ class TestIndividualAddedView:
         response = authenticated_al_client.get(
             reverse("individual_added"),
         )
-        assert "individual-details" in response.url
+        assert "task-list" in response.url
         assert response.status_code == 302
 
     def test_do_not_add_individual_successful_post(self, authenticated_al_client, individual):
-
         response = authenticated_al_client.post(
             reverse("individual_added"),
             data={"do_you_want_to_add_another_individual": False},
@@ -32,7 +29,6 @@ class TestIndividualAddedView:
             data={"do_you_want_to_add_another_individual": True},
         )
         assert "individual-details" in response.url
-        assert "?change=yes" in response.url
 
     def test_do_not_add_individual_myself_journey_successful_post(self, authenticated_al_client, yourself):
         response = authenticated_al_client.post(
@@ -55,7 +51,7 @@ class TestDeleteIndividualView:
         assert individual2 in all_individuals
 
         response = authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"pk": individual2.id}),
+            reverse("delete_individual", kwargs={"individual_id": individual2.id}),
         )
         all_individuals = Individual.objects.filter(licence=individual_licence)
         assert individual1 in all_individuals
@@ -72,14 +68,14 @@ class TestDeleteIndividualView:
         assert individual2 in all_individuals
         assert individual3 in all_individuals
         authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"pk": individual1.id}),
+            reverse("delete_individual", kwargs={"individual_id": individual1.id}),
         )
         authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"pk": individual2.id}),
+            reverse("delete_individual", kwargs={"individual_id": individual2.id}),
         )
         # does not delete last individual
         response = authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"pk": individual3.id}),
+            reverse("delete_individual", kwargs={"individual_id": individual3.id}),
         )
         all_individuals = Individual.objects.filter(licence=individual_licence)
         assert len(all_individuals) == 1
@@ -97,7 +93,7 @@ class TestDeleteIndividualView:
         assert individual2 in all_individuals
         assert individual3 in all_individuals
         response = authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"pk": uuid.uuid4()}),
+            reverse("delete_individual", kwargs={"individual_id": 11111111}),
         )
         all_individuals = Individual.objects.filter(licence=individual_licence)
         assert len(all_individuals) == 3
@@ -110,13 +106,7 @@ class TestDeleteIndividualView:
 class TestAddAnIndividualView:
     def test_redirect_after_post(self, authenticated_al_client, individual_licence):
         response = authenticated_al_client.post(
-            reverse(
-                "add_an_individual",
-                kwargs={
-                    "individual_uuid": uuid.uuid4(),
-                },
-            )
-            + "?redirect_to_url=check_your_answers&new=yes",
+            reverse("add_an_individual") + "?redirect_to_url=check_your_answers&new=yes",
             data={
                 "first_name": "test",
                 "last_name": "test last",
@@ -129,7 +119,7 @@ class TestAddAnIndividualView:
                 "what_is_individuals_address",
                 kwargs={
                     "location": response.resolver_match.kwargs["location"],
-                    "individual_uuid": response.resolver_match.kwargs["individual_uuid"],
+                    "individual_id": response.resolver_match.kwargs["individual_id"],
                 },
             )
             in response.redirect_chain[0][0]
@@ -140,12 +130,7 @@ class TestAddAnIndividualView:
 
     def test_successful_post(self, authenticated_al_client, individual_licence):
         authenticated_al_client.post(
-            reverse(
-                "add_an_individual",
-                kwargs={
-                    "individual_uuid": uuid.uuid4(),
-                },
-            ),
+            reverse("add_an_individual") + "?new=yes",
             data={
                 "first_name": "test",
                 "last_name": "test last",
@@ -179,12 +164,7 @@ class TestAddAnIndividualView:
             nationality_and_location=NationalityAndLocation.uk_national_non_uk_location,
         )
         response = authenticated_al_client.get(
-            reverse(
-                "add_an_individual",
-                kwargs={
-                    "individual_uuid": individual1.id,
-                },
-            )
+            reverse("add_an_individual") + f"?individual_id={individual1.id}",
         )
 
         form = response.context["form"]
@@ -204,7 +184,7 @@ class TestWhatIsIndividualsAddressView:
         response = authenticated_al_client.post(
             reverse(
                 "what_is_individuals_address",
-                kwargs={"location": "in-uk", "individual_uuid": individual.id},
+                kwargs={"location": "in-uk", "individual_id": individual.id},
             ),
             data={
                 "country": "GB",
@@ -234,7 +214,7 @@ class TestWhatIsIndividualsAddressView:
         response = authenticated_al_client.post(
             reverse(
                 "what_is_individuals_address",
-                kwargs={"location": "outside-uk", "individual_uuid": individual.id},
+                kwargs={"location": "outside-uk", "individual_id": individual.id},
             ),
             data={
                 "country": "NL",
@@ -255,7 +235,7 @@ class TestWhatIsIndividualsAddressView:
                 "what_is_individuals_address",
                 kwargs={
                     "location": "in-uk",
-                    "individual_uuid": individual.id,
+                    "individual_id": individual.id,
                 },
             )
         )
@@ -270,7 +250,7 @@ class TestWhatIsIndividualsAddressView:
                 "what_is_individuals_address",
                 kwargs={
                     "location": "in-uk",
-                    "individual_uuid": individual.id,
+                    "individual_id": individual.id,
                 },
             ),
             data={

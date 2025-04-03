@@ -26,7 +26,7 @@ class TestYourselfAndIndividualAddedView:
 class TestAddYourselfView:
     def test_successful_post(self, authenticated_al_client, yourself):
         response = authenticated_al_client.post(
-            reverse("add_yourself", kwargs={"yourself_uuid": yourself.id}),
+            reverse("add_yourself", kwargs={"yourself_id": yourself.id}),
             data={
                 "first_name": "John",
                 "last_name": "Doe",
@@ -38,7 +38,7 @@ class TestAddYourselfView:
         assert (
             reverse(
                 "add_yourself_address",
-                kwargs={"location": "in-uk", "yourself_uuid": yourself.id},
+                kwargs={"location": "in-uk", "yourself_id": yourself.id},
             )
             in response.redirect_chain[0][0]
         )
@@ -52,7 +52,7 @@ class TestAddYourselfView:
         assert not yourself.is_applicant
 
         authenticated_al_client_with_licence.post(
-            reverse("add_yourself", kwargs={"yourself_uuid": yourself.id}),
+            reverse("add_yourself", kwargs={"yourself_id": yourself.id}),
             data={
                 "first_name": "John",
                 "last_name": "Doe",
@@ -70,7 +70,7 @@ class TestAddYourselfAddressView:
         response = authenticated_al_client.post(
             reverse(
                 "add_yourself_address",
-                kwargs={"location": "outside-uk", "yourself_uuid": yourself.id},
+                kwargs={"location": "outside-uk", "yourself_id": yourself.id},
             ),
             data={
                 "country": "DE",
@@ -92,7 +92,7 @@ class TestDeleteIndividualFromYourselfView:
         individual2 = Individual.objects.create(licence=yourself_licence)
 
         response = authenticated_al_client.post(
-            reverse("delete_individual_from_yourself", kwargs={"pk": individual1.id}),
+            reverse("delete_individual_from_yourself", kwargs={"individual_id": individual1.id}),
         )
         individuals = Individual.objects.filter(licence=yourself_licence)
         assert individual1 not in individuals
@@ -106,10 +106,10 @@ class TestDeleteIndividualFromYourselfView:
         individual2 = Individual.objects.create(licence=yourself_licence)
 
         authenticated_al_client.post(
-            reverse("delete_individual_from_yourself", kwargs={"pk": individual1.id}),
+            reverse("delete_individual_from_yourself", kwargs={"individual_id": individual1.id}),
         )
         response = authenticated_al_client.post(
-            reverse("delete_individual_from_yourself", kwargs={"pk": individual2.id}),
+            reverse("delete_individual_from_yourself", kwargs={"individual_id": individual2.id}),
         )
         individuals = Individual.objects.filter(licence=yourself_licence)
         assert individual1 not in individuals
@@ -125,7 +125,7 @@ class TestDeleteIndividualFromYourselfView:
         new_licence = LicenceFactory()
         individual3 = Individual.objects.create(licence=new_licence)
         response = authenticated_al_client.post(
-            reverse("delete_individual_from_yourself", kwargs={"pk": individual3.pk}),
+            reverse("delete_individual_from_yourself", kwargs={"individual_id": individual3.id}),
         )
 
         individuals = Individual.objects.filter(licence=yourself_licence)

@@ -3,7 +3,7 @@ import datetime
 import uuid
 
 from core.document_storage import PermanentDocumentStorage
-from core.models import BaseModel, BaseModelID
+from core.models import BaseModel
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
@@ -155,7 +155,7 @@ class AddressMixin(models.Model):
         return get_formatted_address(model_to_dict(self))
 
 
-class Organisation(BaseModelID, AddressMixin):
+class Organisation(BaseModel, AddressMixin):
     class Meta:
         ordering = ["created_at"]
 
@@ -212,7 +212,7 @@ class Organisation(BaseModelID, AddressMixin):
         self.save()
 
 
-class Individual(BaseModelID, AddressMixin):
+class Individual(BaseModel, AddressMixin):
     licence = models.ForeignKey("Licence", on_delete=models.CASCADE, blank=False, related_name="individuals")
     first_name = models.CharField(max_length=255, blank=False)
     last_name = models.CharField(max_length=255, blank=False)

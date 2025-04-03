@@ -1,5 +1,4 @@
 import logging
-import uuid
 from typing import Any, Dict
 
 from apply_for_a_licence import choices
@@ -19,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class BaseBusinessModelFormView(AddAnEntityView):
-    pk_url_kwarg = "business_uuid"
+    pk_url_kwarg = "business_id"
     model = Organisation
     context_object_name = "business"
 
@@ -57,10 +56,7 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
         return kwargs
 
     def get_all_businesses(self) -> QuerySet[Organisation]:
-        return Organisation.objects.filter(
-            type_of_relationship=TypeOfRelationshipChoices.business,
-            licence=self.licence_object,
-        )
+        return Organisation.objects.filter(licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.business)
 
     def dispatch(self, request, *args, **kwargs):
         businesses = self.get_all_businesses()
@@ -68,15 +64,20 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
             # only allow access to this page if a business has been added
             return super().dispatch(request, *args, **kwargs)
         else:
-            return redirect(reverse("is_the_business_registered_with_companies_house", kwargs={"business_uuid": uuid.uuid4()}))
+            return redirect(self.get_success_url())
 
     def get_success_url(self) -> str:
-        add_business = self.form.cleaned_data["do_you_want_to_add_another_business"]
-        if add_business:
-            return (
-                reverse("is_the_business_registered_with_companies_house", kwargs={"business_uuid": uuid.uuid4()}) + "?change=yes"
-            )
-        else:
+        try:
+            add_business = self.form.cleaned_data["do_you_want_to_add_another_business"]
+            if add_business:
+                new_business = Organisation.objects.create(
+                    licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.business
+                )
+                return reverse("is_the_business_registered_with_companies_house") + f"?business_id={new_business.id}"
+            else:
+                return reverse("tasklist")
+        except AttributeError:
+            # No form object, send the user back to the tasklist to initiate the journey again
             return reverse("tasklist")
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -88,7 +89,7 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
 class DeleteBusinessView(DeleteAnEntityView):
     model = Organisation
     success_url = reverse_lazy("business_added")
-    pk_url_kwarg = "business_uuid"
+    pk_url_kwarg = "business_id"
 
 
 class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
@@ -96,26 +97,35 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
     redirect_after_post = False
     redirect_with_query_parameters = True
 
-    @property
-    def object(self) -> Organisation:
-        # let's create a new business if it doesn't exist
-        instance, _ = Organisation.objects.get_or_create(
-            pk=self.kwargs[self.pk_url_kwarg],
-            defaults={
-                "licence": self.licence_object,
-                "type_of_relationship": TypeOfRelationshipChoices.business,
-            },
-        )
-        return instance
+    def get_business_id(self):
+        if self.request.GET.get("new", ""):
+            # The user wants to add a new business, create it now and assign the id
+            # Lookup first to make sure there are no ghost ids
+            new_business, created = Organisation.objects.get_or_create(
+                licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.business, status="draft"
+            )
+            return new_business.id
+        else:
+            business_id = self.request.GET.get("business_id") or self.kwargs[self.pk_url_kwarg]
+            if business_id:
+                return int(business_id)
+        return None
+
+    def dispatch(self, request, *args, **kwargs):
+        if business_id := self.get_business_id():
+            self.kwargs[self.pk_url_kwarg] = business_id
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
         answer = self.form.cleaned_data["business_registered_on_companies_house"]
+        business_id = self.kwargs.get(self.pk_url_kwarg)
+        if not business_id:
+            raise ValueError("Missing business_id")
         if answer == "yes":
-            success_url = reverse(
-                "do_you_know_the_registered_company_number", kwargs={"business_uuid": self.kwargs.get("business_uuid")}
-            )
+            success_url = reverse("do_you_know_the_registered_company_number", kwargs={"business_id": business_id})
         else:
-            success_url = reverse("where_is_the_business_located", kwargs={"business_uuid": self.kwargs.get("business_uuid")})
+            success_url = reverse("where_is_the_business_located", kwargs={"business_id": business_id})
 
         return success_url
 
@@ -132,11 +142,11 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseBusinessModelFormView):
         registered_company_number = self.form.cleaned_data["registered_company_number"]
         if do_you_know_the_registered_company_number == "yes" and registered_company_number:
             if self.request.session.pop("company_details_500", None):
-                success_url = reverse("manual_companies_house_input", kwargs={"business_uuid": self.kwargs.get("business_uuid")})
+                success_url = reverse("manual_companies_house_input", kwargs={"business_id": self.kwargs.get("business_id")})
             else:
-                success_url = reverse("check_company_details", kwargs={"business_uuid": self.kwargs.get("business_uuid")})
+                success_url = reverse("check_company_details", kwargs={"business_id": self.kwargs.get("business_id")})
         else:
-            success_url = reverse("where_is_the_business_located", kwargs={"business_uuid": self.kwargs.get("business_uuid")})
+            success_url = reverse("where_is_the_business_located", kwargs={"business_id": self.kwargs.get("business_id")})
 
         return success_url
 
@@ -162,7 +172,7 @@ class ManualCompaniesHouseInputView(BaseBusinessModelFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["manual_companies_house_input"]
-        return reverse("add_a_business", kwargs={"location": location, "business_uuid": self.kwargs.get("business_uuid")})
+        return reverse("add_a_business", kwargs={"location": location, "business_id": self.kwargs.get("business_id")})
 
 
 class CheckCompanyDetailsView(BaseBusinessModelFormView):
@@ -180,10 +190,11 @@ class CheckCompanyDetailsView(BaseBusinessModelFormView):
 class WhereIsTheBusinessLocatedView(BaseBusinessModelFormView):
     form_class = forms.WhereIsTheBusinessLocatedForm
     redirect_after_post = False
+    pk_url_kwarg = "business_id"
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
-        success_url = reverse("add_a_business", kwargs={"location": location, "business_uuid": self.kwargs.get("business_uuid")})
+        success_url = reverse("add_a_business", kwargs={"location": location, "business_id": self.kwargs.get("business_id")})
         return success_url
 
     def form_valid(self, form):

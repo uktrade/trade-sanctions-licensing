@@ -1,4 +1,3 @@
-import uuid
 from unittest.mock import patch
 
 from apply_for_a_licence.choices import (
@@ -16,13 +15,14 @@ class TestIsTheBusinessRegisteredWithCompaniesHouse:
         licence = Licence.objects.create(
             user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
         )
+        business = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
 
         session = authenticated_al_client.session
         session["licence_id"] = licence.id
         session.save()
 
         response = authenticated_al_client.post(
-            reverse("is_the_business_registered_with_companies_house", kwargs={"business_uuid": uuid.uuid4()}),
+            reverse("is_the_business_registered_with_companies_house") + f"?business_id={business.id}",
             data={"business_registered_on_companies_house": "no"},
             follow=True,
         )
@@ -32,22 +32,22 @@ class TestIsTheBusinessRegisteredWithCompaniesHouse:
         licence = Licence.objects.create(
             user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
         )
+        business = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
 
         session = authenticated_al_client.session
         session["licence_id"] = licence.id
         session.save()
-        business_uuid = uuid.uuid4()
         response = authenticated_al_client.post(
-            reverse("is_the_business_registered_with_companies_house", kwargs={"business_uuid": business_uuid}),
+            reverse("is_the_business_registered_with_companies_house") + f"?business_id={business.id}",
             data={"business_registered_on_companies_house": "yes"},
         )
-        assert response.url == reverse("do_you_know_the_registered_company_number", kwargs={"business_uuid": business_uuid})
+        assert response.url == reverse("do_you_know_the_registered_company_number", kwargs={"business_id": business.id})
 
 
 class TestDoYouKnowTheRegisteredCompanyNumberView:
     def test_know_the_registered_company_number_successful_post(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
-            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business
         )
 
         session = authenticated_al_client.session
@@ -59,7 +59,7 @@ class TestDoYouKnowTheRegisteredCompanyNumberView:
             type_of_relationship=TypeOfRelationshipChoices.business,
         )
         response = authenticated_al_client.post(
-            reverse("do_you_know_the_registered_company_number", kwargs={"business_uuid": business.id}),
+            reverse("do_you_know_the_registered_company_number", kwargs={"business_id": business.id}),
             data={"do_you_know_the_registered_company_number": "yes", "registered_company_number": "12345678"},
         )
         assert (
@@ -81,7 +81,7 @@ class TestDoYouKnowTheRegisteredCompanyNumberView:
             type_of_relationship=TypeOfRelationshipChoices.business,
         )
         response = authenticated_al_client.post(
-            reverse("do_you_know_the_registered_company_number", kwargs={"business_uuid": business.id}),
+            reverse("do_you_know_the_registered_company_number", kwargs={"business_id": business.id}),
             data={"do_you_know_the_registered_company_number": "no"},
             follow=True,
         )
@@ -101,7 +101,7 @@ class TestDoYouKnowTheRegisteredCompanyNumberView:
             type_of_relationship=TypeOfRelationshipChoices.business,
         )
         response = authenticated_al_client.get(
-            reverse("do_you_know_the_registered_company_number", kwargs={"business_uuid": business.id})
+            reverse("do_you_know_the_registered_company_number", kwargs={"business_id": business.id})
         )
         assert response.context["page_title"] == "Registered Company Number"
 
@@ -131,7 +131,7 @@ class TestDoYouKnowTheRegisteredCompanyNumberView:
         )
         assert not business.do_you_know_the_registered_company_number
         authenticated_al_client_with_licence.post(
-            reverse("do_you_know_the_registered_company_number", kwargs={"business_uuid": business.id}),
+            reverse("do_you_know_the_registered_company_number", kwargs={"business_id": business.id}),
             data={"do_you_know_the_registered_company_number": "yes", "registered_company_number": "12345678"},
             follow=True,
         )
@@ -145,7 +145,7 @@ class TestBusinessAddedView:
         response = authenticated_al_client.get(
             reverse("business_added"),
         )
-        assert "business-registered-with-companies-house" in response.url
+        assert "task-list" in response.url
         assert response.status_code == 302
 
     def test_do_not_add_business_successful_post(self, authenticated_al_client, test_apply_user):
@@ -181,7 +181,6 @@ class TestBusinessAddedView:
             data={"do_you_want_to_add_another_business": True},
         )
         assert "business-registered-with-companies-house" in response.url
-        assert "?change=yes" in response.url
 
     def test_get_context_data(self, authenticated_al_client, organisation):
         organisation.type_of_relationship = "business"
@@ -203,7 +202,7 @@ class TestDeleteBusinessView:
         business1 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
         business2 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
         response = authenticated_al_client.post(
-            reverse("delete_business", kwargs={"business_uuid": business1.id}),
+            reverse("delete_business", kwargs={"business_id": business1.id}),
         )
         businesses = Organisation.objects.filter(licence=licence)
 
@@ -226,13 +225,13 @@ class TestDeleteBusinessView:
         business3 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
 
         authenticated_al_client.post(
-            reverse("delete_business", kwargs={"business_uuid": business1.id}),
+            reverse("delete_business", kwargs={"business_id": business1.id}),
         )
         authenticated_al_client.post(
-            reverse("delete_business", kwargs={"business_uuid": business2.id}),
+            reverse("delete_business", kwargs={"business_id": business2.id}),
         )
         response = authenticated_al_client.post(
-            reverse("delete_business", kwargs={"business_uuid": business3.id}),
+            reverse("delete_business", kwargs={"business_id": business3.id}),
         )
         businesses = Organisation.objects.filter(licence=licence)
         # does not delete last business
@@ -244,7 +243,7 @@ class TestDeleteBusinessView:
 
     def test_unsuccessful_post(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
-            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business
         )
 
         session = authenticated_al_client.session
@@ -255,7 +254,7 @@ class TestDeleteBusinessView:
         business2 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
         business3 = Organisation.objects.create(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
         response = authenticated_al_client.post(
-            reverse("delete_business", kwargs={"business_uuid": uuid.uuid4()}),
+            reverse("delete_business", kwargs={"business_id": 111111}),
         )
         businesses = Organisation.objects.filter(licence=licence)
         # does not delete any business
@@ -286,7 +285,7 @@ class TestCheckCompanyDetailsView:
             name="Test company",
             registered_office_address="AL1, United Kingdom",
         )
-        response = authenticated_al_client.post(reverse("check_company_details", kwargs={"business_uuid": business.id}))
+        response = authenticated_al_client.post(reverse("check_company_details", kwargs={"business_id": business.id}))
         assert response.url == "/apply/add-business"
 
     def test_get_context_data(self, request_object, authenticated_al_client, test_apply_user):
@@ -308,7 +307,7 @@ class TestCheckCompanyDetailsView:
             name="Test company",
             registered_office_address="AL1, United Kingdom",
         )
-        response = authenticated_al_client.get(reverse("check_company_details", kwargs={"business_uuid": business.id}))
+        response = authenticated_al_client.get(reverse("check_company_details", kwargs={"business_id": business.id}))
         assert response.context["business"] == business
 
 
@@ -325,7 +324,7 @@ class TestAddABusinessView:
         response = authenticated_al_client.post(
             reverse(
                 "add_a_business",
-                kwargs={"location": "in-uk", "business_uuid": organisation.id},
+                kwargs={"location": "in-uk", "business_id": organisation.id},
             ),
             data={
                 "name": "DBT",
@@ -356,7 +355,7 @@ class TestAddABusinessView:
         response = authenticated_al_client.post(
             reverse(
                 "add_a_business",
-                kwargs={"location": "outside-uk", "business_uuid": organisation.id},
+                kwargs={"location": "outside-uk", "business_id": organisation.id},
             ),
             data={
                 "name": "DBT",
@@ -380,7 +379,7 @@ class TestAddABusinessView:
                 "add_a_business",
                 kwargs={
                     "location": "in-uk",
-                    "business_uuid": organisation.id,
+                    "business_id": organisation.id,
                 },
             )
         )
@@ -397,7 +396,7 @@ class TestAddABusinessView:
                 "add_a_business",
                 kwargs={
                     "location": "in-uk",
-                    "business_uuid": organisation.id,
+                    "business_id": organisation.id,
                 },
             ),
             data={
@@ -423,7 +422,7 @@ class TestAddABusinessView:
                 "add_a_business",
                 kwargs={
                     "location": "in-uk",
-                    "business_uuid": organisation.id,
+                    "business_id": organisation.id,
                 },
             ),
             data={

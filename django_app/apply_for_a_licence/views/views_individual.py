@@ -1,5 +1,4 @@
 import logging
-import uuid
 from typing import Any, Dict, Type
 
 from apply_for_a_licence import choices
@@ -23,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class BaseIndividualFormView(AddAnEntityView):
-    pk_url_kwarg = "individual_uuid"
+    pk_url_kwarg = "individual_id"
     model = Individual
     context_object_name = "individuals"
 
@@ -33,11 +32,22 @@ class AddAnIndividualView(BaseIndividualFormView):
     redirect_after_post = False
     redirect_with_query_parameters = True
 
+    def get_individual_id(self):
+        if self.request.GET.get("new", ""):
+            # The user wants to add a new individual
+            # Lookup first to make sure there are no ghost ids
+            new_individual, created = Individual.objects.get_or_create(licence=self.licence_object, status="draft")
+            return new_individual.id
+        else:
+            individual_id = self.request.GET.get("individual_id") or self.kwargs[self.pk_url_kwarg]
+            if individual_id:
+                return int(individual_id)
+
+        return None
+
     def dispatch(self, request, *args, **kwargs):
-        Individual.objects.get_or_create(
-            pk=self.kwargs["individual_uuid"],
-            defaults={"licence": self.licence_object, "status": choices.EntityStatusChoices.draft},
-        )
+        if individual_id := self.get_individual_id():
+            self.kwargs[self.pk_url_kwarg] = individual_id
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -50,7 +60,7 @@ class AddAnIndividualView(BaseIndividualFormView):
             "what_is_individuals_address",
             kwargs={
                 "location": "in-uk" if is_uk_individual else "outside-uk",
-                "individual_uuid": self.kwargs.get("individual_uuid"),
+                "individual_id": self.kwargs.get("individual_id"),
             },
         )
         return success_url
@@ -59,7 +69,7 @@ class AddAnIndividualView(BaseIndividualFormView):
 class DeleteIndividualView(DeleteAnEntityView):
     model = Individual
     success_url = reverse_lazy("individual_added")
-    pk_url_kwarg = "pk"
+    pk_url_kwarg = "individual_id"
 
 
 class WhatIsIndividualsAddressView(BaseIndividualFormView):
@@ -112,7 +122,7 @@ class IndividualAddedView(BaseSaveAndReturnFormView):
             # only allow access to this page if an individual has been added
             return super().dispatch(request, *args, **kwargs)
         else:
-            return redirect(reverse("add_an_individual", kwargs={"individual_uuid": uuid.uuid4()}))
+            return redirect(self.get_success_url())
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -120,15 +130,24 @@ class IndividualAddedView(BaseSaveAndReturnFormView):
         return context
 
     def get_success_url(self):
-        add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
-        if add_individual:
-            success_url = reverse("add_an_individual", kwargs={"individual_uuid": uuid.uuid4()}) + "?change=yes"
-        elif self.licence_object.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.individual:
-            success_url = reverse("business_employing_individual")
-        else:
-            success_url = reverse("tasklist")
+        try:
+            add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
+            if add_individual:
+                new_individual = Individual.objects.create(
+                    licence=self.licence_object,
+                )
+                success_url = reverse("add_an_individual") + f"?individual_id={new_individual.id}"
+            elif (
+                self.licence_object.who_do_you_want_the_licence_to_cover
+                == choices.WhoDoYouWantTheLicenceToCoverChoices.individual
+            ):
+                success_url = reverse("business_employing_individual")
+            else:
+                success_url = reverse("tasklist")
 
-        return success_url
+            return success_url
+        except AttributeError:
+            return reverse("tasklist")
 
 
 class BusinessEmployingIndividualView(BaseSaveAndReturnModelFormView):
