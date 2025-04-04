@@ -15,7 +15,7 @@
                 <ul class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         <a class="govuk-link" style="font-size: 19px; text-align:right"
-                           href="{% url 'where_is_the_recipient_located' recipient_id=recipient.pk %}?change=yes">Change<span
+                           href="{% url 'where_is_the_recipient_located' %}?recipient_id={{recipient.id}}&change=yes">Change<span
                             class="govuk-visually-hidden"> recipient {{forloop.counter}} details </span></a>
                     </dd>
                 </ul>
@@ -40,8 +40,8 @@
             </div>
             {% if recipients|length > 1 %}
                 <form id="delete_recipient_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                      action="{% url 'delete_recipient' recipient_id=recipient.pk %}">
-                    <input type="hidden" name="recipient_id" value="{{ recipient.pk }}">
+                      action="{% url 'delete_recipient' recipient_id=recipient.id %}">
+                    <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                     {% csrf_token %}
                     <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_recipient_form_{{ forloop.counter }}">
                         Remove recipient {{forloop.counter }} <span

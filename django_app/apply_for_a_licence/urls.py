@@ -115,14 +115,9 @@ views_services_urls = [
 
 views_recipients_urls = [
     path(
-        "recipient-location/<int:recipient_id>",
-        views_recipients.WhereIsTheRecipientLocatedView.as_view(),
-        name="where_is_the_recipient_located",
-    ),
-    path(
         "recipient-location",
         views_recipients.WhereIsTheRecipientLocatedView.as_view(),
-        name="where_is_the_recipient_located_no_id",
+        name="where_is_the_recipient_located",
     ),
     path(
         "recipient-details/<str:location>/<int:recipient_id>",

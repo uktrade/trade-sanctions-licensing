@@ -98,7 +98,7 @@ class RecipientAddedView(BaseSaveAndReturnFormView):
                 licence=self.licence_object,
                 type_of_relationship=TypeOfRelationshipChoices.recipient,
             )
-            success_url = reverse("where_is_the_recipient_located", kwargs={"recipient_id": new_recipient.id})
+            success_url = reverse("where_is_the_recipient_located") + f"?recipient_id={new_recipient.id}"
         else:
             success_url = reverse("tasklist")
         return success_url

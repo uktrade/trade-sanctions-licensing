@@ -80,11 +80,7 @@ class TestAddRecipientView:
         organisation.save()
 
         response = authenticated_al_client.post(
-            reverse(
-                "where_is_the_recipient_located",
-                kwargs={"recipient_id": organisation.id},
-            )
-            + "?change=yes",
+            reverse("where_is_the_recipient_located") + f"?recipient_id={organisation.id}&change=yes",
             data={"where_is_the_address": "outside-uk"},
         )
         assert response.status_code == 302
@@ -101,11 +97,7 @@ class TestAddRecipientView:
         organisation.save()
 
         response = authenticated_al_client.post(
-            reverse(
-                "where_is_the_recipient_located",
-                kwargs={"recipient_id": organisation.id},
-            )
-            + "?change=yes",
+            reverse("where_is_the_recipient_located") + f"?recipient_id={organisation.id}&change=yes",
             data={"where_is_the_address": "in-uk"},
         )
         assert response.status_code == 302
@@ -229,7 +221,7 @@ class TestWhereIsTheRecipientLocatedView:
         recipient_organisation.save()
 
         response = authenticated_al_client_with_licence.post(
-            reverse("where_is_the_recipient_located", kwargs={"recipient_id": recipient_organisation.id}),
+            reverse("where_is_the_recipient_located") + f"?recipient_id={recipient_organisation.id}",
             data={"where_is_the_address": "in-uk"},
         )
 
@@ -240,7 +232,7 @@ class TestWhereIsTheRecipientLocatedView:
 
         # change first recipients location
         response = authenticated_al_client_with_licence.post(
-            reverse("where_is_the_recipient_located", kwargs={"recipient_id": recipient_organisation.id}) + "?change=true",
+            reverse("where_is_the_recipient_located") + f"?recipient_id={recipient_organisation.id}&change=true",
             data={"where_is_the_address": "outside-uk"},
         )
 
