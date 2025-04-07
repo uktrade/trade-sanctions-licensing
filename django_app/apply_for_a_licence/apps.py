@@ -6,6 +6,8 @@ class ApplyForALicenceConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "apply_for_a_licence"
 
+    # Test comment - 1
+
     def ready(self) -> None:
         if settings.ENVIRONMENT == "test":
             # if we're running on a test environment, we want to override the process_email_step method,
