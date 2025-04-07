@@ -7,7 +7,6 @@ class TestYourDetailsSubTasks:
     def test_yourdetails_subtask_helptext(self, individual_licence, yourself_licence):
         # individual licence
         sub_task = YourDetailsSubTask(individual_licence)
-        print(sub_task.help_text)
         assert sub_task.help_text == ""
         sub_task = YourDetailsSubTask(yourself_licence)
         assert sub_task.help_text == "Your name and address, details of anyone else you want to add"
@@ -15,7 +14,6 @@ class TestYourDetailsSubTasks:
     def test_yourdetails_subtask_url(self, individual_licence, yourself_licence, yourself):
         # individual licence
         sub_task = YourDetailsSubTask(individual_licence)
-        print(sub_task.help_text)
         assert sub_task.url == reverse("are_you_third_party")
         # yourself licence with applicant
         sub_task = YourDetailsSubTask(yourself_licence)
