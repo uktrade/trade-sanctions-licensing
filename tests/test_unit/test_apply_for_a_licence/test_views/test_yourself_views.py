@@ -22,6 +22,24 @@ class TestYourselfAndIndividualAddedView:
         assert "individual-details" in response.url
         assert response.status_code == 302
 
+    def test_no_yourself_or_individual_redirects(self, authenticated_al_client_with_licence):
+        response = authenticated_al_client_with_licence.get(reverse("yourself_and_individual_added"))
+        assert "your-name-nationality-location" in response.url
+        assert "?new=yes" in response.url
+        assert response.status_code == 302
+
+    def test_context_data(self, authenticated_al_client, yourself_licence, yourself):
+        individual = Individual.objects.create(
+            licence=yourself_licence, status="complete", first_name="Another", last_name="User"
+        )
+
+        yourself_licence.applicant_full_name = yourself.full_name
+        yourself_licence.save()
+        response = authenticated_al_client.get(reverse("yourself_and_individual_added"))
+        assert response.context["yourself"] == yourself
+        assert len(response.context["individuals"]) == 1
+        assert response.context["individuals"][0] == individual
+
 
 class TestAddYourselfView:
     def test_successful_post(self, authenticated_al_client, yourself):

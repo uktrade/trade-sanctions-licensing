@@ -110,7 +110,7 @@ class YourselfAndIndividualAddedView(BaseSaveAndReturnFormView):
             # only allow access to this page if an individual or yourself has been added
             return super().dispatch(request, *args, **kwargs)
         else:
-            return redirect("add_yourself")
+            return redirect(reverse("add_yourself") + "?new=yes")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
