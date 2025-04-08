@@ -34,7 +34,7 @@
                 <dt class="govuk-summary-list__key">
                     Business name
                 </dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value" data-testid="business-name-{{ forloop.counter }}">
                     {% if business.name %}
                         {{ business.name }}
                     {% else %}
@@ -46,7 +46,7 @@
                 <dt class="govuk-summary-list__key">
                     Address
                 </dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value" data-testid="business-address-{{ forloop.counter }}">
                     {% if business.readable_address %}
                         {{ business.readable_address | linebreaksbr }}
                     {% else %}

@@ -87,3 +87,21 @@ class TestAddBusiness(StartBase, ProviderBase, AboutTheServicesBase, RecipientBa
         # we still should see only 1 business, no duplicate created
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         expect(self.page.get_by_role("heading", name="You've added 1 business")).to_be_visible()
+
+    def test_draft_business_has_text_(self):
+        self.start_new_application()
+        self.business_not_third_party(self.page)
+        self.provider_business_located_in_uk(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/add-business"))
+        self.page.get_by_label("Yes").check()
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_label("No", exact=True).check()
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_label("Outside the UK").check()
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_role("button", name="Skip for now and return to").click()
+        self.page.get_by_role("link", name="Details of the business you").click()
+        expect(self.page).to_have_url(re.compile(r".*/add-business"))
+        expect(self.page.get_by_role("heading", name="You've added 2 businesses")).to_be_visible()
+        expect(self.page.get_by_test_id("business-address-2")).to_have_text("Not yet added")
+        expect(self.page.get_by_test_id("business-name-2")).to_have_text("Not yet added")
