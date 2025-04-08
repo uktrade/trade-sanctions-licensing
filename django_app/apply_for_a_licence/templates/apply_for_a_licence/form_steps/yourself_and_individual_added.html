@@ -40,7 +40,11 @@
                 Address
             </dt>
             <dd class="govuk-summary-list__value">
-                {{ yourself.readable_address | linebreaksbr }}
+                {% if yourself.readable_address %}
+                    {{ yourself.readable_address | linebreaksbr }}
+                {% else %}
+                    Not yet added
+                {% endif %}
             </dd>
         </div>
     </dl>
@@ -64,7 +68,11 @@
                     Name
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ individual.full_name }}
+                    {% if individual.first_name or individual.last_name %}
+                        {{ individual.full_name }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
@@ -72,7 +80,11 @@
                     Nationality and location
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ individual.get_nationality_and_location_display }}
+                    {% if individual.get_nationality_and_location_display %}
+                        {{ individual.get_nationality_and_location_display }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
@@ -80,7 +92,11 @@
                     Address
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    {{ individual.readable_address | linebreaksbr }}
+                    {% if individual.readable_address %}
+                        {{ individual.readable_address | linebreaksbr }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             <form id="delete_individual_from_yourself_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
@@ -88,7 +104,7 @@
                 <input type="hidden" name="individual_id" value="{{ individual.id }}">
                 {% csrf_token %}
                 <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_individual_from_yourself_form_{{ forloop.counter }}">
-                    Remove individual {{ forloop.counter }}
+                    Remove Individual {{ forloop.counter }}
                 </button>
             </form>
         </dl>

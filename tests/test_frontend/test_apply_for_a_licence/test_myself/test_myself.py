@@ -44,6 +44,6 @@ class TestAddMyself(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase
         self.provider_individual_located_in_uk(self.page, first_name="new_person_first", last_name="test")
         expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
         expect(self.page.get_by_role("heading", name="You've added yourself plus 1 individual to the licence")).to_be_visible()
-        self.page.get_by_role("button", name="Remove individual 1").click()
+        self.page.get_by_role("button", name="Remove Individual 1").click()
         expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
         expect(self.page.get_by_role("heading", name="You've added yourself to the licence")).to_be_visible()

@@ -45,7 +45,7 @@ class TestAddIndividual(StartBase, ProviderBase, AboutTheServicesBase, Recipient
         self.provider_individual_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-individual"))
         expect(self.page.get_by_role("heading", name="You've added 2 individuals")).to_be_visible()
-        self.page.get_by_role("button", name="Remove individual 1").click()
+        self.page.get_by_role("button", name="Remove Individual 1").click()
         expect(self.page).to_have_url(re.compile(r".*/add-individual"))
         expect(self.page.get_by_role("heading", name="You've added 1 individual")).to_be_visible()
 

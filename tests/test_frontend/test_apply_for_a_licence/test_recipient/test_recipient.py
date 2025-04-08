@@ -41,7 +41,7 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase
         self.page.get_by_role("button", name="Continue").click()
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         expect(self.page.get_by_role("heading", name="You've added 2 recipients")).to_be_visible()
-        self.page.get_by_role("button", name="Remove recipient 1").click()
+        self.page.get_by_role("button", name="Remove Recipient 1").click()
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         expect(self.page.get_by_role("heading", name="You've added 1 recipient")).to_be_visible()
 
