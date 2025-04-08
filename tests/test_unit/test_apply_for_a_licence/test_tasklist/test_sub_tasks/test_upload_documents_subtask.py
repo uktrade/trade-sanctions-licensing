@@ -1,3 +1,4 @@
+from apply_for_a_licence.models import Document
 from apply_for_a_licence.tasklist.sub_tasks import UploadDocumentsSubTask
 from django.urls import reverse
 
@@ -12,6 +13,6 @@ class TestPreviousLicensesHeldSubTask:
     def test_subtask_is_completed(self, business_licence):
         sub_task = UploadDocumentsSubTask(business_licence)
         assert not sub_task.is_completed
-        business_licence.documents = "file.png"
-        business_licence.save()
+        Document.objects.create(licence=business_licence, file="test123124234.png", original_file_name="test.png")
+        print(business_licence.documents)
         assert sub_task.is_completed
