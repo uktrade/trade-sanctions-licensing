@@ -24,10 +24,12 @@ class AddYourselfView(BaseIndividualFormView):
 
     def get_yourself_id(self):
         if self.request.GET.get("new", ""):
-            # The user wants to add a new individual, create it now and assign the id
+            # The user wants to add a new applicant individual, create it now and assign the id
             # Lookup first to make sure there are no ghost ids
-            new_individual, created = Individual.objects.get_or_create(licence=self.licence_object, status="draft")
-            return new_individual.id
+            yourself_individual, created = Individual.objects.get_or_create(
+                licence=self.licence_object, status="draft", is_applicant=True
+            )
+            return yourself_individual.id
         else:
             yourself_id = self.request.GET.get("yourself_id") or self.kwargs[self.pk_url_kwarg]
             if yourself_id:

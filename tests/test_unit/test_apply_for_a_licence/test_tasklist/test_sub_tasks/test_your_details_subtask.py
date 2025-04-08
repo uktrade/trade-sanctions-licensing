@@ -18,16 +18,15 @@ class TestYourDetailsSubTasks:
         # yourself licence with applicant
         sub_task = YourDetailsSubTask(yourself_licence)
         applicant_individual = yourself_licence.individuals.filter(is_applicant=True).get()
-        assert sub_task.url == reverse("add_yourself", kwargs={"yourself_id": applicant_individual.id})
+        assert sub_task.url == reverse("add_yourself") + f"?yourself_id={applicant_individual.id}"
 
     def test_yourdetails_subtask_url_no_yourself(self, yourself_licence):
         # yourself licence no applicant added creates new applicant
         sub_task = YourDetailsSubTask(yourself_licence)
         applicant_individual = yourself_licence.individuals.filter(is_applicant=True)
         assert len(applicant_individual) == 0
-        assert "your-name-nationality-location" in sub_task.url
-        applicant_individual = yourself_licence.individuals.filter(is_applicant=True)
-        assert len(applicant_individual) == 1
+        assert "your-name-nationality" in sub_task.url
+        assert "?new=yes" in sub_task.url
 
     def test_is_completed(self, business_licence):
         sub_task = YourDetailsSubTask(business_licence)

@@ -26,7 +26,7 @@ class TestYourselfAndIndividualAddedView:
 class TestAddYourselfView:
     def test_successful_post(self, authenticated_al_client, yourself):
         response = authenticated_al_client.post(
-            reverse("add_yourself", kwargs={"yourself_id": yourself.id}),
+            reverse("add_yourself") + f"?yourself_id={yourself.id}",
             data={
                 "first_name": "John",
                 "last_name": "Doe",
@@ -52,7 +52,7 @@ class TestAddYourselfView:
         assert not yourself.is_applicant
 
         authenticated_al_client_with_licence.post(
-            reverse("add_yourself", kwargs={"yourself_id": yourself.id}),
+            reverse("add_yourself") + f"?yourself_id={yourself.id}",
             data={
                 "first_name": "John",
                 "last_name": "Doe",
@@ -63,6 +63,16 @@ class TestAddYourselfView:
 
         yourself.refresh_from_db()
         assert yourself.is_applicant
+
+    def test_create_new_individual_successful_get(self, authenticated_al_client, yourself_licence):
+        authenticated_al_client.get(
+            reverse("add_yourself") + "?new=yes",
+        )
+        individuals = Individual.objects.filter(licence=yourself_licence)
+
+        assert len(individuals) == 1
+        assert individuals[0].status == "draft"
+        assert individuals[0].is_applicant
 
 
 class TestAddYourselfAddressView:
