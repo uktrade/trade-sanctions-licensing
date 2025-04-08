@@ -14,5 +14,4 @@ class TestPreviousLicensesHeldSubTask:
         sub_task = UploadDocumentsSubTask(business_licence)
         assert not sub_task.is_completed
         Document.objects.create(licence=business_licence, file="test123124234.png", original_file_name="test.png")
-        print(business_licence.documents)
         assert sub_task.is_completed

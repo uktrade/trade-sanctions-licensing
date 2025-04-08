@@ -54,7 +54,7 @@ views_business_urls = [
         name="check_company_details",
     ),
     path(
-        "business-location",
+        "business-location/<int:business_id>",
         views_business.ManualCompaniesHouseInputView.as_view(),
         name="manual_companies_house_input",
     ),

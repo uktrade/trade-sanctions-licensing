@@ -43,6 +43,38 @@ class TestIsTheBusinessRegisteredWithCompaniesHouse:
         )
         assert response.url == reverse("do_you_know_the_registered_company_number", kwargs={"business_id": business.id})
 
+    def test_create_new_business_successful_get(self, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
+        licence_businesses = Organisation.objects.filter(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+        assert len(licence_businesses) == 0
+
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+        authenticated_al_client.get(
+            reverse("is_the_business_registered_with_companies_house") + "?new=yes",
+        )
+        licence_businesses = Organisation.objects.filter(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+        assert len(licence_businesses) == 1
+        assert licence_businesses[0].status == "draft"
+
+    def test_no_business_id_returns_404(self, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
+
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+        response = authenticated_al_client.get(
+            reverse("is_the_business_registered_with_companies_house"),
+        )
+        licence_businesses = Organisation.objects.filter(licence=licence, type_of_relationship=TypeOfRelationshipChoices.business)
+        assert len(licence_businesses) == 0
+        assert response.status_code == 404
+
 
 class TestDoYouKnowTheRegisteredCompanyNumberView:
     def test_know_the_registered_company_number_successful_post(self, authenticated_al_client, test_apply_user):
@@ -439,3 +471,125 @@ class TestAddABusinessView:
         assert len(businesses) == 1
         assert businesses[0].status == "complete"
         assert businesses[0].name == "DBT"
+
+
+class TestManualCompaniesHouseInputView:
+    # todo: fix test - issue is with sessions
+    # def test_manual_companies_house_successful_post(self, al_client, test_apply_user):
+    #     licence = Licence.objects.create(
+    #         user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+    #     )
+    #
+    #     session = al_client.session
+    #     session["licence_id"] = licence.id
+    #     session["company_details_500"] = True
+    #     session.save()
+    #     business = Organisation.objects.create(
+    #         licence=licence,
+    #         business_registered_on_companies_house=YesNoDoNotKnowChoices.yes,
+    #         type_of_relationship=TypeOfRelationshipChoices.business,
+    #     )
+    #     response = al_client.post(
+    #         reverse("do_you_know_the_registered_company_number", kwargs={"business_id": business.id}),
+    #         data={"do_you_know_the_registered_company_number": "yes"},
+    #         follow=True,
+    #     )
+    #     assert reverse("manual_companies_house_input", kwargs=response.resolver_match.kwargs) in response.wsgi_request.path
+
+    def test_manual_companies_house_input_successful_post(self, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
+
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+
+        business = Organisation.objects.create(
+            licence=licence,
+            business_registered_on_companies_house=YesNoDoNotKnowChoices.yes,
+            type_of_relationship=TypeOfRelationshipChoices.business,
+        )
+        response = authenticated_al_client.post(
+            reverse("manual_companies_house_input", kwargs={"business_id": business.id}),
+            data={"where_is_the_address": "in-uk"},
+            follow=True,
+        )
+        assert reverse("add_a_business", kwargs={"business_id": business.id, "location": "in-uk"}) in response.wsgi_request.path
+
+
+class TestWhereIsTheBusinessLocatedView:
+    def test_successful_post(self, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
+
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+
+        business = Organisation.objects.create(
+            licence=licence,
+            business_registered_on_companies_house=YesNoDoNotKnowChoices.no,
+            type_of_relationship=TypeOfRelationshipChoices.business,
+        )
+        response = authenticated_al_client.post(
+            reverse("where_is_the_business_located", kwargs={"business_id": business.id}),
+            data={"where_is_the_address": "in-uk"},
+            follow=True,
+        )
+        assert reverse("add_a_business", kwargs={"business_id": business.id, "location": "in-uk"}) in response.wsgi_request.path
+
+    def test_clears_form_data(self, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
+
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+
+        business = Organisation.objects.create(
+            licence=licence,
+            business_registered_on_companies_house=YesNoDoNotKnowChoices.no,
+            type_of_relationship=TypeOfRelationshipChoices.business,
+        )
+
+        authenticated_al_client.post(
+            reverse("where_is_the_business_located", kwargs={"business_id": business.id}),
+            data={"where_is_the_address": "outside-uk"},
+        )
+
+        # input business details
+        response = authenticated_al_client.post(
+            reverse(
+                "add_a_business",
+                kwargs={"location": "outside-uk", "business_id": business.id},
+            ),
+            data={
+                "name": "DBT",
+                "country": "NL",
+                "address_line_1": "Dutch address",
+                "town_or_city": "Dutch City",
+            },
+        )
+
+        assert response.url == reverse("business_added")
+
+        business = Organisation.objects.get(id=business.id)
+        assert business.name == "DBT"
+        assert business.country == "NL"
+        assert business.address_line_1 == "Dutch address"
+        assert business.town_or_city == "Dutch City"
+        # change address to uk
+        authenticated_al_client.post(
+            reverse("where_is_the_business_located", kwargs={"business_id": business.id}),
+            data={"where_is_the_address": "in-uk"},
+            follow=True,
+        )
+        # assert business address details cleared
+        business = Organisation.objects.get(id=business.id)
+        assert not business.address_line_1
+        assert not business.country
+        assert not business.town_or_city
+        assert business.name == "DBT"
