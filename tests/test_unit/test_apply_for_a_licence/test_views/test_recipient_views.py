@@ -1,5 +1,9 @@
-from apply_for_a_licence.choices import TypeOfServicesChoices
-from apply_for_a_licence.models import Organisation
+from apply_for_a_licence.choices import (
+    TypeOfRelationshipChoices,
+    TypeOfServicesChoices,
+    WhoDoYouWantTheLicenceToCoverChoices,
+)
+from apply_for_a_licence.models import Licence, Organisation
 from django.urls import reverse
 
 from tests.factories import OrganisationFactory
@@ -244,3 +248,24 @@ class TestWhereIsTheRecipientLocatedView:
         )
         recipient_organisation.refresh_from_db()
         assert recipient_organisation.where_is_the_address == "outside-uk"
+
+    def test_create_new_recipient_successful_get(self, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
+        licence_recipients = Organisation.objects.filter(
+            licence=licence, type_of_relationship=TypeOfRelationshipChoices.recipient
+        )
+        assert len(licence_recipients) == 0
+
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+        authenticated_al_client.get(
+            reverse("where_is_the_recipient_located") + "?new=yes",
+        )
+        licence_recipients = Organisation.objects.filter(
+            licence=licence, type_of_relationship=TypeOfRelationshipChoices.recipient
+        )
+        assert len(licence_recipients) == 1
+        assert licence_recipients[0].status == "draft"
