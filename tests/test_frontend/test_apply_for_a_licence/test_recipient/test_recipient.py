@@ -41,7 +41,7 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase
         self.page.get_by_role("button", name="Continue").click()
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         expect(self.page.get_by_role("heading", name="You've added 2 recipients")).to_be_visible()
-        self.page.get_by_role("button", name="Remove recipient 1").click()
+        self.page.get_by_role("button", name="Remove Recipient 1").click()
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         expect(self.page.get_by_role("heading", name="You've added 1 recipient")).to_be_visible()
 
@@ -77,3 +77,23 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase
         self.page.get_by_text("Outside the UK").click()
         self.page.get_by_role("button", name="Continue").click()
         assert self.page.locator("input[name='address_line_1']").input_value() == ""  # should be wiped
+
+    def test_draft_recipient_has_text(self):
+        self.start_new_application()
+        self.business_third_party(self.page)
+        self.provider_business_located_in_uk(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/add-business"))
+        self.no_more_additions(self.page)
+        self.previous_licence(self.page)
+        self.recipient(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
+        self.page.get_by_label("Yes").check()
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_label("Outside the UK").check()
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_role("button", name="Skip for now and return to").click()
+        self.page.get_by_role("link", name="Recipient contact details").click()
+        expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
+        expect(self.page.get_by_role("heading", name="You've added 2 recipients")).to_be_visible()
+        expect(self.page.get_by_test_id("recipient-address-2")).to_have_text("Not yet added")
+        expect(self.page.get_by_test_id("recipient-name-2")).to_have_text("Not yet added")

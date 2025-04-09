@@ -45,7 +45,7 @@ class TestAddIndividual(StartBase, ProviderBase, AboutTheServicesBase, Recipient
         self.provider_individual_located_in_uk(self.page)
         expect(self.page).to_have_url(re.compile(r".*/add-individual"))
         expect(self.page.get_by_role("heading", name="You've added 2 individuals")).to_be_visible()
-        self.page.get_by_role("button", name="Remove individual 1").click()
+        self.page.get_by_role("button", name="Remove Individual 1").click()
         expect(self.page).to_have_url(re.compile(r".*/add-individual"))
         expect(self.page.get_by_role("heading", name="You've added 1 individual")).to_be_visible()
 
@@ -92,3 +92,19 @@ class TestAddIndividual(StartBase, ProviderBase, AboutTheServicesBase, Recipient
         self.page.get_by_role("button", name="Continue").click()
         self.fill_uk_address_details(self.page, "individual")
         expect(self.page).to_have_url(re.compile(r".*/add-individual"))
+
+    def test_draft_individual_has_text(self):
+        self.start_new_application()
+        self.individual_third_party(self.page)
+        self.page.get_by_role("link", name="Details of the individual you").click()
+        self.provider_individual_located_in_uk(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/add-individual"))
+        self.page.get_by_label("Yes").check()
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_role("button", name="Skip for now and return to").click()
+        self.page.get_by_role("link", name="Details of the individual you").click()
+        expect(self.page).to_have_url(re.compile(r".*/add-individual"))
+        expect(self.page.get_by_role("heading", name="You've added 2 individuals")).to_be_visible()
+        expect(self.page.get_by_test_id("individual-address-2")).to_have_text("Not yet added")
+        expect(self.page.get_by_test_id("individual-nationality-location-2")).to_have_text("Not yet added")
+        expect(self.page.get_by_test_id("individual-name-2")).to_have_text("Not yet added")

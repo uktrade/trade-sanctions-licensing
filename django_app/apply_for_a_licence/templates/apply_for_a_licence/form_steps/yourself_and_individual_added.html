@@ -23,7 +23,7 @@
             <dt class="govuk-summary-list__key">
                 Name
             </dt>
-            <dd class="govuk-summary-list__value">
+            <dd class="govuk-summary-list__value" data-testid="yourself-name">
                 {{ yourself.full_name }}
             </dd>
         </div>
@@ -31,7 +31,7 @@
             <dt class="govuk-summary-list__key">
                 Nationality and location
             </dt>
-            <dd class="govuk-summary-list__value">
+            <dd class="govuk-summary-list__value" data-testid="yourself-nationality-location">
                 {{ yourself.get_nationality_and_location_display }}
             </dd>
         </div>
@@ -39,8 +39,12 @@
             <dt class="govuk-summary-list__key">
                 Address
             </dt>
-            <dd class="govuk-summary-list__value">
-                {{ yourself.readable_address | linebreaksbr }}
+            <dd class="govuk-summary-list__value" data-testid="yourself-address">
+                {% if yourself.readable_address %}
+                    {{ yourself.readable_address | linebreaksbr }}
+                {% else %}
+                    Not yet added
+                {% endif %}
             </dd>
         </div>
     </dl>
@@ -63,24 +67,36 @@
                 <dt class="govuk-summary-list__key">
                     Name
                 </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ individual.full_name }}
+                <dd class="govuk-summary-list__value" data-testid="individual-name-{{ forloop.counter }}">
+                    {% if individual.first_name or individual.last_name %}
+                        {{ individual.full_name }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                     Nationality and location
                 </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ individual.get_nationality_and_location_display }}
+                <dd class="govuk-summary-list__value" data-testid="individual-nationality-location-{{ forloop.counter }}">
+                    {% if individual.get_nationality_and_location_display %}
+                        {{ individual.get_nationality_and_location_display }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                     Address
                 </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ individual.readable_address | linebreaksbr }}
+                <dd class="govuk-summary-list__value" data-testid="individual-address-{{ forloop.counter }}">
+                    {% if individual.readable_address %}
+                        {{ individual.readable_address | linebreaksbr }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             <form id="delete_individual_from_yourself_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
@@ -88,7 +104,7 @@
                 <input type="hidden" name="individual_id" value="{{ individual.id }}">
                 {% csrf_token %}
                 <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_individual_from_yourself_form_{{ forloop.counter }}">
-                    Remove individual {{ forloop.counter }}
+                    Remove Individual {{ forloop.counter }}
                 </button>
             </form>
         </dl>

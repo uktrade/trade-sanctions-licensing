@@ -34,16 +34,24 @@
                 <dt class="govuk-summary-list__key">
                     Business name
                 </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ business.name }}
+                <dd class="govuk-summary-list__value" data-testid="business-name-{{ forloop.counter }}">
+                    {% if business.name %}
+                        {{ business.name }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                     Address
                 </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ business.readable_address | linebreaksbr }}
+                <dd class="govuk-summary-list__value" data-testid="business-address-{{ forloop.counter }}">
+                    {% if business.readable_address %}
+                        {{ business.readable_address | linebreaksbr }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             {% if businesses|length > 1 %}
@@ -52,7 +60,7 @@
                     <input type="hidden" name="business_id" value="{{ business.id }}">
                     {% csrf_token %}
                     <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_business_form_{{ forloop.counter }}">
-                        Remove business {{ forloop.counter }} <span
+                        Remove Business {{ forloop.counter }} <span
                             class="govuk-visually-hidden"> Business {{forloop.counter}}</span>
                     </button>
                 </form>

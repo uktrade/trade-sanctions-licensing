@@ -1,5 +1,6 @@
 import re
 
+from django.urls import reverse
 from playwright.sync_api import expect
 
 from tests.test_frontend.conftest import (
@@ -44,6 +45,31 @@ class TestAddMyself(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase
         self.provider_individual_located_in_uk(self.page, first_name="new_person_first", last_name="test")
         expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
         expect(self.page.get_by_role("heading", name="You've added yourself plus 1 individual to the licence")).to_be_visible()
-        self.page.get_by_role("button", name="Remove individual 1").click()
+        self.page.get_by_role("button", name="Remove Individual 1").click()
         expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
         expect(self.page.get_by_role("heading", name="You've added yourself to the licence")).to_be_visible()
+
+    def test_draft_individual_has_text(self):
+        self.start_new_application()
+        self.myself(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/your-name-nationality-location"))
+        self.provider_myself_located_in_uk(self.page)
+        expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
+        self.page.get_by_label("Yes").check()
+        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_role("button", name="Skip for now and return to").click()
+        self.go_to_path(reverse("yourself_and_individual_added"))
+        expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
+        expect(self.page.get_by_role("heading", name="You've added yourself plus 1 individual to the licence")).to_be_visible()
+        expect(self.page.get_by_test_id("individual-address-1")).to_have_text("Not yet added")
+        expect(self.page.get_by_test_id("individual-nationality-location-1")).to_have_text("Not yet added")
+        expect(self.page.get_by_test_id("individual-name-1")).to_have_text("Not yet added")
+
+    def test_draft_yourself_has_text(self):
+        self.start_new_application()
+        self.myself(self.page)
+        self.your_details(self.page, "myself")
+        self.go_to_path(reverse("yourself_and_individual_added"))
+        expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
+        expect(self.page.get_by_role("heading", name="You've added yourself to the licence")).to_be_visible()
+        expect(self.page.get_by_test_id("yourself-address")).to_have_text("Not yet added")

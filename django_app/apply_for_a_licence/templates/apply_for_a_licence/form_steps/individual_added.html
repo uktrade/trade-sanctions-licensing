@@ -26,24 +26,36 @@
                 <dt class="govuk-summary-list__key">
                     Name
                 </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ individual.first_name }} {{individual.last_name}}
+                <dd class="govuk-summary-list__value" data-testid="individual-name-{{ forloop.counter }}">
+                    {% if individual.first_name or individual.last_name %}
+                        {{ individual.first_name }} {{individual.last_name}}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                     Nationality and location
                 </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ individual.get_nationality_and_location_display }}
+                <dd class="govuk-summary-list__value" data-testid="individual-nationality-location-{{ forloop.counter }}">
+                    {% if individual.get_nationality_and_location_display %}
+                        {{ individual.get_nationality_and_location_display }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                     Address
                 </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ individual.readable_address | linebreaksbr }}
+                <dd class="govuk-summary-list__value" data-testid="individual-address-{{ forloop.counter }}">
+                    {% if individual.readable_address %}
+                        {{ individual.readable_address | linebreaksbr }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             {% if individuals|length > 1 %}
@@ -52,7 +64,7 @@
                     <input type="hidden" name="individual_id" value="{{ individual.id }}">
                     {% csrf_token %}
                     <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_individual_form_{{ forloop.counter }}">
-                        Remove individual {{ forloop.counter }}
+                        Remove Individual {{ forloop.counter }}
                     </button>
                 </form>
             {% endif %}

@@ -26,16 +26,24 @@
                 <dt class="govuk-summary-list__key">
                     Name
                 </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ recipient.name }}
+                <dd class="govuk-summary-list__value"  data-testid="recipient-name-{{ forloop.counter }}">
+                    {% if recipient.name %}
+                        {{ recipient.name }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                     Address
                 </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ recipient.readable_address | linebreaksbr }}
+                <dd class="govuk-summary-list__value" data-testid="recipient-address-{{ forloop.counter }}">
+                    {% if recipient.readable_address %}
+                        {{ recipient.readable_address | linebreaksbr }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             {% if recipients|length > 1 %}
@@ -44,7 +52,7 @@
                     <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                     {% csrf_token %}
                     <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_recipient_form_{{ forloop.counter }}">
-                        Remove recipient {{forloop.counter }} <span
+                        Remove Recipient {{forloop.counter }} <span
                             class="govuk-visually-hidden"> recipient {{forloop.counter}}</span>
                     </button>
                 </form>
