@@ -68,10 +68,8 @@ class TestAddMyself(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase
     def test_draft_yourself_has_text(self):
         self.start_new_application()
         self.myself(self.page)
-        expect(self.page).to_have_url(re.compile(r".*/your-name-nationality-location"))
+        self.your_details(self.page, "myself")
         self.go_to_path(reverse("yourself_and_individual_added"))
         expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
         expect(self.page.get_by_role("heading", name="You've added yourself to the licence")).to_be_visible()
-        expect(self.page.get_by_test_id("yourself-name")).to_have_text("Not yet added")
-        expect(self.page.get_by_test_id("yourself-nationality-location")).to_have_text("Not yet added")
         expect(self.page.get_by_test_id("yourself-address")).to_have_text("Not yet added")
