@@ -6,7 +6,7 @@ from django.db import migrations
 def complete_licence(apps, schema_editor):
     Licence = apps.get_model("apply_for_a_licence", "Licence")
     for licence in Licence.objects.all():
-        licence.status = "complete"
+        licence.status = "submitted"
         licence.save()
 
 
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(complete_licence, reverse_function),
         migrations.RunPython(complete_organisation, reverse_function),
         migrations.RunPython(complete_individual, reverse_function),
+        migrations.RunPython(complete_licence, reverse_function),
     ]
