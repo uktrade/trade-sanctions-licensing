@@ -23,7 +23,7 @@
             <dt class="govuk-summary-list__key">
                 Name
             </dt>
-            <dd class="govuk-summary-list__value">
+            <dd class="govuk-summary-list__value" data-testid="yourself-name">
                 {{ yourself.full_name }}
             </dd>
         </div>
@@ -31,7 +31,7 @@
             <dt class="govuk-summary-list__key">
                 Nationality and location
             </dt>
-            <dd class="govuk-summary-list__value">
+            <dd class="govuk-summary-list__value" data-testid="yourself-nationality-location">
                 {{ yourself.get_nationality_and_location_display }}
             </dd>
         </div>
@@ -39,7 +39,7 @@
             <dt class="govuk-summary-list__key">
                 Address
             </dt>
-            <dd class="govuk-summary-list__value">
+            <dd class="govuk-summary-list__value" data-testid="yourself-address">
                 {% if yourself.readable_address %}
                     {{ yourself.readable_address | linebreaksbr }}
                 {% else %}
@@ -67,7 +67,7 @@
                 <dt class="govuk-summary-list__key">
                     Name
                 </dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value" data-testid="individual-name-{{ forloop.counter }}">
                     {% if individual.first_name or individual.last_name %}
                         {{ individual.full_name }}
                     {% else %}
@@ -79,7 +79,7 @@
                 <dt class="govuk-summary-list__key">
                     Nationality and location
                 </dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value" data-testid="individual-nationality-location-{{ forloop.counter }}">
                     {% if individual.get_nationality_and_location_display %}
                         {{ individual.get_nationality_and_location_display }}
                     {% else %}
@@ -91,7 +91,7 @@
                 <dt class="govuk-summary-list__key">
                     Address
                 </dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value" data-testid="individual-address-{{ forloop.counter }}">
                     {% if individual.readable_address %}
                         {{ individual.readable_address | linebreaksbr }}
                     {% else %}

@@ -26,7 +26,7 @@
                 <dt class="govuk-summary-list__key">
                     Name
                 </dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value"  data-testid="recipient-name-{{ forloop.counter }}">
                     {% if recipient.name %}
                         {{ recipient.name }}
                     {% else %}
@@ -38,7 +38,7 @@
                 <dt class="govuk-summary-list__key">
                     Address
                 </dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value" data-testid="recipient-address-{{ forloop.counter }}">
                     {% if recipient.readable_address %}
                         {{ recipient.readable_address | linebreaksbr }}
                     {% else %}
