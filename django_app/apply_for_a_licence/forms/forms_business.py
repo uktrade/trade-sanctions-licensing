@@ -8,7 +8,6 @@ from apply_for_a_licence.exceptions import (
 from apply_for_a_licence.forms.base_forms import BaseEntityAddedForm
 from apply_for_a_licence.models import Organisation
 from core.forms.base_forms import (
-    BaseForm,
     BaseModelForm,
     BaseNonUKBusinessDetailsForm,
     BaseUKBusinessDetailsForm,
@@ -156,27 +155,31 @@ class DoYouKnowTheRegisteredCompanyNumberForm(BaseModelForm):
         return cleaned_data
 
 
-class ManualCompaniesHouseInputForm(BaseForm):
-    manual_companies_house_input = forms.ChoiceField(
-        label="Where is the business located?",
-        choices=(
-            ("in-uk", "In the UK"),
-            ("outside-uk", "Outside the UK"),
-        ),
-        widget=forms.RadioSelect,
-        error_messages={"required": "Select if the business is located in the UK or outside the UK"},
-    )
+class ManualCompaniesHouseInputForm(BaseModelForm):
+    class Meta:
+        model = Organisation
+        fields = ("where_is_the_address",)
+        widgets = {
+            "where_is_the_address": forms.RadioSelect,
+        }
+        labels = {
+            "where_is_the_address": "Where is the business located?",
+        }
+        error_messages = {
+            "where_is_the_address": {"required": "Select if the business is located in the UK or outside the UK"},
+        }
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.helper.layout = Layout(
             Fieldset(
                 Field.radios(
-                    "manual_companies_house_input",
+                    "where_is_the_address",
                     legend_size=Size.MEDIUM,
                 )
             )
         )
+        self.fields["where_is_the_address"].choices.pop(0)
 
 
 class WhereIsTheBusinessLocatedForm(BaseModelForm):

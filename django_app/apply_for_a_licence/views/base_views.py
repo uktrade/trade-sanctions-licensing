@@ -17,7 +17,10 @@ class EntityView(BaseSaveAndReturnModelFormView):
 
     @property
     def object(self):
-        pk = int(self.kwargs[self.pk_url_kwarg])
+        try:
+            pk = int(self.kwargs[self.pk_url_kwarg])
+        except KeyError:
+            raise Http404()
 
         try:
             child_object = self.model.objects.get(

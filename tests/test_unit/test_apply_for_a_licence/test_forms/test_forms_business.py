@@ -79,10 +79,10 @@ class TestDoYouKnowTheRegisteredCompanyNumberForm:
 
 class TestManualCompaniesHouseInputForm:
     def test_required(self, request_object):
-        form = forms.ManualCompaniesHouseInputForm(data={"manual_companies_house_input": None}, request=request_object)
+        form = forms.ManualCompaniesHouseInputForm(data={"where_is_the_address": None}, request=request_object)
         assert not form.is_valid()
-        assert "manual_companies_house_input" in form.errors
-        assert form.errors.as_data()["manual_companies_house_input"][0].code == "required"
+        assert "where_is_the_address" in form.errors
+        assert form.errors.as_data()["where_is_the_address"][0].code == "required"
 
 
 class TestWhereIsTheBusinessLocatedForm:

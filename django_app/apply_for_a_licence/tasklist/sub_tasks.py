@@ -20,13 +20,9 @@ class YourDetailsSubTask(BaseSubTask):
         if self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.myself:
             try:
                 applicant_individual = self.licence.individuals.filter(is_applicant=True).get()
-                return reverse("add_yourself", kwargs={"yourself_id": applicant_individual.id})
+                return reverse("add_yourself") + f"?yourself_id={applicant_individual.id}"
             except Individual.DoesNotExist:
-                applicant_individual = Individual.objects.create(
-                    licence=self.licence,
-                    is_applicant=True,
-                )
-                return reverse("add_yourself", kwargs={"yourself_id": applicant_individual.id})
+                return reverse("add_yourself") + "?new=yes"
         else:
             return reverse("are_you_third_party")
 

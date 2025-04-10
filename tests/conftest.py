@@ -174,6 +174,18 @@ def licence_application(authenticated_al_client, test_apply_user) -> Licence:
 
 
 @pytest.fixture()
+def business_licence(authenticated_al_client, test_apply_user):
+    licence_object = Licence.objects.create(
+        user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+    )
+
+    session = authenticated_al_client.session
+    session["licence_id"] = licence_object.id
+    session.save()
+    return licence_object
+
+
+@pytest.fixture()
 def individual_licence(authenticated_al_client, test_apply_user):
     licence_object = Licence.objects.create(
         user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
