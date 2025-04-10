@@ -15,7 +15,7 @@ def complete_licence(apps, schema_editor):
 def complete_organisation(apps, schema_editor):
     Organisation = apps.get_model("apply_for_a_licence", "Organisation")
     for organisation in Organisation.objects.all():
-        if organisation.licence.reference:
+        if not organisation.licence.status and organisation.licence.reference:
             organisation.status = "complete"
         organisation.save()
 
@@ -23,7 +23,7 @@ def complete_organisation(apps, schema_editor):
 def complete_individual(apps, schema_editor):
     Individual = apps.get_model("apply_for_a_licence", "Individual")
     for individual in Individual.objects.all():
-        if individual.licence.reference:
+        if not individual.licence.status and individual.licence.reference:
             individual.status = "complete"
             individual.save()
 
