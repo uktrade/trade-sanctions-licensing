@@ -106,7 +106,7 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
             )
             return new_business.id
         else:
-            business_id = self.request.GET.get("business_id") or self.kwargs[self.pk_url_kwarg]
+            business_id = self.request.GET.get("business_id") or self.kwargs.get(self.pk_url_kwarg)
             if business_id:
                 return int(business_id)
         return None
@@ -171,7 +171,7 @@ class ManualCompaniesHouseInputView(BaseBusinessModelFormView):
     template_name = "apply_for_a_licence/form_steps/manual_companies_house_input.html"
 
     def get_success_url(self) -> str:
-        location = self.form.cleaned_data["manual_companies_house_input"]
+        location = self.form.cleaned_data["where_is_the_address"]
         return reverse("add_a_business", kwargs={"location": location, "business_id": self.kwargs.get("business_id")})
 
 
