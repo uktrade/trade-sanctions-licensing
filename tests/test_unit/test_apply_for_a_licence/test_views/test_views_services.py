@@ -3,6 +3,8 @@ from apply_for_a_licence.choices import (
     ProfessionalOrBusinessServicesChoices,
     TypeOfServicesChoices,
 )
+from apply_for_a_licence.views.views_services import ServiceActivitiesView
+from django.test import RequestFactory
 from django.urls import reverse
 
 
@@ -96,3 +98,12 @@ class TestServiceActivitiesView:
         )
 
         assert response.url == reverse("purpose_of_provision") + "?update=yes"
+
+    def test_redirect_after_post(self):
+        request = RequestFactory().get(reverse("service_activities"))
+        view = ServiceActivitiesView(update=False)
+        view.setup(request)
+        assert view.redirect_after_post
+        view = ServiceActivitiesView(update=True)
+        view.setup(request)
+        assert not view.redirect_after_post
