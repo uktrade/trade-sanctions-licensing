@@ -87,3 +87,12 @@ class TestServiceActivitiesView:
         )
 
         assert response.url == reverse("purpose_of_provision") + "?update=yes"
+
+    def test_get_pbs_success_url(self, authenticated_al_client_with_licence, licence_application, request_object):
+        request_object.GET = {"change": "yes"}
+        licence_application.type_of_service = TypeOfServicesChoices.professional_and_business.value
+        response = authenticated_al_client_with_licence.post(
+            reverse("service_activities") + "?update=yes", data={"service_activities": "activities"}
+        )
+
+        assert response.url == reverse("purpose_of_provision") + "?update=yes"
