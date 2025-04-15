@@ -7,7 +7,6 @@ from tests.test_frontend.conftest import PlaywrightTestBase
 
 class TestBaseFormStepTitleErrorMessage(PlaywrightTestBase):
     def test_error_in_title(self):
-        self.go_to_path(self.base_url)
 
         self.page.get_by_role("link", name="Your details").click()
         # Clicking through without inputting an email address
