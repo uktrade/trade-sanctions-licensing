@@ -5,7 +5,6 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import RedirectView, TemplateView
-from django_ratelimit.exceptions import Ratelimited
 
 
 class ResetSessionView(View):
@@ -34,10 +33,6 @@ class PingSessionView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
         update_last_activity_session_timestamp(request)
         return HttpResponse("pong")
-
-
-def rate_limited_view(request: HttpRequest, exception: Ratelimited) -> HttpResponse:
-    return HttpResponse("You have made too many", status=429)
 
 
 class RedirectBaseDomainView(RedirectView):

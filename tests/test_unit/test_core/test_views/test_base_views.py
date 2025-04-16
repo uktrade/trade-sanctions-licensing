@@ -28,3 +28,15 @@ class TestBaseLicenceFormView:
         )
 
         assert response.status_code == 200
+
+
+class TestRedirectBaseDomainView:
+    def test_redirect_apply_site(self, authenticated_al_client):
+        response = authenticated_al_client.get("/")
+        assert response.status_code == 302
+        assert response.url == reverse("dashboard")
+
+    def test_redirect_view_site(self, vl_client_logged_in):
+        response = vl_client_logged_in.get("/")
+        assert response.status_code == 302
+        assert response.url == reverse("view_a_licence:application_list")
