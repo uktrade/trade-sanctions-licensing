@@ -26,6 +26,37 @@ class TestCheckYourAnswersView:
         assert response.context["applicant_individual"] == applicant_individual
         assert response.context["business_individual_works_for"] == business_individual_works_for
 
+    def test_get_context_data_no_applicant(self, authenticated_al_client_with_licence, licence_application):
+        OrganisationFactory.create_batch(3, licence=licence_application, type_of_relationship="recipient")
+        OrganisationFactory.create_batch(3, licence=licence_application, type_of_relationship="business")
+        IndividualFactory.create_batch(3, licence=licence_application, is_applicant=False)
+        business_individual_works_for = OrganisationFactory(licence=licence_application, type_of_relationship="named_individuals")
+
+        response = authenticated_al_client_with_licence.get(reverse("check_your_answers"))
+        assert response.status_code == 200
+
+        assert response.context["licence"] == licence_application
+        assert len(response.context["recipients"]) == 3
+        assert len(response.context["businesses"]) == 3
+        assert len(response.context["individuals"]) == 3
+        assert not response.context["applicant_individual"]
+        assert response.context["business_individual_works_for"] == business_individual_works_for
+
+    def test_get_context_data_business(self, authenticated_al_client_with_licence, licence_application):
+        OrganisationFactory.create_batch(3, licence=licence_application, type_of_relationship="recipient")
+        OrganisationFactory.create_batch(3, licence=licence_application, type_of_relationship="business")
+        IndividualFactory.create_batch(3, licence=licence_application, is_applicant=False)
+        applicant_individual = IndividualFactory(licence=licence_application, is_applicant=True)
+        response = authenticated_al_client_with_licence.get(reverse("check_your_answers"))
+        assert response.status_code == 200
+
+        assert response.context["licence"] == licence_application
+        assert len(response.context["recipients"]) == 3
+        assert len(response.context["businesses"]) == 3
+        assert len(response.context["individuals"]) == 3
+        assert response.context["applicant_individual"] == applicant_individual
+        assert not response.context["business_individual_works_for"]
+
 
 @patch("apply_for_a_licence.views.views_end.send_email")
 class TestDeclarationView:

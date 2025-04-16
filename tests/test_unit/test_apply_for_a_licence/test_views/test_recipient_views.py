@@ -192,6 +192,23 @@ class TestRecipientAddedView:
         )
         assert response.wsgi_request.path == reverse("where_is_the_recipient_located", kwargs=response.resolver_match.kwargs)
 
+    def test_get_context_data(self, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
+
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+        recipient = Organisation.objects.create(
+            licence=licence,
+            type_of_relationship=TypeOfRelationshipChoices.recipient,
+        )
+        response = authenticated_al_client.get(reverse("recipient_added"))
+        recipients = response.context["recipients"]
+        assert len(recipients) == 1
+        assert recipients[0] == recipient
+
 
 class TestRelationshipProviderRecipientView:
     def test_successful_post(self, authenticated_al_client_with_licence, recipient_organisation):
