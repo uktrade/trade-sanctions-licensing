@@ -59,3 +59,8 @@ class TestDetailsOfTheEntityYouWantToCoverSubTask:
         # no previous individual
         sub_task = DetailsOfTheEntityYouWantToCoverSubTask(individual_licence)
         assert not sub_task.is_completed
+
+    def test_is_myself_licence(self, yourself_licence):
+        sub_task = DetailsOfTheEntityYouWantToCoverSubTask(yourself_licence)
+        assert not sub_task.is_completed
+        assert not sub_task.is_in_progress
