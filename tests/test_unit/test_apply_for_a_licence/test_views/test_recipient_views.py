@@ -39,6 +39,33 @@ class TestAddRecipientView:
         assert organisation.town_or_city == "Leeds"
         assert organisation.postcode == "SW1A 1AA"
 
+    def test_successful_post_outside_uk(self, authenticated_al_client_with_licence, licence_application):
+        assert authenticated_al_client_with_licence.session.get("recipients") is None
+
+        organisation = OrganisationFactory(
+            licence=licence_application,
+            where_is_the_address="outside-uk",
+        )
+
+        authenticated_al_client_with_licence.post(
+            reverse("add_a_recipient", kwargs={"location": "outside-uk", "recipient_id": organisation.id}),
+            data={
+                "name": "COOL BEANS LTD",
+                "email": "thisismyemail@obviously.com",
+                "address_line_1": "13 I live here",
+                "town_or_city": "Amsterdam",
+                "country": "NL",
+            },
+            follow=True,
+        )
+        organisation.refresh_from_db()
+        assert Organisation.objects.filter(licence=licence_application).count() == 1
+        assert organisation.name == "COOL BEANS LTD"
+        assert organisation.email == "thisismyemail@obviously.com"
+        assert organisation.address_line_1 == "13 I live here"
+        assert organisation.town_or_city == "Amsterdam"
+        assert organisation.country == "NL"
+
     def test_redirect_after_post(self, authenticated_al_client_with_licence, licence_application):
         organisation = OrganisationFactory(
             licence=licence_application,
