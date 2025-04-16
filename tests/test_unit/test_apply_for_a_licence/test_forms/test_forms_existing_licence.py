@@ -35,8 +35,6 @@ class TestExistingLicencesForm:
         form = forms.ExistingLicencesForm(
             data={"held_existing_licence": "yes"}, request=request_object, instance=individual_licence
         )
-        print(form.fields)
-        print(form.fields["held_existing_licence"])
         assert form.fields["held_existing_licence"].label == (
             "Have any of the individuals you've added held a "
             "licence before to provide any sanctioned services "

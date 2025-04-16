@@ -4,7 +4,6 @@ from apply_for_a_licence.tasklist.base_classes import BaseSubTask, BaseTask
 class TestBaseSubTask:
     def test_base_sub_task(self, licence):
         base_subtask = BaseSubTask(licence)
-        print(base_subtask.is_completed)
         assert not base_subtask.is_completed
         base_subtask.status = "in_progress"
         assert base_subtask.tag_colour == "light-blue"
