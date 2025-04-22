@@ -275,7 +275,6 @@ VIEW_A_LICENCE_DOMAIN = env.view_a_licence_domain
 PROTOCOL = "https://"
 
 # Django Ratelimit
-RATELIMIT_VIEW = "core.views.base_views.rate_limited_view"
 RATELIMIT = "10/m"
 
 # Redis

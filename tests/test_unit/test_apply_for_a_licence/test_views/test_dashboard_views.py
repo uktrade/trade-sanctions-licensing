@@ -1,6 +1,7 @@
 import datetime
 
 from apply_for_a_licence.models import Licence
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 
@@ -65,6 +66,13 @@ class TestDashboardView:
         assert applications.get() == licence
 
         assert not Licence.objects.filter(pk=expired_licence.pk).exists()
+
+
+class TestNewApplicationView:
+    def test_get_context_data(self, authenticated_al_client, test_apply_user):
+        LicenceFactory(user=test_apply_user, status="draft")
+        response = authenticated_al_client.get(reverse("new_application"))
+        assert response.context["DRAFT_APPLICATION_EXPIRY_DAYS"] == settings.DRAFT_APPLICATION_EXPIRY_DAYS
 
 
 class TestDeleteApplicationView:

@@ -3,6 +3,11 @@ from apply_for_a_licence.choices import (
     ProfessionalOrBusinessServicesChoices,
     TypeOfServicesChoices,
 )
+from apply_for_a_licence.views.views_services import (
+    ServiceActivitiesView,
+    WhichSanctionsRegimeView,
+)
+from django.test import RequestFactory
 from django.urls import reverse
 
 
@@ -29,6 +34,20 @@ class TestProfessionalOrBusinessServicesView:
         )
         assert response.status_code == 302
         assert response.url == reverse("service_activities") + "?redirect_to_url=check_your_answers&update=yes"
+
+    def test_add_query_parameters(self, authenticated_al_client_with_licence):
+        authenticated_al_client_with_licence.post(
+            reverse("professional_or_business_services") + "?change=yes&redirect_to_url=check_your_answers",
+            data={"professional_or_business_services": ProfessionalOrBusinessServicesChoices.accounting.value},
+        )
+
+        # duplicating the response so we're changing the value
+        response = authenticated_al_client_with_licence.post(
+            reverse("professional_or_business_services") + "?change=yes&redirect_to_url=check_your_answers",
+            data={"professional_or_business_services": ProfessionalOrBusinessServicesChoices.advertising.value},
+        )
+        assert response.status_code == 302
+        assert response.url == reverse("service_activities") + "?change=yes&redirect_to_url=check_your_answers&update=yes"
 
 
 class TestTypeOfServiceView:
@@ -71,6 +90,18 @@ class TestTypeOfServiceView:
         assert not licence_application.purpose_of_provision
 
 
+class TestWhichSanctionsRegimeView:
+    def test_redirect_after_post(self):
+        request = RequestFactory().get(reverse("which_sanctions_regime"))
+        view = WhichSanctionsRegimeView()
+        view.setup(request)
+        assert view.redirect_after_post
+        view = WhichSanctionsRegimeView(update=True)
+        request.GET = {"update": "yes"}
+        view.setup(request)
+        assert not view.redirect_after_post
+
+
 class TestServiceActivitiesView:
     def test_get_success_url(self, authenticated_al_client_with_licence):
         response = authenticated_al_client_with_licence.post(
@@ -87,3 +118,22 @@ class TestServiceActivitiesView:
         )
 
         assert response.url == reverse("purpose_of_provision") + "?update=yes"
+
+    def test_get_pbs_success_url(self, authenticated_al_client_with_licence, licence_application, request_object):
+        request_object.GET = {"change": "yes"}
+        licence_application.type_of_service = TypeOfServicesChoices.professional_and_business.value
+        licence_application.save()
+        response = authenticated_al_client_with_licence.post(
+            reverse("service_activities") + "?update=yes", data={"service_activities": "activities"}
+        )
+
+        assert response.url == reverse("licensing_grounds") + "?update=yes"
+
+    def test_redirect_after_post(self):
+        request = RequestFactory().get(reverse("service_activities"))
+        view = ServiceActivitiesView(update=False)
+        view.setup(request)
+        assert view.redirect_after_post
+        view = ServiceActivitiesView(update=True)
+        view.setup(request)
+        assert not view.redirect_after_post

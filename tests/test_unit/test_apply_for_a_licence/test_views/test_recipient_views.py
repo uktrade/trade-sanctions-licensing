@@ -39,6 +39,33 @@ class TestAddRecipientView:
         assert organisation.town_or_city == "Leeds"
         assert organisation.postcode == "SW1A 1AA"
 
+    def test_successful_post_outside_uk(self, authenticated_al_client_with_licence, licence_application):
+        assert authenticated_al_client_with_licence.session.get("recipients") is None
+
+        organisation = OrganisationFactory(
+            licence=licence_application,
+            where_is_the_address="outside-uk",
+        )
+
+        authenticated_al_client_with_licence.post(
+            reverse("add_a_recipient", kwargs={"location": "outside-uk", "recipient_id": organisation.id}),
+            data={
+                "name": "COOL BEANS LTD",
+                "email": "thisismyemail@obviously.com",
+                "address_line_1": "13 I live here",
+                "town_or_city": "Amsterdam",
+                "country": "NL",
+            },
+            follow=True,
+        )
+        organisation.refresh_from_db()
+        assert Organisation.objects.filter(licence=licence_application).count() == 1
+        assert organisation.name == "COOL BEANS LTD"
+        assert organisation.email == "thisismyemail@obviously.com"
+        assert organisation.address_line_1 == "13 I live here"
+        assert organisation.town_or_city == "Amsterdam"
+        assert organisation.country == "NL"
+
     def test_redirect_after_post(self, authenticated_al_client_with_licence, licence_application):
         organisation = OrganisationFactory(
             licence=licence_application,
@@ -191,6 +218,23 @@ class TestRecipientAddedView:
             reverse("recipient_added"), data={"do_you_want_to_add_another_recipient": "True"}, follow=True
         )
         assert response.wsgi_request.path == reverse("where_is_the_recipient_located", kwargs=response.resolver_match.kwargs)
+
+    def test_get_context_data(self, authenticated_al_client, test_apply_user):
+        licence = Licence.objects.create(
+            user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
+        )
+
+        session = authenticated_al_client.session
+        session["licence_id"] = licence.id
+        session.save()
+        recipient = Organisation.objects.create(
+            licence=licence,
+            type_of_relationship=TypeOfRelationshipChoices.recipient,
+        )
+        response = authenticated_al_client.get(reverse("recipient_added"))
+        recipients = response.context["recipients"]
+        assert len(recipients) == 1
+        assert recipients[0] == recipient
 
 
 class TestRelationshipProviderRecipientView:
