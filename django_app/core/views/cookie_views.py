@@ -1,7 +1,7 @@
 from typing import Any
 
 from core.forms.cookie_forms import CookiesConsentForm, HideCookiesForm
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import FormView
@@ -11,7 +11,7 @@ class CookiesConsentView(FormView):
     template_name = "core/cookies_consent.html"
     form_class = CookiesConsentForm
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
         # storing where we want to redirect
         # the user back to the page they were on before they were shown the cookie consent form
         if redirect_back_to := self.request.GET.get("redirect_back_to"):

@@ -33,7 +33,7 @@ def update_last_activity_session_timestamp(request: HttpRequest) -> None:
     request.session[settings.SESSION_LAST_ACTIVITY_KEY] = timezone.now().isoformat()
 
 
-def get_licence_object(request):
+def get_licence_object(request: HttpRequest) -> Licence:
     licence_id = request.session["licence_id"]
     licence = get_object_or_404(Licence, pk=licence_id)
     if licence.user != request.user:

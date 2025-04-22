@@ -30,10 +30,10 @@ class BaseForm(forms.Form):
     save_and_return = False
     show_skip_button = True
 
-    def __init__(self, *args: object, **kwargs) -> None:
+    def __init__(self, *args: object, **kwargs: object) -> None:
         self.request: HttpRequest | None = kwargs.pop("request", None)
         self.form_h1_header = kwargs.pop("form_h1_header", self.form_h1_header)
-        self.should_be_bound: bool = kwargs.pop("should_be_bound", False)
+        self.should_be_bound: str | bool = kwargs.pop("should_be_bound", False)  # type: ignore
         super().__init__(*args, **kwargs)
 
         if len(self.fields) == 1:
@@ -63,8 +63,11 @@ class BaseForm(forms.Form):
         self.helper.layout = Layout(*self.fields)
 
         # clearing the form data if 'change' is passed as a query parameter, and it's a GET request
-        if self.request and self.request.method == "GET" and (self.request.GET.get("change") or self.request.GET.get("update")):
-            self.is_bound = False
+        if self.request is not None:
+            if self.request.method == "GET" and (  # type: ignore
+                (self.request.GET.get("change") or self.request.GET.get("update"))  # type: ignore
+            ):
+                self.is_bound = False
 
     def has_field_changed(self, field_name: str) -> bool:
         """Check if a field has changed from a value that was previously inputted by the user.

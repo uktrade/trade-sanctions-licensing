@@ -7,6 +7,7 @@ from apply_for_a_licence.utils import can_user_edit_licence
 from authentication.mixins import LoginRequiredMixin
 from core.forms.base_forms import BaseForm, BaseModelForm
 from django.conf import settings
+from django.forms import Form
 from django.http import (
     Http404,
     HttpRequest,
@@ -69,7 +70,7 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
     # do we want to redirect the user to the next step with query parameters?
     redirect_with_query_parameters = False
 
-    def dispatch(self, request, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
         if self.request.GET.get("update", None) == "yes":
             self.update = True
         else:
@@ -77,7 +78,7 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
         if self.request.POST.get("skip_link"):
             return HttpResponseRedirect(reverse("tasklist"))
         else:
@@ -88,12 +89,12 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
         self.form = form
         return form
 
-    def get_form_kwargs(self):
+    def get_form_kwargs(self) -> dict[str, Any]:
         kwargs = super().get_form_kwargs()
         kwargs["request"] = self.request
         return kwargs
 
-    def form_valid(self, form):
+    def form_valid(self, form: Form) -> HttpResponse:
         return HttpResponseRedirect(self.get_next_url())
 
     def get_next_url(self) -> str:
@@ -132,11 +133,11 @@ class BaseSaveAndReturnModelFormView(SingleObjectMixin, BaseSaveAndReturnFormVie
         self.form: BaseModelForm = form
         return form
 
-    def form_valid(self, form):
+    def form_valid(self, form: Form) -> HttpResponse:
         self.instance = self.save_form(form)
         return super().form_valid(form)
 
-    def save_form(self, form):
+    def save_form(self, form: Form) -> Form:
         return form.save()
 
 
@@ -145,7 +146,7 @@ class BaseSaveAndReturnLicenceModelFormView(BaseSaveAndReturnModelFormView):
     def object(self):
         return self.licence_object
 
-    def get_form_kwargs(self):
+    def get_form_kwargs(self) -> dict[str, Any]:
         kwargs = super().get_form_kwargs()
         kwargs["instance"] = self.object
         return kwargs

@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 from authlib.common.security import generate_token
 from authlib.jose.errors import InvalidClaimError
@@ -26,7 +25,7 @@ def get_trust_vector(auth_level: str, identity_level: str) -> dict[str, str]:
 REDIRECT_SESSION_FIELD_NAME = f"_oauth2_{REDIRECT_FIELD_NAME}"
 
 
-def get_next_url(request):
+def get_next_url(request: HttpRequest) -> str | None:
     """Copied straight from staff-sso-client.
 
     https://github.com/uktrade/django-staff-sso-client/blob/master/authbroker_client/views.py
@@ -41,7 +40,7 @@ def get_next_url(request):
 
 
 class AuthView(RedirectView):
-    def get_redirect_url(self, *args, **kwargs):
+    def get_redirect_url(self, *args: object, **kwargs: object) -> str:
         client = get_client(self.request)
         config = settings.GOV_UK_ONE_LOGIN_CONFIG()
 
@@ -67,7 +66,7 @@ class AuthView(RedirectView):
 
 
 class AuthCallbackView(View):
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> Any:
+    def get(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
         auth_code = self.request.GET.get("code", None)
 
         if not auth_code:

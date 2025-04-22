@@ -18,14 +18,16 @@ class CookiesConsentForm(BaseForm):
         required=True,
     )
 
-    def __init__(self, *args: object, **kwargs) -> None:
+    def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.add_input(Submit("save cookie settings", "Save cookie settings", css_class="govuk-button"))
         self.helper.layout = Layout(
             Field.radios("do_you_want_to_accept_analytics_cookies", legend_size=Size.MEDIUM, legend_tag="h2", inline=False)
         )
-        self.fields["do_you_want_to_accept_analytics_cookies"].initial = str(kwargs.get("initial", {}).get("accept_cookies"))
+        self.fields["do_you_want_to_accept_analytics_cookies"].initial = str(
+            kwargs.get("initial", {}).get("accept_cookies")  # type: ignore
+        )
 
 
 class HideCookiesForm(BaseForm):
