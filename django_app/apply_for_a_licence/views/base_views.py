@@ -1,5 +1,9 @@
+from typing import Any
+
 from core.views.base_views import BaseSaveAndReturnModelFormView
-from django.http import HttpResponseRedirect
+from django.db import models
+from django.forms import Form
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import Http404
 
 
@@ -12,11 +16,11 @@ class EntityView(BaseSaveAndReturnModelFormView):
             raise NotImplementedError("You need to implement the model property")
 
     @property
-    def model(self):
+    def model(self) -> models.Model:
         raise NotImplementedError("You need to implement the model property")
 
     @property
-    def object(self):
+    def object(self) -> Any:
         try:
             pk = int(self.kwargs[self.pk_url_kwarg])
         except KeyError:
@@ -33,12 +37,12 @@ class EntityView(BaseSaveAndReturnModelFormView):
 
 
 class AddAnEntityView(EntityView):
-    def get_form_kwargs(self):
+    def get_form_kwargs(self) -> dict[str, Any]:
         kwargs = super().get_form_kwargs()
         kwargs["instance"] = self.object
         return kwargs
 
-    def save_form(self, form):
+    def save_form(self, form: Form) -> Form:
         instance = form.save(commit=False)
         instance.licence = self.licence_object
         instance.save()
@@ -61,7 +65,7 @@ class DeleteAnEntityView(EntityView):
 
     allow_zero_entities = False
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
         entities = self.model.objects.filter(licence=self.licence_object)
         if self.allow_zero_entities or len(entities) > 1:
             self.object.delete()

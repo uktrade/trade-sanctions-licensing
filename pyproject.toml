@@ -85,5 +85,7 @@ pythonpath = "django_app"
 
 [tool.mypy]
 ignore_missing_imports = true
+exclude =  ["migrations", "tests", "helper_scripts", "mock_one_login"]
+
+[[tool.mypy.overrides]]
 module = "django_app"
-exclude =  ["migrations"]

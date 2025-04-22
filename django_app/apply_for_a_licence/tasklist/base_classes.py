@@ -9,7 +9,7 @@ class BaseSubTask:
     status: Literal["cannot_start", "not_started", "in_progress", "complete"] = "cannot_start"
     url: str = ""
 
-    def __init__(self, licence, *args, **kwargs):
+    def __init__(self, licence: Licence, *args: object, **kwargs: object) -> None:
         self.licence: Licence = licence
         super().__init__(*args, **kwargs)
 
@@ -55,7 +55,7 @@ class BaseTask:
     name: str = ""
     sub_tasks: list[Type[BaseSubTask]] = []
 
-    def __init__(self, licence, *args, **kwargs):
+    def __init__(self, licence: Licence, *args: object, **kwargs: object) -> None:
         self.licence: Licence = licence
         super().__init__(*args, **kwargs)
 
