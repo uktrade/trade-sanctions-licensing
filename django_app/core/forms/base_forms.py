@@ -64,9 +64,9 @@ class BaseForm(forms.Form):
 
         # clearing the form data if 'change' is passed as a query parameter, and it's a GET request
         if self.request is not None:
-            if self.request.method == "GET" and (
-                (self.request.GET.get("change") or self.request.GET.get("update"))
-            ):  # type: ignore
+            if self.request.method == "GET" and (  # type: ignore
+                (self.request.GET.get("change") or self.request.GET.get("update"))  # type: ignore
+            ):
                 self.is_bound = False
 
     def has_field_changed(self, field_name: str) -> bool:

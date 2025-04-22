@@ -26,8 +26,8 @@ class CookiesConsentForm(BaseForm):
             Field.radios("do_you_want_to_accept_analytics_cookies", legend_size=Size.MEDIUM, legend_tag="h2", inline=False)
         )
         self.fields["do_you_want_to_accept_analytics_cookies"].initial = str(
-            kwargs.get("initial", {}).get("accept_cookies")
-        )  # type: ignore
+            kwargs.get("initial", {}).get("accept_cookies")  # type: ignore
+        )
 
 
 class HideCookiesForm(BaseForm):
