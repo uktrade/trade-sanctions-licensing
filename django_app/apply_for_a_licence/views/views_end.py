@@ -14,7 +14,7 @@ from core.views.base_views import (
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView
 from utils.notifier import send_email
@@ -60,7 +60,6 @@ class CheckYourAnswersView(BaseSaveAndReturnView, TemplateView):
 class DeclarationView(BaseSaveAndReturnFormView):
     form_class = DeclarationForm
     template_name = "apply_for_a_licence/form_steps/declaration.html"
-    success_url = reverse_lazy("complete")
 
     def form_valid(self, form: DeclarationForm) -> HttpResponse:
         licence_object = self.licence_object
@@ -95,7 +94,11 @@ class DeclarationView(BaseSaveAndReturnFormView):
         self.request.session["licence_reference"] = licence_object.reference
         self.request.session["applicant_email"] = licence_object.applicant_user_email_address
 
-        return redirect(self.success_url)
+        return redirect(reverse("complete", kwargs={"licence_pk": self.kwargs["licence_pk"]}))
+
+    def get_success_url(self):
+        success_url = reverse("complete", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
 
 
 class CompleteView(BaseTemplateView):

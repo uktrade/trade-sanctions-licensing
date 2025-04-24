@@ -10,7 +10,7 @@ from core.views.base_views import BaseSaveAndReturnFormView
 from django.conf import settings
 from django.db.models import QuerySet
 from django.shortcuts import redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django_ratelimit.decorators import ratelimit
 
@@ -24,7 +24,6 @@ class BaseBusinessModelFormView(AddAnEntityView):
 
 
 class AddABusinessView(BaseBusinessModelFormView):
-    success_url = reverse_lazy("business_added")
     redirect_after_post = False
 
     def setup(self, request, *args, **kwargs):
@@ -44,6 +43,10 @@ class AddABusinessView(BaseBusinessModelFormView):
         instance.status = choices.EntityStatusChoices.complete
         instance.save()
         return instance
+
+    def get_success_url(self):
+        success_url = reverse("business_added", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
 
 
 class BusinessAddedView(BaseSaveAndReturnFormView):
@@ -73,12 +76,15 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
                 new_business = Organisation.objects.create(
                     licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.business
                 )
-                return reverse("is_the_business_registered_with_companies_house") + f"?business_id={new_business.id}"
+                return (
+                    reverse("is_the_business_registered_with_companies_house", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+                    + f"?business_id={new_business.id}"
+                )
             else:
-                return reverse("tasklist")
+                return reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]})
         except AttributeError:
             # No form object, send the user back to the tasklist to initiate the journey again
-            return reverse("tasklist")
+            return reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]})
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -88,8 +94,11 @@ class BusinessAddedView(BaseSaveAndReturnFormView):
 
 class DeleteBusinessView(DeleteAnEntityView):
     model = Organisation
-    success_url = reverse_lazy("business_added")
     pk_url_kwarg = "business_id"
+
+    def get_success_url(self):
+        success_url = reverse("business_added", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
 
 
 class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
@@ -123,9 +132,14 @@ class IsTheBusinessRegisteredWithCompaniesHouseView(BaseBusinessModelFormView):
         if not business_id:
             raise ValueError("Missing business_id")
         if answer == "yes":
-            success_url = reverse("do_you_know_the_registered_company_number", kwargs={"business_id": business_id})
+            success_url = reverse(
+                "do_you_know_the_registered_company_number",
+                kwargs={"licence_pk": self.kwargs["licence_pk"], "business_id": business_id},
+            )
         else:
-            success_url = reverse("where_is_the_business_located", kwargs={"business_id": business_id})
+            success_url = reverse(
+                "where_is_the_business_located", kwargs={"licence_pk": self.kwargs["licence_pk"], "business_id": business_id}
+            )
 
         return success_url
 
@@ -142,11 +156,20 @@ class DoYouKnowTheRegisteredCompanyNumberView(BaseBusinessModelFormView):
         registered_company_number = self.form.cleaned_data["registered_company_number"]
         if do_you_know_the_registered_company_number == "yes" and registered_company_number:
             if self.request.session.pop("company_details_500", None):
-                success_url = reverse("manual_companies_house_input", kwargs={"business_id": self.kwargs.get("business_id")})
+                success_url = reverse(
+                    "manual_companies_house_input",
+                    kwargs={"licence_pk": self.kwargs["licence_pk"], "business_id": self.kwargs.get("business_id")},
+                )
             else:
-                success_url = reverse("check_company_details", kwargs={"business_id": self.kwargs.get("business_id")})
+                success_url = reverse(
+                    "check_company_details",
+                    kwargs={"licence_pk": self.kwargs["licence_pk"], "business_id": self.kwargs.get("business_id")},
+                )
         else:
-            success_url = reverse("where_is_the_business_located", kwargs={"business_id": self.kwargs.get("business_id")})
+            success_url = reverse(
+                "where_is_the_business_located",
+                kwargs={"licence_pk": self.kwargs["licence_pk"], "business_id": self.kwargs.get("business_id")},
+            )
 
         return success_url
 
@@ -172,12 +195,14 @@ class ManualCompaniesHouseInputView(BaseBusinessModelFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
-        return reverse("add_a_business", kwargs={"location": location, "business_id": self.kwargs.get("business_id")})
+        return reverse(
+            "add_a_business",
+            kwargs={"licence_pk": self.kwargs["licence_pk"], "location": location, "business_id": self.kwargs.get("business_id")},
+        )
 
 
 class CheckCompanyDetailsView(BaseBusinessModelFormView):
     template_name = "apply_for_a_licence/form_steps/check_company_details.html"
-    success_url = reverse_lazy("business_added")
     form_class = forms.CheckCompanyDetailsForm
 
     def save_form(self, form):
@@ -185,6 +210,10 @@ class CheckCompanyDetailsView(BaseBusinessModelFormView):
         instance.status = choices.EntityStatusChoices.complete
         instance.save()
         return instance
+
+    def get_success_url(self):
+        success_url = reverse("business_added", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
 
 
 class WhereIsTheBusinessLocatedView(BaseBusinessModelFormView):
@@ -194,7 +223,10 @@ class WhereIsTheBusinessLocatedView(BaseBusinessModelFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
-        success_url = reverse("add_a_business", kwargs={"location": location, "business_id": self.kwargs.get("business_id")})
+        success_url = reverse(
+            "add_a_business",
+            kwargs={"licence_pk": self.kwargs["licence_pk"], "location": location, "business_id": self.kwargs.get("business_id")},
+        )
         return success_url
 
     def form_valid(self, form):

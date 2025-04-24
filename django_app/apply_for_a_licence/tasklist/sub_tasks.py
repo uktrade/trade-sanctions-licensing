@@ -20,11 +20,11 @@ class YourDetailsSubTask(BaseSubTask):
         if self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.myself:
             try:
                 applicant_individual = self.licence.individuals.filter(is_applicant=True).get()
-                return reverse("add_yourself") + f"?yourself_id={applicant_individual.id}"
+                return reverse("add_yourself", kwargs={"licence_pk": self.licence.id}) + f"?yourself_id={applicant_individual.id}"
             except Individual.DoesNotExist:
-                return reverse("add_yourself") + "?new=yes"
+                return reverse("add_yourself", kwargs={"licence_pk": self.licence.id}) + "?new=yes"
         else:
-            return reverse("are_you_third_party")
+            return reverse("are_you_third_party", kwargs={"licence_pk": self.licence.id})
 
     @property
     def is_completed(self):
@@ -75,23 +75,31 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
                 licence=self.licence, type_of_relationship=choices.TypeOfRelationshipChoices.business.value
             )
             if business_objects.filter(status="complete"):
-                return reverse("business_added")
+                return reverse("business_added", kwargs={"licence_pk": self.licence.id})
             else:
                 try:
                     business = business_objects.get(status="draft")
-                    return reverse("is_the_business_registered_with_companies_house") + f"?business_id={business.id}"
+                    return (
+                        reverse("is_the_business_registered_with_companies_house", kwargs={"licence_pk": self.licence.id})
+                        + f"?business_id={business.id}"
+                    )
                 except ObjectDoesNotExist:
-                    return reverse("is_the_business_registered_with_companies_house") + "?new=yes"
+                    return (
+                        reverse("is_the_business_registered_with_companies_house", kwargs={"licence_pk": self.licence.id})
+                        + "?new=yes"
+                    )
         else:
             individual_objects = Individual.objects.filter(licence=self.licence)
             if individual_objects.filter(status="complete"):
-                return reverse("individual_added")
+                return reverse("individual_added", kwargs={"licence_pk": self.licence.id})
             else:
                 try:
                     individual = individual_objects.get(status="draft")
-                    return reverse("add_an_individual") + f"?individual_id={individual.id}"
+                    return (
+                        reverse("add_an_individual", kwargs={"licence_pk": self.licence.id}) + f"?individual_id={individual.id}"
+                    )
                 except ObjectDoesNotExist:
-                    return reverse("add_an_individual") + "?new=yes"
+                    return reverse("add_an_individual", kwargs={"licence_pk": self.licence.id}) + "?new=yes"
 
     @property
     def is_completed(self) -> bool:
@@ -137,17 +145,18 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
 class PreviousLicensesHeldSubTask(BaseSubTask):
     name = "Previous licences"
     help_text = "Any previous licence numbers"
-    url = reverse_lazy("previous_licence")
 
     @property
     def is_completed(self):
         return bool(self.licence.held_existing_licence)
 
+    def url(self):
+        return reverse_lazy("previous_licence", kwargs={"licence_pk": self.licence.id})
+
 
 class ServicesYouWantToProvideSubTask(BaseSubTask):
     name = "The services you want to provide"
     help_text = "Description of your services"
-    url = reverse_lazy("type_of_service")
 
     @property
     def is_completed(self) -> bool:
@@ -156,6 +165,9 @@ class ServicesYouWantToProvideSubTask(BaseSubTask):
     @property
     def is_in_progress(self) -> bool:
         return not self.is_completed and self.licence.type_of_service
+
+    def url(self):
+        return reverse_lazy("type_of_service", kwargs={"licence_pk": self.licence.id})
 
 
 class PurposeForProvidingServicesSubTask(BaseSubTask):
@@ -169,9 +181,9 @@ class PurposeForProvidingServicesSubTask(BaseSubTask):
     @property
     def url(self):
         if self.licence.type_of_service == choices.TypeOfServicesChoices.professional_and_business:
-            return reverse("licensing_grounds")
+            return reverse("licensing_grounds", kwargs={"licence_pk": self.licence.id})
         else:
-            return reverse("purpose_of_provision")
+            return reverse("purpose_of_provision", kwargs={"licence_pk": self.licence.id})
 
     @property
     def is_in_progress(self) -> bool:
@@ -184,11 +196,13 @@ class PurposeForProvidingServicesSubTask(BaseSubTask):
 class UploadDocumentsSubTask(BaseSubTask):
     name = "Upload documents"
     help_text = "Attach files to support your application"
-    url = reverse_lazy("upload_documents")
 
     @property
     def is_completed(self) -> bool:
         return self.licence.documents.exists()
+
+    def url(self):
+        return reverse_lazy("upload_documents", kwargs={"licence_pk": self.licence.id})
 
 
 class RecipientContactDetailsSubTask(BaseSubTask):
@@ -211,19 +225,24 @@ class RecipientContactDetailsSubTask(BaseSubTask):
             licence=self.licence, type_of_relationship=choices.TypeOfRelationshipChoices.recipient.value
         )
         if org_objects.filter(status="complete"):
-            return reverse("recipient_added")
+            return reverse("recipient_added", kwargs={"licence_pk": self.licence.id})
         else:
             try:
                 recipient = org_objects.get(status="draft")
-                return reverse("where_is_the_recipient_located") + f"?recipient_id={recipient.id}"
+                return (
+                    reverse("where_is_the_recipient_located", kwargs={"licence_pk": self.licence.id})
+                    + f"?recipient_id={recipient.id}"
+                )
             except ObjectDoesNotExist:
-                return reverse("where_is_the_recipient_located") + "?new=yes"
+                return reverse("where_is_the_recipient_located", kwargs={"licence_pk": self.licence.id}) + "?new=yes"
 
 
 class CheckYourAnswersSubTask(BaseSubTask):
     name = "Check your answers before you submit your application"
-    url = reverse_lazy("check_your_answers")
 
     @property
     def is_completed(self) -> bool:
         return self.licence.status == choices.StatusChoices.submitted
+
+    def url(self):
+        return reverse_lazy("check_your_answers", kwargs={"licence_pk": self.licence.id})

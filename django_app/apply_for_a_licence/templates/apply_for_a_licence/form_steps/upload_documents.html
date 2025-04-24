@@ -22,8 +22,8 @@
         $(document).ready(function () {
             const multi_file_upload = new $.MultiFileUpload({
                 container: document.querySelector(".moj-multi-file-upload"),
-                uploadUrl: "{% url 'upload_documents' %}",
-                deleteUrl: "{% url 'delete_documents' %}"
+                uploadUrl: "{% url 'upload_documents' licence_pk=licence.id %}",
+                deleteUrl: "{% url 'delete_documents' licence_pk=licence.id %}"
             });
 
 
@@ -67,7 +67,7 @@
 
     <div class="moj-multi-file-upload">
         <form id="main_file_upload_form" method="post" enctype='multipart/form-data' novalidate
-              action="{% url 'upload_documents' %}">
+              action="{% url 'upload_documents' licence_pk=licence.id %}">
             {% csrf_token %}
             {% crispy form %}
         </form>
@@ -85,7 +85,7 @@
                         <dd class="govuk-summary-list__actions moj-multi-file-upload__actions">
                             <form id="delete_documents_form_{{ forloop.counter }}" method="post"
                                   enctype='multipart/form-data' novalidate
-                                  action="{% url 'delete_documents' %}" class="show-on-js-disabled hide-on-js-enabled">
+                                  action="{% url 'delete_documents' licence_pk=licence.id %}" class="show-on-js-disabled hide-on-js-enabled">
                                 <input type="hidden" name="s3_key_to_delete" value="{{ file.s3_key }}">
                                 {% csrf_token %}
                                 <button type="submit" class=" govuk-link button-that-looks-like-link"

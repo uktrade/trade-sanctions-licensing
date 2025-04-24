@@ -7,7 +7,7 @@ from apply_for_a_licence.forms import forms_recipients as forms
 from apply_for_a_licence.models import Organisation
 from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
 from core.views.base_views import BaseSaveAndReturnFormView
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,14 @@ class WhereIsTheRecipientLocatedView(BaseRecipientFormView):
 
     def get_success_url(self) -> str:
         location = self.form.cleaned_data["where_is_the_address"]
-        success_url = reverse("add_a_recipient", kwargs={"location": location, "recipient_id": self.kwargs[self.pk_url_kwarg]})
+        success_url = reverse(
+            "add_a_recipient",
+            kwargs={
+                "licence_pk": self.kwargs["licence_pk"],
+                "location": location,
+                "recipient_id": self.kwargs[self.pk_url_kwarg],
+            },
+        )
         return success_url
 
 
@@ -71,7 +78,10 @@ class AddARecipientView(BaseRecipientFormView):
         return form_class
 
     def get_success_url(self):
-        success_url = reverse("relationship_provider_recipient", kwargs={"recipient_id": self.kwargs[self.pk_url_kwarg]})
+        success_url = reverse(
+            "relationship_provider_recipient",
+            kwargs={"licence_pk": self.kwargs["licence_pk"], "recipient_id": self.kwargs[self.pk_url_kwarg]},
+        )
         return success_url
 
 
@@ -98,22 +108,27 @@ class RecipientAddedView(BaseSaveAndReturnFormView):
                 licence=self.licence_object,
                 type_of_relationship=TypeOfRelationshipChoices.recipient,
             )
-            success_url = reverse("where_is_the_recipient_located") + f"?recipient_id={new_recipient.id}"
+            success_url = (
+                reverse("where_is_the_recipient_located", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+                + f"?recipient_id={new_recipient.id}"
+            )
         else:
-            success_url = reverse("tasklist")
+            success_url = reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]})
         return success_url
 
 
 class DeleteRecipientView(DeleteAnEntityView):
-    success_url = reverse_lazy("recipient_added")
     model = Organisation
     pk_url_kwarg = "recipient_id"
     allow_zero_entities = True
 
+    def get_success_url(self):
+        success_url = reverse("recipient_added", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
+
 
 class RelationshipProviderRecipientView(BaseRecipientFormView):
     form_class = forms.RelationshipProviderRecipientForm
-    success_url = reverse_lazy("recipient_added")
     redirect_with_query_parameters = False  # once we're done here, we don't care about the query parameters
 
     def save_form(self, form):
@@ -121,3 +136,7 @@ class RelationshipProviderRecipientView(BaseRecipientFormView):
         instance.status = choices.EntityStatusChoices.complete
         instance.save()
         return instance
+
+    def get_success_url(self):
+        success_url = reverse("recipient_added", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url

@@ -16,7 +16,7 @@ from core.views.base_views import (
 )
 from django.db.models import QuerySet
 from django.shortcuts import redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +59,7 @@ class AddAnIndividualView(BaseIndividualFormView):
         success_url = reverse(
             "what_is_individuals_address",
             kwargs={
+                "licence_pk": self.kwargs["licence_pk"],
                 "location": "in-uk" if is_uk_individual else "outside-uk",
                 "individual_id": self.kwargs.get("individual_id"),
             },
@@ -68,8 +69,11 @@ class AddAnIndividualView(BaseIndividualFormView):
 
 class DeleteIndividualView(DeleteAnEntityView):
     model = Individual
-    success_url = reverse_lazy("individual_added")
     pk_url_kwarg = "individual_id"
+
+    def get_success_url(self):
+        success_url = reverse("individual_added", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
 
 
 class WhatIsIndividualsAddressView(BaseIndividualFormView):
@@ -91,9 +95,9 @@ class WhatIsIndividualsAddressView(BaseIndividualFormView):
         return form
 
     def get_success_url(self):
-        success_url = reverse("individual_added")
+        success_url = reverse("individual_added", kwargs={"licence_pk": self.kwargs["licence_pk"]})
         if self.licence_object.who_do_you_want_the_licence_to_cover == WhoDoYouWantTheLicenceToCoverChoices.myself:
-            success_url = reverse("yourself_and_individual_added")
+            success_url = reverse("yourself_and_individual_added", kwargs={"licence_pk": self.kwargs["licence_pk"]})
         return success_url
 
     def save_form(self, form):
@@ -136,23 +140,25 @@ class IndividualAddedView(BaseSaveAndReturnFormView):
                 new_individual = Individual.objects.create(
                     licence=self.licence_object,
                 )
-                success_url = reverse("add_an_individual") + f"?individual_id={new_individual.id}"
+                success_url = (
+                    reverse("add_an_individual", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+                    + f"?individual_id={new_individual.id}"
+                )
             elif (
                 self.licence_object.who_do_you_want_the_licence_to_cover
                 == choices.WhoDoYouWantTheLicenceToCoverChoices.individual
             ):
-                success_url = reverse("business_employing_individual")
+                success_url = reverse("business_employing_individual", kwargs={"licence_pk": self.kwargs["licence_pk"]})
             else:
-                success_url = reverse("tasklist")
+                success_url = reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]})
 
             return success_url
         except AttributeError:
-            return reverse("tasklist")
+            return reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]})
 
 
 class BusinessEmployingIndividualView(BaseSaveAndReturnModelFormView):
     form_class = forms.BusinessEmployingIndividualForm
-    success_url = reverse_lazy("tasklist")
 
     @property
     def object(self) -> Organisation:
@@ -179,3 +185,7 @@ class BusinessEmployingIndividualView(BaseSaveAndReturnModelFormView):
         instance.status = choices.EntityStatusChoices.complete
         instance.save()
         return instance
+
+    def get_success_url(self):
+        success_url = reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url

@@ -11,7 +11,7 @@ from apply_for_a_licence.views.views_individual import BaseIndividualFormView
 from core.utils import get_licence_object
 from core.views.base_views import BaseSaveAndReturnFormView
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +65,7 @@ class AddYourselfView(BaseIndividualFormView):
         success_url = reverse(
             "add_yourself_address",
             kwargs={
+                "licence_pk": self.kwargs["licence_pk"],
                 "yourself_id": self.instance.id,
                 "location": "in-uk" if is_uk_individual else "outside-uk",
             },
@@ -74,7 +75,6 @@ class AddYourselfView(BaseIndividualFormView):
 
 
 class AddYourselfAddressView(BaseIndividualFormView):
-    success_url = reverse_lazy("yourself_and_individual_added")
     pk_url_kwarg = "yourself_id"
 
     def get_form_class(self) -> Type[forms.AddYourselfUKAddressForm | forms.AddYourselfNonUKAddressForm]:
@@ -97,6 +97,10 @@ class AddYourselfAddressView(BaseIndividualFormView):
         instance.status = choices.EntityStatusChoices.complete
         instance.save()
         return instance
+
+    def get_success_url(self):
+        success_url = reverse("yourself_and_individual_added", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
 
 
 class YourselfAndIndividualAddedView(BaseSaveAndReturnFormView):
@@ -132,13 +136,19 @@ class YourselfAndIndividualAddedView(BaseSaveAndReturnFormView):
         add_individual = self.form.cleaned_data["do_you_want_to_add_another_individual"]
         if add_individual:
             new_individual = Individual.objects.create(licence=self.licence_object)
-            return reverse("add_an_individual") + f"?individual_id={new_individual.id}"
+            return (
+                reverse("add_an_individual", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+                + f"?individual_id={new_individual.id}"
+            )
         else:
-            return reverse("tasklist")
+            return reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]})
 
 
 class DeleteIndividualFromYourselfView(DeleteAnEntityView):
     model = Individual
-    success_url = reverse_lazy("yourself_and_individual_added")
     allow_zero_entities = True
     pk_url_kwarg = "individual_id"
+
+    def get_success_url(self):
+        success_url = reverse("yourself_and_individual_added", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url

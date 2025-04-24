@@ -17,8 +17,7 @@ class TriageView(BaseView):
     def dispatch(self, request, *args, **kwargs):
         licence_object = get_object_or_404(Licence, pk=kwargs["licence_pk"])
         if can_user_edit_licence(request.user, licence_object):
-            request.session["licence_id"] = licence_object.pk
-            return redirect(reverse("tasklist"))
+            return redirect(reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]}))
         else:
             raise SuspiciousOperation("User does not have permission to edit this licence")
 

@@ -15,7 +15,7 @@
                 <ul class="govuk-summary-card__actions">
                     <dd class="govuk-summary-list__action govuk-!-font-weight-regular">
                         <a class="govuk-link" style="font-size: 19px; text-align:right"
-                           <a href="{% url 'add_an_individual' %}?individual_id={{individual.id}}">Change<span
+                           <a href="{% url 'add_an_individual' licence_pk=licence.id %}?individual_id={{individual.id}}">Change<span
                             class="govuk-visually-hidden"> individual {{forloop.counter}} details </span></a>
                     </dd>
                 </ul>
@@ -60,7 +60,7 @@
             </div>
             {% if individuals|length > 1 %}
                 <form id="delete_individual_form_{{ forloop.counter }}" method="post" enctype='multipart/form-data' novalidate
-                      action="{% url 'delete_individual' individual_id=individual.id%}">
+                      action="{% url 'delete_individual' licence_pk=licence.id individual_id=individual.id%}">
                     <input type="hidden" name="individual_id" value="{{ individual.id }}">
                     {% csrf_token %}
                     <button type="submit" class="govuk-body button-that-looks-like-link" form="delete_individual_form_{{ forloop.counter }}">
