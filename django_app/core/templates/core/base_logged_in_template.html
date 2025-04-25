@@ -7,6 +7,21 @@ as it provides the session expiry stuff.
 
 {% load static %}
 
+{% block service_navigation %}
+    <section aria-label="Service information" class="govuk-service-navigation"
+             data-module="govuk-service-navigation">
+        <div class="govuk-width-container">
+            <div class="govuk-service-navigation__container">
+                <span class="govuk-service-navigation__service-name">
+                    <a href="#" class="govuk-service-navigation__link">
+                        Service name
+                    </a>
+                </span>
+            </div>
+        </div>
+    </section>
+{% endblock service_navigation %}
+
 {% block body_end %}
 	{# session expiry dialog pop-up #}
     <dialog id="session_expiry_dialog">

@@ -204,7 +204,10 @@
     {% block phase_banner %}
         <div class="govuk-width-container">
             <div class="govuk-phase-banner hide-on-print">
+                {% block service_navigation %}{% endblock service_navigation %}
+
                 <p class="govuk-phase-banner__content">
+
                     <strong class="govuk-tag govuk-phase-banner__content__tag">
                         Beta
                     </strong>
