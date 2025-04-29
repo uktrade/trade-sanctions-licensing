@@ -33,17 +33,20 @@ as it provides the session expiry stuff.
   <section class="govuk-service-navigation"
            data-module="govuk-service-navigation">
     <div class="govuk-width-container">
-      <div class="govuk-service-navigation__container">
-        <span class="govuk-service-navigation__service-name">
-          <a href="/" class="govuk-service-navigation__link">
-            Apply for a licence to provide sanctioned trade services
-          </a>
-        </span>
-        <div class="govuk-grid-column-one-third govuk-!-text-align-right govuk-!-margin-top-3">
-          <a class="govuk-button"
-             href="{% url "authentication:logout" %}">Sign out</a>
-        </div>
-      </div>
+      <nav aria-label="Menu" class="govuk-service-navigation__wrapper govuk-clearfix">
+        <ul class="govuk-service-navigation__list govuk-!-display-flex govuk-!-width-full" id="navigation">
+          <li class="govuk-service-navigation__item govuk-!-margin-right-auto">
+            <a class="govuk-service-navigation__link" href="{% url "dashboard" %}">
+              <strong>Your applications</strong>
+            </a>
+          </li>
+          <li class="govuk-service-navigation__item govuk-grid-column-three-quarters govuk-!-text-align-right">
+            <a class="govuk-service-navigation__link" href="{% url "authentication:logout" %}">
+              <strong>Sign out</strong>
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </section>
 {% endblock service_navigation %}
