@@ -48,7 +48,7 @@ class BaseTemplateView(BaseView, TemplateView):
 class BaseSaveAndReturnView(BaseView):
     @property
     def licence_object(self) -> Licence | None:
-        if licence_id := self.kwargs["licence_pk"]:
+        if licence_id := self.kwargs.get("licence_pk", None):
             try:
                 licence = Licence.objects.get(pk=licence_id)
                 if not can_user_edit_licence(self.request.user, licence):
@@ -128,8 +128,8 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        licence = self.licence_object
-        context["licence"] = licence
+        if licence := self.licence_object:
+            context["licence"] = licence
         return context
 
 
