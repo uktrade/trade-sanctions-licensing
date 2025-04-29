@@ -120,6 +120,7 @@ class Licence(BaseModel):
             return [
                 choices.ProfessionalOrBusinessServicesChoices[value].label for value in self.professional_or_business_services
             ]
+
         else:
             return []
 
