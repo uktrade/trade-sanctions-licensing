@@ -20,8 +20,7 @@ class TestSubmitterReferenceView:
         assert "start" in response.url
         assert Licence.objects.count() == 1
         assert Licence.objects.first().submitter_reference == "test"
-        assert Licence.objects.first().pk == request.session["licence_id"]
-        assert response.url == reverse("start", kwargs={"pk": request.session["licence_id"]})
+        assert response.url == reverse("start", kwargs={"licence_pk": Licence.objects.first().pk})
 
 
 @pytest.mark.django_db
@@ -30,11 +29,8 @@ class TestStartView:
         licence = Licence.objects.create(
             user=test_apply_user,
         )
-        session = authenticated_al_client.session
-        session.update({"licence_id": licence.id})
-        session.save()
         response = authenticated_al_client.post(
-            reverse("start", kwargs={"pk": licence.id}),
+            reverse("start", kwargs={"licence_pk": licence.id}),
             data={"who_do_you_want_the_licence_to_cover": WhoDoYouWantTheLicenceToCoverChoices.myself.value},
         )
 
@@ -47,37 +43,32 @@ class TestStartView:
         licence = Licence.objects.create(
             user=test_apply_user,
         )
-        session = authenticated_al_client.session
-        session.update({"licence_id": licence.id})
-        session.save()
+
         response = authenticated_al_client.post(
-            reverse("start", kwargs={"pk": licence.id}),
+            reverse("start", kwargs={"licence_pk": licence.id}),
             data={"who_do_you_want_the_licence_to_cover": WhoDoYouWantTheLicenceToCoverChoices.business.value},
         )
 
         assert response.status_code == 302
         licence_response = Licence.objects.get(pk=licence.id)
         assert licence_response.who_do_you_want_the_licence_to_cover == "business"
-        assert response.url == reverse("tasklist")
+        assert response.url == reverse("tasklist", kwargs={"licence_pk": licence.id})
 
     def test_licence_data_delete(self, authenticated_al_client, test_apply_user):
         # Create the licence
         licence = Licence.objects.create(
             user=test_apply_user,
         )
-        session = authenticated_al_client.session
-        session.update({"licence_id": licence.id})
-        session.save()
 
         authenticated_al_client.post(
-            reverse("start", kwargs={"pk": licence.id}),
+            reverse("start", kwargs={"licence_pk": licence.id}),
             data={"who_do_you_want_the_licence_to_cover": WhoDoYouWantTheLicenceToCoverChoices.business.value},
         )
 
         # Change the user's original answer to who_do_you_want_the_licence_to_cover
         new_choice = {"who_do_you_want_the_licence_to_cover": WhoDoYouWantTheLicenceToCoverChoices.myself.value}
         response = authenticated_al_client.post(
-            reverse("start", kwargs={"pk": licence.id}),
+            reverse("start", kwargs={"licence_pk": licence.id}),
             data=new_choice,
         )
 
@@ -86,16 +77,13 @@ class TestStartView:
         with pytest.raises(Licence.DoesNotExist):
             Licence.objects.get(pk=licence.id)
 
-        assert response.url == reverse("tasklist")
+        assert response.url == reverse("tasklist", kwargs={"licence_pk": licence.id})
 
     def test_licence_delete_other_entities(self, authenticated_al_client_with_licence, test_apply_user):
         # Create the licence and session obj
         licence = Licence.objects.create(
             user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
         )
-        session = authenticated_al_client_with_licence.session
-        session.update({"licence_id": licence.id})
-        session.save()
 
         # Create the associated org object from the newly create licence
         Organisation.objects.create(
@@ -109,7 +97,7 @@ class TestStartView:
         # Now change the users answer to who_do_you_want_the_licence_to_cover
         new_choice = {"who_do_you_want_the_licence_to_cover": WhoDoYouWantTheLicenceToCoverChoices.myself.value}
         authenticated_al_client_with_licence.post(
-            reverse("start", kwargs={"pk": licence.id}),
+            reverse("start", kwargs={"licence_pk": licence.id}),
             data=new_choice,
         )
 
@@ -127,47 +115,36 @@ class TestThirdPartyView:
             user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
         )
 
-        session = authenticated_al_client.session
-        session["licence_id"] = licence.id
-        session.save()
-
         response = authenticated_al_client.post(
-            reverse("are_you_third_party"),
+            reverse("are_you_third_party", kwargs={"licence_pk": licence.id}),
             data={"is_third_party": True},
         )
         assert response.status_code == 302
         licence_response = Licence.objects.get(pk=licence.id)
         assert licence_response.is_third_party
-        assert response.url == reverse("your_details")
+        assert response.url == reverse("your_details", kwargs={"licence_pk": licence.id})
 
     def test_post_third_party_business(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
             user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
         )
 
-        session = authenticated_al_client.session
-        session["licence_id"] = licence.id
-        session.save()
-
         response = authenticated_al_client.post(
-            reverse("are_you_third_party"),
+            reverse("are_you_third_party", kwargs={"licence_pk": licence.id}),
             data={"is_third_party": True},
         )
         assert response.status_code == 302
         licence_response = Licence.objects.get(pk=licence.id)
         assert licence_response.is_third_party
-        assert response.url == reverse("your_details")
+        assert response.url == reverse("your_details", kwargs={"licence_pk": licence.id})
 
     def test_post_not_third_party_individual(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
             user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
         )
-        session = authenticated_al_client.session
-        session["licence_id"] = licence.id
-        session.save()
 
         response = authenticated_al_client.post(
-            reverse("are_you_third_party"),
+            reverse("are_you_third_party", kwargs={"licence_pk": licence.id}),
             data={"is_third_party": False},
         )
 
@@ -181,12 +158,8 @@ class TestThirdPartyView:
             user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value
         )
 
-        session = authenticated_al_client.session
-        session["licence_id"] = licence.id
-        session.save()
-
         response = authenticated_al_client.post(
-            reverse("are_you_third_party"),
+            reverse("are_you_third_party", kwargs={"licence_pk": licence.id}),
             data={"is_third_party": False},
         )
 
@@ -204,12 +177,8 @@ class TestYourDetailsView:
             who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value,
         )
 
-        session = authenticated_al_client.session
-        session["licence_id"] = licence.id
-        session.save()
-
         response = authenticated_al_client.post(
-            reverse("your_details"),
+            reverse("your_details", kwargs={"licence_pk": licence.id}),
             data={"applicant_full_name": "John Smith", "applicant_business": "PBS", "applicant_role": "role 1"},
         )
         assert response.status_code == 302
@@ -224,12 +193,8 @@ class TestYourDetailsView:
             who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.business.value,
         )
 
-        session = authenticated_al_client.session
-        session["licence_id"] = licence.id
-        session.save()
-
         response = authenticated_al_client.post(
-            reverse("your_details"),
+            reverse("your_details", kwargs={"licence_pk": licence.id}),
             data={"applicant_full_name": "John Smith", "applicant_business": "PBS", "applicant_role": "role 2"},
         )
 

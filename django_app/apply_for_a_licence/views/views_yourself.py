@@ -8,7 +8,6 @@ from apply_for_a_licence.forms import forms_yourself as forms
 from apply_for_a_licence.models import Individual
 from apply_for_a_licence.views.base_views import DeleteAnEntityView
 from apply_for_a_licence.views.views_individual import BaseIndividualFormView
-from core.utils import get_licence_object
 from core.views.base_views import BaseSaveAndReturnFormView
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -79,8 +78,7 @@ class AddYourselfAddressView(BaseIndividualFormView):
 
     def get_form_class(self) -> Type[forms.AddYourselfUKAddressForm | forms.AddYourselfNonUKAddressForm]:
         yourself_id = self.kwargs.get("yourself_id")
-        licence_object = get_licence_object(self.request)
-        instance = get_object_or_404(Individual, pk=yourself_id, licence=licence_object)
+        instance = get_object_or_404(Individual, pk=yourself_id, licence=self.licence_object)
 
         if instance.nationality_and_location in [
             "uk_national_uk_location",
@@ -108,13 +106,12 @@ class YourselfAndIndividualAddedView(BaseSaveAndReturnFormView):
     template_name = "apply_for_a_licence/form_steps/yourself_and_individual_added.html"
 
     def dispatch(self, request, *args, **kwargs):
-        licence_object = get_licence_object(self.request)
-        self.individuals = Individual.objects.filter(licence=licence_object)
+        self.individuals = Individual.objects.filter(licence=self.licence_object)
         if len(self.individuals) > 0:
             # only allow access to this page if an individual or yourself has been added
             return super().dispatch(request, *args, **kwargs)
         else:
-            return redirect(reverse("add_yourself") + "?new=yes")
+            return redirect(reverse("add_yourself", kwargs={"licence_pk": self.licence_object.id}) + "?new=yes")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

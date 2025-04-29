@@ -9,12 +9,9 @@ class TestTriageView:
         licence = Licence.objects.create(
             user=test_apply_user,
         )
-        session = authenticated_al_client.session
-        session.update({"licence_id": licence.id})
-        session.save()
         response = authenticated_al_client.get(reverse("triage", kwargs={"licence_pk": licence.id}))
         assert response.status_code == 302
-        assert response.url == reverse("tasklist")
+        assert response.url == reverse("tasklist", kwargs={"licence_pk": licence.id})
 
     def test_incorrect_user_raises_error(self, authenticated_al_client, test_apply_user):
         user, created = User.objects.get_or_create(

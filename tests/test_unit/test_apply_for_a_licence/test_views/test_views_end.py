@@ -16,7 +16,9 @@ class TestCheckYourAnswersView:
         applicant_individual = IndividualFactory(licence=licence_application, is_applicant=True)
         business_individual_works_for = OrganisationFactory(licence=licence_application, type_of_relationship="named_individuals")
 
-        response = authenticated_al_client_with_licence.get(reverse("check_your_answers"))
+        response = authenticated_al_client_with_licence.get(
+            reverse("check_your_answers", kwargs={"licence_pk": licence_application.id})
+        )
         assert response.status_code == 200
 
         assert response.context["licence"] == licence_application
@@ -32,7 +34,9 @@ class TestCheckYourAnswersView:
         IndividualFactory.create_batch(3, licence=licence_application, is_applicant=False)
         business_individual_works_for = OrganisationFactory(licence=licence_application, type_of_relationship="named_individuals")
 
-        response = authenticated_al_client_with_licence.get(reverse("check_your_answers"))
+        response = authenticated_al_client_with_licence.get(
+            reverse("check_your_answers", kwargs={"licence_pk": licence_application.id})
+        )
         assert response.status_code == 200
 
         assert response.context["licence"] == licence_application
@@ -47,7 +51,9 @@ class TestCheckYourAnswersView:
         OrganisationFactory.create_batch(3, licence=licence_application, type_of_relationship="business")
         IndividualFactory.create_batch(3, licence=licence_application, is_applicant=False)
         applicant_individual = IndividualFactory(licence=licence_application, is_applicant=True)
-        response = authenticated_al_client_with_licence.get(reverse("check_your_answers"))
+        response = authenticated_al_client_with_licence.get(
+            reverse("check_your_answers", kwargs={"licence_pk": licence_application.id})
+        )
         assert response.status_code == 200
 
         assert response.context["licence"] == licence_application
@@ -68,7 +74,9 @@ class TestDeclarationView:
         licence_application.reference = ""
         licence_application.save()
 
-        response = authenticated_al_client_with_licence.post(reverse("declaration"), data={"declaration": True})
+        response = authenticated_al_client_with_licence.post(
+            reverse("declaration", kwargs={"licence_pk": licence_application.id}), data={"declaration": True}
+        )
         assert response.status_code == 302
         licence_application.refresh_from_db()
         assert licence_application.status == "submitted"
@@ -85,7 +93,9 @@ class TestDeclarationView:
         licence_application,
     ):
         patched_get_view_a_licence_application_url.return_value = "http://test.com"
-        authenticated_al_client_with_licence.post(reverse("declaration"), data={"declaration": True})
+        authenticated_al_client_with_licence.post(
+            reverse("declaration", kwargs={"licence_pk": licence_application.id}), data={"declaration": True}
+        )
         licence_application.refresh_from_db()
         assert patched_send_email.call_count == 2
         patched_send_email.assert_any_call(

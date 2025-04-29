@@ -80,7 +80,7 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
 
     def post(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
         if self.request.POST.get("skip_link"):
-            return HttpResponseRedirect(reverse("tasklist"))
+            return HttpResponseRedirect(reverse("tasklist", kwargs={"licence_pk": self.licence_object.id}))
         else:
             return super().post(request, *args, **kwargs)
 
@@ -106,7 +106,7 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
         if redirect_to_url and url_has_allowed_host_and_scheme(redirect_to_url, allowed_hosts=None):
             if self.redirect_after_post:
                 # we want to redirect the user to a specific page after the form is submitted
-                return reverse(redirect_to_url)
+                return reverse(redirect_to_url, kwargs={"licence_pk": self.licence_object.id})
             else:
                 # we don't want to redirect the user just now, but we want to pass the redirect_to URL to the next form,
                 # so it can redirect the user after it is submitted

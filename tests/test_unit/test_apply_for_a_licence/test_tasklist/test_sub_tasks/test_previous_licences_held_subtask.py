@@ -7,7 +7,7 @@ class TestPreviousLicensesHeldSubTask:
         sub_task = PreviousLicensesHeldSubTask(individual_licence)
         assert sub_task.name == "Previous licences"
         assert sub_task.help_text == "Any previous licence numbers"
-        assert sub_task.url == reverse("previous_licence")
+        assert sub_task.url() == reverse("previous_licence", kwargs={"licence_pk": individual_licence.id})
 
     def test_subtask_is_completed(self, business_licence):
         sub_task = PreviousLicensesHeldSubTask(business_licence)

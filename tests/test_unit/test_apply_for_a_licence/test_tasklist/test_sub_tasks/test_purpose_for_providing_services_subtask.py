@@ -11,10 +11,10 @@ class TestPurposeForProvidingServicesSubTask:
 
     def test_subtask_url(self, business_licence):
         sub_task = PurposeForProvidingServicesSubTask(business_licence)
-        assert sub_task.url == reverse("purpose_of_provision")
+        assert sub_task.url == reverse("purpose_of_provision", kwargs={"licence_pk": business_licence.id})
         business_licence.type_of_service = choices.TypeOfServicesChoices.professional_and_business
         business_licence.save()
-        assert sub_task.url == reverse("licensing_grounds")
+        assert sub_task.url == reverse("licensing_grounds", kwargs={"licence_pk": business_licence.id})
 
     def test_subtask_is_completed(self, business_licence):
         sub_task = PurposeForProvidingServicesSubTask(business_licence)

@@ -27,28 +27,38 @@ class TestDetailsOfTheEntityYouWantToCoverSubTask:
     def test_subtask_url_business(self, business_licence):
         # no previous business
         sub_task = DetailsOfTheEntityYouWantToCoverSubTask(business_licence)
-        assert sub_task.url == reverse("is_the_business_registered_with_companies_house") + "?new=yes"
+        assert (
+            sub_task.url
+            == reverse("is_the_business_registered_with_companies_house", kwargs={"licence_pk": business_licence.id}) + "?new=yes"
+        )
         # previous business in draft state
         organisation = OrganisationFactory(
             licence=business_licence, status="draft", type_of_relationship=choices.TypeOfRelationshipChoices.business
         )
-        assert sub_task.url == reverse("is_the_business_registered_with_companies_house") + f"?business_id={organisation.id}"
+        assert (
+            sub_task.url
+            == reverse("is_the_business_registered_with_companies_house", kwargs={"licence_pk": business_licence.id})
+            + f"?business_id={organisation.id}"
+        )
         # completed business
         organisation.status = "complete"
         organisation.save()
-        assert sub_task.url == reverse("business_added")
+        assert sub_task.url == reverse("business_added", kwargs={"licence_pk": business_licence.id})
 
     def test_subtask_url_individual(self, individual_licence):
         # no previous individual
         sub_task = DetailsOfTheEntityYouWantToCoverSubTask(individual_licence)
-        assert sub_task.url == reverse("add_an_individual") + "?new=yes"
+        assert sub_task.url == reverse("add_an_individual", kwargs={"licence_pk": individual_licence.id}) + "?new=yes"
         # previous individual in draft state
         individual = IndividualFactory(licence=individual_licence, status="draft")
-        assert sub_task.url == reverse("add_an_individual") + f"?individual_id={individual.id}"
+        assert (
+            sub_task.url
+            == reverse("add_an_individual", kwargs={"licence_pk": individual_licence.id}) + f"?individual_id={individual.id}"
+        )
         # completed individual
         individual.status = "complete"
         individual.save()
-        assert sub_task.url == reverse("individual_added")
+        assert sub_task.url == reverse("individual_added", kwargs={"licence_pk": individual_licence.id})
 
     def test_is_completed_business(self, business_licence):
         # no previous business

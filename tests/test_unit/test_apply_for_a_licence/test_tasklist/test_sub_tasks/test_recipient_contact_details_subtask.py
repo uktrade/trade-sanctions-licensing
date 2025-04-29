@@ -13,8 +13,12 @@ class TestRecipientContactDetailsSubTask:
         recipient = OrganisationFactory(
             licence=individual_licence, status="draft", type_of_relationship=choices.TypeOfRelationshipChoices.recipient
         )
-        assert sub_task.url == reverse("where_is_the_recipient_located") + f"?recipient_id={recipient.id}"
+        assert (
+            sub_task.url
+            == reverse("where_is_the_recipient_located", kwargs={"licence_pk": individual_licence.id})
+            + f"?recipient_id={recipient.id}"
+        )
         OrganisationFactory(
             licence=individual_licence, status="complete", type_of_relationship=choices.TypeOfRelationshipChoices.recipient
         )
-        assert sub_task.url == reverse("recipient_added")
+        assert sub_task.url == reverse("recipient_added", kwargs={"licence_pk": individual_licence.id})

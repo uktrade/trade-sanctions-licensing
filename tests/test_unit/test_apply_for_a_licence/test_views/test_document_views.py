@@ -11,17 +11,17 @@ logger = logging.getLogger(__name__)
 
 
 class TestDocumentUploadView:
-    def test_successful_post(self, authenticated_al_client_with_licence):
+    def test_successful_post(self, authenticated_al_client_with_licence, licence_application):
         response = authenticated_al_client_with_licence.post(
-            reverse("upload_documents"),
+            reverse("upload_documents", kwargs={"licence_pk": licence_application.id}),
             data={"file": SimpleUploadedFile("test.png", b"file_content")},
             headers={"x-requested-with": "XMLHttpRequest"},
         )
         assert response.status_code == 201
 
-    def test_unsuccessful_post(self, authenticated_al_client_with_licence):
+    def test_unsuccessful_post(self, authenticated_al_client_with_licence, licence_application):
         response = authenticated_al_client_with_licence.post(
-            reverse("upload_documents"),
+            reverse("upload_documents", kwargs={"licence_pk": licence_application.id}),
             data={"file": SimpleUploadedFile("bad.gif", b"GIF8")},
             headers={"x-requested-with": "XMLHttpRequest"},
         )
@@ -34,18 +34,18 @@ class TestDocumentUploadView:
         )
         assert response["file_name"] == "bad.gif"
 
-    def test_non_ajax_successful_post(self, authenticated_al_client_with_licence):
+    def test_non_ajax_successful_post(self, authenticated_al_client_with_licence, licence_application):
         response = authenticated_al_client_with_licence.post(
-            reverse("upload_documents"),
+            reverse("upload_documents", kwargs={"licence_pk": licence_application.id}),
             data={"file": SimpleUploadedFile("test.png", b"file_content")},
             follow=True,
         )
         assert response.status_code == 200
-        assert response.request["PATH_INFO"] == "/apply/task-list"
+        assert "/apply/task-list" in response.request["PATH_INFO"]
 
-    def test_non_ajax_unsuccessful_post(self, authenticated_al_client_with_licence):
+    def test_non_ajax_unsuccessful_post(self, authenticated_al_client_with_licence, licence_application):
         response = authenticated_al_client_with_licence.post(
-            reverse("upload_documents"),
+            reverse("upload_documents", kwargs={"licence_pk": licence_application.id}),
             data={"file": SimpleUploadedFile("bad.gif", b"GIF8")},
             follow=True,
         )
@@ -67,7 +67,7 @@ class TestDeleteDocumentsView:
         Document.objects.create(licence=licence_application, file="test1231242342.png", original_file_name="test.png")
 
         response = authenticated_al_client_with_licence.post(
-            reverse("delete_documents"),
+            reverse("delete_documents", kwargs={"licence_pk": licence_application.id}),
             data={"s3_key_to_delete": "test1231242342.png"},
             headers={"x-requested-with": "XMLHttpRequest"},
         )
@@ -76,14 +76,16 @@ class TestDeleteDocumentsView:
         assert patched_document_delete.call_count == 1
 
     @patch("apply_for_a_licence.models.Document.delete")
-    def test_unsuccessful_post_doesnt_own(self, patched_document_delete, authenticated_al_client_with_licence):
+    def test_unsuccessful_post_doesnt_own(
+        self, patched_document_delete, authenticated_al_client_with_licence, licence_application
+    ):
         licence = LicenceFactory(user=None)
         licence.status = "draft"
         licence.save()
         Document.objects.create(licence=licence, file="test123124234.png", original_file_name="test.png")
 
         response = authenticated_al_client_with_licence.post(
-            reverse("delete_documents"),
+            reverse("delete_documents", kwargs={"licence_pk": licence_application.id}),
             data={"s3_key_to_delete": "test123124234.png"},
             headers={"x-requested-with": "XMLHttpRequest"},
         )
@@ -99,7 +101,7 @@ class TestDeleteDocumentsView:
         Document.objects.create(licence=licence_application, file="test1231242342.png", original_file_name="test.png")
 
         response = authenticated_al_client_with_licence.post(
-            reverse("delete_documents"),
+            reverse("delete_documents", kwargs={"licence_pk": licence_application.id}),
             data={"s3_key_to_delete": "test1231242342.png"},
             headers={"x-requested-with": "XMLHttpRequest"},
         )
@@ -114,7 +116,9 @@ class TestDownloadDocumentMiddleman:
         )
 
         with caplog.at_level(logging.INFO, logger="apply_for_a_licence.views"):
-            response = authenticated_al_client_with_licence.get(reverse("download_document", kwargs={"pk": document_object.pk}))
+            response = authenticated_al_client_with_licence.get(
+                reverse("download_document", kwargs={"licence_pk": licence_application.id, "pk": document_object.pk})
+            )
             assert f"User apply_test_user@example.com has downloaded file: test.png (PK {document_object.pk})" in caplog.text
         assert response.status_code == 302
         assert "permanent-document-bucket" in response.url
@@ -124,15 +128,19 @@ class TestDownloadDocumentMiddleman:
         document_object = Document.objects.create(
             licence=licence_application, file="test1231242342.png", original_file_name="test.png"
         )
-        response = authenticated_al_client_with_licence.get(reverse("download_document", kwargs={"pk": document_object.pk}))
+        response = authenticated_al_client_with_licence.get(
+            reverse("download_document", kwargs={"licence_pk": licence_application.id, "pk": document_object.pk})
+        )
         assert response.status_code == 404
 
     def test_download_document_middleman_session_licence_doesnt_match(
-        self, authenticated_al_client_with_licence, test_apply_user
+        self, authenticated_al_client_with_licence, licence_application, test_apply_user
     ):
-        licence_application = LicenceFactory(user=test_apply_user)
+        licence_application2 = LicenceFactory(user=test_apply_user)
         document_object = Document.objects.create(
-            licence=licence_application, file="test1231242342.png", original_file_name="test.png"
+            licence=licence_application2, file="test1231242342.png", original_file_name="test.png"
         )
-        response = authenticated_al_client_with_licence.get(reverse("download_document", kwargs={"pk": document_object.pk}))
+        response = authenticated_al_client_with_licence.get(
+            reverse("download_document", kwargs={"licence_pk": licence_application.id, "pk": document_object.pk})
+        )
         assert response.status_code == 404
