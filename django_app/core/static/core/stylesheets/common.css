@@ -102,11 +102,3 @@ dialog::backdrop {
 .flex_container {
     display: flex;
 }
-
-.flex-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    list-style: none;
-    padding-left: 0;
-}
