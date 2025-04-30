@@ -16,6 +16,7 @@ class TestApplicationDetails(PlaywrightTestBase):
         submitted_licence = LicenceFactory.create(
             user=submitting_user,
             status="submitted",
+            who_do_you_want_the_licence_to_cover="business",
             submitted_at=datetime(2025, 2, 14, tzinfo=timezone.get_current_timezone()),
         )
         submitted_licence.assign_reference()

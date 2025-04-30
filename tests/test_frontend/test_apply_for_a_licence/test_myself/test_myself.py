@@ -58,7 +58,10 @@ class TestAddMyself(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase
         self.page.get_by_label("Yes").check()
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_role("button", name="Skip for now and return to").click()
-        self.go_to_path(reverse("yourself_and_individual_added"))
+        # get licence_id from url
+        page_url = self.page.url
+        licence_id = page_url.rsplit("/")[-1]
+        self.go_to_path(reverse("yourself_and_individual_added", kwargs={"licence_pk": licence_id}))
         expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
         expect(self.page.get_by_role("heading", name="You've added yourself plus 1 individual to the licence")).to_be_visible()
         expect(self.page.get_by_test_id("individual-address-1")).to_have_text("Not yet added")
@@ -68,8 +71,11 @@ class TestAddMyself(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase
     def test_draft_yourself_has_text(self):
         self.start_new_application()
         self.myself(self.page)
+        # get licence_id from url
+        page_url = self.page.url
+        licence_id = page_url.rsplit("/")[-1].split("?")[0]
         self.your_details(self.page, "myself")
-        self.go_to_path(reverse("yourself_and_individual_added"))
+        self.go_to_path(reverse("yourself_and_individual_added", kwargs={"licence_pk": licence_id}))
         expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
         expect(self.page.get_by_role("heading", name="You've added yourself to the licence")).to_be_visible()
         expect(self.page.get_by_test_id("yourself-address")).to_have_text("Not yet added")
