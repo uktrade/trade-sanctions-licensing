@@ -19,7 +19,7 @@ class YourDetailsSubTask(BaseSubTask):
     def url(self):
         if self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.myself:
             try:
-                applicant_individual = self.licence.individuals.filter(is_applicant=True).get()
+                applicant_individual = Individual.objects.get(licence=self.licence, is_applicant=True)
                 return reverse("add_yourself", kwargs={"licence_pk": self.licence.id}) + f"?yourself_id={applicant_individual.id}"
             except Individual.DoesNotExist:
                 return reverse("add_yourself", kwargs={"licence_pk": self.licence.id}) + "?new=yes"
