@@ -109,6 +109,13 @@ class TestDeclarationView:
             context={"application_number": licence_application.reference, "url": "http://test.com"},
         )
 
+    def test_success_url(self, patched_send_email, authenticated_al_client_with_licence, licence_application):
+
+        response = authenticated_al_client_with_licence.post(
+            reverse("declaration", kwargs={"licence_pk": licence_application.id}), data={"declaration": True}
+        )
+        assert response.url == reverse("complete", kwargs={"licence_pk": licence_application.id})
+
 
 class TestDownloadPDFView:
     @patch("apply_for_a_licence.models.Licence.objects.get", return_value=MagicMock())

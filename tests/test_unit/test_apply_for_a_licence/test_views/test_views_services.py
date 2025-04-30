@@ -3,10 +3,12 @@ from apply_for_a_licence.choices import (
     ProfessionalOrBusinessServicesChoices,
     TypeOfServicesChoices,
 )
+from apply_for_a_licence.utils import get_active_regimes
 from apply_for_a_licence.views.views_services import (
     ServiceActivitiesView,
     WhichSanctionsRegimeView,
 )
+from crispy_forms_gds.choices import Choice
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -113,6 +115,18 @@ class TestWhichSanctionsRegimeView:
         view.setup(request)
         assert not view.redirect_after_post
 
+    def test_success_url(self, authenticated_al_client_with_licence, licence_application):
+        sanctions = get_active_regimes()
+
+        sanctions_choice = Choice(sanctions[0]["name"], sanctions[0]["name"])
+
+        response = authenticated_al_client_with_licence.post(
+            reverse("which_sanctions_regime", kwargs={"licence_pk": licence_application.id}),
+            data={"regimes": [sanctions_choice.value]},
+        )
+        print(response.context)
+        assert response.url == reverse("service_activities", kwargs={"licence_pk": licence_application.id})
+
 
 class TestServiceActivitiesView:
     def test_get_success_url(self, authenticated_al_client_with_licence, licence_application):
@@ -124,6 +138,8 @@ class TestServiceActivitiesView:
         assert response.url == reverse("tasklist", kwargs={"licence_pk": licence_application.id})
 
     def test_get_update_success_url(self, authenticated_al_client, licence_application, request_object):
+        licence_application.type_of_service = TypeOfServicesChoices.interception_or_monitoring.value
+        licence_application.save()
         request_object.GET = {"change": "yes"}
         response = authenticated_al_client.post(
             reverse("service_activities", kwargs={"licence_pk": licence_application.id}) + "?update=yes",
@@ -131,6 +147,16 @@ class TestServiceActivitiesView:
         )
 
         assert response.url == reverse("purpose_of_provision", kwargs={"licence_pk": licence_application.id}) + "?update=yes"
+
+        licence_application.type_of_service = TypeOfServicesChoices.professional_and_business.value
+        licence_application.save()
+        request_object.GET = {"change": "yes"}
+        response = authenticated_al_client.post(
+            reverse("service_activities", kwargs={"licence_pk": licence_application.id}) + "?update=yes",
+            data={"service_activities": "activities"},
+        )
+
+        assert response.url == reverse("licensing_grounds", kwargs={"licence_pk": licence_application.id}) + "?update=yes"
 
     def test_get_pbs_success_url(self, authenticated_al_client_with_licence, licence_application, request_object):
         request_object.GET = {"change": "yes"}

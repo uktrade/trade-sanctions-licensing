@@ -67,3 +67,19 @@ class TestLicensingGroundsLegalAdvisoryView:
         )
         form = response.context["form"]
         assert not form.is_bound
+
+    def test_success_url(self, authenticated_al_client_with_licence, licence_application):
+        response = authenticated_al_client_with_licence.post(
+            reverse("licensing_grounds_legal_advisory", kwargs={"licence_pk": licence_application.id}),
+            data={"licensing_grounds_legal_advisory": LicensingGroundsChoices.safety.value},
+        )
+        assert response.url == reverse("purpose_of_provision", kwargs={"licence_pk": licence_application.id})
+
+
+class TestPurposeOfProvisionView:
+    def test_success_url(self, authenticated_al_client_with_licence, licence_application):
+        response = authenticated_al_client_with_licence.post(
+            reverse("purpose_of_provision", kwargs={"licence_pk": licence_application.id}),
+            data={"purpose_of_provision": "purpose"},
+        )
+        assert response.url == reverse("tasklist", kwargs={"licence_pk": licence_application.id})
