@@ -124,7 +124,6 @@ class TestWhichSanctionsRegimeView:
             reverse("which_sanctions_regime", kwargs={"licence_pk": licence_application.id}),
             data={"regimes": [sanctions_choice.value]},
         )
-        print(response.context)
         assert response.url == reverse("service_activities", kwargs={"licence_pk": licence_application.id})
 
 

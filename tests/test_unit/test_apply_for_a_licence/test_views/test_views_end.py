@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, patch
 
-from apply_for_a_licence.views.views_end import DownloadPDFView
+from apply_for_a_licence.views.views_end import DeclarationView, DownloadPDFView
 from django.conf import settings
 from django.test import RequestFactory, override_settings
 from django.urls import reverse
@@ -109,12 +109,12 @@ class TestDeclarationView:
             context={"application_number": licence_application.reference, "url": "http://test.com"},
         )
 
-    def test_success_url(self, patched_send_email, authenticated_al_client_with_licence, licence_application):
+    def test_get_success_url(self, patched_send_email, licence_application):
+        request = RequestFactory().get(reverse("declaration", kwargs={"licence_pk": licence_application.id}))
 
-        response = authenticated_al_client_with_licence.post(
-            reverse("declaration", kwargs={"licence_pk": licence_application.id}), data={"declaration": True}
-        )
-        assert response.url == reverse("complete", kwargs={"licence_pk": licence_application.id})
+        view = DeclarationView()
+        view.setup(request, licence_pk=licence_application.id)
+        assert view.get_success_url() == reverse("complete", kwargs={"licence_pk": licence_application.id})
 
 
 class TestDownloadPDFView:
