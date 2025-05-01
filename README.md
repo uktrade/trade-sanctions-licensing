@@ -90,7 +90,7 @@ Add the following to your etc/hosts file:
 ### 6. Install libmagic
 The project uses the python-magic library to determine the file type of uploaded files. This library requires the libmagic library to be installed on your system. You can install it with the following command:
 ```
-brew install pipenv
+brew install libmagic
 ```
 
 
@@ -109,7 +109,7 @@ invoke runserver --port-number <port_number>
 
 e.g.
 ```
-invoke runserver --port-number 28000
+invoke runserver --port-number 8000
 ```
 
 Navigate to either `apply-for-a-licence:<port_number>` or `view-a-licence:<port_number>` in your browser to see the application.
@@ -159,3 +159,9 @@ mock Staff SSO server. This user will by default not be able to access the viewe
 Create a superuser with `pipenv run django_app/manage.py createsuperuser` and log in to the admin panel (`http://view-a-licence:8000/admin`) with the superuser credentials.
 
 In order to access the viewer portal, run the django make_admin_user management command ([details here](https://uktrade.atlassian.net/wiki/spaces/TS1/pages/4664950873/Admin+user+for+viewer+portal)) using `vyvyan.holland@email.com` as the email.
+
+### Gov.UK One Login
+
+We use Gov.UK One Login for authentication. For our local environment, there is a mock-one-login server.
+When you spin up the application, it will ask for a login and password to authenticate to the server.
+Enter `admin` for the login and anything for the password.
