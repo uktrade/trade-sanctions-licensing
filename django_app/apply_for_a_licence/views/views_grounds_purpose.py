@@ -4,7 +4,7 @@ from apply_for_a_licence.choices import ProfessionalOrBusinessServicesChoices
 from apply_for_a_licence.forms import forms_grounds_purpose as forms
 from apply_for_a_licence.models import Licence
 from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -51,16 +51,15 @@ class LicensingGroundsView(BaseSaveAndReturnLicenceModelFormView):
     def get_success_url(self) -> str:
         if self.selected_legal_advisory:
             # the user has selected 'Legal advisory' as well as other services, redirect them to the legal advisory page
-            success_url = reverse("licensing_grounds_legal_advisory")
+            success_url = reverse("licensing_grounds_legal_advisory", kwargs={"licence_pk": self.kwargs["licence_pk"]})
         else:
-            success_url = reverse("purpose_of_provision")
+            success_url = reverse("purpose_of_provision", kwargs={"licence_pk": self.kwargs["licence_pk"]})
 
         return success_url
 
 
 class LicensingGroundsLegalAdvisoryView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.LicensingGroundsLegalAdvisoryForm
-    success_url = reverse_lazy("purpose_of_provision")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -77,7 +76,14 @@ class LicensingGroundsLegalAdvisoryView(BaseSaveAndReturnLicenceModelFormView):
             form.is_bound = False
         return form
 
+    def get_success_url(self):
+        success_url = reverse("purpose_of_provision", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
+
 
 class PurposeOfProvisionView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.PurposeOfProvisionForm
-    success_url = reverse_lazy("tasklist")
+
+    def get_success_url(self):
+        success_url = reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url

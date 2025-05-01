@@ -48,7 +48,7 @@ class BaseTemplateView(BaseView, TemplateView):
 class BaseSaveAndReturnView(BaseView):
     @property
     def licence_object(self) -> Licence | None:
-        if licence_id := self.request.session.get("licence_id"):
+        if licence_id := self.kwargs.get("licence_pk", None):
             try:
                 licence = Licence.objects.get(pk=licence_id)
                 if not can_user_edit_licence(self.request.user, licence):
@@ -80,7 +80,10 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
 
     def post(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
         if self.request.POST.get("skip_link"):
-            return HttpResponseRedirect(reverse("tasklist"))
+            if self.licence_object:
+                return HttpResponseRedirect(reverse("tasklist", kwargs={"licence_pk": self.licence_object.id}))
+            else:
+                return HttpResponseRedirect(reverse("dashboard"))
         else:
             return super().post(request, *args, **kwargs)
 
@@ -105,8 +108,11 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
         redirect_to_url = self.request.GET.get("redirect_to_url", None) or self.request.session.pop("redirect_to_url", None)
         if redirect_to_url and url_has_allowed_host_and_scheme(redirect_to_url, allowed_hosts=None):
             if self.redirect_after_post:
-                # we want to redirect the user to a specific page after the form is submitted
-                return reverse(redirect_to_url)
+                if self.licence_object:
+                    # we want to redirect the user to a specific page after the form is submitted
+                    return reverse(redirect_to_url, kwargs={"licence_pk": self.licence_object.id})
+                else:
+                    return reverse("dashboard")
             else:
                 # we don't want to redirect the user just now, but we want to pass the redirect_to URL to the next form,
                 # so it can redirect the user after it is submitted
@@ -125,6 +131,12 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
             if updated_parameters:
                 success_url += "?" + updated_parameters
         return success_url
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        if licence := self.licence_object:
+            context["licence"] = licence
+        return context
 
 
 class BaseSaveAndReturnModelFormView(SingleObjectMixin, BaseSaveAndReturnFormView):

@@ -13,12 +13,12 @@ def test_session_not_expired(authenticated_al_client, test_apply_user):
 
     now_time = timezone.now()
     session[settings.SESSION_LAST_ACTIVITY_KEY] = now_time.isoformat()
-    session["licence_id"] = LicenceFactory(user=test_apply_user, who_do_you_want_the_licence_to_cover="individual").id
+    licence = LicenceFactory(user=test_apply_user, who_do_you_want_the_licence_to_cover="individual").id
     session.save()
     sleep(1)
 
     response = authenticated_al_client.post(
-        reverse("your_details"),
+        reverse("your_details", kwargs={"licence_pk": licence}),
         follow=True,
         data={"applicant_full_name": "John Smith", "applicant_business": "business", "applicant_role": "role"},
     )
@@ -33,7 +33,7 @@ def test_session_not_expired(authenticated_al_client, test_apply_user):
     assert response.resolver_match.url_name == "tasklist"
 
 
-def test_session_expired(authenticated_al_client):
+def test_session_expired(authenticated_al_client, licence_application):
     session = authenticated_al_client.session
 
     now_time = timezone.now()
@@ -41,7 +41,7 @@ def test_session_expired(authenticated_al_client):
     session.save()
     sleep(1)
 
-    response = authenticated_al_client.post(reverse("your_details"), follow=True)
+    response = authenticated_al_client.post(reverse("your_details", kwargs={"licence_pk": licence_application.id}), follow=True)
 
     assert response.status_code == 404
     assert dict(authenticated_al_client.session) == {}

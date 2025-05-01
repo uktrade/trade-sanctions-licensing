@@ -19,7 +19,7 @@ def test_private_urls_false(settings, authenticated_al_client_with_licence, lice
 
     # assert can access apply urls
     response = authenticated_al_client_with_licence.post(
-        reverse("start", kwargs={"pk": licence_application.id}),
+        reverse("start", kwargs={"licence_pk": licence_application.id}),
         data={"who_do_you_want_the_licence_to_cover": WhoDoYouWantTheLicenceToCoverChoices.myself.value},
     )
 
@@ -38,7 +38,7 @@ def test_private_urls_true(settings, authenticated_al_client_with_licence, licen
 
     # assert can access apply urls
     response = authenticated_al_client_with_licence.post(
-        reverse("start", kwargs={"pk": licence_application.id}),
+        reverse("start", kwargs={"licence_pk": licence_application.id}),
         data={"who_do_you_want_the_licence_to_cover": WhoDoYouWantTheLicenceToCoverChoices.myself.value},
     )
 

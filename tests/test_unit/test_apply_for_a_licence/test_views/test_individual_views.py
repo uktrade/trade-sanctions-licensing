@@ -8,37 +8,37 @@ from django.urls import reverse
 
 
 class TestIndividualAddedView:
-    def test_redirect_if_no_individual(self, authenticated_al_client):
+    def test_redirect_if_no_individual(self, authenticated_al_client, licence_application):
         response = authenticated_al_client.get(
-            reverse("individual_added"),
+            reverse("individual_added", kwargs={"licence_pk": licence_application.id}),
         )
         assert "task-list" in response.url
         assert response.status_code == 302
 
-    def test_do_not_add_individual_successful_post(self, authenticated_al_client, individual):
+    def test_do_not_add_individual_successful_post(self, authenticated_al_client, individual_licence, individual):
         response = authenticated_al_client.post(
-            reverse("individual_added"),
+            reverse("individual_added", kwargs={"licence_pk": individual_licence.id}),
             data={"do_you_want_to_add_another_individual": False},
         )
-        assert response.url == reverse("business_employing_individual")
+        assert response.url == reverse("business_employing_individual", kwargs={"licence_pk": individual_licence.id})
 
-    def test_add_another_individual_successful_post(self, authenticated_al_client, individual):
+    def test_add_another_individual_successful_post(self, authenticated_al_client, individual_licence, individual):
 
         response = authenticated_al_client.post(
-            reverse("individual_added"),
+            reverse("individual_added", kwargs={"licence_pk": individual_licence.id}),
             data={"do_you_want_to_add_another_individual": True},
         )
         assert "individual-details" in response.url
 
-    def test_do_not_add_individual_myself_journey_successful_post(self, authenticated_al_client, yourself):
+    def test_do_not_add_individual_myself_journey_successful_post(self, authenticated_al_client, yourself_licence, yourself):
         response = authenticated_al_client.post(
-            reverse("individual_added"),
+            reverse("individual_added", kwargs={"licence_pk": yourself_licence.id}),
             data={"do_you_want_to_add_another_individual": False},
         )
-        assert response.url == reverse("tasklist")
+        assert response.url == reverse("tasklist", kwargs={"licence_pk": yourself_licence.id})
 
-    def test_get_context_data(self, authenticated_al_client, individual):
-        response = authenticated_al_client.get(reverse("individual_added"))
+    def test_get_context_data(self, authenticated_al_client, individual_licence, individual):
+        response = authenticated_al_client.get(reverse("individual_added", kwargs={"licence_pk": individual_licence.id}))
         assert response.context["individuals"][0] == individual
 
 
@@ -51,12 +51,12 @@ class TestDeleteIndividualView:
         assert individual2 in all_individuals
 
         response = authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"individual_id": individual2.id}),
+            reverse("delete_individual", kwargs={"licence_pk": individual_licence.id, "individual_id": individual2.id}),
         )
         all_individuals = Individual.objects.filter(licence=individual_licence)
         assert individual1 in all_individuals
         assert individual2 not in all_individuals
-        assert response.url == "/apply/add-individual"
+        assert response.url == reverse("individual_added", kwargs={"licence_pk": individual_licence.id})
         assert response.status_code == 302
 
     def test_cannot_delete_all_individuals_post(self, authenticated_al_client, individual_licence):
@@ -68,14 +68,14 @@ class TestDeleteIndividualView:
         assert individual2 in all_individuals
         assert individual3 in all_individuals
         authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"individual_id": individual1.id}),
+            reverse("delete_individual", kwargs={"licence_pk": individual_licence.id, "individual_id": individual1.id}),
         )
         authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"individual_id": individual2.id}),
+            reverse("delete_individual", kwargs={"licence_pk": individual_licence.id, "individual_id": individual2.id}),
         )
         # does not delete last individual
         response = authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"individual_id": individual3.id}),
+            reverse("delete_individual", kwargs={"licence_pk": individual_licence.id, "individual_id": individual3.id}),
         )
         all_individuals = Individual.objects.filter(licence=individual_licence)
         assert len(all_individuals) == 1
@@ -93,7 +93,7 @@ class TestDeleteIndividualView:
         assert individual2 in all_individuals
         assert individual3 in all_individuals
         response = authenticated_al_client.post(
-            reverse("delete_individual", kwargs={"individual_id": 11111111}),
+            reverse("delete_individual", kwargs={"licence_pk": individual_licence.id, "individual_id": 11111111}),
         )
         all_individuals = Individual.objects.filter(licence=individual_licence)
         assert len(all_individuals) == 3
@@ -106,7 +106,8 @@ class TestDeleteIndividualView:
 class TestAddAnIndividualView:
     def test_redirect_after_post(self, authenticated_al_client, individual_licence):
         response = authenticated_al_client.post(
-            reverse("add_an_individual") + "?redirect_to_url=check_your_answers&new=yes",
+            reverse("add_an_individual", kwargs={"licence_pk": individual_licence.id})
+            + "?redirect_to_url=check_your_answers&new=yes",
             data={
                 "first_name": "test",
                 "last_name": "test last",
@@ -118,6 +119,7 @@ class TestAddAnIndividualView:
             reverse(
                 "what_is_individuals_address",
                 kwargs={
+                    "licence_pk": individual_licence.id,
                     "location": response.resolver_match.kwargs["location"],
                     "individual_id": response.resolver_match.kwargs["individual_id"],
                 },
@@ -130,7 +132,7 @@ class TestAddAnIndividualView:
 
     def test_successful_post(self, authenticated_al_client, individual_licence):
         authenticated_al_client.post(
-            reverse("add_an_individual") + "?new=yes",
+            reverse("add_an_individual", kwargs={"licence_pk": individual_licence.id}) + "?new=yes",
             data={
                 "first_name": "test",
                 "last_name": "test last",
@@ -164,7 +166,7 @@ class TestAddAnIndividualView:
             nationality_and_location=NationalityAndLocation.uk_national_non_uk_location,
         )
         response = authenticated_al_client.get(
-            reverse("add_an_individual") + f"?individual_id={individual1.id}",
+            reverse("add_an_individual", kwargs={"licence_pk": individual_licence.id}) + f"?individual_id={individual1.id}",
         )
 
         form = response.context["form"]
@@ -174,7 +176,7 @@ class TestAddAnIndividualView:
 
 
 class TestWhatIsIndividualsAddressView:
-    def test_successful_post_uk_individual(self, authenticated_al_client, individual):
+    def test_successful_post_uk_individual(self, authenticated_al_client, individual_licence, individual):
         assert not individual.country
         assert not individual.address_line_1
         assert not individual.county
@@ -184,7 +186,7 @@ class TestWhatIsIndividualsAddressView:
         response = authenticated_al_client.post(
             reverse(
                 "what_is_individuals_address",
-                kwargs={"location": "in-uk", "individual_id": individual.id},
+                kwargs={"licence_pk": individual_licence.id, "location": "in-uk", "individual_id": individual.id},
             ),
             data={
                 "country": "GB",
@@ -196,7 +198,7 @@ class TestWhatIsIndividualsAddressView:
             },
         )
 
-        assert response.url == reverse("individual_added")
+        assert response.url == reverse("individual_added", kwargs={"licence_pk": individual_licence.id})
         individual = Individual.objects.get(id=individual.id)
         assert individual.country == "GB"
         assert individual.address_line_1 == "new address 1"
@@ -204,7 +206,7 @@ class TestWhatIsIndividualsAddressView:
         assert individual.town_or_city == "City"
         assert individual.postcode == "SW1A 1AA"
 
-    def test_successful_post_non_uk_individual(self, authenticated_al_client, individual):
+    def test_successful_post_non_uk_individual(self, authenticated_al_client, individual_licence, individual):
         assert not individual.country
         assert not individual.address_line_1
         assert not individual.county
@@ -214,7 +216,7 @@ class TestWhatIsIndividualsAddressView:
         response = authenticated_al_client.post(
             reverse(
                 "what_is_individuals_address",
-                kwargs={"location": "outside-uk", "individual_id": individual.id},
+                kwargs={"licence_pk": individual_licence.id, "location": "outside-uk", "individual_id": individual.id},
             ),
             data={
                 "country": "NL",
@@ -223,17 +225,18 @@ class TestWhatIsIndividualsAddressView:
             },
         )
 
-        assert response.url == reverse("individual_added")
+        assert response.url == reverse("individual_added", kwargs={"licence_pk": individual_licence.id})
         individual = Individual.objects.get(id=individual.id)
         assert individual.country == "NL"
         assert individual.address_line_1 == "Dutch address"
         assert individual.town_or_city == "Dutch City"
 
-    def test_get_form_data(self, authenticated_al_client, individual):
+    def test_get_form_data(self, authenticated_al_client, individual_licence, individual):
         response = authenticated_al_client.get(
             reverse(
                 "what_is_individuals_address",
                 kwargs={
+                    "licence_pk": individual_licence.id,
                     "location": "in-uk",
                     "individual_id": individual.id,
                 },
@@ -249,6 +252,7 @@ class TestWhatIsIndividualsAddressView:
             reverse(
                 "what_is_individuals_address",
                 kwargs={
+                    "licence_pk": individual_licence.id,
                     "location": "in-uk",
                     "individual_id": individual.id,
                 },
@@ -263,25 +267,29 @@ class TestWhatIsIndividualsAddressView:
             },
         )
 
-        assert response.url == reverse("yourself_and_individual_added")
+        assert response.url == reverse("yourself_and_individual_added", kwargs={"licence_pk": individual_licence.id})
 
 
 class TestBusinessEmployingIndividualView:
     def test_successful_get(self, authenticated_al_client, individual_licence):
-        response = authenticated_al_client.get(reverse("business_employing_individual"))
+        response = authenticated_al_client.get(
+            reverse("business_employing_individual", kwargs={"licence_pk": individual_licence.id})
+        )
         form = response.context["form"]
         assert form.form_h1_header == "Details of the business employing the individual"
 
     def test_form_h1_header_multiple_individuals(self, authenticated_al_client, individual_licence):
         Individual.objects.create(licence=individual_licence)
         Individual.objects.create(licence=individual_licence)
-        response = authenticated_al_client.get(reverse("business_employing_individual"))
+        response = authenticated_al_client.get(
+            reverse("business_employing_individual", kwargs={"licence_pk": individual_licence.id})
+        )
         form = response.context["form"]
         assert form.form_h1_header == "Details of the business employing the individuals"
 
     def test_save_form(self, authenticated_al_client, individual_licence):
         authenticated_al_client.post(
-            reverse("business_employing_individual"),
+            reverse("business_employing_individual", kwargs={"licence_pk": individual_licence.id}),
             data={
                 "name": "John Smith",
                 "country": "GB",

@@ -15,7 +15,7 @@ from apply_for_a_licence.views import (
 from django.urls import path
 
 views_misc_urls = [
-    path("task-list", views_tasklist.TasklistView.as_view(), name="tasklist"),
+    path("task-list/<int:licence_pk>", views_tasklist.TasklistView.as_view(), name="tasklist"),
     path("triage/<int:licence_pk>", views_tasklist.TriageView.as_view(), name="triage"),
 ]
 
@@ -27,133 +27,151 @@ views_dashboard_urls = [
 
 views_start_urls = [
     path("application-name", views_start.SubmitterReferenceView.as_view(), name="submitter_reference"),
-    path("start/<str:pk>", views_start.StartView.as_view(), name="start"),
-    path("third-party", views_start.ThirdPartyView.as_view(), name="are_you_third_party"),
-    path("your-details", views_start.YourDetailsView.as_view(), name="your_details"),
+    path("start/<int:licence_pk>", views_start.StartView.as_view(), name="start"),
+    path("third-party/<int:licence_pk>", views_start.ThirdPartyView.as_view(), name="are_you_third_party"),
+    path("your-details/<int:licence_pk>", views_start.YourDetailsView.as_view(), name="your_details"),
 ]
 
 views_business_urls = [
     path(
-        "business-registered-with-companies-house/",
+        "business-registered-with-companies-house/<int:licence_pk>",
         views_business.IsTheBusinessRegisteredWithCompaniesHouseView.as_view(),
         name="is_the_business_registered_with_companies_house",
     ),
     path(
-        "registered-company-number/<int:business_id>",
+        "registered-company-number/<int:licence_pk>/<int:business_id>",
         views_business.DoYouKnowTheRegisteredCompanyNumberView.as_view(),
         name="do_you_know_the_registered_company_number",
     ),
     path(
-        "where-business-located/<int:business_id>",
+        "where-business-located/<int:licence_pk>/<int:business_id>",
         views_business.WhereIsTheBusinessLocatedView.as_view(),
         name="where_is_the_business_located",
     ),
     path(
-        "check-company-details/<int:business_id>",
+        "check-company-details/<int:licence_pk>/<int:business_id>",
         views_business.CheckCompanyDetailsView.as_view(),
         name="check_company_details",
     ),
     path(
-        "business-location/<int:business_id>",
+        "business-location/<int:licence_pk>/<int:business_id>",
         views_business.ManualCompaniesHouseInputView.as_view(),
         name="manual_companies_house_input",
     ),
-    path("business-details/<str:location>/<int:business_id>", views_business.AddABusinessView.as_view(), name="add_a_business"),
-    path("delete-business/<int:business_id>", views_business.DeleteBusinessView.as_view(), name="delete_business"),
-    path("add-business", views_business.BusinessAddedView.as_view(), name="business_added"),
+    path(
+        "business-details/<int:licence_pk>/<str:location>/<int:business_id>",
+        views_business.AddABusinessView.as_view(),
+        name="add_a_business",
+    ),
+    path(
+        "delete-business/<int:licence_pk>/<int:business_id>", views_business.DeleteBusinessView.as_view(), name="delete_business"
+    ),
+    path("add-business/<int:licence_pk>", views_business.BusinessAddedView.as_view(), name="business_added"),
 ]
 
 views_individual_urls = [
-    path("individual-details/", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
+    path("individual-details/<int:licence_pk>", views_individual.AddAnIndividualView.as_view(), name="add_an_individual"),
     path(
-        "individuals-home-address/<str:location>/<int:individual_id>",
+        "individuals-home-address/<int:licence_pk>/<str:location>/<int:individual_id>",
         views_individual.WhatIsIndividualsAddressView.as_view(),
         name="what_is_individuals_address",
     ),
-    path("delete-individual/<int:individual_id>", views_individual.DeleteIndividualView.as_view(), name="delete_individual"),
-    path("add-individual", views_individual.IndividualAddedView.as_view(), name="individual_added"),
     path(
-        "business-details",
+        "delete-individual/<int:licence_pk>/<int:individual_id>",
+        views_individual.DeleteIndividualView.as_view(),
+        name="delete_individual",
+    ),
+    path("add-individual/<int:licence_pk>", views_individual.IndividualAddedView.as_view(), name="individual_added"),
+    path(
+        "business-details/<int:licence_pk>",
         views_individual.BusinessEmployingIndividualView.as_view(),
         name="business_employing_individual",
     ),
 ]
 
 views_yourself_urls = [
-    path("your-name-nationality-location", views_yourself.AddYourselfView.as_view(), name="add_yourself"),
+    path("your-name-nationality-location/<int:licence_pk>", views_yourself.AddYourselfView.as_view(), name="add_yourself"),
     path(
-        "your-home-address/<str:location>/<int:yourself_id>",
+        "your-home-address/<int:licence_pk>/<str:location>/<int:yourself_id>",
         views_yourself.AddYourselfAddressView.as_view(),
         name="add_yourself_address",
     ),
     path(
-        "check-your-details-add-individuals",
+        "check-your-details-add-individuals/<int:licence_pk>",
         views_yourself.YourselfAndIndividualAddedView.as_view(),
         name="yourself_and_individual_added",
     ),
     path(
-        "delete-individual-from-yourself/<int:individual_id>",
+        "delete-individual-from-yourself/<int:licence_pk>/<int:individual_id>",
         views_yourself.DeleteIndividualFromYourselfView.as_view(),
         name="delete_individual_from_yourself",
     ),
 ]
 
 views_existing_licence_urls = [
-    path("previous-licence", views_existing_licence.PreviousLicenceView.as_view(), name="previous_licence"),
+    path("previous-licence/<int:licence_pk>", views_existing_licence.PreviousLicenceView.as_view(), name="previous_licence"),
 ]
 
 views_services_urls = [
-    path("services-type", views_services.TypeOfServiceView.as_view(), name="type_of_service"),
+    path("services-type/<int:licence_pk>", views_services.TypeOfServiceView.as_view(), name="type_of_service"),
     path(
-        "professional-or-business-services",
+        "professional-or-business-services/<int:licence_pk>",
         views_services.ProfessionalOrBusinessServicesView.as_view(),
         name="professional_or_business_services",
     ),
-    path("describe-specific-activities", views_services.ServiceActivitiesView.as_view(), name="service_activities"),
-    path("sanctions-regime", views_services.WhichSanctionsRegimeView.as_view(), name="which_sanctions_regime"),
+    path(
+        "describe-specific-activities/<int:licence_pk>", views_services.ServiceActivitiesView.as_view(), name="service_activities"
+    ),
+    path("sanctions-regime/<int:licence_pk>", views_services.WhichSanctionsRegimeView.as_view(), name="which_sanctions_regime"),
 ]
 
 views_recipients_urls = [
     path(
-        "recipient-location",
+        "recipient-location/<int:licence_pk>",
         views_recipients.WhereIsTheRecipientLocatedView.as_view(),
         name="where_is_the_recipient_located",
     ),
     path(
-        "recipient-details/<str:location>/<int:recipient_id>",
+        "recipient-details/<int:licence_pk>/<str:location>/<int:recipient_id>",
         views_recipients.AddARecipientView.as_view(),
         name="add_a_recipient",
     ),
-    path("delete-recipient/<int:recipient_id>", views_recipients.DeleteRecipientView.as_view(), name="delete_recipient"),
-    path("add-recipient", views_recipients.RecipientAddedView.as_view(), name="recipient_added"),
     path(
-        "provider-recipient-relationship/<int:recipient_id>",
+        "delete-recipient/<int:licence_pk>/<int:recipient_id>",
+        views_recipients.DeleteRecipientView.as_view(),
+        name="delete_recipient",
+    ),
+    path("add-recipient/<int:licence_pk>", views_recipients.RecipientAddedView.as_view(), name="recipient_added"),
+    path(
+        "provider-recipient-relationship/<int:licence_pk>/<int:recipient_id>",
         views_recipients.RelationshipProviderRecipientView.as_view(),
         name="relationship_provider_recipient",
     ),
 ]
 
 views_grounds_purpose_urls = [
-    path("licensing-grounds", views_grounds_purpose.LicensingGroundsView.as_view(), name="licensing_grounds"),
+    path("licensing-grounds/<int:licence_pk>", views_grounds_purpose.LicensingGroundsView.as_view(), name="licensing_grounds"),
     path(
-        "other-licensing-grounds",
+        "other-licensing-grounds/<int:licence_pk>",
         views_grounds_purpose.LicensingGroundsLegalAdvisoryView.as_view(),
         name="licensing_grounds_legal_advisory",
     ),
-    path("services-purpose", views_grounds_purpose.PurposeOfProvisionView.as_view(), name="purpose_of_provision"),
+    path(
+        "services-purpose/<int:licence_pk>", views_grounds_purpose.PurposeOfProvisionView.as_view(), name="purpose_of_provision"
+    ),
 ]
 
 views_documents_urls = [
-    path("upload-documents", views_documents.UploadDocumentsView.as_view(), name="upload_documents"),
-    path("delete-documents", views_documents.DeleteDocumentsView.as_view(), name="delete_documents"),
-    path("download-document/<int:pk>", views_documents.DownloadDocumentView.as_view(), name="download_document"),
+    path("upload-documents/<int:licence_pk>", views_documents.UploadDocumentsView.as_view(), name="upload_documents"),
+    path("delete-documents/<int:licence_pk>", views_documents.DeleteDocumentsView.as_view(), name="delete_documents"),
+    path("download-document/<int:licence_pk>/<int:pk>", views_documents.DownloadDocumentView.as_view(), name="download_document"),
 ]
 
 views_end_urls = [
-    path("check-your-answers", views_end.CheckYourAnswersView.as_view(), name="check_your_answers"),
-    path("declaration", views_end.DeclarationView.as_view(), name="declaration"),
-    path("application-complete", views_end.CompleteView.as_view(), name="complete"),
-    path("download-application", views_end.DownloadPDFView.as_view(), name="download_application"),
+    path("check-your-answers/<int:licence_pk>", views_end.CheckYourAnswersView.as_view(), name="check_your_answers"),
+    path("declaration/<int:licence_pk>", views_end.DeclarationView.as_view(), name="declaration"),
+    path("application-complete/<int:licence_pk>", views_end.CompleteView.as_view(), name="complete"),
+    path("download-application/", views_end.DownloadPDFView.as_view(), name="download_application"),
 ]
 
 urlpatterns = (

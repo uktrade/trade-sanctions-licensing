@@ -6,7 +6,7 @@ from core.decorators import reset_last_activity_session_timestamp
 from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 
 logger = logging.getLogger(__name__)
@@ -25,18 +25,16 @@ class SubmitterReferenceView(BaseSaveAndReturnLicenceModelFormView):
         instance = form.save(commit=False)
         instance.user = self.request.user
         instance.save()
-        self.request.session["licence_id"] = instance.id
         return instance
 
     def get_success_url(self):
-        success_url = reverse_lazy("start", kwargs={"pk": self.instance.pk})
+        success_url = reverse("start", kwargs={"licence_pk": self.instance.pk})
         return success_url
 
 
 @method_decorator(reset_last_activity_session_timestamp, name="dispatch")
 class StartView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.StartForm
-    success_url = reverse_lazy("tasklist")
 
     def form_valid(self, form: forms.StartForm) -> HttpResponse:
         if previous_answer := self.licence_object.who_do_you_want_the_licence_to_cover:
@@ -54,16 +52,26 @@ class StartView(BaseSaveAndReturnLicenceModelFormView):
                 self.request.session.save()
                 self._licence_object = new_licence
 
-                return redirect(reverse("tasklist"))
+                return redirect(reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]}))
 
         return super().form_valid(form)
+
+    def get_success_url(self):
+        success_url = reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
 
 
 class ThirdPartyView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.ThirdPartyForm
-    success_url = reverse_lazy("your_details")
+
+    def get_success_url(self):
+        success_url = reverse("your_details", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
 
 
 class YourDetailsView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.YourDetailsForm
-    success_url = reverse_lazy("tasklist")
+
+    def get_success_url(self):
+        success_url = reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url

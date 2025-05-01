@@ -3,7 +3,7 @@ import logging
 from apply_for_a_licence.choices import TypeOfServicesChoices
 from apply_for_a_licence.forms import forms_services as forms
 from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -16,11 +16,11 @@ class TypeOfServiceView(BaseSaveAndReturnLicenceModelFormView):
         answer = self.form.cleaned_data["type_of_service"]
         match answer:
             case "interception_or_monitoring":
-                success_url = reverse("which_sanctions_regime")
+                success_url = reverse("which_sanctions_regime", kwargs={"licence_pk": self.kwargs["licence_pk"]})
             case "professional_and_business":
-                success_url = reverse("professional_or_business_services")
+                success_url = reverse("professional_or_business_services", kwargs={"licence_pk": self.kwargs["licence_pk"]})
             case _:
-                success_url = reverse("service_activities")
+                success_url = reverse("service_activities", kwargs={"licence_pk": self.kwargs["licence_pk"]})
 
         return success_url
 
@@ -33,7 +33,6 @@ class TypeOfServiceView(BaseSaveAndReturnLicenceModelFormView):
 
 class ProfessionalOrBusinessServicesView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.ProfessionalOrBusinessServicesForm
-    success_url = reverse_lazy("service_activities")
     redirect_with_query_parameters = True
 
     def add_query_parameters_to_url(self, success_url: str) -> str:
@@ -55,16 +54,23 @@ class ProfessionalOrBusinessServicesView(BaseSaveAndReturnLicenceModelFormView):
             self.redirect_after_post = False
         return super().form_valid(form)
 
+    def get_success_url(self):
+        success_url = reverse("service_activities", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
+
 
 class WhichSanctionsRegimeView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.WhichSanctionsRegimeForm
-    success_url = reverse_lazy("service_activities")
 
     @property
     def redirect_after_post(self) -> bool:
         if self.request.GET.get("update", None) == "yes":
             return False
         return True
+
+    def get_success_url(self):
+        success_url = reverse("service_activities", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
 
 
 class ServiceActivitiesView(BaseSaveAndReturnLicenceModelFormView):
@@ -78,11 +84,11 @@ class ServiceActivitiesView(BaseSaveAndReturnLicenceModelFormView):
         return True
 
     def get_success_url(self) -> str:
-        success_url = reverse("tasklist")
+        success_url = reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]})
 
         if self.update:
-            success_url = reverse("purpose_of_provision")
+            success_url = reverse("purpose_of_provision", kwargs={"licence_pk": self.kwargs["licence_pk"]})
             if self.form.instance.type_of_service == TypeOfServicesChoices.professional_and_business.value:
-                success_url = reverse("licensing_grounds")
+                success_url = reverse("licensing_grounds", kwargs={"licence_pk": self.kwargs["licence_pk"]})
 
         return success_url

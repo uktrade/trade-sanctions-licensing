@@ -10,7 +10,7 @@ from core.views.base_views import BaseSaveAndReturnFormView, BaseSaveAndReturnVi
 from django.forms import Form
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.views.generic import View
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,6 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
 
     form_class = forms.UploadDocumentsForm
     template_name = "apply_for_a_licence/form_steps/upload_documents.html"
-    success_url = reverse_lazy("tasklist")
 
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         """Retrieve the already uploaded files from the session storage and add them to the context."""
@@ -70,6 +69,10 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
         else:
             return super().form_invalid(form)
 
+    def get_success_url(self):
+        success_url = reverse("tasklist", kwargs={"licence_pk": self.kwargs["licence_pk"]})
+        return success_url
+
 
 class DeleteDocumentsView(LoginRequiredMixin, View):
     def post(self, *args: object, **kwargs: object) -> HttpResponse:
@@ -86,7 +89,7 @@ class DeleteDocumentsView(LoginRequiredMixin, View):
             if is_ajax(self.request):
                 return JsonResponse({"success": True}, status=200)
             else:
-                return redirect(reverse("upload_documents"))
+                return redirect(reverse("upload_documents", kwargs={"licence_pk": self.kwargs["licence_pk"]}))
         else:
             raise Http404()
 
