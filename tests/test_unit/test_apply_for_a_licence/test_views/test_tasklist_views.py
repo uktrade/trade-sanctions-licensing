@@ -47,7 +47,7 @@ class TestTaskListView:
         assert response.status_code == 302
         assert response.url == reverse("start", kwargs={"licence_pk": licence.id})
 
-    def test_get_with_journey_type(self, authenticated_al_client, test_apply_user):
+    def test_get_licence_with_journey_type(self, authenticated_al_client, test_apply_user):
         licence = Licence.objects.create(
             user=test_apply_user, who_do_you_want_the_licence_to_cover=WhoDoYouWantTheLicenceToCoverChoices.individual.value
         )
