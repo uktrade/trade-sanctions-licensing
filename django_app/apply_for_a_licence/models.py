@@ -63,6 +63,9 @@ class Licence(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="licence_applications")
     status = models.CharField(max_length=10, choices=choices.StatusChoices.choices, default=choices.StatusChoices.draft)
     submitted_at = models.DateTimeField(null=True, blank=True)
+    do_you_want_to_add_another_recipient = models.BooleanField(null=True, blank=False)
+    do_you_want_to_add_another_individual = models.BooleanField(null=True, blank=False)
+    do_you_want_to_add_another_business = models.BooleanField(null=True, blank=False)
 
     def assign_reference(self) -> str:
         """Assigns a unique reference to this Licence object"""

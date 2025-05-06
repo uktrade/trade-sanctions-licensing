@@ -8,7 +8,7 @@ from apply_for_a_licence.forms import forms_yourself as forms
 from apply_for_a_licence.models import Individual
 from apply_for_a_licence.views.base_views import DeleteAnEntityView
 from apply_for_a_licence.views.views_individual import BaseIndividualFormView
-from core.views.base_views import BaseSaveAndReturnFormView
+from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
@@ -101,7 +101,7 @@ class AddYourselfAddressView(BaseIndividualFormView):
         return success_url
 
 
-class YourselfAndIndividualAddedView(BaseSaveAndReturnFormView):
+class YourselfAndIndividualAddedView(BaseSaveAndReturnLicenceModelFormView):
     form_class = individual_forms.IndividualAddedForm
     template_name = "apply_for_a_licence/form_steps/yourself_and_individual_added.html"
 

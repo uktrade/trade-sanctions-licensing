@@ -6,7 +6,7 @@ from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.forms import forms_recipients as forms
 from apply_for_a_licence.models import Organisation
 from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
-from core.views.base_views import BaseSaveAndReturnFormView
+from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
 from django.urls import reverse
 
 logger = logging.getLogger(__name__)
@@ -87,7 +87,7 @@ class AddARecipientView(BaseRecipientFormView):
         return success_url
 
 
-class RecipientAddedView(BaseSaveAndReturnFormView):
+class RecipientAddedView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.RecipientAddedForm
     template_name = "apply_for_a_licence/form_steps/recipient_added.html"
 

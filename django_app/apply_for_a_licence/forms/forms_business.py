@@ -6,7 +6,7 @@ from apply_for_a_licence.exceptions import (
     CompaniesHouseException,
 )
 from apply_for_a_licence.forms.base_forms import BaseEntityAddedForm
-from apply_for_a_licence.models import Organisation
+from apply_for_a_licence.models import Licence, Organisation
 from core.forms.base_forms import (
     BaseModelForm,
     BaseNonUKBusinessDetailsForm,
@@ -294,7 +294,7 @@ class AddANonUKBusinessForm(BaseNonUKBusinessDetailsForm):
         )
 
 
-class BusinessAddedForm(BaseEntityAddedForm):
+class BusinessAddedForm(BaseEntityAddedForm, BaseModelForm):
     entity_name = "business"
     entities = None
     do_you_want_to_add_another_business = forms.TypedChoiceField(
@@ -308,6 +308,10 @@ class BusinessAddedForm(BaseEntityAddedForm):
         widget=forms.RadioSelect,
         required=True,
     )
+
+    class Meta:
+        model = Licence
+        fields = ["do_you_want_to_add_another_business"]
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         self.licence_object: object = kwargs.pop("licence_object", None)

@@ -11,7 +11,7 @@ from apply_for_a_licence.forms import forms_individual as forms
 from apply_for_a_licence.models import Individual, Organisation
 from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
 from core.views.base_views import (
-    BaseSaveAndReturnFormView,
+    BaseSaveAndReturnLicenceModelFormView,
     BaseSaveAndReturnModelFormView,
 )
 from django.db.models import QuerySet
@@ -108,7 +108,7 @@ class WhatIsIndividualsAddressView(BaseIndividualFormView):
         return instance
 
 
-class IndividualAddedView(BaseSaveAndReturnFormView):
+class IndividualAddedView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.IndividualAddedForm
     template_name = "apply_for_a_licence/form_steps/individual_added.html"
 

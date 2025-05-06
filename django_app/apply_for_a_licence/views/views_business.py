@@ -6,7 +6,7 @@ from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.forms import forms_business as forms
 from apply_for_a_licence.models import Organisation
 from apply_for_a_licence.views.base_views import AddAnEntityView, DeleteAnEntityView
-from core.views.base_views import BaseSaveAndReturnFormView
+from core.views.base_views import BaseSaveAndReturnLicenceModelFormView
 from django.conf import settings
 from django.db.models import QuerySet
 from django.shortcuts import redirect
@@ -49,7 +49,7 @@ class AddABusinessView(BaseBusinessModelFormView):
         return success_url
 
 
-class BusinessAddedView(BaseSaveAndReturnFormView):
+class BusinessAddedView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.BusinessAddedForm
     template_name = "apply_for_a_licence/form_steps/business_added.html"
 

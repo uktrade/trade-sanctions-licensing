@@ -1,6 +1,6 @@
 from apply_for_a_licence.choices import TypeOfRelationshipChoices
 from apply_for_a_licence.forms.base_forms import BaseEntityAddedForm
-from apply_for_a_licence.models import Organisation
+from apply_for_a_licence.models import Licence, Organisation
 from core.forms.base_forms import (
     BaseBusinessDetailsForm,
     BaseModelForm,
@@ -158,7 +158,7 @@ class AddANonUKRecipientForm(BaseNonUKBusinessDetailsForm):
         )
 
 
-class RecipientAddedForm(BaseEntityAddedForm):
+class RecipientAddedForm(BaseEntityAddedForm, BaseModelForm):
     entities = None
     entity_name = "recipient"
     do_you_want_to_add_another_recipient = forms.TypedChoiceField(
@@ -172,6 +172,10 @@ class RecipientAddedForm(BaseEntityAddedForm):
         widget=forms.RadioSelect,
         required=True,
     )
+
+    class Meta:
+        model = Licence
+        fields = ["do_you_want_to_add_another_recipient"]
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         self.licence_object: object = kwargs.pop("licence_object", None)

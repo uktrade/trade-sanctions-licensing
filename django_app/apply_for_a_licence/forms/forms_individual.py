@@ -1,6 +1,6 @@
 from apply_for_a_licence.choices import WhoDoYouWantTheLicenceToCoverChoices
 from apply_for_a_licence.forms.base_forms import BaseEntityAddedForm
-from apply_for_a_licence.models import Individual, Organisation
+from apply_for_a_licence.models import Individual, Licence, Organisation
 from core.forms.base_forms import (
     BaseBusinessDetailsForm,
     BaseModelForm,
@@ -55,7 +55,7 @@ class AddAnIndividualForm(BaseModelForm):
         return cleaned_data
 
 
-class IndividualAddedForm(BaseEntityAddedForm):
+class IndividualAddedForm(BaseEntityAddedForm, BaseModelForm):
     entity_name = "individual"
     entities = None
     do_you_want_to_add_another_individual = forms.TypedChoiceField(
@@ -69,6 +69,10 @@ class IndividualAddedForm(BaseEntityAddedForm):
         widget=forms.RadioSelect,
         required=True,
     )
+
+    class Meta:
+        model = Licence
+        fields = ["do_you_want_to_add_another_individual"]
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         self.licence_object: object | None = kwargs.pop("licence_object", None)
