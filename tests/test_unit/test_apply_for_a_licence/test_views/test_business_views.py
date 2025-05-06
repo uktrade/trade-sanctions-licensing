@@ -548,6 +548,7 @@ class TestWhereIsTheBusinessLocatedView:
         assert business.country == "NL"
         assert business.address_line_1 == "Dutch address"
         assert business.town_or_city == "Dutch City"
+        assert business.status == "complete"
         # change address to uk
         authenticated_al_client.post(
             reverse("where_is_the_business_located", kwargs={"licence_pk": licence.id, "business_id": business.id}),
@@ -560,3 +561,4 @@ class TestWhereIsTheBusinessLocatedView:
         assert not business.country
         assert not business.town_or_city
         assert business.name == "DBT"
+        assert business.status == "draft"
