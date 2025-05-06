@@ -123,6 +123,7 @@ class TestAddRecipientView:
     def test_get_form_is_not_bound_different_location(self, authenticated_al_client, licence_application, organisation):
         organisation.where_is_the_address = "in-uk"
         organisation.address_line_1 = "13 I live here"
+        organisation.status = "complete"
         organisation.save()
 
         response = authenticated_al_client.post(
@@ -141,6 +142,7 @@ class TestAddRecipientView:
         )
         organisation.refresh_from_db()
         assert not organisation.address_line_1
+        assert organisation.status == "draft"
 
     def test_get_form_is_bound_same_location(self, authenticated_al_client, licence_application, organisation):
         organisation.where_is_the_address = "in-uk"
