@@ -90,7 +90,7 @@
                     </dt>
                     <dd class="govuk-summary-list__value govuk-!-font-weight-bold">
                         {% for document in licence_application.documents.all %}
-                            <a class="govuk-link" href="{{ document.url }}">{{ document.file_name }}</a>
+                            <a class="govuk-link" href="{{ document.url }}">{{ document.original_file_name }}</a>
                             {% if not forloop.last %}
                                 <br>
                             {% endif %}
