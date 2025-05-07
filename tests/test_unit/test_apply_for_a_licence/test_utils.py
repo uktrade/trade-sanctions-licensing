@@ -13,8 +13,11 @@ def test_get_active_regimes_normal():
 
 def test_get_active_regimes_import_error(monkeypatch):
     def mock_import(*args, **kwargs):
-        if args[3][0] == "active_regimes":
-            raise ImportError
+        if len(args[3]) > 0:
+            if args[3][0] == "active_regimes":
+                raise ImportError
+            else:
+                return builtin_import(*args, **kwargs)
         else:
             # we need to provide some route to the original import as the teardown of the test will fail otherwise
             return builtin_import(*args, **kwargs)
