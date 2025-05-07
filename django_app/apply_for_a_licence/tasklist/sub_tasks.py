@@ -40,10 +40,7 @@ class YourDetailsSubTask(BaseSubTask):
     @property
     def is_in_progress(self):
         if self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.myself:
-            return (
-                self.licence.individuals.filter(is_applicant=True, status="draft").exists()
-                or self.licence.individuals.filter(is_applicant=False, status="draft").exists()
-            ) and not self.is_completed
+            return self.licence.individuals.exists() and not self.is_completed
         else:
             return not self.is_completed and self.licence.is_third_party is not None
 

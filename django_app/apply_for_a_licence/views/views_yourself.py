@@ -120,9 +120,8 @@ class YourselfAndIndividualAddedView(BaseSaveAndReturnLicenceModelFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        licence_object = self.licence_object
         for individual in self.individuals:
-            if individual.full_name == licence_object.applicant_full_name:
+            if individual.is_applicant:
                 context["yourself"] = individual
                 self.individuals = self.individuals.exclude(id=individual.id)
         context["individuals"] = self.individuals
