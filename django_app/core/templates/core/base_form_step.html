@@ -14,11 +14,7 @@
     {% else %}
         {% for field in form %}
             {% if forloop.first %}
-                {% if field.label == False %}
-                    {# don't show false in tab if the form has errors #}
-                {% else %}
-                    {{ field.label }}
-                {% endif %}
+                {{ field.label }}
             {% endif %}
         {% endfor %}
     {% endif %}
