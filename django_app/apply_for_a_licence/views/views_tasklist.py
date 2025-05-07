@@ -33,3 +33,10 @@ class TasklistView(BaseSaveAndReturnView, TemplateView):
         context["tasklist"] = tasklist
         context["licence"] = licence
         return context
+
+    def dispatch(self, request, *args, **kwargs):
+        licence_object = get_object_or_404(Licence, pk=kwargs["licence_pk"])
+        if not licence_object.who_do_you_want_the_licence_to_cover:
+            # route them to the start of journey
+            return redirect(reverse("start", kwargs={"licence_pk": self.kwargs["licence_pk"]}))
+        return super().dispatch(request, *args, **kwargs)
