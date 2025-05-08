@@ -40,6 +40,8 @@ class TestYourDetailsSubTasks:
 
     def test_is_completed_yourself(self, yourself_licence, yourself):
         sub_task = YourDetailsSubTask(yourself_licence)
+        yourself_licence.do_you_want_to_add_another_individual = False
+        yourself_licence.save()
         assert sub_task.is_completed
 
     def test_is_not_completed_without_yourself_applicant(self, yourself_licence):
@@ -47,6 +49,8 @@ class TestYourDetailsSubTasks:
         assert not sub_task.is_completed
 
     def test_is_not_completed_yourself_with_draft_individual(self, yourself_licence, yourself):
+        yourself_licence.do_you_want_to_add_another_individual = False
+        yourself_licence.save()
         sub_task = YourDetailsSubTask(yourself_licence)
         assert sub_task.is_completed
         Individual.objects.create(licence=yourself_licence, status="draft")

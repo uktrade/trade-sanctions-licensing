@@ -30,7 +30,8 @@ class YourDetailsSubTask(BaseSubTask):
     def is_completed(self):
         if self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.myself:
             return (
-                self.licence.individuals.filter(is_applicant=True, status="complete").exists()
+                self.licence.do_you_want_to_add_another_individual is not None
+                and self.licence.individuals.filter(is_applicant=True, status="complete").exists()
                 and not self.licence.individuals.filter(is_applicant=False, status="draft").exists()
             )
         else:
@@ -39,10 +40,7 @@ class YourDetailsSubTask(BaseSubTask):
     @property
     def is_in_progress(self):
         if self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.myself:
-            return (
-                self.licence.individuals.filter(is_applicant=True, status="draft").exists()
-                or self.licence.individuals.filter(is_applicant=False, status="draft").exists()
-            ) and not self.is_completed
+            return self.licence.individuals.exists() and not self.is_completed
         else:
             return not self.is_completed and self.licence.is_third_party is not None
 
@@ -105,7 +103,8 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
     def is_completed(self) -> bool:
         if self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.business:
             return (
-                self.licence.organisations.filter(
+                self.licence.do_you_want_to_add_another_business is not None
+                and self.licence.organisations.filter(
                     type_of_relationship=choices.TypeOfRelationshipChoices.business, status="complete"
                 ).exists()
                 and not self.licence.organisations.filter(
@@ -114,7 +113,8 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
             )
         elif self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.individual:
             return (
-                self.licence.individuals.filter(is_applicant=False, status="complete").exists()
+                self.licence.do_you_want_to_add_another_individual is not None
+                and self.licence.individuals.filter(is_applicant=False, status="complete").exists()
                 and self.licence.organisations.filter(
                     type_of_relationship=choices.TypeOfRelationshipChoices.named_individuals, status="complete"
                 ).exists()
@@ -126,17 +126,19 @@ class DetailsOfTheEntityYouWantToCoverSubTask(BaseSubTask):
     def is_in_progress(self) -> bool:
         if self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.business:
             return (
-                self.licence.organisations.filter(
-                    type_of_relationship=choices.TypeOfRelationshipChoices.business, status="draft"
-                ).exists()
+                self.licence.organisations.filter(type_of_relationship=choices.TypeOfRelationshipChoices.business).exists()
                 and not self.is_completed
             )
         elif self.licence.who_do_you_want_the_licence_to_cover == choices.WhoDoYouWantTheLicenceToCoverChoices.individual:
-            return self.licence.individuals.filter(is_applicant=False, status="draft").exists() or (
-                self.licence.individuals.filter(is_applicant=False, status="complete").exists()
-                and not self.licence.organisations.filter(
-                    type_of_relationship=choices.TypeOfRelationshipChoices.named_individuals, status="complete"
-                ).exists()
+            return (
+                self.licence.individuals.filter(is_applicant=False, status="draft").exists()
+                or (
+                    self.licence.individuals.filter(is_applicant=False, status="complete").exists()
+                    and not self.licence.organisations.filter(
+                        type_of_relationship=choices.TypeOfRelationshipChoices.named_individuals, status="complete"
+                    ).exists()
+                )
+                and not self.is_completed
             )
         else:
             return False
@@ -211,13 +213,14 @@ class RecipientContactDetailsSubTask(BaseSubTask):
     @property
     def is_completed(self) -> bool:
         return (
-            self.licence.recipients.filter(status=choices.EntityStatusChoices.complete).exists()
+            self.licence.do_you_want_to_add_another_recipient is not None
+            and self.licence.recipients.filter(status=choices.EntityStatusChoices.complete).exists()
             and not self.licence.recipients.filter(status="draft").exists()
         )
 
     @property
     def is_in_progress(self) -> bool:
-        return self.licence.recipients.filter(status="draft").exists() and not self.is_completed
+        return self.licence.recipients and not self.is_completed
 
     @property
     def url(self) -> str:
