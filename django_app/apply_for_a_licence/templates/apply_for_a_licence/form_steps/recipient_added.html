@@ -2,7 +2,12 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 
 
-{% block title %}You've added {{ request.session.recipients.keys|length }} recipient{% if request.session.recipients.keys|length > 1 or request.session.recipients.keys|length == 0 %}s{% endif %}{% endblock title %}
+{% block title %}
+    {% if form.errors %}
+        Error:
+    {% endif %}
+    You've added {{ request.session.recipients.keys|length }} recipient{% if request.session.recipients.keys|length > 1 or request.session.recipients.keys|length == 0 %}s{% endif %}
+{% endblock title %}
 
 {% block column_content %}
     <h1 class="govuk-heading-l">

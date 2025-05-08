@@ -1,6 +1,11 @@
 {% extends "core/base_form_step.html" %}
 {% load crispy_forms_tags crispy_forms_gds %}
-{% block title %}Request a new code{% endblock title %}
+{% block title %}
+    {% if form.errors %}
+        Error:
+    {% endif %}
+    Request a new code
+{% endblock title %}
 {% block form_content %}
     {% if request.limited %}
         <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1"

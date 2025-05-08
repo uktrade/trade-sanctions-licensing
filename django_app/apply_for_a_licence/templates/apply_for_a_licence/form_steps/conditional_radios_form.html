@@ -1,7 +1,12 @@
 {% extends "core/base_form_step.html" %}
 {% load crispy_forms_tags crispy_forms_gds static %}
 
-{% block title %}{{ page_title }}{% endblock title %}
+{% block title %}
+    {% if form.errors %}
+        Error:
+    {% endif %}
+    {{ page_title }}
+{% endblock title %}
 
 
 {% block extra_js %}
