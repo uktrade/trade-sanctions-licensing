@@ -47,25 +47,22 @@ as it provides the session expiry stuff.
           {% if request.path == "/apply/" %}
             <li class="govuk-service-navigation__item govuk-service-navigation__item--active govuk-!-margin-right-auto">
               <a class="govuk-service-navigation__link" href="{% url "dashboard" %}" aria-current="true">
-                <strong>Your applications</strong>
-              </a>
-            </li>
           {% else %}
             <li class="govuk-service-navigation__item govuk-!-margin-right-auto">
               <a class="govuk-service-navigation__link" href="{% url "dashboard" %}">
-                <strong>Your applications</strong>
-              </a>
-            </li>
           {% endif %}
+          <strong>Your applications</strong>
+        </a>
+      </li>
 
-          <li class="govuk-service-navigation__item govuk-!-margin-left-9 govuk-grid-column-three-quarters govuk-!-text-align-right govuk-!-padding-left-9">
-            <a class="govuk-service-navigation__link" href="{% url "authentication:logout" %}">
-              <strong>Sign out</strong>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
+      <li class="govuk-service-navigation__item govuk-!-margin-left-9 govuk-grid-column-three-quarters govuk-!-text-align-right govuk-!-padding-left-9">
+        <a class="govuk-service-navigation__link" href="{% url "authentication:logout" %}">
+          <strong>Sign out</strong>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  </div>
   </section>
 {% endblock service_navigation %}
 
