@@ -23,6 +23,11 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
     form_class = forms.UploadDocumentsForm
     template_name = "apply_for_a_licence/form_steps/upload_documents.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["licence_object"] = self.licence_object
+        return kwargs
+
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         """Retrieve the already uploaded files from the session storage and add them to the context."""
         context = super().get_context_data(**kwargs)
@@ -38,7 +43,7 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
             for file in form.cleaned_data["file"]:
                 document = Document(
                     licence=self.licence_object,
-                    file=file,
+                    temp_file=file,
                     original_file_name=file.original_name,
                 )
                 document.save()
@@ -77,7 +82,7 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
 class DeleteDocumentsView(LoginRequiredMixin, View):
     def post(self, *args: object, **kwargs: object) -> HttpResponse:
         if s3_key_to_delete := self.request.POST.get("s3_key_to_delete"):
-            document_object = get_object_or_404(Document, file=s3_key_to_delete)
+            document_object = get_object_or_404(Document, temp_file=s3_key_to_delete)
             licence_object = document_object.licence
             if licence_object.user != self.request.user:
                 raise Http404()
