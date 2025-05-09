@@ -2,7 +2,7 @@
 import datetime
 import uuid
 
-from core.document_storage import PermanentDocumentStorage
+from core.document_storage import PermanentDocumentStorage, TemporaryDocumentStorage
 from core.models import BaseModel
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -13,6 +13,7 @@ from django.forms import model_to_dict
 from django.utils import timezone
 from django_countries.fields import CountryField
 from utils.companies_house import get_formatted_address
+from utils.s3 import store_document_in_permanent_bucket
 
 from . import choices
 from .types import Licensee
@@ -240,8 +241,14 @@ class Document(BaseModel):
         max_length=340,
         null=True,
         blank=True,
-        # if we're storing the document in the DB, we can assume it's in the permanent bucket
         storage=PermanentDocumentStorage(),
+        upload_to=get_file_s3_key,
+    )
+    temp_file = models.FileField(
+        max_length=340,
+        null=True,
+        blank=True,
+        storage=TemporaryDocumentStorage(),
         upload_to=get_file_s3_key,
     )
     original_file_name = models.CharField(max_length=255, blank=True, null=True)
@@ -252,4 +259,13 @@ class Document(BaseModel):
 
     @property
     def s3_key(self) -> str:
-        return self.file.file.obj.key
+        return self.temp_file.file.obj.key
+
+    @classmethod
+    def save_documents(cls, licence) -> None:
+        documents = Document.objects.filter(licence=licence.id)
+        for document in documents:
+            store_document_in_permanent_bucket(object_key=document.s3_key)
+            document.file.name = document.s3_key
+            document.temp_file = None
+            document.save()

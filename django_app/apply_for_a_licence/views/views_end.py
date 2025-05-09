@@ -3,7 +3,7 @@ from typing import Any
 
 from apply_for_a_licence import choices
 from apply_for_a_licence.forms.forms_end import DeclarationForm
-from apply_for_a_licence.models import Individual, Licence, Organisation
+from apply_for_a_licence.models import Document, Individual, Licence, Organisation
 from authentication.mixins import LoginRequiredMixin
 from core.views.base_views import (
     BaseDownloadPDFView,
@@ -68,7 +68,8 @@ class DeclarationView(BaseSaveAndReturnFormView):
         licence_object.status = choices.StatusChoices.submitted
         licence_object.submitted_at = timezone.now()
         licence_object.save()
-
+        # Store documents in permanent s3 bucket
+        Document.save_documents(licence_object)
         # Send confirmation email to the user
         send_email(
             email=licence_object.user.email,

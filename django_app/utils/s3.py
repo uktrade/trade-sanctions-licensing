@@ -68,19 +68,17 @@ def get_user_uploaded_files(session: SessionBase) -> List[str]:
     return uploaded_files
 
 
-def store_document_in_permanent_bucket(object_key: str, licence_pk: str) -> str:
+def store_document_in_permanent_bucket(object_key: str) -> None:
     """Copy a specific document from the temporary storage to the permanent storage on s3."""
     temporary_storage_bucket = TemporaryDocumentStorage()
     permanent_storage_bucket = PermanentDocumentStorage()
 
-    new_key = f"{licence_pk}/{object_key}"
     permanent_storage_bucket.bucket.meta.client.copy(
         CopySource={
             "Bucket": settings.TEMPORARY_S3_BUCKET_NAME,
             "Key": object_key,
         },
         Bucket=settings.PERMANENT_S3_BUCKET_NAME,
-        Key=new_key,
+        Key=object_key,
         SourceClient=temporary_storage_bucket.bucket.meta.client,
     )
-    return new_key

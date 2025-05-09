@@ -38,7 +38,7 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
             for file in form.cleaned_data["file"]:
                 document = Document(
                     licence=self.licence_object,
-                    file=file,
+                    temp_file=file,
                     original_file_name=file.original_name,
                 )
                 document.save()
@@ -77,7 +77,7 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
 class DeleteDocumentsView(LoginRequiredMixin, View):
     def post(self, *args: object, **kwargs: object) -> HttpResponse:
         if s3_key_to_delete := self.request.POST.get("s3_key_to_delete"):
-            document_object = get_object_or_404(Document, file=s3_key_to_delete)
+            document_object = get_object_or_404(Document, temp_file=s3_key_to_delete)
             licence_object = document_object.licence
             if licence_object.user != self.request.user:
                 raise Http404()
