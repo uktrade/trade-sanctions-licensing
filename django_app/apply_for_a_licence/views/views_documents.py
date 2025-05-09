@@ -23,6 +23,11 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
     form_class = forms.UploadDocumentsForm
     template_name = "apply_for_a_licence/form_steps/upload_documents.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["licence_object"] = self.licence_object
+        return kwargs
+
     def get_context_data(self, **kwargs: object) -> dict[str, Any]:
         """Retrieve the already uploaded files from the session storage and add them to the context."""
         context = super().get_context_data(**kwargs)
