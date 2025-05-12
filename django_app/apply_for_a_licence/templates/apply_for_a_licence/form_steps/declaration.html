@@ -10,4 +10,12 @@
         <li>you have read our <a href="{% url 'privacy_notice' %}" class="govuk-link govuk-link--no-underline">privacy notice</a></li>
     </ul>
     {% crispy form %}
+    <div class="govuk-button-group">
+        <button type="submit" class="govuk-button" data-module="govuk-button">
+            Continue
+        </button>
+        {% if skip_link %}
+            <a class="govuk-link govuk govuk-!-margin-left-4" href="{% url 'tasklist' licence_pk=licence.id %}">Skip for now and return to task list</a>
+        {% endif %}
+    </div>
 {% endblock form_content %}
