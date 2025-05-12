@@ -49,7 +49,8 @@ class BaseForm(forms.Form):
         self.helper.form_tag = False
 
         if self.show_skip_button:
-            self.request.session["skip_link"] = True
+            if self.request is not None:
+                self.request.session["skip_link"] = True
 
         if self.single_question_form and not self.form_h1_header:
             self.helper.label_tag = "h1"
