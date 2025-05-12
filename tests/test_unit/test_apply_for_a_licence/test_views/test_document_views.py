@@ -64,7 +64,7 @@ class TestDeleteDocumentsView:
     def test_successful_post(self, patched_document_delete, authenticated_al_client_with_licence, licence_application):
         licence_application.status = "draft"
         licence_application.save()
-        Document.objects.create(licence=licence_application, file="test1231242342.png", original_file_name="test.png")
+        Document.objects.create(licence=licence_application, temp_file="test1231242342.png", original_file_name="test.png")
 
         response = authenticated_al_client_with_licence.post(
             reverse("delete_documents", kwargs={"licence_pk": licence_application.id}),

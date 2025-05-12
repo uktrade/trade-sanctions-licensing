@@ -1,10 +1,7 @@
-from typing import Any, List
+from typing import Any
 
 from core.document_storage import PermanentDocumentStorage, TemporaryDocumentStorage
 from django.conf import settings
-from django.contrib.sessions.backends.base import SessionBase
-from django.core.cache import cache
-from django.urls import reverse
 from storages.backends.s3boto3 import S3Boto3Storage
 
 
@@ -27,60 +24,17 @@ def generate_presigned_url(s3_storage: Any, s3_file_object: Any) -> str:
     return presigned_url
 
 
-def get_all_session_files(s3_storage: S3Boto3Storage, session: SessionBase) -> dict[str, dict[str, str]]:
-    """Gets all files that a user has uploaded in a session."""
-    s3_client = get_s3_client_from_storage(s3_storage=s3_storage)
-    session_files = {}
-    if not session.is_empty():
-        response = s3_client.list_objects_v2(Bucket=s3_storage.bucket.name, Prefix=session.session_key)
-
-        user_uploaded_files = get_user_uploaded_files(session)
-        for content in response.get("Contents", []):
-            key = content["Key"]
-            file_name = key.rpartition("/")[2]
-
-            # checking that a file with this name was uploaded in the session
-            if file_name in user_uploaded_files:
-                session_files[key] = {
-                    "file_name": file_name,
-                    "url": reverse("download_document", kwargs={"file_name": file_name}),
-                }
-
-    return session_files
-
-
-def delete_session_files(s3_storage: S3Boto3Storage, session: SessionBase) -> None:
-    s3_client = get_s3_client_from_storage(s3_storage=s3_storage)
-
-    response = s3_client.list_objects_v2(Bucket=s3_storage.bucket.name, Prefix=session.session_key)
-    delete_keys: dict[str, Any] = {"Objects": []}
-    delete_keys["Objects"] = [{"Key": k} for k in [obj["Key"] for obj in response.get("Contents", [])]]
-    s3_client.delete_objects(Bucket=s3_storage.bucket.name, Delete=delete_keys)
-
-
-def get_user_uploaded_files(session: SessionBase) -> List[str]:
-    """Returns a list of file_names that a user has uploaded in a session.
-
-    Files are uploaded to the session's key in the cache, so we scan the entire redis cache for all keys that
-    start with the session key and return a list of the values."""
-    cache_keys = list(cache.iter_keys(f"{session.session_key}*"))
-    uploaded_files = [file_name for key, file_name in cache.get_many(cache_keys).items()]
-    return uploaded_files
-
-
-def store_document_in_permanent_bucket(object_key: str, licence_pk: str) -> str:
+def store_document_in_permanent_bucket(object_key: str) -> None:
     """Copy a specific document from the temporary storage to the permanent storage on s3."""
     temporary_storage_bucket = TemporaryDocumentStorage()
     permanent_storage_bucket = PermanentDocumentStorage()
 
-    new_key = f"{licence_pk}/{object_key}"
     permanent_storage_bucket.bucket.meta.client.copy(
         CopySource={
             "Bucket": settings.TEMPORARY_S3_BUCKET_NAME,
             "Key": object_key,
         },
         Bucket=settings.PERMANENT_S3_BUCKET_NAME,
-        Key=new_key,
+        Key=object_key,
         SourceClient=temporary_storage_bucket.bucket.meta.client,
     )
-    return new_key

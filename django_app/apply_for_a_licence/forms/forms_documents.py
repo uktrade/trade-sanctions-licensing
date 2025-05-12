@@ -1,14 +1,13 @@
 import os
 
 from apply_for_a_licence.fields import MultipleFileField, MultipleFileInput
-from core.document_storage import TemporaryDocumentStorage
+from apply_for_a_licence.models import Document
 from core.forms.base_forms import BaseForm
 from core.utils import get_mime_type
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Layout
 from django import forms
 from django_chunk_upload_handlers.clam_av import VirusFoundInFileException
-from utils.s3 import get_all_session_files
 
 
 class UploadDocumentsForm(BaseForm):
@@ -26,6 +25,7 @@ class UploadDocumentsForm(BaseForm):
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
+        self.licence_object: object = kwargs.pop("licence_object", None)
         super().__init__(*args, **kwargs)
         # redefining this to remove the 'Continue' button from the helper
         self.helper = FormHelper()
@@ -108,8 +108,8 @@ class UploadDocumentsForm(BaseForm):
                 )
 
             # has the user already uploaded 10 files?
-            if session_files := get_all_session_files(TemporaryDocumentStorage(), self.request.session):
-                if len(session_files) + 1 > 10:
+            if uploaded_files := Document.objects.filter(licence=self.licence_object.id):
+                if len(uploaded_files) + 1 > 10:
                     raise forms.ValidationError("You can only select up to 10 files at the same time", code="too_many")
 
             # is the document too large?
