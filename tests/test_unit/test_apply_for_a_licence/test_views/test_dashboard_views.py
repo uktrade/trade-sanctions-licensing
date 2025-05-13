@@ -39,7 +39,7 @@ class TestDashboardView:
     def test_get_no_applications(self, authenticated_al_client):
         response = authenticated_al_client.get(reverse("dashboard"))
         assert response.status_code == 200
-        assert response.url == reverse("dashboard")
+        assert response.context["applications"].count() == 0
 
     def test_date_in_template(self, authenticated_al_client, test_apply_user):
         licence = LicenceFactory(user=test_apply_user, status="draft")
