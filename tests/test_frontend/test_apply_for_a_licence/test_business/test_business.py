@@ -99,7 +99,7 @@ class TestAddBusiness(StartBase, ProviderBase, AboutTheServicesBase, RecipientBa
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("Outside the UK").check()
         self.page.get_by_role("button", name="Continue").click()
-        self.page.get_by_role("button", name="Skip for now and return to").click()
+        self.page.get_by_role("link", name="Skip for now and return to").click()
         self.page.get_by_role("link", name="Details of the business you").click()
         expect(self.page).to_have_url(re.compile(r".*/add-business"))
         expect(self.page.get_by_role("heading", name="You've added 2 businesses")).to_be_visible()

@@ -91,7 +91,7 @@ class TestRecipient(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase
         self.page.get_by_role("button", name="Continue").click()
         self.page.get_by_label("Outside the UK").check()
         self.page.get_by_role("button", name="Continue").click()
-        self.page.get_by_role("button", name="Skip for now and return to").click()
+        self.page.get_by_role("link", name="Skip for now and return to").click()
         self.page.get_by_role("link", name="Recipient contact details").click()
         expect(self.page).to_have_url(re.compile(r".*/add-recipient"))
         expect(self.page.get_by_role("heading", name="You've added 2 recipients")).to_be_visible()
