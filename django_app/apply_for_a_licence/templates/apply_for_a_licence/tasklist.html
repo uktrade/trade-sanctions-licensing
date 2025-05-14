@@ -19,31 +19,44 @@
             <h2 class="govuk-heading-m">{{ task.name }}</h2>
             <ul class="govuk-task-list">
                 {% for subtask in task.get_sub_tasks %}
-                    <li class="govuk-task-list__item govuk-task-list__item--with-link">
-                        <div class="govuk-task-list__name-and-hint">
-                            {% if subtask.can_start %}
-                                <a class="govuk-link govuk-task-list__link govuk-link--no-visited-state"
-                                   href="{{ subtask.url }}"
-                                   aria-describedby="{{ task.id }}-{{ subtask.id }}-status">
-                                    {{ subtask.name }}
-                                </a>
-                            {% else %}
+
+                    {% if subtask.cannot_start %}
+                        <li class="govuk-task-list__item">
+                            <div class="govuk-task-list__name-and-hint">
                                 {{ subtask.name }}
-                            {% endif %}
-                            {% if subtask.help_text %}
-                                <div id="{{ task.id }}-{{ subtask.id }}-hint" class="govuk-task-list__hint">
-                                    {{ subtask.help_text }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="govuk-task-list__status" id="{{ task.id }}-{{ subtask.id }}-status">
-                            {% if subtask.should_show_tag %}
-                                <strong
-                                    class="govuk-tag govuk-tag--{{ subtask.tag_colour }}">{{ subtask.get_human_readable_status }}</strong>
-                            {% else %}
-                                {{ subtask.get_human_readable_status }}
-                            {% endif %}
-                        </div>
+                                {% if subtask.help_text %}
+                                    <div id="{{ task.id }}-{{ subtask.id }}-hint" class="govuk-task-list__hint">
+                                        {{ subtask.help_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                    {% else %}
+                        <li class="govuk-task-list__item govuk-task-list__item--with-link">
+                            <div class="govuk-task-list__name-and-hint">
+                                {% if subtask.can_start %}
+                                    <a class="govuk-link govuk-task-list__link govuk-link--no-visited-state"
+                                       href="{{ subtask.url }}"
+                                       aria-describedby="{{ task.id }}-{{ subtask.id }}-status">
+                                        {{ subtask.name }}
+                                    </a>
+                                {% else %}
+                                    {{ subtask.name }}
+                                {% endif %}
+                                {% if subtask.help_text %}
+                                    <div id="{{ task.id }}-{{ subtask.id }}-hint" class="govuk-task-list__hint">
+                                        {{ subtask.help_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                    {% endif %}
+                    <div class="govuk-task-list__status" id="{{ task.id }}-{{ subtask.id }}-status">
+                        {% if subtask.should_show_tag %}
+                            <strong
+                                class="govuk-tag govuk-tag--{{ subtask.tag_colour }}">{{ subtask.get_human_readable_status }}</strong>
+                        {% else %}
+                            {{ subtask.get_human_readable_status }}
+                        {% endif %}
+                    </div>
                     </li>
                 {% endfor %}
             </ul>

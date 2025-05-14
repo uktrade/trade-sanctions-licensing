@@ -41,6 +41,10 @@ class BaseSubTask:
     def can_start(self) -> bool:
         return self.status in ["not_started", "in_progress", "complete"]
 
+    @property
+    def cannot_start(self) -> bool:
+        return self.status in ["cannot_start"]
+
     def get_human_readable_status(self) -> str:
         status_mapping = {
             "cannot_start": "Cannot start yet",
