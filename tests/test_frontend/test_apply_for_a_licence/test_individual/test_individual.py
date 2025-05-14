@@ -101,7 +101,7 @@ class TestAddIndividual(StartBase, ProviderBase, AboutTheServicesBase, Recipient
         expect(self.page).to_have_url(re.compile(r".*/add-individual"))
         self.page.get_by_label("Yes").check()
         self.page.get_by_role("button", name="Continue").click()
-        self.page.get_by_role("button", name="Skip for now and return to").click()
+        self.page.get_by_role("link", name="Skip for now and return to").click()
         self.page.get_by_role("link", name="Details of the individual you").click()
         expect(self.page).to_have_url(re.compile(r".*/add-individual"))
         expect(self.page.get_by_role("heading", name="You've added 2 individuals")).to_be_visible()

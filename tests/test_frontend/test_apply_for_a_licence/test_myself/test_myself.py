@@ -57,7 +57,7 @@ class TestAddMyself(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase
         expect(self.page).to_have_url(re.compile(r".*/check-your-details-add-individuals"))
         self.page.get_by_label("Yes").check()
         self.page.get_by_role("button", name="Continue").click()
-        self.page.get_by_role("button", name="Skip for now and return to").click()
+        self.page.get_by_role("link", name="Skip for now and return to").click()
         # get licence_id from url
         page_url = self.page.url
         licence_id = page_url.rsplit("/")[-1]
