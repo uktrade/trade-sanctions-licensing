@@ -136,6 +136,7 @@ class BaseSaveAndReturnFormView(BaseSaveAndReturnView, FormView):
         context = super().get_context_data(**kwargs)
         if licence := self.licence_object:
             context["licence"] = licence
+            context["skip_link"] = self.request.session.get("skip_link", False)
         return context
 
 

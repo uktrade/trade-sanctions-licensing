@@ -2,7 +2,7 @@ import re
 from typing import Any, List
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Layout, Size, Submit
+from crispy_forms_gds.layout import Layout, Size
 from django import forms
 from django.http import HttpRequest
 from utils.companies_house import get_formatted_address
@@ -46,11 +46,11 @@ class BaseForm(forms.Form):
             self.fields[field_name].help_text = help_text
 
         self.helper = FormHelper()
-        self.helper.add_input(Submit("continue", self.submit_button_text, css_class="btn-primary"))
+        self.helper.form_tag = False
+
         if self.show_skip_button:
-            self.helper.add_input(
-                Submit("skip_link", "Skip for now and return to task list", css_class="govuk-button govuk-button--secondary ml-2")
-            )
+            if self.request is not None:
+                self.request.session["skip_link"] = True  # type: ignore
 
         if self.single_question_form and not self.form_h1_header:
             self.helper.label_tag = "h1"
