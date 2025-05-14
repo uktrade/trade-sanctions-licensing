@@ -35,7 +35,7 @@ class TestUpload(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase):
         self.page.wait_for_timeout(2000)  # Wait for the doc to upload
         expect(self.page.locator(".moj-multi-file-upload__filename")).to_be_visible()
         assert self.page.locator(".moj-multi-file-upload__filename").text_content() == "Test.pdf"
-        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_role("button", name="Save and continue").click()
         self.check_your_answers(self.page, third_party=True, upload_text="Test.pdf")
 
     @pytest.mark.usefixtures("patched_clean_document")
@@ -48,7 +48,7 @@ class TestUpload(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase):
         self.page.wait_for_timeout(2000)  # Wait for the doc to upload
         expect(self.page.get_by_role("heading", name="There is a problem")).to_be_visible()
         expect(self.page.get_by_text("The selected file contains a virus")).to_be_visible()
-        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_role("button", name="Save and continue").click()
         expect(self.page.get_by_text("mock_malware_file.txt")).not_to_be_visible()
         expect(self.page).to_have_url(re.compile(r".*/upload-documents"))
         self.page.get_by_text("Reset session").click()
@@ -64,7 +64,7 @@ class TestUpload(StartBase, ProviderBase, RecipientBase, AboutTheServicesBase):
         # checking that the file row is not visible
         expect(self.page.locator(".moj-multi-file__uploaded-files")).not_to_be_visible()
         # you should still be able to continue
-        self.page.get_by_role("button", name="Continue").click()
+        self.page.get_by_role("button", name="Save and continue").click()
         expect(self.page).to_have_url(re.compile(r".*/task-list"))
         self.check_your_answers(self.page, third_party=True)
         self.page.get_by_role("link", name="Continue").click()
