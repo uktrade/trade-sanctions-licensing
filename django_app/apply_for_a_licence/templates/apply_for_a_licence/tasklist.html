@@ -22,7 +22,7 @@
 
                     {% if subtask.cannot_start %}
                         <li class="govuk-task-list__item">
-                            <div class="govuk-task-list__name govuk-task-list__status--cannot-start-yet">
+                            <div class="govuk-task-list__name-and-hint">
                                 {{ subtask.name }}
                                 {% if subtask.help_text %}
                                     <div id="{{ task.id }}-{{ subtask.id }}-hint" class="govuk-task-list__hint">
