@@ -42,9 +42,7 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
         if form.cleaned_data["file"]:
             for file in form.cleaned_data["file"]:
                 document = Document(
-                    licence=self.licence_object,
-                    temp_file=file,
-                    original_file_name=file.original_name,
+                    licence=self.licence_object, temp_file=file, original_file_name=file.original_name, submitted_form=True
                 )
                 document.save()
 
@@ -59,6 +57,10 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
                         },
                         status=201,
                     )
+        else:
+            document = Document(licence=self.licence_object, submitted_form=True)
+            document.save()
+
         return super().form_valid(form)
 
     def form_invalid(self, form: Form) -> HttpResponse:

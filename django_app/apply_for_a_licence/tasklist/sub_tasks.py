@@ -1,5 +1,5 @@
 from apply_for_a_licence import choices
-from apply_for_a_licence.models import Individual, Organisation
+from apply_for_a_licence.models import Document, Individual, Organisation
 from apply_for_a_licence.tasklist.base_classes import BaseSubTask
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse, reverse_lazy
@@ -201,7 +201,23 @@ class UploadDocumentsSubTask(BaseSubTask):
 
     @property
     def is_completed(self) -> bool:
-        return self.licence.documents.exists()
+        try:
+            if Document.objects.filter(licence=self.licence).exclude(temp_file=None).exclude(temp_file=""):
+                return True
+            return False
+        except ObjectDoesNotExist:
+            return False
+
+    @property
+    def is_in_progress(self) -> bool:
+        try:
+            submitted_form = Document.objects.get(licence=self.licence, submitted_form=True)
+            if submitted_form is not None:
+                return True
+            else:
+                return False
+        except ObjectDoesNotExist:
+            return False
 
     def url(self):
         return reverse_lazy("upload_documents", kwargs={"licence_pk": self.licence.id})

@@ -252,6 +252,7 @@ class Document(BaseModel):
         upload_to=get_file_s3_key,
     )
     original_file_name = models.CharField(max_length=255, blank=True, null=True)
+    submitted_form = models.BooleanField(default=False)
 
     @property
     def url(self) -> str:
