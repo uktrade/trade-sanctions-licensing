@@ -21,3 +21,8 @@ class TestPreviousLicensesHeldSubTask:
         assert not sub_task.is_completed
         business_licence.submitted_documents_form = True
         assert sub_task.is_in_progress
+
+    def test_subtask_not_in_progress(self, business_licence):
+        sub_task = UploadDocumentsSubTask(business_licence)
+        assert not sub_task.is_completed
+        assert not sub_task.is_in_progress

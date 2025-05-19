@@ -51,10 +51,6 @@ class UploadDocumentsTask(BaseTask):
         UploadDocumentsSubTask,
     ]
 
-    def is_task_complete(self) -> bool:
-        # Upload documents task is optional so always 'complete' for the task purposes
-        return True
-
 
 class ReviewAndSubmitTask(BaseTask):
     name = "Review and submit"
