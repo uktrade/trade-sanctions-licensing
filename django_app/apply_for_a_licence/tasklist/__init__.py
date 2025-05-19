@@ -22,9 +22,13 @@ class Tasklist:
         tasks.append(RecipientsTask(licence=self.licence))
         tasks.append(UploadDocumentsTask(licence=self.licence))
 
-        if all([task.is_task_complete() for task in tasks]):
-            can_go_to_cya = True
-        else:
-            can_go_to_cya = False
-        tasks.append(ReviewAndSubmitTask(licence=self.licence, can_go_to_cya=can_go_to_cya))
+        for task in tasks:
+            if task.name == "Upload documents":
+                continue
+            else:
+                if not task.is_task_complete():
+                    tasks.append(ReviewAndSubmitTask(licence=self.licence, can_go_to_cya=False))
+                    return tasks
+
+        tasks.append(ReviewAndSubmitTask(licence=self.licence, can_go_to_cya=True))
         return tasks
