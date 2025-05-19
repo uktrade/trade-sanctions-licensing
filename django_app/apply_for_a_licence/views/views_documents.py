@@ -3,7 +3,7 @@ from typing import Any
 
 from apply_for_a_licence.choices import StatusChoices
 from apply_for_a_licence.forms import forms_documents as forms
-from apply_for_a_licence.models import Document
+from apply_for_a_licence.models import Document, Licence
 from authentication.mixins import LoginRequiredMixin
 from core.utils import is_ajax
 from core.views.base_views import BaseSaveAndReturnFormView, BaseSaveAndReturnView
@@ -42,7 +42,9 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
         if form.cleaned_data["file"]:
             for file in form.cleaned_data["file"]:
                 document = Document(
-                    licence=self.licence_object, temp_file=file, original_file_name=file.original_name, submitted_form=True
+                    licence=self.licence_object,
+                    temp_file=file,
+                    original_file_name=file.original_name,
                 )
                 document.save()
 
@@ -57,9 +59,10 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
                         },
                         status=201,
                     )
-        else:
-            document = Document(licence=self.licence_object, submitted_form=True)
-            document.save()
+
+        licence = Licence.objects.get(id=self.licence_object.id)
+        licence.submitted_documents_form = True
+        licence.save()
 
         return super().form_valid(form)
 

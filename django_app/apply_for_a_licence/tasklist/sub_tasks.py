@@ -210,14 +210,9 @@ class UploadDocumentsSubTask(BaseSubTask):
 
     @property
     def is_in_progress(self) -> bool:
-        try:
-            submitted_form = Document.objects.get(licence=self.licence, submitted_form=True)
-            if submitted_form is not None:
-                return True
-            else:
-                return False
-        except ObjectDoesNotExist:
-            return False
+        if self.licence.submitted_documents_form:
+            return True
+        return False
 
     def url(self):
         return reverse_lazy("upload_documents", kwargs={"licence_pk": self.licence.id})

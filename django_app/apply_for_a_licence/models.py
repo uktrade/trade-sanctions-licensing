@@ -67,6 +67,7 @@ class Licence(BaseModel):
     do_you_want_to_add_another_recipient = models.BooleanField(null=True, blank=False)
     do_you_want_to_add_another_individual = models.BooleanField(null=True, blank=False)
     do_you_want_to_add_another_business = models.BooleanField(null=True, blank=False)
+    submitted_documents_form = models.BooleanField(default=False)
 
     def assign_reference(self) -> str:
         """Assigns a unique reference to this Licence object"""
@@ -252,7 +253,6 @@ class Document(BaseModel):
         upload_to=get_file_s3_key,
     )
     original_file_name = models.CharField(max_length=255, blank=True, null=True)
-    submitted_form = models.BooleanField(default=False)
 
     @property
     def url(self) -> str:
