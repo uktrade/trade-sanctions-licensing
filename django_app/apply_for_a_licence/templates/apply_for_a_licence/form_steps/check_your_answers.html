@@ -2,6 +2,9 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 {% load countries %}
 {% block title %}
+    {% if form.errors %}
+        Error:
+    {% endif %}
     Check your answers
 {% endblock title %}
 
