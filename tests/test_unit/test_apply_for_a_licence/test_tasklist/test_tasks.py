@@ -48,6 +48,7 @@ class TestTaskList:
         assert isinstance(tasklist[2], RecipientsTask)
         assert isinstance(tasklist[3], UploadDocumentsTask)
         assert isinstance(tasklist[4], ReviewAndSubmitTask)
+        assert tasklist[4].can_go_to_cya is False
 
 
 class TestTaskListSubTasks:

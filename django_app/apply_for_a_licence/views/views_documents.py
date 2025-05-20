@@ -3,7 +3,7 @@ from typing import Any
 
 from apply_for_a_licence.choices import StatusChoices
 from apply_for_a_licence.forms import forms_documents as forms
-from apply_for_a_licence.models import Document
+from apply_for_a_licence.models import Document, Licence
 from authentication.mixins import LoginRequiredMixin
 from core.utils import is_ajax
 from core.views.base_views import BaseSaveAndReturnFormView, BaseSaveAndReturnView
@@ -59,6 +59,11 @@ class UploadDocumentsView(BaseSaveAndReturnFormView):
                         },
                         status=201,
                     )
+
+        licence = Licence.objects.get(id=self.licence_object.id)
+        licence.submitted_documents_form = True
+        licence.save()
+
         return super().form_valid(form)
 
     def form_invalid(self, form: Form) -> HttpResponse:

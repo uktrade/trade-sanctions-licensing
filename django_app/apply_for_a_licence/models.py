@@ -67,6 +67,7 @@ class Licence(BaseModel):
     do_you_want_to_add_another_recipient = models.BooleanField(null=True, blank=False)
     do_you_want_to_add_another_individual = models.BooleanField(null=True, blank=False)
     do_you_want_to_add_another_business = models.BooleanField(null=True, blank=False)
+    submitted_documents_form = models.BooleanField(default=False, null=True, blank=False)
 
     def assign_reference(self) -> str:
         """Assigns a unique reference to this Licence object"""
