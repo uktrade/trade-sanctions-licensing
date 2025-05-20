@@ -210,9 +210,7 @@ class UploadDocumentsSubTask(BaseSubTask):
 
     @property
     def is_in_progress(self) -> bool:
-        if self.licence.submitted_documents_form:
-            return True
-        return False
+        return bool(self.licence.submitted_documents_form)
 
     def url(self):
         return reverse_lazy("upload_documents", kwargs={"licence_pk": self.licence.id})
