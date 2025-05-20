@@ -1,7 +1,12 @@
 {% extends "core/base_form_step.html" %}
 {% load crispy_forms_tags crispy_forms_gds static %}
 
-{% block title %}Upload documents{% endblock title %}
+{% block title %}
+    {% if form.errors %}
+        Error:
+    {% endif %}
+    Upload documents
+{% endblock title %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static "core/stylesheets/moj-frontend.css" %}">
