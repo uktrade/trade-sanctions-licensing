@@ -10,5 +10,5 @@
     <p class="govuk-body">Any information you did not save has been deleted for your security.</p>
     <p class="govuk-body">To continue your application, you'll need to sign in again.</p>
 
-    <a class="govuk-button" href="{% url "dashboard" %}" data-testid="sign_in_link">Sign in</a>
+    <a class="govuk-button" href="{% url "authentication:login" %}" data-testid="sign_in_link">Sign in</a>
 {% endblock column_content %}
