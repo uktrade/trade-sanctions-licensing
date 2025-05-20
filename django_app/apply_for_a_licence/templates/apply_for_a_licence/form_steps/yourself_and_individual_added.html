@@ -71,8 +71,12 @@
                 <dt class="govuk-summary-list__key">
                     Name
                 </dt>
-                <dd class="govuk-summary-list__value">
-                    {{ individual.name_data.cleaned_data.first_name }} {{individual.name_data.cleaned_data.last_name}}
+                <dd class="govuk-summary-list__value" data-testid="individual-name-{{ forloop.counter }}">
+                    {% if individual.first_name or individual.last_name %}
+                        {{ individual.full_name }}
+                    {% else %}
+                        Not yet added
+                    {% endif %}
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
