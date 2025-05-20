@@ -1,6 +1,11 @@
 {% extends "core/base_form_step.html" %}
 {% load crispy_forms_tags crispy_forms_gds %}
-{% block title %}Declaration{% endblock title %}
+{% block title %}
+    {% if form.errors %}
+        Error:
+    {% endif %}
+    Declaration
+{% endblock title %}
 {% block form_content %}
     <h1 class="govuk-heading-m">Declaration</h1>
     <p class="govuk-body">By submitting this:</p>
@@ -15,7 +20,7 @@
             Submit
         </button>
         {% if skip_link %}
-            <a class="govuk-link govuk govuk-!-margin-left-4" href="{% url 'tasklist' licence_pk=licence.id %}">Skip for now and return to task list</a>
+            <a class="govuk-link govuk-link--no-visited-state govuk-!-margin-left-4" href="{% url 'tasklist' licence_pk=licence.id %}">Skip for now and return to task list</a>
         {% endif %}
     </div>
 {% endblock form_content %}

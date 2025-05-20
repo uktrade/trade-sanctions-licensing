@@ -1,7 +1,12 @@
 {% extends "core/base_form_step.html" %}
 {% load crispy_forms_tags crispy_forms_gds static %}
 
-{% block title %}Upload documents{% endblock title %}
+{% block title %}
+    {% if form.errors %}
+        Error:
+    {% endif %}
+    Upload documents
+{% endblock title %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static "core/stylesheets/moj-frontend.css" %}">
@@ -109,7 +114,7 @@
                 data-testid="upload-documents-continue">
             Save and continue
         </button>
-        <a class="govuk-link govuk govuk-!-margin-left-4" href="{% url 'tasklist' licence_pk=licence.id %}">Skip for now and return to task list</a>
+        <a class="govuk-link govuk-link--no-visited-state govuk-!-margin-left-4" href="{% url 'tasklist' licence_pk=licence.id %}">Skip for now and return to task list</a>
     </div>
 
 {% endblock column_content %}

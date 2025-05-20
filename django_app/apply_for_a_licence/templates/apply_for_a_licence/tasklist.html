@@ -30,6 +30,9 @@
                                     </div>
                                 {% endif %}
                             </div>
+                            <div class="govuk-task-list__status govuk-task-list__status--cannot-start-yet" id="{{ task.id }}-{{ subtask.id }}-status">
+                                {{ subtask.get_human_readable_status }}
+                            </div>
                     {% else %}
                         <li class="govuk-task-list__item govuk-task-list__item--with-link">
                             <div class="govuk-task-list__name-and-hint">
@@ -48,15 +51,15 @@
                                     </div>
                                 {% endif %}
                             </div>
+                            <div class="govuk-task-list__status" id="{{ task.id }}-{{ subtask.id }}-status">
+                                {% if subtask.should_show_tag %}
+                                    <strong
+                                        class="govuk-tag govuk-tag--{{ subtask.tag_colour }}">{{ subtask.get_human_readable_status }}</strong>
+                                {% else %}
+                                    {{ subtask.get_human_readable_status }}
+                                {% endif %}
+                            </div>
                     {% endif %}
-                    <div class="govuk-task-list__status" id="{{ task.id }}-{{ subtask.id }}-status">
-                        {% if subtask.should_show_tag %}
-                            <strong
-                                class="govuk-tag govuk-tag--{{ subtask.tag_colour }}">{{ subtask.get_human_readable_status }}</strong>
-                        {% else %}
-                            {{ subtask.get_human_readable_status }}
-                        {% endif %}
-                    </div>
                     </li>
                 {% endfor %}
             </ul>

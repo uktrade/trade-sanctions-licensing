@@ -3,7 +3,12 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 {% load get_item %}
 
-{% block title %}Check company details{% endblock title %}
+{% block title %}
+    {% if form.errors %}
+        Error:
+    {% endif %}
+    Check company details
+{% endblock title %}
 {% block form_content %}
     <form action="{{ request.get_full_path }}" method="post">
         <div>
@@ -49,7 +54,7 @@
                 Save and continue
             </button>
             {% if skip_link %}
-                <a class="govuk-link govuk govuk-!-margin-left-4" href="{% url 'tasklist' licence_pk=licence.id %}">Skip for now and return to task list</a>
+                <a class="govuk-link govuk-link--no-visited-state govuk-!-margin-left-4" href="{% url 'tasklist' licence_pk=licence.id %}">Skip for now and return to task list</a>
             {% endif %}
         </div>
     </form>
