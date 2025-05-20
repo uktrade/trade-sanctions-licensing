@@ -3,7 +3,7 @@ import logging
 from authlib.common.security import generate_token
 from authlib.jose.errors import InvalidClaimError
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login, logout
+from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login  # logout
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
@@ -113,9 +113,13 @@ class LogoutView(View):
             if oidc_id_token := one_login_token.get("id_token", None):
                 print(oidc_id_token)
                 gov_one_logout_url += f"?id_token_hint={oidc_id_token}&post_logout_redirect_uri={post_logout_redirect_url}"
+                # logout(self.request)
+                # TODO: DEBUG only
+                return HttpResponseRedirect(gov_one_logout_url)
 
-        logout(self.request)
-        return HttpResponseRedirect(gov_one_logout_url)
+        # logout(self.request)
+        # TODO: DEBUG only
+        return HttpResponseRedirect(self.request.build_absolute_uri(reverse("dashboard")))
 
 
 class SessionExpiredView(TemplateView):
