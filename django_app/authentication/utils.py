@@ -58,7 +58,7 @@ def get_token(request: HttpRequest, auth_code: str) -> dict:
     )
 
     validate_token(request, token)
-
+    client.token = token
     return token
 
 

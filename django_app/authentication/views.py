@@ -3,7 +3,7 @@ import logging
 from authlib.common.security import generate_token
 from authlib.jose.errors import InvalidClaimError
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login  # logout
+from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login, logout
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
@@ -96,6 +96,7 @@ class AuthCallbackView(View):
 
         request.session.delete(f"{TOKEN_SESSION_KEY}_oath_state")
         request.session.delete(f"{TOKEN_SESSION_KEY}_oauth_nonce")
+        logger.debug(f"session token{request.session[TOKEN_SESSION_KEY]}")
 
         next_url = get_next_url(request) or getattr(settings, "LOGIN_REDIRECT_URL", "/")
 
@@ -109,13 +110,14 @@ class LogoutView(View):
         post_logout_redirect_url = self.request.build_absolute_uri(reverse("authentication:session_expired"))
 
         if one_login_token := self.request.session.get(TOKEN_SESSION_KEY, {}):
+            logger.debug(f"Logout token: {one_login_token}")
             if oidc_id_token := one_login_token.get("id_token"):
                 gov_one_logout_url += f"?id_token_hint={oidc_id_token}&post_logout_redirect_uri={post_logout_redirect_url}"
-                # logout(self.request)
+                logout(self.request)
                 return HttpResponseRedirect(gov_one_logout_url)
 
         # if the token isn't found, forcibly log the user out of our application
-        # logout(self.request)
+        logout(self.request)
         return HttpResponseRedirect(post_logout_redirect_url)
 
 
