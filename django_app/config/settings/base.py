@@ -300,6 +300,8 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 10 * 60
 SESSION_LAST_ACTIVITY_KEY = "last_form_submission"
 
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
 # CSP policies
 
 # The default policy is to only allow resources from the same origin (self)

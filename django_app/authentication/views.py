@@ -85,18 +85,17 @@ class AuthCallbackView(View):
             logger.error("Unable to validate token")
             raise SuspiciousOperation("Unable to validate token")
 
-        request.session[TOKEN_SESSION_KEY] = dict(token)
-        request.session.modified = True
-        request.session.save()
-
-        request.session.delete(f"{TOKEN_SESSION_KEY}_oath_state")
-        request.session.delete(f"{TOKEN_SESSION_KEY}_oauth_nonce")
-
         # Get or create the user
         user = authenticate(request=request)
 
         if user:
             login(request, user, backend="authentication.backends.OneLoginBackend")
+
+        request.session[TOKEN_SESSION_KEY] = dict(token)
+        request.session.modified = True
+
+        request.session.delete(f"{TOKEN_SESSION_KEY}_oath_state")
+        request.session.delete(f"{TOKEN_SESSION_KEY}_oauth_nonce")
 
         next_url = get_next_url(request) or getattr(settings, "LOGIN_REDIRECT_URL", "/")
 
