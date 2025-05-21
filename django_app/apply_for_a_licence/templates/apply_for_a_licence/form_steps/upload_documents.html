@@ -91,7 +91,7 @@
                             <form id="delete_documents_form_{{ forloop.counter }}" method="post"
                                   enctype='multipart/form-data' novalidate
                                   action="{% url 'delete_documents' licence_pk=licence.id %}" class="show-on-js-disabled hide-on-js-enabled">
-                                <input type="hidden" name="s3_key_to_delete" value="{{ temp_file.s3_key }}">
+                                <input type="hidden" name="s3_key_to_delete" value="{{ file.s3_key }}">
                                 {% csrf_token %}
                                 <button type="submit" class=" govuk-link button-that-looks-like-link"
                                         form="delete_documents_form_{{ forloop.counter }}">
@@ -99,7 +99,7 @@
                                 </button>
                             </form>
                             <a class="moj-multi-file-upload__delete govuk-!-margin-bottom-0 hide-on-js-disabled show-on-js-enabled button-that-looks-like-link"
-                               href="javascript:void(0)" data-s3-key="{{ temp_file.s3_key }}">
+                               href="javascript:void(0)" data-s3-key="{{ file.s3_key }}">
                                 Remove<span class="govuk-visually-hidden">{{ file.original_file_name }} </span>
                             </a>
                         </dd>
