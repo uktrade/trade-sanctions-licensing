@@ -3,7 +3,7 @@ import logging
 from authlib.common.security import generate_token
 from authlib.jose.errors import InvalidClaimError
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login, logout
+from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login  # logout
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
@@ -108,22 +108,15 @@ class LogoutView(View):
     def get(self, *args: object, **kwargs: object) -> HttpResponse:
         gov_one_logout_url = "https://oidc.integration.account.gov.uk/logout"
         post_logout_redirect_url = self.request.build_absolute_uri(reverse("authentication:session_expired"))
-        # debug
-        session_items = self.request.session.items()
-        print(session_items)
+
         if one_login_token := self.request.session.get(TOKEN_SESSION_KEY, {}):
             if oidc_id_token := one_login_token.get("id_token"):
                 gov_one_logout_url += f"?id_token_hint={oidc_id_token}&post_logout_redirect_uri={post_logout_redirect_url}"
-                logout(self.request)
-                return HttpResponseRedirect(gov_one_logout_url)
-        elif one_login_token := get_token(self.request, auth_code=self.request.GET.get("code", None)):
-            if oidc_id_token := one_login_token.get("id_token"):
-                gov_one_logout_url += f"?id_token_hint={oidc_id_token}&post_logout_redirect_uri={post_logout_redirect_url}"
-                logout(self.request)
+                # logout(self.request)
                 return HttpResponseRedirect(gov_one_logout_url)
 
         # if the token isn't found, forcibly log the user out of our application
-        logout(self.request)
+        # logout(self.request)
         return HttpResponseRedirect(post_logout_redirect_url)
 
 
