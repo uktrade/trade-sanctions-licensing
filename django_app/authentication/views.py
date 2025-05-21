@@ -108,7 +108,15 @@ class LogoutView(View):
     def get(self, *args: object, **kwargs: object) -> HttpResponse:
         gov_one_logout_url = "https://oidc.integration.account.gov.uk/logout"
         post_logout_redirect_url = self.request.build_absolute_uri(reverse("authentication:session_expired"))
-        if one_login_token := self.request.session[TOKEN_SESSION_KEY]:
+        # debug
+        session_items = self.request.session.items()
+        print(session_items)
+        if one_login_token := self.request.session.get(TOKEN_SESSION_KEY, {}):
+            if oidc_id_token := one_login_token.get("id_token"):
+                gov_one_logout_url += f"?id_token_hint={oidc_id_token}&post_logout_redirect_uri={post_logout_redirect_url}"
+                logout(self.request)
+                return HttpResponseRedirect(gov_one_logout_url)
+        elif one_login_token := get_token(self.request, auth_code=self.request.GET.get("code", None)):
             if oidc_id_token := one_login_token.get("id_token"):
                 gov_one_logout_url += f"?id_token_hint={oidc_id_token}&post_logout_redirect_uri={post_logout_redirect_url}"
                 logout(self.request)
