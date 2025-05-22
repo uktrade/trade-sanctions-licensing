@@ -190,6 +190,62 @@ class TestAddRecipientView:
         organisation.refresh_from_db()
         assert organisation.name == "COOL BEANS LTD"
 
+    def test_recipient_number_in_header_when_adding_new(self, authenticated_al_client, licence_application):
+
+        OrganisationFactory(
+            licence=licence_application,
+            type_of_relationship=TypeOfRelationshipChoices.recipient,
+            where_is_the_address="in-uk",
+        )
+
+        # creating second recipient
+        new_recipient = OrganisationFactory(
+            licence=licence_application,
+            type_of_relationship=TypeOfRelationshipChoices.recipient,
+            where_is_the_address="in-uk",
+        )
+
+        response = authenticated_al_client.get(
+            reverse(
+                "add_a_recipient",
+                kwargs={"licence_pk": licence_application.id, "location": "in-uk", "recipient_id": new_recipient.id},
+            )
+        )
+
+        recipients = Organisation.objects.filter(
+            licence=licence_application, type_of_relationship=TypeOfRelationshipChoices.recipient
+        )
+        assert recipients.count() == 2
+        assert response.context["form"].form_h1_header == "Recipient 2 details"
+
+    def test_recipient_number_in_header_when_changing_recipient(self, authenticated_al_client, licence_application):
+
+        first_recipient = OrganisationFactory(
+            licence=licence_application,
+            type_of_relationship=TypeOfRelationshipChoices.recipient,
+            where_is_the_address="in-uk",
+        )
+        OrganisationFactory(
+            licence=licence_application,
+            type_of_relationship=TypeOfRelationshipChoices.recipient,
+            where_is_the_address="in-uk",
+        )
+
+        # changing the first recipient
+        response = authenticated_al_client.get(
+            reverse(
+                "add_a_recipient",
+                kwargs={"licence_pk": licence_application.id, "location": "in-uk", "recipient_id": first_recipient.id},
+            )
+            + "?change=yes"
+        )
+
+        recipients = Organisation.objects.filter(
+            licence=licence_application, type_of_relationship=TypeOfRelationshipChoices.recipient
+        )
+        assert recipients.count() == 2
+        assert response.context["form"].form_h1_header == "Recipient 1 details"
+
 
 class TestDeleteRecipientView:
     def test_successful_post(self, authenticated_al_client_with_licence, licence_application, organisation):

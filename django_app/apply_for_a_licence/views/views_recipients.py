@@ -86,6 +86,30 @@ class AddARecipientView(BaseRecipientFormView):
         )
         return success_url
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+
+        recipients = Organisation.objects.filter(
+            licence=self.licence_object, type_of_relationship=TypeOfRelationshipChoices.recipient.value
+        )
+
+        # If changing the recipient details, the recipient id is coming from the url
+        current_recipient_id = self.kwargs.get(self.pk_url_kwarg)
+
+        # Checking if the current recipient exists in the database if the user wants to change the recipient
+        if current_recipient_id:
+            recipient_ids = list(recipients.values_list("id", flat=True))
+            if current_recipient_id in recipient_ids:
+                recipient_position = recipient_ids.index(current_recipient_id) + 1
+                form.form_h1_header = f"Recipient {recipient_position} details"
+            else:
+                form.form_h1_header = f"Recipient details (ID: {current_recipient_id})"
+        else:
+            recipient_count = recipients.count()
+            form.form_h1_header = f"Recipient {recipient_count} details"
+
+        return form
+
 
 class RecipientAddedView(BaseSaveAndReturnLicenceModelFormView):
     form_class = forms.RecipientAddedForm
